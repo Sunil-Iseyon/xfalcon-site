@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Hotels & Restaurants — Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F4F5F7;
+            color: #2D3436;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1B2A4A 0%, #0F1A2E 100%);
+            color: #FFFFFF;
+            padding: 60px 40px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(200,169,81,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-brand {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #C8A951;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        .hero h1 span { color: #C8A951; }
+        .hero .subtitle {
+            font-size: 18px;
+            color: rgba(255,255,255,0.7);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.5;
+        }
+
+        /* KPI Strip */
+        .kpi-strip {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .kpi-item {
+            text-align: center;
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+        .kpi-item .kpi-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #C8A951;
+            white-space: nowrap;
+        }
+        .kpi-item .kpi-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+
+        /* Dashboard Grid */
+        .main-content {
+            max-width: 1200px;
+            margin: -30px auto 40px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #636E72;
+            margin-bottom: 20px;
+            margin-top: 40px;
+            font-weight: 600;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .card-header-text h3 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .dashboard-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(27,42,74,0.12);
+        }
+        .card-header {
+            background: #1B2A4A;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .card-number {
+            background: #C8A951;
+            color: #1B2A4A;
+            font-size: 14px;
+            font-weight: 700;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .card-header-text h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 2px;
+        }
+        .card-header-text .card-subtitle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        .card-body {
+            padding: 20px 24px;
+        }
+        .card-description {
+            font-size: 14px;
+            color: #636E72;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .card-metrics {
+            display: flex;
+            gap: 16px;
+            flex-wrap: nowrap;
+        }
+        .card-metric {
+            flex: 1;
+            min-width: 0;
+        }
+        .card-metric .metric-value {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1B2A4A;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-metric .metric-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #636E72;
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+
+        /* Documents Section */
+        .documents-section {
+            margin-top: 10px;
+        }
+        .doc-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: stretch;
+        }
+        .doc-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(27,42,74,0.12);
+        }
+        .doc-icon-area {
+            background: linear-gradient(135deg, #1B2A4A, #0F1A2E);
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+            gap: 8px;
+        }
+        .doc-icon-area .icon-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #C8A951;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .doc-icon-area .icon-format {
+            background: #C8A951;
+            color: #1B2A4A;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+        }
+        .doc-body {
+            padding: 20px 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .doc-body h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1B2A4A;
+            margin-bottom: 6px;
+        }
+        .doc-body p {
+            font-size: 13px;
+            color: #636E72;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        .doc-body .doc-meta {
+            font-size: 11px;
+            color: #B2BEC3;
+        }
+        .doc-arrow {
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            color: #C8A951;
+            font-size: 22px;
+        }
+        .card-footer {
+            padding: 12px 24px;
+            border-top: 1px solid #F0F1F3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-footer .view-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: #C8A951;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-footer .arrow {
+            color: #C8A951;
+            font-size: 18px;
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            padding: 30px;
+            color: #636E72;
+            font-size: 13px;
+            border-top: 1px solid #E0E2E5;
+            margin-top: 20px;
+        }
+        .page-footer .brand {
+            color: #1B2A4A;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 40px 20px 30px; }
+            .hero h1 { font-size: 28px; }
+            .kpi-strip { gap: 16px; }
+            .kpi-item { min-width: 80px; }
+            .kpi-item .kpi-value { font-size: 20px; }
+            .kpi-item .kpi-label { font-size: 10px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 0 16px; }
+            .doc-card { flex-direction: column; }
+            .doc-icon-area { flex-direction: row; padding: 14px 20px; min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="hero-brand">Analytics Dashboard Suite</div>
+    <h1>Falcon Hotels <span>&</span> Restaurants</h1>
+    <p class="subtitle">Full Year 2025 Analytics with Year-over-Year Comparison vs 2024<br>76 Locations &middot; 4 Brands &middot; 4 Regions</p>
+
+    <div class="kpi-strip">
+        <div class="kpi-item">
+            <div class="kpi-value">$408.6K</div>
+            <div class="kpi-label">2025 Revenue</div>
+            <div style="font-size:12px;color:#C8A951;margin-top:2px;">-37.1% vs PY</div>
+        </div>
+        <div class="kpi-item">
+            <div class="kpi-value">$301.1K</div>
+            <div class="kpi-label">Gross Margin</div>
+            <div style="font-size:12px;color:#C8A951;margin-top:2px;">-36.8% vs PY</div>
+        </div>
+        <div class="kpi-item">
+            <div class="kpi-value">10,630</div>
+            <div class="kpi-label">Orders</div>
+            <div style="font-size:12px;color:#C8A951;margin-top:2px;">-44.2% vs PY</div>
+        </div>
+        <div class="kpi-item">
+            <div class="kpi-value">$48.63</div>
+            <div class="kpi-label">Avg Ticket</div>
+            <div style="font-size:12px;color:#2E7D32;margin-top:2px;">+13.5% vs PY</div>
+        </div>
+        <div class="kpi-item">
+            <div class="kpi-value">73.3%</div>
+            <div class="kpi-label">Occupancy</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Flat vs PY</div>
+        </div>
+        <div class="kpi-item">
+            <div class="kpi-value">8.81</div>
+            <div class="kpi-label">NPS Score</div>
+            <div style="font-size:12px;color:#C8A951;margin-top:2px;">-0.9% vs PY</div>
+        </div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="section-title">All Dashboards</div>
+    <div class="dashboard-grid">
+
+        <!-- DB-01 -->
+        <a class="dashboard-card" href="db-01-executive-overview.html">
+            <div class="card-header">
+                <div class="card-number">01</div>
+                <div class="card-header-text">
+                    <h3>Executive Overview</h3>
+                    <div class="card-subtitle">Cross-Domain Summary</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">High-level view of revenue, occupancy, orders, and labor across all brands and regions.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">$3.79M</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">73.3%</div>
+                        <div class="metric-label">Occupancy</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">4 Regions</div>
+                        <div class="metric-label">Coverage</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-02 -->
+        <a class="dashboard-card" href="db-02-revenue-finance.html">
+            <div class="card-header">
+                <div class="card-number">02</div>
+                <div class="card-header-text">
+                    <h3>Revenue & Finance</h3>
+                    <div class="card-subtitle">Financial Performance</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Revenue streams, gross margins, discount analysis, and channel mix across all operations.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">$2.78M</div>
+                        <div class="metric-label">Gross Margin</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">73.3%</div>
+                        <div class="metric-label">Margin Rate</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">9 Channels</div>
+                        <div class="metric-label">Revenue Mix</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-03 -->
+        <a class="dashboard-card" href="db-03-hotel-operations.html">
+            <div class="card-header">
+                <div class="card-number">03</div>
+                <div class="card-header-text">
+                    <h3>Hotel Operations</h3>
+                    <div class="card-subtitle">Crestview Hotels & Resorts</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">ADR, RevPAR, occupancy trends, room types, booking channels, and digital adoption rates.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">$147.62</div>
+                        <div class="metric-label">ADR</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">76.9%</div>
+                        <div class="metric-label">Digital Key</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">34.6K</div>
+                        <div class="metric-label">Stays</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-04 -->
+        <a class="dashboard-card" href="db-04-restaurant-fb.html">
+            <div class="card-header">
+                <div class="card-number">04</div>
+                <div class="card-header-text">
+                    <h3>Restaurant & F&B</h3>
+                    <div class="card-subtitle">Order & Service Performance</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Order volume, average ticket, prep/wait times, accuracy rates, and channel performance.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">$42.65</div>
+                        <div class="metric-label">Avg Ticket</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">95.3%</div>
+                        <div class="metric-label">Accuracy</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">108.8K</div>
+                        <div class="metric-label">Orders</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-05 -->
+        <a class="dashboard-card" href="db-05-guest-experience.html">
+            <div class="card-header">
+                <div class="card-number">05</div>
+                <div class="card-header-text">
+                    <h3>Guest Experience</h3>
+                    <div class="card-subtitle">NPS, CSAT & Feedback</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Net Promoter Score, satisfaction ratings, category scores, complaint rates, and resolution tracking.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">8.89</div>
+                        <div class="metric-label">NPS (Peak)</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">4.41/5</div>
+                        <div class="metric-label">CSAT</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">5.1%</div>
+                        <div class="metric-label">Complaints</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-06 -->
+        <a class="dashboard-card" href="db-06-labor-workforce.html">
+            <div class="card-header">
+                <div class="card-number">06</div>
+                <div class="card-header-text">
+                    <h3>Labor & Workforce</h3>
+                    <div class="card-subtitle">Staffing & Efficiency</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Scheduled vs actual hours, wage costs, overtime, labor percentage of sales, and attendance metrics.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">$60.4M</div>
+                        <div class="metric-label">Wage Cost</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">31.9%</div>
+                        <div class="metric-label">Labor %</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">39.4M</div>
+                        <div class="metric-label">Covers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-07 -->
+        <a class="dashboard-card" href="db-07-inventory-supply.html">
+            <div class="card-header">
+                <div class="card-number">07</div>
+                <div class="card-header-text">
+                    <h3>Inventory & Supply Chain</h3>
+                    <div class="card-subtitle">Stock & Waste Management</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Stock movements, waste tracking, food cost analysis, ingredient categories, and supplier performance.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">$84.2M</div>
+                        <div class="metric-label">Inventory</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">1.2%</div>
+                        <div class="metric-label">Waste Rate</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">$1.03M</div>
+                        <div class="metric-label">Waste Cost</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-08 -->
+        <a class="dashboard-card" href="db-08-social-marketing.html">
+            <div class="card-header">
+                <div class="card-number">08</div>
+                <div class="card-header-text">
+                    <h3>Social Media & Marketing</h3>
+                    <div class="card-subtitle">Digital Engagement</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Social impressions, engagement rates, sentiment analysis, content types, and influencer ROI.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">606M</div>
+                        <div class="metric-label">Impressions</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">5.05%</div>
+                        <div class="metric-label">Engagement</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">$10.2M</div>
+                        <div class="metric-label">Attributed Rev</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-09 -->
+        <a class="dashboard-card" href="db-09-whatif-analysis.html">
+            <div class="card-header">
+                <div class="card-number">09</div>
+                <div class="card-header-text">
+                    <h3>What-If Scenario Analysis</h3>
+                    <div class="card-subtitle">Cross-Functional Impact Modeling</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Scenario planning, sensitivity analysis, and impact modeling across revenue, operations, labor, and guest experience.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">9</div>
+                        <div class="metric-label">Key Drivers</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">Multiple</div>
+                        <div class="metric-label">Scenarios</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">4 Domains</div>
+                        <div class="metric-label">Impact Range</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-10 -->
+        <a class="dashboard-card" href="db-10-metrics-dictionary.html">
+            <div class="card-header">
+                <div class="card-number">10</div>
+                <div class="card-header-text">
+                    <h3>Metrics Dictionary</h3>
+                    <div class="card-subtitle">KPI Definitions & Reference</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Definitions for all KPIs and metrics used across dashboards, including formulas and data sources.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">51</div>
+                        <div class="metric-label">Metrics Defined</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">10</div>
+                        <div class="metric-label">Categories</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">9</div>
+                        <div class="metric-label">Dashboards</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <!-- DB-11 -->
+        <a class="dashboard-card" href="db-11-competitive-analysis.html">
+            <div class="card-header">
+                <div class="card-number">11</div>
+                <div class="card-header-text">
+                    <h3>Competitive Benchmarking</h3>
+                    <div class="card-subtitle">Competitive Market Analysis</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-description">Industry benchmarks, SWOT analysis, competitive positioning, and strategic recommendations.</div>
+                <div class="card-metrics">
+                    <div class="card-metric">
+                        <div class="metric-value">20+</div>
+                        <div class="metric-label">Benchmarks</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">SWOT</div>
+                        <div class="metric-label">Analysis</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="metric-value">5</div>
+                        <div class="metric-label">Recommendations</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="view-link">View Dashboard</span>
+                <span class="arrow">&rarr;</span>
+            </div>
+        </a>
+
+    </div>
+
+    <div class="section-title">Documents & Reports</div>
+    <div class="documents-section">
+        <a class="doc-card" href="Falcon_Investor_Pitch_Expansion.pptx">
+            <div class="doc-icon-area">
+                <div class="icon-label">Pitch Deck</div>
+                <div class="icon-format">PPTX</div>
+            </div>
+            <div class="doc-body">
+                <h3>Investor Pitch — Growth & Expansion Plan</h3>
+                <p>18-slide investor deck covering company overview, financial highlights, competitive benchmarking, SWOT analysis, 3-phase expansion plan (75 → 120 locations), 5-year pro forma, and $25M Series B capital ask.</p>
+                <div class="doc-meta">18 Slides &middot; March 2026 &middot; Confidential</div>
+            </div>
+            <div class="doc-arrow">&rarr;</div>
+        </a>
+        <a class="doc-card" href="Falcon_Competitive_Analysis.pptx" style="margin-top: 12px;">
+            <div class="doc-icon-area">
+                <div class="icon-label">Analysis</div>
+                <div class="icon-format">PPTX</div>
+            </div>
+            <div class="doc-body">
+                <h3>Competitive Benchmarking Analysis</h3>
+                <p>Industry benchmarking report comparing Falcon performance against hotel, restaurant, labor, and marketing industry averages with strategic recommendations.</p>
+                <div class="doc-meta">12 Slides &middot; March 2026</div>
+            </div>
+            <div class="doc-arrow">&rarr;</div>
+        </a>
+    </div>
+</div>
+
+<div class="page-footer">
+    <span class="brand">Falcon Hotels & Restaurants</span> &mdash; Analytics Dashboard Suite &mdash; Data as of March 2026<br>
+    <span style="font-size:11px; color:#B2BEC3; margin-top:4px; display:inline-block;">Generated by Falcon Analytics</span>
+</div>
+<script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

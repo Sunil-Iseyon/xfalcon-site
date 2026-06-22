@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Operations Dashboard - Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #1B2A4A;
+            padding: 0 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0;
+        }
+
+        nav li {
+            margin: 0;
+        }
+
+        nav a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background-color 0.3s, color 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav a:hover {
+            background-color: rgba(200, 169, 81, 0.1);
+        }
+
+        nav a.active {
+            color: #C8A951;
+            border-bottom-color: #C8A951;
+            background-color: rgba(200, 169, 81, 0.05);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #1B2A4A;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #636E72;
+            font-size: 1rem;
+        }
+
+        /* Time Filter */
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .time-filter label {
+            color: #636E72;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .time-filter button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #C8A951;
+            background-color: #FFFFFF;
+            color: #1B2A4A;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .time-filter button.active {
+            background-color: #C8A951;
+            color: #FFFFFF;
+            border-color: #C8A951;
+        }
+
+        .time-filter button:hover {
+            background-color: #C8A951;
+            color: #FFFFFF;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #1B2A4A;
+        }
+
+        .kpi-card h3 {
+            font-size: 0.9rem;
+            color: #636E72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .kpi-values {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-current {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1B2A4A;
+        }
+
+        .kpi-change {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .kpi-change.positive {
+            color: #2E7D32;
+            background-color: rgba(46, 125, 50, 0.1);
+        }
+
+        .kpi-change.negative {
+            color: #C62828;
+            background-color: rgba(198, 40, 40, 0.1);
+        }
+
+        .kpi-comparison {
+            font-size: 0.85rem;
+            color: #636E72;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #F4F5F7;
+        }
+
+        .kpi-comparison span {
+            display: block;
+            margin: 0.25rem 0;
+        }
+
+        .label {
+            color: #636E72;
+            font-size: 0.8rem;
+        }
+
+        .value {
+            color: #2D3436;
+            font-weight: 600;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-full {
+            grid-column: 1 / -1;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-container h3 {
+            font-size: 1.1rem;
+            color: #1B2A4A;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Data Table */
+        .table-container {
+            background-color: #FFFFFF;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .table-container h3 {
+            font-size: 1.1rem;
+            color: #1B2A4A;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background-color: #F4F5F7;
+            border-bottom: 2px solid #1B2A4A;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: #1B2A4A;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #E8E8E8;
+            color: #2D3436;
+        }
+
+        tbody tr:hover {
+            background-color: #F9F9F9;
+        }
+
+        .metric-positive {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .metric-negative {
+            color: #C62828;
+            font-weight: 600;
+        }
+
+        .metric-neutral {
+            color: #636E72;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1B2A4A;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            nav a {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.5rem 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="db-01-executive-overview.html">DB-01</a></li>
+            <li><a href="db-02-revenue-finance.html">DB-02</a></li>
+            <li><a href="db-03-hotel-operations.html" class="active">DB-03</a></li>
+            <li><a href="db-04-restaurant-fb.html">DB-04</a></li>
+            <li><a href="db-05-guest-experience.html">DB-05</a></li>
+            <li><a href="db-06-labor-workforce.html">DB-06</a></li>
+            <li><a href="db-07-inventory-supply.html">DB-07</a></li>
+            <li><a href="db-08-social-marketing.html">DB-08</a></li>
+            <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Hotel Operations Dashboard</h1>
+            <p>Comprehensive analysis of hotel operations metrics for 2025 vs 2024</p>
+        </div>
+
+        <!-- Time Filter -->
+        <div class="time-filter">
+            <label for="time-period">Time Period:</label>
+            <button class="time-btn active" data-period="monthly">Monthly</button>
+            <button class="time-btn" data-period="quarterly">Quarterly</button>
+            <button class="time-btn" data-period="yearly">Yearly</button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <!-- ADR -->
+            <div class="kpi-card">
+                <h3>Average Daily Rate (ADR)</h3>
+                <div class="kpi-values">
+                    <div class="kpi-current">$151.96</div>
+                    <div class="kpi-change positive">+2.9% →</div>
+                </div>
+                <div class="kpi-comparison">
+                    <span><span class="label">2025 (Avg):</span> <span class="value">$151.96</span></span>
+                    <span><span class="label">2024 (Avg):</span> <span class="value">$147.62</span></span>
+                </div>
+            </div>
+
+            <!-- Occupancy -->
+            <div class="kpi-card">
+                <h3>Occupancy Rate</h3>
+                <div class="kpi-values">
+                    <div class="kpi-current">73.3%</div>
+                    <div class="kpi-change neutral" style="color: #636E72; background-color: rgba(99, 110, 114, 0.1);">0% →</div>
+                </div>
+                <div class="kpi-comparison">
+                    <span><span class="label">2025:</span> <span class="value">73.3%</span></span>
+                    <span><span class="label">2024:</span> <span class="value">73.3%</span></span>
+                </div>
+            </div>
+
+            <!-- Room Revenue -->
+            <div class="kpi-card">
+                <h3>Room Revenue</h3>
+                <div class="kpi-values">
+                    <div class="kpi-current">$1.28M</div>
+                    <div class="kpi-change negative">-23.0% ↓</div>
+                </div>
+                <div class="kpi-comparison">
+                    <span><span class="label">2025:</span> <span class="value">$1,282,777</span></span>
+                    <span><span class="label">2024:</span> <span class="value">$1,665,564</span></span>
+                </div>
+            </div>
+
+            <!-- Total Revenue -->
+            <div class="kpi-card">
+                <h3>Total Revenue</h3>
+                <div class="kpi-values">
+                    <div class="kpi-current">$1.72M</div>
+                    <div class="kpi-change negative">-23.6% ↓</div>
+                </div>
+                <div class="kpi-comparison">
+                    <span><span class="label">2025:</span> <span class="value">$1,718,671</span></span>
+                    <span><span class="label">2024:</span> <span class="value">$2,248,288</span></span>
+                </div>
+            </div>
+
+            <!-- Digital Key Adoption -->
+            <div class="kpi-card">
+                <h3>Digital Key Adoption</h3>
+                <div class="kpi-values">
+                    <div class="kpi-current">37.8%</div>
+                    <div class="kpi-change positive">+384.6% ↑</div>
+                </div>
+                <div class="kpi-comparison">
+                    <span><span class="label">2025:</span> <span class="value">37.8%</span></span>
+                    <span><span class="label">2024:</span> <span class="value">7.8%</span></span>
+                </div>
+            </div>
+
+            <!-- Upgrade Acceptance -->
+            <div class="kpi-card">
+                <h3>Upgrade Acceptance Rate</h3>
+                <div class="kpi-values">
+                    <div class="kpi-current">11.1%</div>
+                    <div class="kpi-change positive">+33.7% ↑</div>
+                </div>
+                <div class="kpi-comparison">
+                    <span><span class="label">2025:</span> <span class="value">11.1%</span></span>
+                    <span><span class="label">2024:</span> <span class="value">8.3%</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Chart 1: ADR & Occupancy Trend -->
+            <div class="chart-container chart-full">
+                <h3>ADR & Occupancy Trend - 2025 vs 2024</h3>
+                <div class="chart-wrapper">
+                    <canvas id="adrOccupancyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="charts-row">
+                <!-- Chart 2: Room Revenue YoY -->
+                <div class="chart-container">
+                    <h3>Room Revenue YoY</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="roomRevenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 3: Revenue Mix by Category -->
+                <div class="chart-container">
+                    <h3>Revenue Mix by Category - 2025</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueMixChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 3 -->
+            <div class="charts-row">
+                <!-- Chart 4: Digital Adoption Trend -->
+                <div class="chart-container">
+                    <h3>Digital Adoption Trend</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="digitalAdoptionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 5: Upgrade Performance -->
+                <div class="chart-container">
+                    <h3>Upgrade Performance</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="upgradePerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Detail Table -->
+        <div class="table-container">
+            <h3>Monthly Performance Detail</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>ADR 2025</th>
+                        <th>ADR 2024</th>
+                        <th>Occupancy</th>
+                        <th>Room Rev 2025</th>
+                        <th>Total Rev 2025</th>
+                        <th>Nights Sold</th>
+                        <th>Digital Key %</th>
+                        <th>Upgrade %</th>
+                        <th>YoY Change</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Falcon Hotels & Restaurants | Hotel Operations | Generated March 2026</p>
+    </footer>
+
+    <script>
+        // Color palette
+        const colors = {
+            navy: '#1B2A4A',
+            gold: '#C8A951',
+            white: '#FFFFFF',
+            light: '#F4F5F7',
+            text: '#2D3436',
+            muted: '#636E72',
+            positive: '#2E7D32',
+            negative: '#C62828',
+            series1: '#1B2A4A',
+            series2: '#C8A951',
+            series3: '#3A6B8A',
+            series4: '#D4B96A',
+            series5: '#6C8EBF',
+            series6: '#E8D5A0'
+        };
+
+        // Data
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const data = {
+            adr2024: [139.57, 139.97, 141.34, 139.52, 138.93, 162.26, 160.50, 160.83, 140.16, 139.37, 154.29, 154.36],
+            adr2025: [142.86, 143.89, 145.72, 143.41, 144.61, 166.17, 164.17, 167.27, 143.63, 142.86, 159.74, 158.51],
+            occupancy2024: [75.9, 76.2, 66.0, 65.3, 65.2, 80.6, 79.0, 79.7, 67.1, 66.6, 73.7, 83.9],
+            occupancy2025: [75.9, 76.3, 66.0, 65.3, 65.6, 79.9, 79.0, 80.4, 66.7, 66.6, 73.8, 83.8],
+            roomRev2024: [133246, 125142, 134780, 129055, 132998, 150212, 153233, 153854, 129754, 133226, 142840, 147224],
+            roomRev2025: [102640, 93243, 104319, 99613, 103448, 115347, 117955, 119704, 99618, 102640, 110921, 113330],
+            fbRev2025: [15054, 13626, 15054, 14580, 15054, 14580, 15054, 15054, 14580, 15054, 14580, 15054],
+            spaRev2025: [5166, 4668, 5166, 5004, 5166, 5004, 5166, 5166, 5004, 5166, 5004, 5166],
+            digitalKey2024: [7.7, 8.2, 7.7, 7.9, 7.7, 7.9, 7.7, 7.7, 7.9, 7.7, 7.9, 7.7],
+            digitalKey2025: [37.1, 41.1, 37.1, 38.3, 37.1, 38.3, 37.1, 37.1, 38.3, 37.1, 38.3, 37.1],
+            mobileCheckIn2025: [3.2, 3.6, 3.2, 3.3, 3.2, 3.3, 3.2, 3.2, 3.3, 3.2, 3.3, 3.2],
+            upgradeAccept2024: [8.5, 8.4, 8.3, 8.3, 8.3, 8.3, 8.5, 8.3, 8.3, 8.5, 8.3, 8.3],
+            upgradeAccept2025: [11.0, 11.3, 11.3, 11.1, 11.0, 11.1, 11.0, 11.0, 11.1, 11.0, 11.1, 11.3]
+        };
+
+        // Helper function to aggregate quarterly data
+        function aggregateQuarterly(monthlyArray) {
+            return [
+                (monthlyArray[0] + monthlyArray[1] + monthlyArray[2]) / 3,
+                (monthlyArray[3] + monthlyArray[4] + monthlyArray[5]) / 3,
+                (monthlyArray[6] + monthlyArray[7] + monthlyArray[8]) / 3,
+                (monthlyArray[9] + monthlyArray[10] + monthlyArray[11]) / 3
+            ];
+        }
+
+        // Helper function to calculate yearly average
+        function aggregateYearly(monthlyArray) {
+            return [monthlyArray.reduce((a, b) => a + b) / monthlyArray.length];
+        }
+
+        // Helper function to sum quarterly revenue
+        function sumQuarterly(monthlyArray) {
+            return [
+                monthlyArray[0] + monthlyArray[1] + monthlyArray[2],
+                monthlyArray[3] + monthlyArray[4] + monthlyArray[5],
+                monthlyArray[6] + monthlyArray[7] + monthlyArray[8],
+                monthlyArray[9] + monthlyArray[10] + monthlyArray[11]
+            ];
+        }
+
+        // Chart instances
+        let charts = {};
+        let currentPeriod = 'monthly';
+
+        // Chart 1: ADR & Occupancy Trend
+        function createADRChart() {
+            const ctx = document.getElementById('adrOccupancyChart').getContext('2d');
+
+            if (charts.adrOccupancy) {
+                charts.adrOccupancy.destroy();
+            }
+
+            let labels, adr2024, adr2025, occ2024, occ2025;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                adr2024 = data.adr2024;
+                adr2025 = data.adr2025;
+                occ2024 = data.occupancy2024;
+                occ2025 = data.occupancy2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                adr2024 = aggregateQuarterly(data.adr2024);
+                adr2025 = aggregateQuarterly(data.adr2025);
+                occ2024 = aggregateQuarterly(data.occupancy2024);
+                occ2025 = aggregateQuarterly(data.occupancy2025);
+            } else {
+                labels = ['2024', '2025'];
+                adr2024 = aggregateYearly(data.adr2024);
+                adr2025 = aggregateYearly(data.adr2025);
+                occ2024 = aggregateYearly(data.occupancy2024);
+                occ2025 = aggregateYearly(data.occupancy2025);
+            }
+
+            charts.adrOccupancy = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Occupancy 2024 (%)',
+                            data: occ2024,
+                            backgroundColor: 'rgba(27, 42, 74, 0.3)',
+                            borderColor: colors.navy,
+                            borderWidth: 0,
+                            borderRadius: 4,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'Occupancy 2025 (%)',
+                            data: occ2025,
+                            backgroundColor: 'rgba(200, 169, 81, 0.3)',
+                            borderColor: colors.gold,
+                            borderWidth: 0,
+                            borderRadius: 4,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'ADR 2024',
+                            data: adr2024,
+                            borderColor: colors.navy,
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            order: 1,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'ADR 2025',
+                            data: adr2025,
+                            borderColor: colors.gold,
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            order: 1,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, color: colors.text, padding: 15 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Occupancy (%)', color: colors.text },
+                            min: 60,
+                            max: 85,
+                            ticks: { color: colors.muted }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'ADR ($)', color: colors.text },
+                            min: 130,
+                            max: 170,
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: colors.muted }
+                        },
+                        x: {
+                            ticks: { color: colors.muted }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Room Revenue YoY
+        function createRoomRevenueChart() {
+            const ctx = document.getElementById('roomRevenueChart').getContext('2d');
+
+            if (charts.roomRevenue) {
+                charts.roomRevenue.destroy();
+            }
+
+            let labels, rev2024, rev2025;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                rev2024 = data.roomRev2024;
+                rev2025 = data.roomRev2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                rev2024 = sumQuarterly(data.roomRev2024);
+                rev2025 = sumQuarterly(data.roomRev2025);
+            } else {
+                labels = ['2024', '2025'];
+                rev2024 = [data.roomRev2024.reduce((a, b) => a + b)];
+                rev2025 = [data.roomRev2025.reduce((a, b) => a + b)];
+            }
+
+            charts.roomRevenue = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2024',
+                            data: rev2024,
+                            backgroundColor: colors.navy,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: '2025',
+                            data: rev2025,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: colors.text, padding: 15 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Revenue ($)', color: colors.text },
+                            ticks: {
+                                color: colors.muted,
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: { color: colors.muted }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: Revenue Mix by Category
+        function createRevenueMixChart() {
+            const ctx = document.getElementById('revenueMixChart').getContext('2d');
+
+            if (charts.revenueMix) {
+                charts.revenueMix.destroy();
+            }
+
+            let labels, roomRev, fbRev, spaRev;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                roomRev = data.roomRev2025;
+                fbRev = data.fbRev2025;
+                spaRev = data.spaRev2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                roomRev = sumQuarterly(data.roomRev2025);
+                fbRev = sumQuarterly(data.fbRev2025);
+                spaRev = sumQuarterly(data.spaRev2025);
+            } else {
+                labels = ['2025'];
+                roomRev = [data.roomRev2025.reduce((a, b) => a + b)];
+                fbRev = [data.fbRev2025.reduce((a, b) => a + b)];
+                spaRev = [data.spaRev2025.reduce((a, b) => a + b)];
+            }
+
+            charts.revenueMix = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Room',
+                            data: roomRev,
+                            backgroundColor: colors.navy,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'F&B',
+                            data: fbRev,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Spa',
+                            data: spaRev,
+                            backgroundColor: colors.series3,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, ticks: { color: colors.muted } },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                color: colors.muted,
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: colors.text, padding: 15 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 4: Digital Adoption Trend
+        function createDigitalAdoptionChart() {
+            const ctx = document.getElementById('digitalAdoptionChart').getContext('2d');
+
+            if (charts.digitalAdoption) {
+                charts.digitalAdoption.destroy();
+            }
+
+            let labels, digitalKey2024, digitalKey2025, mobileCheckIn2025;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                digitalKey2024 = data.digitalKey2024;
+                digitalKey2025 = data.digitalKey2025;
+                mobileCheckIn2025 = data.mobileCheckIn2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                digitalKey2024 = aggregateQuarterly(data.digitalKey2024);
+                digitalKey2025 = aggregateQuarterly(data.digitalKey2025);
+                mobileCheckIn2025 = aggregateQuarterly(data.mobileCheckIn2025);
+            } else {
+                labels = ['2024', '2025'];
+                digitalKey2024 = aggregateYearly(data.digitalKey2024);
+                digitalKey2025 = aggregateYearly(data.digitalKey2025);
+                mobileCheckIn2025 = aggregateYearly(data.mobileCheckIn2025);
+            }
+
+            charts.digitalAdoption = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Digital Key 2024',
+                            data: digitalKey2024,
+                            borderColor: colors.navy,
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Digital Key 2025',
+                            data: digitalKey2025,
+                            borderColor: colors.gold,
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Mobile Check-In 2025',
+                            data: mobileCheckIn2025,
+                            borderColor: colors.series3,
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.series3,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, color: colors.text, padding: 15 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Adoption (%)', color: colors.text },
+                            min: 0,
+                            max: 45,
+                            ticks: { color: colors.muted, callback: function(v) { return v + '%'; } }
+                        },
+                        x: {
+                            ticks: { color: colors.muted }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 5: Upgrade Performance
+        function createUpgradePerformanceChart() {
+            const ctx = document.getElementById('upgradePerformanceChart').getContext('2d');
+
+            if (charts.upgradePerformance) {
+                charts.upgradePerformance.destroy();
+            }
+
+            let labels, upgrade2024, upgrade2025;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                upgrade2024 = data.upgradeAccept2024;
+                upgrade2025 = data.upgradeAccept2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                upgrade2024 = aggregateQuarterly(data.upgradeAccept2024);
+                upgrade2025 = aggregateQuarterly(data.upgradeAccept2025);
+            } else {
+                labels = ['2024', '2025'];
+                upgrade2024 = aggregateYearly(data.upgradeAccept2024);
+                upgrade2025 = aggregateYearly(data.upgradeAccept2025);
+            }
+
+            charts.upgradePerformance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2024',
+                            data: upgrade2024,
+                            backgroundColor: colors.navy,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '2025',
+                            data: upgrade2025,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Trend 2025',
+                            data: upgrade2025,
+                            borderColor: colors.positive,
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            type: 'line',
+                            yAxisID: 'y',
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: colors.text, padding: 15 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Acceptance (%)', color: colors.text },
+                            min: 7,
+                            max: 13,
+                            ticks: { color: colors.muted, callback: function(v) { return v + '%'; } }
+                        },
+                        x: {
+                            ticks: { color: colors.muted }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Populate Table
+        function populateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const adr2025 = data.adr2025[i];
+                const adr2024 = data.adr2024[i];
+                const occ = data.occupancy2025[i];
+                const roomRev2025 = data.roomRev2025[i];
+                const roomRev2024 = data.roomRev2024[i];
+                const totalRev2025 = data.roomRev2025[i] + data.fbRev2025[i] + data.spaRev2025[i];
+                const nightsSold = Math.round(roomRev2025 / adr2025);
+                const digitalKey = data.digitalKey2025[i];
+                const upgrade = data.upgradeAccept2025[i];
+                const yoyChange = ((roomRev2025 - roomRev2024) / roomRev2024 * 100).toFixed(1);
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${monthNames[i]}</td>
+                    <td>$${adr2025.toFixed(2)}</td>
+                    <td>$${adr2024.toFixed(2)}</td>
+                    <td>${occ.toFixed(1)}%</td>
+                    <td>$${roomRev2025.toLocaleString()}</td>
+                    <td>$${totalRev2025.toLocaleString()}</td>
+                    <td>${nightsSold}</td>
+                    <td>${digitalKey.toFixed(1)}%</td>
+                    <td>${upgrade.toFixed(1)}%</td>
+                    <td class="${yoyChange < 0 ? 'metric-negative' : 'metric-positive'}">${yoyChange > 0 ? '+' : ''}${yoyChange}%</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Time filter event listeners
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentPeriod = this.dataset.period;
+
+                createADRChart();
+                createRoomRevenueChart();
+                createRevenueMixChart();
+                createDigitalAdoptionChart();
+                createUpgradePerformanceChart();
+            });
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            populateTable();
+            createADRChart();
+            createRoomRevenueChart();
+            createRevenueMixChart();
+            createDigitalAdoptionChart();
+            createUpgradePerformanceChart();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xFalcon IPL Analytics Hub / 2. Player Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F5F6F8;
+            color: #1A1A1A;
+        }
+        .topbar {
+            background: #1A1A1A;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .back-link {
+            color: #4ECDC4;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            font-weight: 600;
+            color: #1A1A1A;
+            font-size: 14px;
+        }
+        select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #4ECDC4;
+        }
+        .kpi-label {
+            font-size: 13px;
+            color: #64748B;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .kpi-positive {
+            color: #4CAF50;
+        }
+        .kpi-negative {
+            color: #FF4757;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 32px;
+        }
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: #1A1A1A;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #E2E8F0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #1A1A1A;
+        }
+        tr:hover {
+            background: #F9FAFB;
+        }
+        .footer {
+            background: #1A1A1A;
+            color: white;
+            padding: 20px 32px;
+            text-align: center;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .topbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            .filter-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span style="color:#4ECDC4">x</span><span style="color:#F7946B">F</span></div>
+            <div class="title">xFalcon IPL Analytics Hub / 2. Player Analytics</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Season Year:</span>
+                <select id="seasonFilter" onchange="updateDashboard()">
+                    <option value="2025">2025 Season</option>
+                    <option value="2024">2024 Season</option>
+                    <option value="2023">2023 Season</option>
+                    <option value="alltime">All-Time Leaders</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Players</div>
+                <div class="kpi-value">301</div>
+                <div class="kpi-sub">Across all seasons</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Active Players</div>
+                <div class="kpi-value">~162</div>
+                <div class="kpi-sub">Per season average</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Orange Cap</div>
+                <div class="kpi-value kpi-positive">Sai Sudharsan</div>
+                <div class="kpi-sub">759 runs @ 156.17 SR</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Most Career Runs</div>
+                <div class="kpi-value">Virat Kohli</div>
+                <div class="kpi-sub">8200 runs</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Most Career Wickets</div>
+                <div class="kpi-value">Yuzvendra Chahal</div>
+                <div class="kpi-sub">221 wickets</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Purple Cap</div>
+                <div class="kpi-value kpi-positive">Prasidh Krishna</div>
+                <div class="kpi-sub">25 wickets</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Top 10 Run Scorers 2025</div>
+                <div class="chart-container">
+                    <canvas id="top10RunsChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">All-Time Career Runs Leaders</div>
+                <div class="chart-container">
+                    <canvas id="careerRunsChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Batting Avg vs Strike Rate (2025)</div>
+                <div class="chart-container">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Runs by Player Role (2025)</div>
+                <div class="chart-container">
+                    <canvas id="rolesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Bowling Economy Leaders</div>
+                <div class="chart-container">
+                    <canvas id="economyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Career Wickets Leaders</div>
+                <div class="chart-container">
+                    <canvas id="careerWicketsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-title">Top 2025 Players by Runs</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player Name</th>
+                        <th>Team</th>
+                        <th>Runs</th>
+                        <th>Innings</th>
+                        <th>Avg</th>
+                        <th>Strike Rate</th>
+                        <th>Fours</th>
+                        <th>Sixes</th>
+                        <th>Honours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><a href="player-detail.html?id=1" style="color:#4ECDC4;text-decoration:none;font-weight:600">Sai Sudharsan</a></td>
+                        <td>GT</td>
+                        <td>759</td>
+                        <td>15</td>
+                        <td>50.60</td>
+                        <td>156.17</td>
+                        <td>88</td>
+                        <td>21</td>
+                        <td><span class="kpi-positive">Orange Cap</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><a href="player-detail.html?id=2" style="color:#4ECDC4;text-decoration:none;font-weight:600">Suryakumar Yadav</a></td>
+                        <td>MI</td>
+                        <td>717</td>
+                        <td>16</td>
+                        <td>44.81</td>
+                        <td>167.92</td>
+                        <td>69</td>
+                        <td>38</td>
+                        <td>Star Performer</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><a href="player-detail.html?id=3" style="color:#4ECDC4;text-decoration:none;font-weight:600">Virat Kohli</a></td>
+                        <td>RCB</td>
+                        <td>657</td>
+                        <td>15</td>
+                        <td>43.80</td>
+                        <td>144.71</td>
+                        <td>66</td>
+                        <td>19</td>
+                        <td>Consistent</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><a href="player-detail.html?id=4" style="color:#4ECDC4;text-decoration:none;font-weight:600">Shubman Gill</a></td>
+                        <td>GT</td>
+                        <td>650</td>
+                        <td>15</td>
+                        <td>43.33</td>
+                        <td>155.88</td>
+                        <td>62</td>
+                        <td>24</td>
+                        <td>Rising Star</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><a href="player-detail.html?id=5" style="color:#4ECDC4;text-decoration:none;font-weight:600">Mitchell Marsh</a></td>
+                        <td>LSG</td>
+                        <td>627</td>
+                        <td>13</td>
+                        <td>48.23</td>
+                        <td>163.71</td>
+                        <td>56</td>
+                        <td>37</td>
+                        <td>All-rounder</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><a href="player-detail.html?id=6" style="color:#4ECDC4;text-decoration:none;font-weight:600">Shreyas Iyer</a></td>
+                        <td>PBKS</td>
+                        <td>604</td>
+                        <td>17</td>
+                        <td>35.53</td>
+                        <td>175.07</td>
+                        <td>43</td>
+                        <td>39</td>
+                        <td>Explosive</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><a href="player-detail.html?id=7" style="color:#4ECDC4;text-decoration:none;font-weight:600">Priyansh Arya</a></td>
+                        <td>PBKS</td>
+                        <td>599</td>
+                        <td>18</td>
+                        <td>33.28</td>
+                        <td>161.89</td>
+                        <td>63</td>
+                        <td>30</td>
+                        <td>Aggressive</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><a href="player-detail.html?id=8" style="color:#4ECDC4;text-decoration:none;font-weight:600">Yashasvi Jaiswal</a></td>
+                        <td>RR</td>
+                        <td>559</td>
+                        <td>14</td>
+                        <td>39.93</td>
+                        <td>159.71</td>
+                        <td>60</td>
+                        <td>28</td>
+                        <td>Young Talent</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><a href="player-detail.html?id=9" style="color:#4ECDC4;text-decoration:none;font-weight:600">KL Rahul</a></td>
+                        <td>DC</td>
+                        <td>546</td>
+                        <td>13</td>
+                        <td>39.00</td>
+                        <td>150.41</td>
+                        <td>53</td>
+                        <td>21</td>
+                        <td>Dependable</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><a href="player-detail.html?id=10" style="color:#4ECDC4;text-decoration:none;font-weight:600">Jos Buttler</a></td>
+                        <td>GT</td>
+                        <td>538</td>
+                        <td>13</td>
+                        <td>41.38</td>
+                        <td>163.03</td>
+                        <td>52</td>
+                        <td>24</td>
+                        <td>Overseas Star</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><a href="player-detail.html?id=11" style="color:#4ECDC4;text-decoration:none;font-weight:600">Rishabh Pant</a></td>
+                        <td>LSG</td>
+                        <td>512</td>
+                        <td>14</td>
+                        <td>36.57</td>
+                        <td>157.46</td>
+                        <td>48</td>
+                        <td>23</td>
+                        <td>Key Player</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><a href="player-detail.html?id=12" style="color:#4ECDC4;text-decoration:none;font-weight:600">Sanju Samson</a></td>
+                        <td>RR</td>
+                        <td>498</td>
+                        <td>13</td>
+                        <td>38.31</td>
+                        <td>154.81</td>
+                        <td>44</td>
+                        <td>22</td>
+                        <td>Captain</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td><a href="player-detail.html?id=13" style="color:#4ECDC4;text-decoration:none;font-weight:600">Hardik Pandya</a></td>
+                        <td>MI</td>
+                        <td>487</td>
+                        <td>16</td>
+                        <td>30.44</td>
+                        <td>168.39</td>
+                        <td>41</td>
+                        <td>31</td>
+                        <td>All-rounder</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td><a href="player-detail.html?id=14" style="color:#4ECDC4;text-decoration:none;font-weight:600">Rohit Sharma</a></td>
+                        <td>MI</td>
+                        <td>476</td>
+                        <td>15</td>
+                        <td>31.73</td>
+                        <td>151.27</td>
+                        <td>44</td>
+                        <td>20</td>
+                        <td>Captain</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td><a href="player-detail.html?id=15" style="color:#4ECDC4;text-decoration:none;font-weight:600">Aiden Markram</a></td>
+                        <td>SRH</td>
+                        <td>465</td>
+                        <td>14</td>
+                        <td>33.21</td>
+                        <td>146.54</td>
+                        <td>42</td>
+                        <td>18</td>
+                        <td>Overseas</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        xFalcon IPL Analytics Kit &copy; 2025 | Player Analytics Dashboard
+    </div>
+
+    <script>
+        var charts = {};
+
+        function mk(canvasId, type, data, options) {
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options
+            });
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var width = el.offsetWidth;
+                var textWidth = el.scrollWidth;
+                if (textWidth > width) {
+                    el.style.fontSize = '22px';
+                } else {
+                    el.style.fontSize = '28px';
+                }
+            });
+        }
+
+        function createTop10RunsChart() {
+            var data = {
+                labels: ['Sai Sudharsan', 'Suryakumar Yadav', 'Virat Kohli', 'Shubman Gill', 'Mitchell Marsh', 'Shreyas Iyer', 'Priyansh Arya', 'Yashasvi Jaiswal', 'KL Rahul', 'Jos Buttler'],
+                datasets: [{
+                    label: 'Runs Scored',
+                    data: [759, 717, 657, 650, 627, 604, 599, 559, 546, 538],
+                    backgroundColor: '#4ECDC4'
+                }]
+            };
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('top10RunsChart', 'bar', data, options);
+        }
+
+        function createCareerRunsChart() {
+            var data = {
+                labels: ['Virat Kohli', 'Rohit Sharma', 'Shikhar Dhawan', 'David Warner', 'Suresh Raina', 'MS Dhoni', 'AB de Villiers', 'Ajinkya Rahane', 'Chris Gayle', 'Robin Uthappa'],
+                datasets: [{
+                    label: 'Career Runs',
+                    data: [8200, 7114, 6769, 6567, 5536, 5439, 5181, 5032, 4997, 4958],
+                    backgroundColor: '#F7946B'
+                }]
+            };
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('careerRunsChart', 'bar', data, options);
+        }
+
+        function createScatterChart() {
+            var data = {
+                labels: ['Sai Sudharsan', 'Suryakumar Yadav', 'Virat Kohli', 'Shubman Gill', 'Mitchell Marsh', 'Shreyas Iyer', 'Priyansh Arya', 'Yashasvi Jaiswal', 'KL Rahul', 'Jos Buttler'],
+                datasets: [{
+                    label: 'Players 2025',
+                    data: [
+                        {x: 156.17, y: 50.60},
+                        {x: 167.92, y: 44.81},
+                        {x: 144.71, y: 43.80},
+                        {x: 155.88, y: 43.33},
+                        {x: 163.71, y: 48.23},
+                        {x: 175.07, y: 35.53},
+                        {x: 161.89, y: 33.28},
+                        {x: 159.71, y: 39.93},
+                        {x: 150.41, y: 39.00},
+                        {x: 163.03, y: 41.38}
+                    ],
+                    backgroundColor: '#4ECDC4',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                }]
+            };
+            var options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 13 },
+                            color: '#1A1A1A',
+                            padding: 15,
+                            boxWidth: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Strike Rate',
+                            color: '#1A1A1A',
+                            font: { family: "'Inter', sans-serif", size: 13 }
+                        },
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Batting Average',
+                            color: '#1A1A1A',
+                            font: { family: "'Inter', sans-serif", size: 13 }
+                        },
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' }
+                    }
+                }
+            };
+            mk('scatterChart', 'scatter', data, options);
+        }
+
+        function createRolesChart() {
+            var data = {
+                labels: ['Openers', 'Middle Order', 'All-rounders', 'Lower Order', 'Tail'],
+                datasets: [{
+                    label: 'Total Runs',
+                    data: [1850, 2340, 1620, 890, 420],
+                    backgroundColor: ['#4ECDC4', '#F7946B', '#94A3B8', '#4ECDC4', '#F7946B']
+                }]
+            };
+            var options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    },
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('rolesChart', 'bar', data, options);
+        }
+
+        function createEconomyChart() {
+            var data = {
+                labels: ['Jasprit Bumrah', 'Noor Ahmad', 'Varun Chakravarthy', 'R Sai Kishore', 'Josh Hazlewood', 'Arshdeep Singh', 'Trent Boult', 'Bhuvneshwar Kumar'],
+                datasets: [{
+                    label: 'Economy Rate',
+                    data: [6.68, 8.16, 7.66, 9.25, 8.77, 8.88, 8.97, 9.29],
+                    backgroundColor: '#F7946B'
+                }]
+            };
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true,
+                        max: 10
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('economyChart', 'bar', data, options);
+        }
+
+        function createCareerWicketsChart() {
+            var data = {
+                labels: ['Yuzvendra Chahal', 'Bhuvneshwar Kumar', 'Piyush Chawla', 'Sunil Narine', 'R Ashwin', 'Jasprit Bumrah', 'Dwayne Bravo', 'Amit Mishra'],
+                datasets: [{
+                    label: 'Career Wickets',
+                    data: [221, 198, 192, 192, 187, 186, 183, 174],
+                    backgroundColor: '#4ECDC4'
+                }]
+            };
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('careerWicketsChart', 'bar', data, options);
+        }
+
+        function updateDashboard() {
+            var season = document.getElementById('seasonFilter').value;
+            createTop10RunsChart();
+            createCareerRunsChart();
+            createScatterChart();
+            createRolesChart();
+            createEconomyChart();
+            createCareerWicketsChart();
+            fitKpiText();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            window.addEventListener('resize', fitKpiText);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Finance — Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#FFFFFF;color:#1A1A2E;min-height:100vh}
+.topbar{background:#1D3557;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.topbar .logo{font-weight:800;font-size:22px}
+.topbar .logo .x{color:#A8DADC}
+.topbar .logo .f{color:#E63946}
+.topbar .title{color:#F1FAEE;font-weight:600;font-size:16px;margin-left:14px}
+.topbar-left{display:flex;align-items:center}
+.container{max-width:1440px;margin:0 auto;padding:24px 32px}
+.section-title{font-size:18px;font-weight:700;color:#1D3557;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #E2E5EA}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:32px}
+.kpi-card{background:#FAFBFC;border-radius:12px;padding:20px;border-left:4px solid #457B9D;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #ECEEF1}
+.kpi-card.accent2{border-left-color:#E63946}
+.kpi-card .kpi-label{color:#5F6B7A;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.kpi-card .kpi-value{color:#1D3557;font-size:28px;font-weight:700;margin-bottom:4px}
+.kpi-card .kpi-compare{font-size:13px}
+.positive{color:#2E7D32}
+.negative{color:#D32F2F}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.chart-card{background:#FAFBFC;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #ECEEF1}
+.chart-card h3{font-size:16px;font-weight:700;color:#1D3557;margin-bottom:12px}
+.chart-card canvas{max-height:280px}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px}
+.dash-card{background:#FFFFFF;border-radius:12px;padding:20px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;color:#1A1A2E;display:block;border:1px solid #E2E5EA}
+.dash-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(29,53,87,0.12);border-color:#457B9D}
+.dash-card .dash-num{font-size:28px;font-weight:800;color:#457B9D;margin-bottom:4px}
+.dash-card .dash-name{font-size:16px;font-weight:600;margin-bottom:6px;color:#1D3557}
+.dash-card .dash-desc{font-size:12px;color:#5F6B7A;line-height:1.5}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;background:rgba(46,125,50,0.1);color:#2E7D32;margin-left:8px}
+.partner-table{width:100%;border-collapse:collapse;margin-bottom:32px;font-size:13px}
+.partner-table thead{z-index:10}
+.partner-table th{background:#1D3557;color:#F1FAEE;font-weight:600;text-align:left;padding:12px;font-size:13px}
+.partner-table td{padding:12px;border-bottom:1px solid #E2E5EA;color:#1A1A2E;font-size:13px}
+.partner-table tr:nth-child(even) td{background:#FAFBFC}
+.partner-table tr:hover td{background:rgba(69,123,157,0.06)}
+.footer{text-align:center;padding:24px;color:#8B95A5;font-size:12px;border-top:1px solid #E2E5EA;margin-top:24px}
+@media(max-width:900px){.chart-row{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="topbar">
+<div class="topbar-left">
+<span class="logo"><span class="x">x</span><span class="f">F</span></span>
+<span class="title">Falcon Finance — Credit & BNPL Analytics Portal</span>
+</div>
+</div>
+<div class="container">
+
+<div class="section-title">Portfolio Snapshot — FY2025 (Full Year)</div>
+<div class="kpi-grid">
+<div class="kpi-card">
+<div class="kpi-label">Purchase Volume</div>
+<div class="kpi-value">$19.1M</div>
+<div class="kpi-compare negative">-15.0% vs LY ($22.5M)</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">Total Portfolio Balance</div>
+<div class="kpi-value">$488.1M</div>
+<div class="kpi-compare negative">-14.9% vs LY ($573.6M)</div>
+</div>
+<div class="kpi-card accent2">
+<div class="kpi-label">Interest Income</div>
+<div class="kpi-value">$9.2M</div>
+<div class="kpi-compare negative">-14.9% vs LY ($10.8M)</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">BNPL Orders</div>
+<div class="kpi-value">131,602</div>
+<div class="kpi-compare negative">-5.0% vs LY (138,556)</div>
+</div>
+<div class="kpi-card accent2">
+<div class="kpi-label">BNPL GMV</div>
+<div class="kpi-value">$15.2M</div>
+<div class="kpi-compare negative">-5.1% vs LY ($16.0M)</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">Avg Utilization</div>
+<div class="kpi-value">37.9%</div>
+<div class="kpi-compare positive">Stable vs LY (37.8%)</div>
+</div>
+<div class="kpi-card accent2">
+<div class="kpi-label">Net Charge-Offs</div>
+<div class="kpi-value">$23.2M</div>
+<div class="kpi-compare positive">-5.3% vs LY ($24.5M)</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">Active Partners</div>
+<div class="kpi-value">20</div>
+<div class="kpi-compare positive">Across 9 categories</div>
+</div>
+</div>
+
+<div class="chart-row">
+<div class="chart-card">
+<h3>Monthly Purchase Volume — 2025 vs 2024</h3>
+<canvas id="chartTrend"></canvas>
+</div>
+<div class="chart-card">
+<h3>Purchase Volume by Region — 2025 vs 2024</h3>
+<canvas id="chartRegion"></canvas>
+</div>
+</div>
+
+<div class="section-title">Dashboard Directory</div>
+<div class="dash-grid">
+<a class="dash-card" href="01-executive-overview.html">
+<div class="dash-num">01</div>
+<div class="dash-name">Executive Overview <span class="status-badge">Ready</span></div>
+<div class="dash-desc">Top-level portfolio health, key KPIs, cross-functional trends, and strategic insights across all business lines.</div>
+</a>
+<a class="dash-card" href="02-transaction-analytics.html">
+<div class="dash-num">02</div>
+<div class="dash-name">Transaction Analytics <span class="status-badge">Ready</span></div>
+<div class="dash-desc">3M+ transactions analyzed by type (Purchase, Payment, Return, Cash Advance), channel, merchant category, and geography.</div>
+</a>
+<a class="dash-card" href="03-portfolio-health.html">
+<div class="dash-num">03</div>
+<div class="dash-name">Portfolio Health <span class="status-badge">Ready</span></div>
+<div class="dash-desc">Account balances, credit utilization, interest & fee income, churn tracking, and account status distribution over time.</div>
+</a>
+<a class="dash-card" href="04-bnpl-performance.html">
+<div class="dash-num">04</div>
+<div class="dash-name">BNPL Performance <span class="status-badge">Ready</span></div>
+<div class="dash-desc">Buy Now Pay Later orders, GMV, merchant fee economics, installment structures, repayment rates, and delinquency analysis.</div>
+</a>
+<a class="dash-card" href="05-credit-risk.html">
+<div class="dash-num">05</div>
+<div class="dash-name">Credit Risk & Delinquency <span class="status-badge">Ready</span></div>
+<div class="dash-desc">Delinquency aging buckets, days-past-due distribution, charge-off pipeline, credit tier risk profiles, and regulatory classifications.</div>
+</a>
+<a class="dash-card" href="06-collections.html">
+<div class="dash-num">06</div>
+<div class="dash-name">Collections Performance <span class="status-badge">Ready</span></div>
+<div class="dash-desc">Recovery rates by collection stage, promise-to-pay tracking, collection call effectiveness, and charge-off waterfall analysis.</div>
+</a>
+<a class="dash-card" href="07-partner-performance.html">
+<div class="dash-num">07</div>
+<div class="dash-name">Partner Performance <span class="status-badge">Ready</span></div>
+<div class="dash-desc">20 retail partner scorecards covering origination volume, approval rates, credit sales, interchange revenue, and revenue share economics.</div>
+</a>
+<a class="dash-card" href="08-customer-intelligence.html">
+<div class="dash-num">08</div>
+<div class="dash-name">Customer Intelligence <span class="status-badge">Ready</span></div>
+<div class="dash-desc">150K+ cardholder demographics, FICO distribution, loyalty segments, acquisition channel effectiveness, and geographic breakdown.</div>
+</a>
+<a class="dash-card" href="09-product-mix.html">
+<div class="dash-num">09</div>
+<div class="dash-name">Product Mix Analysis <span class="status-badge">Ready</span></div>
+<div class="dash-desc">10 credit products (Private Label, Co-Brand, Proprietary, BNPL) compared by balance, utilization, interest yield, and fee income.</div>
+</a>
+<a class="dash-card" href="10-geographic-analysis.html">
+<div class="dash-num">10</div>
+<div class="dash-name">Geographic Analysis <span class="status-badge">Ready</span></div>
+<div class="dash-desc">31-state portfolio distribution across 5 Census regions, risk concentration analysis, and median income correlation.</div>
+</a>
+</div>
+
+<div class="section-title">Quarterly Business Reviews</div>
+<div class="dash-grid">
+<a class="dash-card" href="11-qbr-q4-2025.html" style="border-left:4px solid #E63946">
+<div class="dash-num" style="color:#E63946">QBR</div>
+<div class="dash-name">Q4 2025 — Quarterly Business Review <span class="status-badge">New</span></div>
+<div class="dash-desc">Executive summary of Oct–Dec 2025 performance: portfolio health, transactions, credit risk, BNPL, partner rankings, and regional analysis with YoY comparisons.</div>
+</a>
+</div>
+
+<div class="section-title">Top 20 Retail Partners — 2025 Credit Sales</div>
+<div style="overflow-x:auto">
+<table class="partner-table">
+<thead>
+<tr>
+<th>#</th><th>Partner</th><th>Category</th><th>Tier</th><th>Credit Sales</th><th>New Accounts</th><th>Interchange Rev</th>
+</tr>
+</thead>
+<tbody id="partnerBody"></tbody>
+</table>
+</div>
+
+</div>
+<div class="footer">Falcon Finance — xFalcon RetailEdge Analytics Platform | Data: Jan 2019 – Dec 2025 | Generated 2026-03-28</div>
+
+<script>
+var chartInstances = {};
+function mk(id, cfg) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  var ctx = document.getElementById(id).getContext('2d');
+  chartInstances[id] = new Chart(ctx, cfg);
+  return chartInstances[id];
+}
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + (n / 1000).toFixed(0) + 'K';
+  return '$' + n.toFixed(0);
+}
+function fmtK(n) {
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var data2024 = [1549028,1431029,1739086,1677278,1776191,1792526,1880928,1899237,1753533,1941363,2198467,2858829];
+var data2025 = [1318672,1174473,1481596,1432408,1548024,1526381,1575518,1635305,1504086,1633350,1872159,2427732];
+
+mk('chartTrend', {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      {label: '2025 Actual', data: data2025, borderColor: '#006AFF', backgroundColor: 'rgba(0,106,255,0.08)', fill: true, tension: 0.3, pointRadius: 3, borderWidth: 2.5},
+      {label: '2024 Prior Year', data: data2024, borderColor: '#94A3B8', backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: 3, borderWidth: 2, borderDash: [5,5]}
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {position: 'top', labels: {color: '#5F6B7A', font: {family: 'Inter', size: 11}}},
+      tooltip: {callbacks: {label: function(ctx) {return ctx.dataset.label + ': ' + fmt(ctx.parsed.y);}}}
+    },
+    scales: {
+      x: {ticks: {color: '#5F6B7A', font: {family: 'Inter', size: 11}}, grid: {color: '#E2E5EA'}},
+      y: {ticks: {color: '#5F6B7A', font: {family: 'Inter', size: 11}, callback: function(v) {return fmt(v);}}, grid: {color: '#E2E5EA'}}
+    }
+  }
+});
+
+mk('chartRegion', {
+  type: 'bar',
+  data: {
+    labels: ['South', 'Midwest', 'Northeast', 'Pacific', 'West'],
+    datasets: [
+      {label: '2025', data: [7632393, 3718725, 3276175, 2416468, 2085942], backgroundColor: '#006AFF', borderRadius: 4},
+      {label: '2024', data: [9036068, 4325510, 3837372, 2860935, 2437609], backgroundColor: '#94A3B8', borderRadius: 4}
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: {position: 'top', labels: {color: '#5F6B7A', font: {family: 'Inter', size: 11}}},
+      tooltip: {callbacks: {label: function(ctx) {return ctx.dataset.label + ': ' + fmt(ctx.parsed.x);}}}
+    },
+    scales: {
+      x: {ticks: {color: '#5F6B7A', font: {family: 'Inter', size: 11}, callback: function(v) {return fmt(v);}}, grid: {color: '#E2E5EA'}},
+      y: {ticks: {color: '#1D3557', font: {family: 'Inter', size: 12, weight: 500}}, grid: {display: false}}
+    }
+  }
+});
+
+var partners = [
+  {name:'Harrington & Co.',cat:'Specialty Apparel',tier:'Tier 1',sales:24503271,accts:17078,intch:441298},
+  {name:'Brackenridge',cat:'Specialty Apparel',tier:'Tier 1',sales:10565644,accts:7551,intch:192659},
+  {name:'Silhouette Boutique',cat:'Specialty Apparel',tier:'Tier 2',sales:6726722,accts:4871,intch:118976},
+  {name:'Calloway & Finch',cat:'Specialty Apparel',tier:'Tier 2',sales:4731152,accts:3306,intch:86178},
+  {name:'Elara Studio',cat:'Specialty Apparel',tier:'Tier 2',sales:3590802,accts:2643,intch:64515},
+  {name:'Hearthstone Home',cat:'Home Furnishings',tier:'Tier 1',sales:2887269,accts:2070,intch:52289},
+  {name:'Morrow & Reed',cat:'Home Furnishings',tier:'Tier 2',sales:2424810,accts:1709,intch:43950},
+  {name:'Canopy Interiors',cat:'Home Furnishings',tier:'Tier 2',sales:1987450,accts:1471,intch:35797},
+  {name:'Ashford & Vale',cat:'Luxury',tier:'Tier 1',sales:1753348,accts:1277,intch:31750},
+  {name:'Celeste Maison',cat:'Luxury',tier:'Tier 1',sales:1563881,accts:1136,intch:28500},
+  {name:'Stellara Jewels',cat:'Jewelry',tier:'Tier 1',sales:1405323,accts:1035,intch:25261},
+  {name:'Huxley & Stone',cat:'Jewelry',tier:'Tier 1',sales:1255400,accts:916,intch:22669},
+  {name:'Crestgem',cat:'Jewelry',tier:'Tier 2',sales:1156914,accts:846,intch:20839},
+  {name:'Pawsworth',cat:'Pet Supplies',tier:'Tier 2',sales:1038955,accts:736,intch:18638},
+  {name:'Summit Sports',cat:'Sporting Goods',tier:'Tier 1',sales:971631,accts:672,intch:17871},
+  {name:'Ridgeline Outfitters',cat:'Sporting Goods',tier:'Tier 2',sales:902394,accts:614,intch:16022},
+  {name:'Lumiere Beauty',cat:'Health and Beauty',tier:'Tier 1',sales:831557,accts:619,intch:14956},
+  {name:'Vivace Beauty',cat:'Health and Beauty',tier:'Tier 1',sales:769416,accts:566,intch:13748},
+  {name:'Harborview Club',cat:'Wholesale',tier:'Tier 2',sales:738048,accts:501,intch:13215},
+  {name:'Meridian Airways',cat:'Travel',tier:'Tier 1',sales:679643,accts:485,intch:12286}
+];
+var tbody = document.getElementById('partnerBody');
+for (var i = 0; i < partners.length; i++) {
+  var p = partners[i];
+  var tr = document.createElement('tr');
+  var cells = [
+    String(i + 1),
+    p.name,
+    p.cat,
+    p.tier,
+    fmt(p.sales),
+    fmtK(p.accts),
+    fmt(p.intch)
+  ];
+  for (var j = 0; j < cells.length; j++) {
+    var td = document.createElement('td');
+    td.appendChild(document.createTextNode(cells[j]));
+    if (j >= 4) td.style.textAlign = 'right';
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+}
+</script>
+</body>
+</html>

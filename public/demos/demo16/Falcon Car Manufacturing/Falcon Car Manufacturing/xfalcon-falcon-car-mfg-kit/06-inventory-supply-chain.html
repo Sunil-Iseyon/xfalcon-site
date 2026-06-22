@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Inventory & Supply Chain Dashboard</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #F3F4F6; color: #1E293B; }
+		.topbar { background-color: #1B3A5C; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; color: white; }
+		.logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+		.logo-x { color: #E87722; }
+		.topbar-right { display: flex; gap: 24px; align-items: center; }
+		.topbar a { color: white; text-decoration: none; font-size: 14px; }
+		.topbar a:hover { opacity: 0.8; }
+		.container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+		.page-title { font-size: 32px; font-weight: 700; margin-bottom: 24px; color: #1E293B; }
+		.filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; align-items: end; }
+		.filter-group { display: flex; flex-direction: column; gap: 6px; }
+		.filter-group label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; }
+		.filter-group select { padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 4px; font-size: 14px; background: white; cursor: pointer; }
+		.btn { padding: 8px 16px; background-color: #E87722; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; }
+		.btn:hover { background-color: #D06E1A; }
+		.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+		.kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #E87722; }
+		.kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; margin-bottom: 8px; }
+		.kpi-value { font-size: 28px; font-weight: 700; color: #1E293B; }
+		.kpi-value.positive { color: #059669; }
+		.kpi-value.negative { color: #D32F2F; }
+		.kpi-subtext { font-size: 12px; color: #94A3B8; margin-top: 6px; }
+		.charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+		.chart-card { background: white; padding: 20px; border-radius: 8px; }
+		.chart-title { font-size: 16px; font-weight: 700; color: #1B3A5C; margin-bottom: 16px; }
+		.table-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
+		table { width: 100%; border-collapse: collapse; font-size: 14px; }
+		th { background-color: #1B3A5C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+		td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+		tr:hover { background-color: #F8FAFC; }
+		.number { text-align: right; font-family: 'Courier New', monospace; }
+		canvas { max-height: 300px; }
+		.chart-wrap { position: relative; height: 320px; }
+		@media (max-width: 1200px) {
+			.kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+			.charts-grid { grid-template-columns: 1fr !important; }
+		}
+		@media (max-width: 600px) {
+			.kpi-grid { grid-template-columns: 1fr !important; }
+		}
+	</style>
+</head>
+<body>
+	<div class="topbar">
+		<div class="logo"><span class="logo-x">x</span><span style="color: white;">F</span></div>
+		<div class="topbar-right">
+			<a href="index.html">Back to Analytics</a>
+		</div>
+	</div>
+
+	<div class="container">
+		<h1 class="page-title">Inventory & Supply Chain</h1>
+
+		<div class="filters">
+			<div class="filter-group">
+				<label>Year</label>
+				<select id="yearFilter">
+					<option value="">All Years</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label>Movement Type</label>
+				<select id="movementFilter">
+					<option value="">All Types</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label>Plant</label>
+				<select id="plantFilter">
+					<option value="">All Plants</option>
+				</select>
+			</div>
+			<button class="btn" onclick="applyFilters()">Apply Filters</button>
+		</div>
+
+		<div class="kpi-grid" id="kpiGrid"></div>
+
+		<div class="charts-grid">
+			<div class="chart-card">
+				<div class="chart-title">Monthly Inventory Movement Trend</div>
+				<div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+			</div>
+			<div class="chart-card">
+				<div class="chart-title">Movement by Type</div>
+				<div class="chart-wrap"><canvas id="typeChart"></canvas></div>
+			</div>
+		</div>
+
+		<div class="charts-grid">
+			<div class="chart-card">
+				<div class="chart-title">Value by Plant</div>
+				<div class="chart-wrap"><canvas id="plantChart"></canvas></div>
+			</div>
+			<div class="chart-card">
+				<div class="chart-title">Stock Level Distribution</div>
+				<div class="chart-wrap"><canvas id="stockChart"></canvas></div>
+			</div>
+		</div>
+
+		<div class="chart-card" style="margin-bottom: 24px;">
+			<div class="chart-title">Parts by Category with Movement Counts</div>
+			<div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+		</div>
+
+		<div class="table-card">
+			<div class="chart-title">Part-Level Inventory Detail</div>
+			<table id="inventoryTable">
+				<thead>
+					<tr>
+						<th>Part Name</th>
+						<th>Category</th>
+						<th>Plant</th>
+						<th>Movement Type</th>
+						<th class="number">Movements</th>
+						<th class="number">Total Qty</th>
+						<th class="number">Total Value</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+		</div>
+	</div>
+
+	<script>
+		var monthlyData = [
+			{year: 2024, month: 'January', monthNum: 1, movement: 'CONSUMPTION', qty: 1291, value: 109735.00, stock: 0, count: 23},
+			{year: 2024, month: 'January', monthNum: 1, movement: 'RECEIPT', qty: 2608, value: 921481.56, stock: 646, count: 5},
+			{year: 2024, month: 'February', monthNum: 2, movement: 'CONSUMPTION', qty: 1291, value: 109735.00, stock: 0, count: 21},
+			{year: 2024, month: 'February', monthNum: 2, movement: 'RECEIPT', qty: 2706, value: 879308.02, stock: 631.6, count: 5},
+			{year: 2024, month: 'March', monthNum: 3, movement: 'RECEIPT', qty: 3183, value: 1196726.84, stock: 622.17, count: 6},
+			{year: 2024, month: 'March', monthNum: 3, movement: 'CONSUMPTION', qty: 1198, value: 101830.00, stock: 0, count: 21},
+			{year: 2024, month: 'April', monthNum: 4, movement: 'CONSUMPTION', qty: 1296, value: 110160.00, stock: 0, count: 22},
+			{year: 2024, month: 'April', monthNum: 4, movement: 'RECEIPT', qty: 2763, value: 957322.42, stock: 648.6, count: 5},
+			{year: 2024, month: 'May', monthNum: 5, movement: 'RECEIPT', qty: 3793, value: 1049200.98, stock: 701, count: 6},
+			{year: 2024, month: 'May', monthNum: 5, movement: 'CONSUMPTION', qty: 1119, value: 95115.00, stock: 0, count: 23},
+			{year: 2024, month: 'June', monthNum: 6, movement: 'RECEIPT', qty: 3345, value: 1120627.53, stock: 690.67, count: 6},
+			{year: 2024, month: 'June', monthNum: 6, movement: 'CONSUMPTION', qty: 1125, value: 95625.00, stock: 0, count: 20},
+			{year: 2024, month: 'July', monthNum: 7, movement: 'RECEIPT', qty: 2497, value: 901006.50, stock: 616, count: 5},
+			{year: 2024, month: 'July', monthNum: 7, movement: 'CONSUMPTION', qty: 1271, value: 108035.00, stock: 0, count: 23},
+			{year: 2024, month: 'August', monthNum: 8, movement: 'RECEIPT', qty: 2571, value: 906389.67, stock: 626.6, count: 5},
+			{year: 2024, month: 'August', monthNum: 8, movement: 'CONSUMPTION', qty: 1337, value: 113645.00, stock: 0, count: 22},
+			{year: 2024, month: 'September', monthNum: 9, movement: 'RECEIPT', qty: 3174, value: 1178802.46, stock: 585.83, count: 6},
+			{year: 2024, month: 'September', monthNum: 9, movement: 'CONSUMPTION', qty: 1083, value: 92055.00, stock: 0, count: 21},
+			{year: 2024, month: 'October', monthNum: 10, movement: 'CONSUMPTION', qty: 1375, value: 116875.00, stock: 0, count: 23},
+			{year: 2024, month: 'October', monthNum: 10, movement: 'RECEIPT', qty: 2700, value: 907718.08, stock: 663.8, count: 5},
+			{year: 2024, month: 'November', monthNum: 11, movement: 'CONSUMPTION', qty: 1145, value: 97325.00, stock: 0, count: 21},
+			{year: 2024, month: 'November', monthNum: 11, movement: 'RECEIPT', qty: 483, value: 391874.79, stock: 373, count: 2},
+			{year: 2024, month: 'December', monthNum: 12, movement: 'CONSUMPTION', qty: 727, value: 61795.00, stock: 0, count: 14},
+			{year: 2023, month: 'January', monthNum: 1, movement: 'CONSUMPTION', qty: 1123, value: 95455.00, stock: 0, count: 22},
+			{year: 2023, month: 'January', monthNum: 1, movement: 'RECEIPT', qty: 2921, value: 1108925.27, stock: 593.83, count: 6},
+			{year: 2023, month: 'February', monthNum: 2, movement: 'CONSUMPTION', qty: 886, value: 75310.00, stock: 0, count: 20},
+			{year: 2023, month: 'February', monthNum: 2, movement: 'RECEIPT', qty: 2752, value: 908310.46, stock: 648.2, count: 5},
+			{year: 2023, month: 'March', monthNum: 3, movement: 'RECEIPT', qty: 2450, value: 822308.50, stock: 557, count: 5},
+			{year: 2023, month: 'March', monthNum: 3, movement: 'CONSUMPTION', qty: 1103, value: 93755.00, stock: 0, count: 23},
+			{year: 2023, month: 'April', monthNum: 4, movement: 'CONSUMPTION', qty: 1060, value: 90100.00, stock: 0, count: 20},
+			{year: 2023, month: 'April', monthNum: 4, movement: 'RECEIPT', qty: 3770, value: 834296.93, stock: 865.8, count: 5},
+			{year: 2023, month: 'May', monthNum: 5, movement: 'RECEIPT', qty: 3819, value: 1413781.70, stock: 631, count: 7},
+			{year: 2023, month: 'May', monthNum: 5, movement: 'CONSUMPTION', qty: 1334, value: 113390.00, stock: 0, count: 23},
+			{year: 2023, month: 'June', monthNum: 6, movement: 'CONSUMPTION', qty: 1187, value: 100895.00, stock: 0, count: 22},
+			{year: 2023, month: 'June', monthNum: 6, movement: 'RECEIPT', qty: 1749, value: 679409.61, stock: 535, count: 4},
+			{year: 2023, month: 'July', monthNum: 7, movement: 'CONSUMPTION', qty: 1202, value: 102170.00, stock: 0, count: 21},
+			{year: 2023, month: 'July', monthNum: 7, movement: 'RECEIPT', qty: 3640, value: 1201063.74, stock: 701, count: 6},
+			{year: 2023, month: 'August', monthNum: 8, movement: 'CONSUMPTION', qty: 1272, value: 108120.00, stock: 0, count: 23},
+			{year: 2023, month: 'August', monthNum: 8, movement: 'RECEIPT', qty: 3060, value: 1006451.21, stock: 713.8, count: 5},
+			{year: 2023, month: 'September', monthNum: 9, movement: 'RECEIPT', qty: 2943, value: 996091.40, stock: 709.2, count: 5},
+			{year: 2023, month: 'September', monthNum: 9, movement: 'CONSUMPTION', qty: 1210, value: 102850.00, stock: 0, count: 21},
+			{year: 2023, month: 'October', monthNum: 10, movement: 'RECEIPT', qty: 3279, value: 1189435.02, stock: 657.33, count: 6},
+			{year: 2023, month: 'October', monthNum: 10, movement: 'CONSUMPTION', qty: 1248, value: 106080.00, stock: 0, count: 22},
+			{year: 2023, month: 'November', monthNum: 11, movement: 'CONSUMPTION', qty: 1167, value: 99195.00, stock: 0, count: 22},
+			{year: 2023, month: 'November', monthNum: 11, movement: 'RECEIPT', qty: 2898, value: 1174504.66, stock: 614.17, count: 6},
+			{year: 2023, month: 'December', monthNum: 12, movement: 'CONSUMPTION', qty: 1325, value: 112625.00, stock: 0, count: 21},
+			{year: 2023, month: 'December', monthNum: 12, movement: 'RECEIPT', qty: 2358, value: 851463.63, stock: 569.6, count: 5},
+			{year: 2022, month: 'January', monthNum: 1, movement: 'RECEIPT', qty: 3060, value: 1259841.60, stock: 636.83, count: 6},
+			{year: 2022, month: 'January', monthNum: 1, movement: 'CONSUMPTION', qty: 1153, value: 98005.00, stock: 0, count: 21},
+			{year: 2022, month: 'February', monthNum: 2, movement: 'RECEIPT', qty: 2885, value: 931318.90, stock: 689.8, count: 5},
+			{year: 2022, month: 'February', monthNum: 2, movement: 'CONSUMPTION', qty: 881, value: 74885.00, stock: 0, count: 20}
+		];
+
+		var partDetail = [
+			{part: 'Catalytic Converter Assembly', category: 'ENGINE', plant: 'Rotterdam Parts Warehouse', movement: 'RECEIPT', movements: 63, qty: 19032, value: 14847573.19},
+			{part: 'Timing Chain Kit', category: 'ENGINE', plant: 'Rotterdam Parts Warehouse', movement: 'RECEIPT', movements: 63, qty: 47155, value: 14684614.27},
+			{part: 'Windscreen Laminated Glass', category: 'BODY', plant: 'Rotterdam Parts Warehouse', movement: 'RECEIPT', movements: 63, qty: 15991, value: 11508434.25},
+			{part: 'Front Seat Assembly Passenger', category: 'INTERIOR', plant: 'Rotterdam Parts Warehouse', movement: 'RECEIPT', movements: 63, qty: 12456, value: 10921911.09},
+			{part: 'Automotive Primer (20L)', category: 'PAINT', plant: 'Rotterdam Parts Warehouse', movement: 'RECEIPT', movements: 63, qty: 77966, value: 6583392.04},
+			{part: 'Automotive Primer (20L)', category: 'PAINT', plant: 'Chennai Vehicle Plant', movement: 'CONSUMPTION', movements: 1294, qty: 71548, value: 6081580.00}
+		];
+
+		var charts = {};
+
+		function mk(id) { return document.getElementById(id); }
+
+		function fitKpiText() {
+			var kpiValues = document.querySelectorAll('.kpi-value');
+			kpiValues.forEach(function(el) {
+				var parent = el.closest('.kpi-card');
+				var initialSize = 28;
+				var size = initialSize;
+				el.style.fontSize = size + 'px';
+				while (el.scrollWidth > parent.offsetWidth - 40 && size > 16) {
+					size = size - 2;
+					el.style.fontSize = size + 'px';
+				}
+			});
+		}
+
+		function getFilters() {
+			return {
+				year: mk('yearFilter').value,
+				movement: mk('movementFilter').value,
+				plant: mk('plantFilter').value
+			};
+		}
+
+		function populateFilterOptions() {
+			var years = new Set();
+			var movements = new Set();
+			var plants = new Set();
+
+			monthlyData.forEach(function(m) {
+				years.add(m.year);
+				movements.add(m.movement);
+			});
+
+			partDetail.forEach(function(p) {
+				plants.add(p.plant);
+			});
+
+			var yearSelect = mk('yearFilter');
+			Array.from(years).sort(function(a, b) { return b - a; }).forEach(function(y) {
+				var opt = document.createElement('option');
+				opt.value = y;
+				opt.textContent = y;
+				yearSelect.appendChild(opt);
+			});
+
+			var movSelect = mk('movementFilter');
+			Array.from(movements).sort().forEach(function(m) {
+				var opt = document.createElement('option');
+				opt.value = m;
+				opt.textContent = m;
+				movSelect.appendChild(opt);
+			});
+
+			var plantSelect = mk('plantFilter');
+			Array.from(plants).sort().forEach(function(p) {
+				var opt = document.createElement('option');
+				opt.value = p;
+				opt.textContent = p;
+				plantSelect.appendChild(opt);
+			});
+		}
+
+		function getFilteredData() {
+			var filters = getFilters();
+			var filtered = monthlyData.filter(function(m) {
+				if (filters.year && m.year != filters.year) return false;
+				if (filters.movement && m.movement !== filters.movement) return false;
+				return true;
+			});
+			return filtered;
+		}
+
+		function updateKPIs() {
+			var filtered = getFilteredData();
+			var totalReceipts = filtered.filter(function(f) { return f.movement === 'RECEIPT'; }).reduce(function(sum, f) { return sum + f.qty; }, 0);
+			var totalConsumption = filtered.filter(function(f) { return f.movement === 'CONSUMPTION'; }).reduce(function(sum, f) { return sum + f.qty; }, 0);
+			var netMovement = totalReceipts - totalConsumption;
+			var totalValue = filtered.reduce(function(sum, f) { return sum + f.value; }, 0);
+			var avgStock = filtered.filter(function(f) { return f.stock > 0; }).reduce(function(sum, f, arr) { return sum + f.stock; }, 0);
+			avgStock = avgStock / filtered.filter(function(f) { return f.stock > 0; }).length;
+			if (isNaN(avgStock)) avgStock = 0;
+
+			var parts = new Set();
+			partDetail.forEach(function(p) { parts.add(p.part); });
+
+			var receiptValue = filtered.filter(function(f) { return f.movement === 'RECEIPT'; }).reduce(function(sum, f) { return sum + f.value; }, 0);
+			var consumptionValue = filtered.filter(function(f) { return f.movement === 'CONSUMPTION'; }).reduce(function(sum, f) { return sum + f.value; }, 0);
+
+			var kpiData = [
+				{label: 'Total Receipts', value: totalReceipts.toLocaleString(), subtext: 'units'},
+				{label: 'Total Consumption', value: totalConsumption.toLocaleString(), subtext: 'units'},
+				{label: 'Net Movement', value: netMovement.toLocaleString(), subtext: 'units'},
+				{label: 'Total Value', value: '$' + (totalValue / 1000000).toFixed(1) + 'M', subtext: 'all movements'},
+				{label: 'Avg Stock Level', value: avgStock.toFixed(0), subtext: 'units'},
+				{label: 'Parts Tracked', value: parts.size.toString(), subtext: 'unique parts'},
+				{label: 'Receipt Value', value: '$' + (receiptValue / 1000000).toFixed(2) + 'M', subtext: 'inbound'},
+				{label: 'Consumption Value', value: '$' + (consumptionValue / 1000000).toFixed(2) + 'M', subtext: 'outbound'}
+			];
+
+			var html = '';
+			kpiData.forEach(function(kpi) {
+				html += '<div class="kpi-card"><div class="kpi-label">' + kpi.label + '</div><div class="kpi-value">' + kpi.value + '</div><div class="kpi-subtext">' + kpi.subtext + '</div></div>';
+			});
+			mk('kpiGrid').innerHTML = html;
+			fitKpiText();
+		}
+
+		function updateCharts() {
+			var filtered = getFilteredData();
+
+			if (charts.trend) charts.trend.destroy();
+			var monthlyTrend = {};
+			filtered.forEach(function(m) {
+				var key = m.year + '-' + String(m.monthNum).padStart(2, '0');
+				if (!monthlyTrend[key]) monthlyTrend[key] = {receipt: 0, consumption: 0};
+				if (m.movement === 'RECEIPT') monthlyTrend[key].receipt += m.qty;
+				else monthlyTrend[key].consumption += m.qty;
+			});
+
+			var months = Object.keys(monthlyTrend).sort();
+			var receiptData = months.map(function(m) { return monthlyTrend[m].receipt; });
+			var consumptionData = months.map(function(m) { return monthlyTrend[m].consumption; });
+
+			if (months.length === 0 || receiptData.length === 0) {
+				var ctx = document.getElementById('trendChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.trend = new Chart(mk('trendChart'), {
+					type: 'line',
+					data: {
+						labels: months,
+						datasets: [
+							{label: 'Receipts', data: receiptData, borderColor: '#0EA5E9', backgroundColor: '#0EA5E920', tension: 0.4},
+							{label: 'Consumption', data: consumptionData, borderColor: '#E87722', backgroundColor: '#E8772220', tension: 0.4}
+						]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: true, position: 'top' } }
+					}
+				});
+			}
+
+			if (charts.type) charts.type.destroy();
+			var typeData = {};
+			filtered.forEach(function(m) {
+				if (!typeData[m.movement]) typeData[m.movement] = 0;
+				typeData[m.movement] += m.qty;
+			});
+
+			var typeLabels = Object.keys(typeData);
+			var typeValues = Object.values(typeData);
+			if (typeLabels.length === 0 || typeValues.length === 0) {
+				var ctx = document.getElementById('typeChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.type = new Chart(mk('typeChart'), {
+					type: 'bar',
+					data: {
+						labels: typeLabels,
+						datasets: [{
+							label: 'Quantity',
+							data: typeValues,
+							backgroundColor: ['#0EA5E9', '#E87722'],
+							borderRadius: 4
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+
+			if (charts.plant) charts.plant.destroy();
+			var plantData = {};
+			partDetail.forEach(function(p) {
+				if (!plantData[p.plant]) plantData[p.plant] = 0;
+				plantData[p.plant] += p.value;
+			});
+
+			var plants = Object.keys(plantData).sort(function(a, b) { return plantData[b] - plantData[a]; });
+			var plantValues = plants.map(function(p) { return plantData[p] / 1000000; });
+			if (plants.length === 0 || plantValues.length === 0) {
+				var ctx = document.getElementById('plantChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.plant = new Chart(mk('plantChart'), {
+					type: 'bar',
+					data: {
+						labels: plants,
+						datasets: [{
+							label: 'Value ($)',
+							data: plantValues,
+							backgroundColor: '#1B3A5C',
+							borderRadius: 4
+						}]
+					},
+					options: {
+						indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+
+			if (charts.stock) charts.stock.destroy();
+			var stockBins = [{range: '0-200', count: 0}, {range: '201-400', count: 0}, {range: '401-600', count: 0}, {range: '601+', count: 0}];
+			filtered.forEach(function(m) {
+				if (m.stock > 0) {
+					if (m.stock <= 200) stockBins[0].count++;
+					else if (m.stock <= 400) stockBins[1].count++;
+					else if (m.stock <= 600) stockBins[2].count++;
+					else stockBins[3].count++;
+				}
+			});
+
+			var stockLabels = stockBins.map(function(b) { return b.range; });
+			var stockValues = stockBins.map(function(b) { return b.count; });
+			if (stockLabels.length === 0 || stockValues.length === 0) {
+				var ctx = document.getElementById('stockChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.stock = new Chart(mk('stockChart'), {
+					type: 'bar',
+					data: {
+						labels: stockLabels,
+						datasets: [{
+							label: 'Occurrences',
+							data: stockValues,
+							backgroundColor: '#F59E0B',
+							borderRadius: 4
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+
+			if (charts.category) charts.category.destroy();
+			var categoryMovements = {};
+			partDetail.forEach(function(p) {
+				if (!categoryMovements[p.category]) categoryMovements[p.category] = 0;
+				categoryMovements[p.category] += p.movements;
+			});
+
+			var categoryLabels = Object.keys(categoryMovements);
+			var categoryValues = Object.values(categoryMovements);
+			if (categoryLabels.length === 0 || categoryValues.length === 0) {
+				var ctx = document.getElementById('categoryChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.category = new Chart(mk('categoryChart'), {
+					type: 'bar',
+					data: {
+						labels: categoryLabels,
+						datasets: [{
+							label: 'Total Movements',
+							data: categoryValues,
+							backgroundColor: ['#1B3A5C', '#E87722', '#0EA5E9', '#F59E0B', '#94A3B8'],
+							borderRadius: 4
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+		}
+
+		function updateTable() {
+			var html = '';
+			partDetail.forEach(function(p) {
+				html += '<tr>' +
+					'<td>' + p.part + '</td>' +
+					'<td>' + p.category + '</td>' +
+					'<td>' + p.plant + '</td>' +
+					'<td>' + p.movement + '</td>' +
+					'<td class="number">' + p.movements + '</td>' +
+					'<td class="number">' + p.qty.toLocaleString() + '</td>' +
+					'<td class="number">$' + (p.value / 1000000).toFixed(2) + 'M</td>' +
+					'</tr>';
+			});
+			mk('tableBody').innerHTML = html;
+		}
+
+		function applyFilters() {
+			updateKPIs();
+			updateCharts();
+			updateTable();
+		}
+
+		function initDashboard() {
+			populateFilterOptions();
+			applyFilters();
+		}
+
+		window.addEventListener('load', initDashboard);
+	</script>
+</body>
+</html>

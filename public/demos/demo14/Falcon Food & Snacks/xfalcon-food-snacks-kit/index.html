@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xFalcon AnalyticsPro — Falcon Food & Snacks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .topbar {
+            background: #0F172A;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-x {
+            color: #006AFF;
+        }
+
+        .logo-f {
+            color: #1A7F64;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #E5E7EB;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 4px;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .kpi-delta {
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .delta-positive {
+            color: #059669;
+        }
+
+        .delta-negative {
+            color: #D32F2F;
+        }
+
+        .section {
+            background: #FFFFFF;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #E5E7EB;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-box {
+            position: relative;
+            height: 320px;
+            background: #FFFFFF;
+            padding: 0;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .table-container {
+            margin-top: 20px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #F9FAFB;
+            position: sticky;
+            top: 60px;
+            z-index: 50;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #0F172A;
+            border-bottom: 2px solid #E5E7EB;
+            background: #F9FAFB;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #E5E7EB;
+            color: #374151;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+        .rank {
+            font-weight: 600;
+            color: #0F172A;
+            width: 30px;
+        }
+
+        .customer-name {
+            font-weight: 500;
+            color: #0F172A;
+        }
+
+        .channel-badge {
+            display: inline-block;
+            background: #E0F2FE;
+            color: #0369A1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            background: #FEF3C7;
+            color: #92400E;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .revenue-value {
+            font-weight: 600;
+            color: #006AFF;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .dashboard-card {
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card:hover {
+            border-color: #006AFF;
+            box-shadow: 0 4px 12px rgba(0, 106, 255, 0.15);
+        }
+
+        .dashboard-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #94A3B8;
+            margin-bottom: 6px;
+        }
+
+        .dashboard-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-description {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .topbar {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        <div class="topbar-title">Falcon Food & Snacks — AnalyticsPro</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Falcon Food & Snacks</h1>
+            <p class="page-subtitle">Reporting Period: 2020–2025</p>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Net Revenue</div>
+                <div class="kpi-value" id="kpi1">$136.7M</div>
+                <div class="kpi-delta">2020–2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Net Revenue</div>
+                <div class="kpi-value" id="kpi2">$31.5M</div>
+                <div class="kpi-delta delta-positive">YoY +45.7%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Gross Margin</div>
+                <div class="kpi-value" id="kpi3">55.8%</div>
+                <div class="kpi-delta delta-positive">vs 2024 +0.1pp</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Units Sold</div>
+                <div class="kpi-value" id="kpi4">23.3M</div>
+                <div class="kpi-delta">all years</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Fill Rate</div>
+                <div class="kpi-value" id="kpi5">96.0%</div>
+                <div class="kpi-delta delta-positive">vs 2024 +0.6pp</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Weeks of Supply</div>
+                <div class="kpi-value" id="kpi6">1.5 wks</div>
+                <div class="kpi-delta">current</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Trade Spend ROI</div>
+                <div class="kpi-value" id="kpi7">0.43x</div>
+                <div class="kpi-delta">2024</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Consumer Panel HH</div>
+                <div class="kpi-value" id="kpi8">80,000</div>
+                <div class="kpi-delta">households</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Key Metrics</h2>
+            <div class="charts-container">
+                <div class="chart-box">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <canvas id="brandChart"></canvas>
+                </div>
+            </div>
+            <div class="charts-container">
+                <div class="chart-box">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Top 10 Customers</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">Rank</th>
+                            <th>Customer</th>
+                            <th>Channel</th>
+                            <th>Tier</th>
+                            <th style="text-align: right;">2025 Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="rank">1</td>
+                            <td class="customer-name">Walmart Inc.</td>
+                            <td><span class="channel-badge">Mass</span></td>
+                            <td><span class="tier-badge">Tier 1</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$7.06M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">2</td>
+                            <td class="customer-name">H-E-B Grocery</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 1</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$6.16M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">3</td>
+                            <td class="customer-name">Winn-Dixie</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 2</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$6.08M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">4</td>
+                            <td class="customer-name">Albertsons Companies</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 1</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$6.08M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">5</td>
+                            <td class="customer-name">Target Corporation</td>
+                            <td><span class="channel-badge">Mass</span></td>
+                            <td><span class="tier-badge">Tier 1</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$5.99M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">6</td>
+                            <td class="customer-name">Stater Bros. Markets</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 2</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$5.30M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">7</td>
+                            <td class="customer-name">Publix Super Markets</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 1</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$5.30M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">8</td>
+                            <td class="customer-name">Meijer Inc.</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 2</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$5.22M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">9</td>
+                            <td class="customer-name">Hy-Vee</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 2</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$5.02M</span></td>
+                        </tr>
+                        <tr>
+                            <td class="rank">10</td>
+                            <td class="customer-name">Kroger Stores</td>
+                            <td><span class="channel-badge">Grocery</span></td>
+                            <td><span class="tier-badge">Tier 1</span></td>
+                            <td style="text-align: right;"><span class="revenue-value">$5.02M</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Dashboard Directory</h2>
+            <div class="dashboard-grid">
+                <a href="01-executive-overview.html" class="dashboard-card">
+                    <div class="dashboard-number">01</div>
+                    <div class="dashboard-title">Executive Overview</div>
+                    <div class="dashboard-description">Cross-functional KPI summary with YoY, QoQ, and budget comparisons</div>
+                </a>
+                <a href="02-sales-revenue.html" class="dashboard-card">
+                    <div class="dashboard-number">02</div>
+                    <div class="dashboard-title">Sales & Revenue</div>
+                    <div class="dashboard-description">Revenue trends, channel mix, brand and customer deep-dive</div>
+                </a>
+                <a href="03-product-performance.html" class="dashboard-card">
+                    <div class="dashboard-number">03</div>
+                    <div class="dashboard-title">Product Performance</div>
+                    <div class="dashboard-description">SKU velocity, brand ranking, category analysis, new product tracking</div>
+                </a>
+                <a href="04-product-margin.html" class="dashboard-card">
+                    <div class="dashboard-number">04</div>
+                    <div class="dashboard-title">Product Margin</div>
+                    <div class="dashboard-description">Gross margin by brand, category, customer; COGS and trade discount impact</div>
+                </a>
+                <a href="05-customer-intelligence.html" class="dashboard-card">
+                    <div class="dashboard-number">05</div>
+                    <div class="dashboard-title">Customer Intelligence</div>
+                    <div class="dashboard-description">Account scorecards, tier analysis, channel contribution</div>
+                </a>
+                <a href="06-channel-pos-analytics.html" class="dashboard-card">
+                    <div class="dashboard-number">06</div>
+                    <div class="dashboard-title">Channel & POS Analytics</div>
+                    <div class="dashboard-description">Channel revenue mix, growth trends, geographic channel penetration</div>
+                </a>
+                <a href="07-shipments-fill-rate.html" class="dashboard-card">
+                    <div class="dashboard-number">07</div>
+                    <div class="dashboard-title">Shipments & Fill Rate</div>
+                    <div class="dashboard-description">Supply chain KPIs: fill rate, on-time delivery, supplier performance</div>
+                </a>
+                <a href="08-inventory-operations.html" class="dashboard-card">
+                    <div class="dashboard-number">08</div>
+                    <div class="dashboard-title">Inventory & Operations</div>
+                    <div class="dashboard-description">Stock health: WOS, OOS alerts, overstock monitoring</div>
+                </a>
+                <a href="09-trade-spend-promo-roi.html" class="dashboard-card">
+                    <div class="dashboard-number">09</div>
+                    <div class="dashboard-title">Trade Spend / Promo ROI</div>
+                    <div class="dashboard-description">Promotional investment effectiveness, planned vs actual spend</div>
+                </a>
+                <a href="10-consumer-panel.html" class="dashboard-card">
+                    <div class="dashboard-number">10</div>
+                    <div class="dashboard-title">Consumer Panel</div>
+                    <div class="dashboard-description">Household penetration, loyalty tiers, repeat purchase, basket analysis</div>
+                </a>
+                <a href="11-geographic-performance.html" class="dashboard-card">
+                    <div class="dashboard-number">11</div>
+                    <div class="dashboard-title">Geographic Performance</div>
+                    <div class="dashboard-description">Regional revenue, market tier analysis, US vs Canada</div>
+                </a>
+                <a href="12-wbr.html" class="dashboard-card" style="border-left:3px solid #006AFF;">
+                    <div class="dashboard-number">12</div>
+                    <div class="dashboard-title">Weekly Business Review (WBR)</div>
+                    <div class="dashboard-description">Full weekly snapshot: overall performance, brand scorecards, channel & geo breakdowns, supply chain</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Resources</h2>
+            <div class="dashboard-grid">
+                <a href="metric-definitions.html" class="dashboard-card" style="border-left: 4px solid #006AFF;">
+                    <div class="dashboard-number" style="background: #006AFF;">KPI</div>
+                    <div class="dashboard-title">Metric Definitions</div>
+                    <div class="dashboard-description">Full KPI reference — formulas, SQL sources, targets, and dashboard mapping for all 28+ metrics</div>
+                </a>
+                <a href="training-guide.html" class="dashboard-card" style="border-left: 4px solid #1A7F64;">
+                    <div class="dashboard-number" style="background: #1A7F64;">Guide</div>
+                    <div class="dashboard-title">Training & User Guide</div>
+                    <div class="dashboard-description">How to navigate dashboards, read charts, use filters, interpret KPIs, and get the most from the suite</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart instance management helper
+        var chartInstances = {};
+
+        function mk(canvasId, chartType, chartData, chartOptions) {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: chartType,
+                data: chartData,
+                options: chartOptions
+            });
+        }
+
+        // Dynamic KPI font sizing
+        function fitKpiText() {
+            var cards = document.querySelectorAll('.kpi-card');
+            cards.forEach(function(card) {
+                var value = card.querySelector('.kpi-value');
+                var text = value.textContent;
+                var length = text.length;
+                var fontSize = 28;
+
+                if (length > 12) {
+                    fontSize = 20;
+                } else if (length > 8) {
+                    fontSize = 24;
+                }
+
+                value.style.fontSize = fontSize + 'px';
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            fitKpiText();
+
+            // Annual Net Revenue Chart
+            mk('revenueChart', 'bar', {
+                labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                datasets: [{
+                    label: 'Net Revenue (M)',
+                    data: [20.3, 21.0, 21.2, 21.0, 21.6, 31.5],
+                    backgroundColor: '#006AFF',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E7EB'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Revenue by Brand Chart
+            mk('brandChart', 'bar', {
+                labels: ['Crestview Biscuits', 'Sunrise Bars', 'Crestfield Confections', 'Morning Ridge Cereals', 'Prairie Pantry Meals'],
+                datasets: [
+                    {
+                        label: '2024',
+                        data: [7.041491, 5.26192, 3.624865, 4.02416, 1.676007],
+                        backgroundColor: '#94A3B8',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    },
+                    {
+                        label: '2025',
+                        data: [10.285575, 7.539541, 6.103707, 5.491811, 2.092799],
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }
+                ]
+            }, {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Revenue by Brand (2024 vs 2025)'
+                    },
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E7EB'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'M';
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Channel Revenue Chart
+            mk('channelChart', 'bar', {
+                labels: ['Grocery', 'eCommerce', 'Club', 'Mass', 'Convenience', 'Drug', 'Dollar', 'Foodservice'],
+                datasets: [
+                    {
+                        label: '2024',
+                        data: [9.66, 1.59, 1.56, 2.10, 2.19, 1.60, 0.91, 2.02],
+                        backgroundColor: '#94A3B8',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    },
+                    {
+                        label: '2025',
+                        data: [16.68, 3.28, 3.21, 2.86, 2.45, 1.10, 1.05, 0.89],
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }
+                ]
+            }, {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Channel Revenue (2024 vs 2025)'
+                    },
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E7EB'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'M';
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

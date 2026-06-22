@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>09 — Market & Geography | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html" class="active">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Market & Geography <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">State-Level Performance, Regions, Control States & Demographics | FY2025 with Prior Year Comparison</div>
+    <div class="dash-num">09</div>
+</div>
+
+<div class="container">
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="section-label">Regional Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Revenue by Region: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Five geographic regions with year-over-year comparison</div>
+        <canvas id="regionChart"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Control States vs Open Markets — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Revenue: Control vs Open States</h3>
+        <div class="chart-subtitle">FY2025 vs FY2024 comparison by regulatory structure</div>
+        <canvas id="controlChart"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Top States Performance — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Top 25 States: Shipment Revenue FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">State-level revenue ranking with prior year comparison</div>
+        <canvas id="stateChart" height="80"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Monthly Revenue Trend — FY2025 by Region</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Revenue by Region</h3>
+        <div class="chart-subtitle">12-month trend for each geographic region (FY2025)</div>
+        <canvas id="monthlyRegionChart" height="70"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Depletions by State — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Top 20 States: Depletion Revenue FY2025</h3>
+        <div class="chart-subtitle">Retail-level sell-through performance by state</div>
+        <canvas id="depletionChart" height="80"></canvas>
+    </div>
+</div>
+
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>State Performance Detail — FY2025</h3>
+    <div class="chart-subtitle">Revenue, volume, gross profit, and YoY change by state (top 25)</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>State</th><th>Region</th><th class="num">FY25 Revenue</th><th class="num">vs FY24</th>
+            <th class="num">Cases Shipped</th><th class="num">Gross Profit</th><th class="num">GP%</th>
+        </tr></thead>
+        <tbody id="stateTable"></tbody>
+        <tfoot id="stateTfoot"></tfoot>
+    </table>
+</div>
+
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Regional Summary — FY2025 vs FY2024</h3>
+    <div class="chart-subtitle">Aggregated performance by region with year-over-year change</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Region</th><th class="num">FY25 Revenue</th><th class="num">vs FY24</th>
+            <th class="num">FY25 Cases</th><th class="num">vs FY24</th>
+            <th class="num">Avg Rev/State</th>
+        </tr></thead>
+        <tbody id="regionTable"></tbody>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 09 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+const reg25=[{r:'West',rev:10307558.53,cases:236501.0},{r:'Midwest',rev:8298820.70,cases:189362.9},{r:'Southeast',rev:8119146.24,cases:186171.8},{r:'Northeast',rev:7777065.76,cases:178982.5},{r:'Southwest',rev:2504719.02,cases:57239.1}];
+const reg24=[{r:'West',rev:9235331.51,cases:217675.8},{r:'Midwest',rev:7422506.21,cases:174578.9},{r:'Southeast',rev:7302133.90,cases:171702.6},{r:'Northeast',rev:6978661.39,cases:164971.4},{r:'Southwest',rev:2230062.87,cases:52383.2}];
+
+const ctrl25r=8645432.59,open25r=28361877.66,ctrl24r=7807834.40,open24r=25360861.48;
+
+const st25=[{s:'California',r:'West',rev:4980663.93,cases:117097.4,gp:1860821.27},{s:'New York',r:'Northeast',rev:2532081.77,cases:60152.0,gp:935722.36},{s:'Texas',r:'Southwest',rev:1848919.14,cases:43365.2,gp:692019.00},{s:'Illinois',r:'Midwest',rev:1632789.63,cases:38593.6,gp:600866.08},{s:'Ohio',r:'Midwest',rev:1501995.41,cases:35104.1,gp:565214.90},{s:'Florida',r:'Southeast',rev:1339516.17,cases:31972.6,gp:495114.81},{s:'New Jersey',r:'Northeast',rev:1162441.89,cases:27500.1,gp:430758.20},{s:'Virginia',r:'Southeast',rev:1104655.72,cases:25682.1,gp:415923.08},{s:'Washington',r:'West',rev:946343.60,cases:22797.1,gp:342014.01},{s:'Arizona',r:'West',rev:913567.23,cases:21422.0,gp:340918.49},{s:'Massachusetts',r:'Northeast',rev:892005.79,cases:20826.3,gp:331982.45},{s:'Tennessee',r:'Southeast',rev:885092.78,cases:20732.1,gp:328864.55},{s:'Indiana',r:'Midwest',rev:841074.20,cases:19946.5,gp:314067.73},{s:'Pennsylvania',r:'Northeast',rev:827688.75,cases:19464.4,gp:311623.09},{s:'Wisconsin',r:'Midwest',rev:743044.76,cases:17537.4,gp:276936.94},{s:'Colorado',r:'West',rev:730342.15,cases:17180.2,gp:273474.37},{s:'Minnesota',r:'Midwest',rev:724197.51,cases:17024.5,gp:269001.59},{s:'Georgia',r:'Southeast',rev:689840.08,cases:16162.2,gp:256859.48},{s:'North Carolina',r:'Southeast',rev:665301.48,cases:15474.7,gp:250119.36},{s:'Michigan',r:'Midwest',rev:637263.01,cases:14909.2,gp:239804.78},{s:'Alabama',r:'Southeast',rev:625565.88,cases:15000.9,gp:223175.78},{s:'Kentucky',r:'Southeast',rev:575642.95,cases:13453.0,gp:215608.53},{s:'Oregon',r:'West',rev:536363.43,cases:12574.1,gp:201371.00},{s:'Connecticut',r:'Northeast',rev:457691.99,cases:10804.1,gp:169770.39},{s:'Iowa',r:'Midwest',rev:411715.47,cases:9523.0,gp:155127.84}];
+
+const depl25=[{s:'California',rev:634584.97,cases:13088.81},{s:'Texas',rev:577924.11,cases:11822.34},{s:'Minnesota',rev:538686.05,cases:10924.09},{s:'North Carolina',rev:487947.02,cases:9915.42},{s:'Indiana',rev:462508.63,cases:9313.88},{s:'Ohio',rev:452154.51,cases:9242.69},{s:'Colorado',rev:410098.85,cases:8169.36},{s:'Massachusetts',rev:403790.33,cases:8132.84},{s:'Michigan',rev:389501.75,cases:7882.00},{s:'North Dakota',rev:383497.85,cases:7654.90},{s:'Montana',rev:382629.62,cases:7614.92},{s:'South Carolina',rev:375957.29,cases:7557.39},{s:'Alabama',rev:371776.63,cases:7452.35},{s:'Florida',rev:370201.37,cases:7642.26},{s:'New Mexico',rev:359359.83,cases:7244.36},{s:'Illinois',rev:352373.52,cases:7180.16},{s:'Kentucky',rev:322459.13,cases:6492.26},{s:'Missouri',rev:321918.92,cases:6518.71},{s:'West Virginia',rev:318308.35,cases:6425.94},{s:'Oklahoma',rev:311265.39,cases:6308.82}];
+
+const t25r=st25.reduce((a,d)=>a+d.rev,0),t25c=st25.reduce((a,d)=>a+d.cases,0),t25gp=st25.reduce((a,d)=>a+d.gp,0);
+const t24r=37007695.25,t24c=658278.5,t24gp=13829188.87;
+
+const kpis=[{label:'States Active',val:50,prev:null,sub:'All 50 US states'},{label:'Total Revenue',val:t25r,prev:t24r,sub:'Gross Profit: '+fmt$(t25gp)},{label:'Cases Shipped',val:t25c,prev:null,sub:'9L equiv. cases',isCases:true},{label:'Avg Per Capita',val:t25r/50,prev:null,sub:'Revenue per state',isMoney:true,isSmall:true},{label:'Control States',val:17,prev:null,sub:'17 of 50 markets',isCount:true},{label:'Gross Margin',val:(t25gp/t25r*100),prev:null,sub:'Average margin %',isPercent:true}];
+const kpiRow=document.getElementById('kpiRow');
+kpis.forEach(k=>{const chg=k.prev?pct(k.val,k.prev):null;const arrow=chg!==null?(chg>=0?'&#9650;':'&#9660;'):'';const cls=chg!==null?(chg>=0?'positive':'negative'):'';let displayVal;if(k.isPercent)displayVal=k.val.toFixed(1)+'%';else if(k.isCount)displayVal=k.val;else if(k.isMoney)displayVal=fmt$(k.val);else if(k.isCases)displayVal=fmtK(k.val);else displayVal=fmt$(k.val);const sparkVals=st25.map(d=>d.rev);const sparkMax=Math.max(...sparkVals);const bars=sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');kpiRow.innerHTML+=`<div class="kpi-card"><div class="label">${k.label}</div><div class="value">${displayVal}</div>${chg!==null?`<div class="change ${cls}">${arrow} ${Math.abs(chg)}% vs FY24</div>`:''}<div class="sub-value">${k.sub}</div><div class="sparkline-row">${bars}</div></div>`;});
+
+new Chart(document.getElementById('regionChart'),{type:'bar',data:{labels:reg25.map(d=>d.r),datasets:[{label:'FY2025',data:reg25.map(d=>d.rev),backgroundColor:G,borderRadius:3},{label:'FY2024',data:reg24.map(d=>d.rev),backgroundColor:PY,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+new Chart(document.getElementById('controlChart'),{type:'bar',data:{labels:['Control States','Open Markets'],datasets:[{label:'FY2025',data:[ctrl25r,open25r],backgroundColor:G,borderRadius:3},{label:'FY2024',data:[ctrl24r,open24r],backgroundColor:PY,borderRadius:3}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+new Chart(document.getElementById('stateChart'),{type:'bar',data:{labels:st25.map(d=>d.s),datasets:[{label:'FY2025',data:st25.map(d=>d.rev),backgroundColor:G,borderRadius:3},{label:'FY2024',data:[4980663.93,2532081.77,1848919.14,1632789.63,1501995.41,1339516.17,1162441.89,1104655.72,946343.60,913567.23,892005.79,885092.78,841074.20,827688.75,743044.76,730342.15,724197.51,689840.08,665301.48,637263.01,625565.88,575642.95,536363.43,457691.99,411715.47],backgroundColor:PY,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+new Chart(document.getElementById('monthlyRegionChart'),{type:'line',data:{labels:months,datasets:[{label:'West',data:[909756.58,745032.22,908848.57,818072.33,888287.37,1479013.72,628864.32,644110.98,872535.48,718392.75,732621.43,962022.78],borderColor:G,tension:.3,pointRadius:2,borderWidth:2},{label:'Midwest',data:[758094.56,586241.44,761064.75,635932.54,733263.03,1162514.53,530758.56,506512.67,696367.79,570669.84,589199.95,768201.04],borderColor:'#B8860B',tension:.3,pointRadius:2,borderWidth:2},{label:'Southeast',data:[726724.58,576698.10,732815.46,641465.01,714967.37,1146529.68,507692.28,480738.82,667138.80,551899.57,607206.99,765269.58],borderColor:'#C9B037',tension:.3,pointRadius:2,borderWidth:2},{label:'Northeast',data:[717142.67,530824.52,698822.90,598950.99,695331.86,1115827.53,494400.75,476135.38,635509.92,531480.39,558233.28,724405.57],borderColor:'#8B7355',tension:.3,pointRadius:2,borderWidth:2},{label:'Southwest',data:[216979.52,177761.17,233894.29,193448.99,234594.09,359954.64,156909.15,149510.68,199341.99,174953.13,174929.67,232441.70],borderColor:'#DAA520',tension:.3,pointRadius:2,borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+new Chart(document.getElementById('depletionChart'),{type:'bar',data:{labels:depl25.map(d=>d.s),datasets:[{data:depl25.map(d=>d.rev),backgroundColor:G,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+const stb=document.getElementById('stateTable');
+st25.forEach(d=>{const rchg=pct(d.rev,4980663.93);const gpm=(d.gp/d.rev*100).toFixed(1);stb.innerHTML+=`<tr><td>${d.s}</td><td>${d.r}</td><td class="num">${fmt$(d.rev)}</td><td class="num ${rchg>=0?'pos':'neg'}">${rchg>=0?'&#9650;':'&#9660;'} ${Math.abs(rchg)}%</td><td class="num">${fmtK(d.cases)}</td><td class="num">${fmt$(d.gp)}</td><td class="num">${gpm}%</td></tr>`;});
+document.getElementById('stateTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);"><td style="color:#D4A843">TOTAL (25)</td><td>All</td><td class="num" style="color:#D4A843">${fmt$(t25r)}</td><td class="num pos">&#9650; ${pct(t25r,t24r)}%</td><td class="num" style="color:#D4A843">${fmtK(t25c)}</td><td class="num" style="color:#D4A843">${fmt$(t25gp)}</td><td class="num">${(t25gp/t25r*100).toFixed(1)}%</td></tr>`;
+
+const rtb=document.getElementById('regionTable');
+reg25.forEach((d,i)=>{const py24=reg24[i];const rchg=pct(d.rev,py24.rev);const cchg=pct(d.cases,py24.cases);const stateCount=st25.filter(s=>s.r===d.r).length;rtb.innerHTML+=`<tr><td>${d.r}</td><td class="num">${fmt$(d.rev)}</td><td class="num ${rchg>=0?'pos':'neg'}">${rchg>=0?'&#9650;':'&#9660;'} ${Math.abs(rchg)}%</td><td class="num">${fmtK(d.cases)}</td><td class="num ${cchg>=0?'pos':'neg'}">${cchg>=0?'&#9650;':'&#9660;'} ${Math.abs(cchg)}%</td><td class="num">${fmt$(d.rev/stateCount)}</td></tr>`;});
+</script>
+</body>
+</html>

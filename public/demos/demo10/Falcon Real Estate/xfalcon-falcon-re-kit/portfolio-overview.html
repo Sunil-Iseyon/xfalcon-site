@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Overview - Falcon Real Estate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F8F9FA; color: #1F2937; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: white; border-bottom: 1px solid #E5E7EB; padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .logo { font-weight: 700; font-size: 18px; }
+    .logo-x { color: #006AFF; }
+    .logo-f { color: #1A7F64; }
+    .nav-title { font-size: 14px; color: #6B7280; }
+    .back-link {
+      color: #006AFF; text-decoration: none; font-size: 14px; font-weight: 500;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .kpi-card {
+      background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .kpi-label { font-size: 12px; color: #6B7280; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 12px; }
+    .kpi-metrics { display: flex; gap: 16px; font-size: 12px; }
+    .metric-item { display: flex; align-items: center; gap: 4px; }
+    .metric-label { color: #6B7280; }
+    .metric-value { font-weight: 600; }
+    .positive { color: #059669; }
+    .negative { color: #D32F2F; }
+
+    .chart-section {
+      background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 24px;
+      margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .chart-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #1F2937; }
+
+    .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .chart-half { height: 380px; position: relative; }
+
+    .table-section {
+      background: white; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02); margin-bottom: 24px;
+    }
+    .table-header { padding: 24px; border-bottom: 1px solid #E5E7EB; }
+    .table-header h3 { font-size: 16px; font-weight: 700; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #F9FAFB; }
+    th {
+      padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600;
+      color: #6B7280; text-transform: uppercase; border-bottom: 1px solid #E5E7EB;
+    }
+    td {
+      padding: 14px 16px; border-bottom: 1px solid #F3F4F6; font-size: 13px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #FAFBFC; }
+
+    .var-positive { color: #059669; font-weight: 600; }
+    .var-negative { color: #D32F2F; font-weight: 600; }
+
+    .footer {
+      text-align: center; padding: 24px; color: #9CA3AF; font-size: 12px;
+      border-top: 1px solid #E5E7EB; margin-top: 32px;
+    }
+
+    .waterfall-legend { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
+
+    @media (max-width: 1400px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="nav-title">Falcon Real Estate / Portfolio Overview</div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-value">$528.2M</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">vs LY:</span>
+            <span class="metric-value positive">+2.7%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">vs Plan:</span>
+            <span class="metric-value negative">-1.1%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Total NOI</div>
+        <div class="kpi-value">$334.0M</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">vs LY:</span>
+            <span class="metric-value positive">+3.4%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">vs Plan:</span>
+            <span class="metric-value negative">-21.6%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">NOI Margin</div>
+        <div class="kpi-value">60.6%</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">vs LY:</span>
+            <span class="metric-value positive">+0.4pp</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">vs Plan:</span>
+            <span class="metric-value negative">-21.5pp</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Budget Variance</div>
+        <div class="kpi-value">-24.3%</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">YoY Impact:</span>
+            <span class="metric-value negative">$92.4M shortfall</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Occupancy Rate</div>
+        <div class="kpi-value">87.3%</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">vs LY:</span>
+            <span class="metric-value">Flat</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Economic:</span>
+            <span class="metric-value">85.5%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Collection Rate</div>
+        <div class="kpi-value">93.3%</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">Bad Debt:</span>
+            <span class="metric-value">$712.5K</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Status:</span>
+            <span class="metric-value positive">Strong</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">YoY NOI Growth</div>
+        <div class="kpi-value">+4.6%</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">Portfolio:</span>
+            <span class="metric-value positive">Growing</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Momentum:</span>
+            <span class="metric-value positive">Positive</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Vacancy Loss</div>
+        <div class="kpi-value">$196.7M</div>
+        <div class="kpi-metrics">
+          <div class="metric-item">
+            <span class="metric-label">vs LY:</span>
+            <span class="metric-value negative">+2.4%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Trend:</span>
+            <span class="metric-value">Monitor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Monthly NOI Trend - 24 Month View</div>
+      <div class="chart-half" style="height: 320px;">
+        <canvas id="noiTrendChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-section" style="margin-bottom: 0;">
+        <div class="chart-title">NOI by Asset Class</div>
+        <div class="chart-half">
+          <canvas id="assetClassChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-section" style="margin-bottom: 0;">
+        <div class="chart-title">Revenue vs Expenses Waterfall</div>
+        <div class="waterfall-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #006AFF;"></div>
+            <span>Revenue</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #E5E7EB;"></div>
+            <span>Expenses</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #1A7F64;"></div>
+            <span>NOI</span>
+          </div>
+        </div>
+        <div class="chart-half">
+          <canvas id="expenseChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-section" style="margin-bottom: 0;">
+        <div class="chart-title">Occupancy by Asset Class</div>
+        <div class="chart-half">
+          <canvas id="occupancyAssetChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-section" style="margin-bottom: 0;">
+        <div class="chart-title">Occupancy Trend - Physical vs Economic</div>
+        <div class="chart-half">
+          <canvas id="occupancyTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-header">
+        <h3>Top 15 Properties by YTD NOI Performance</h3>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Asset Class</th>
+            <th>Market</th>
+            <th>YTD NOI</th>
+            <th>Budget NOI</th>
+            <th>Variance $</th>
+            <th>Variance %</th>
+            <th>YoY Growth %</th>
+            <th>Margin %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Park Avenue Tower Office</td>
+            <td>Office</td>
+            <td>New York City Metro</td>
+            <td>$29.3M</td>
+            <td>$38.5M</td>
+            <td class="var-negative">-$9.3M</td>
+            <td class="var-negative">-24.1%</td>
+            <td class="positive">+2.3%</td>
+            <td>63.4%</td>
+          </tr>
+          <tr>
+            <td>Financial District Tower</td>
+            <td>Office</td>
+            <td>San Francisco Bay Area</td>
+            <td>$22.8M</td>
+            <td>$30.0M</td>
+            <td class="var-negative">-$7.2M</td>
+            <td class="var-negative">-24.0%</td>
+            <td class="positive">+1.7%</td>
+            <td>63.3%</td>
+          </tr>
+          <tr>
+            <td>DFW Inland Port Warehouse</td>
+            <td>Industrial</td>
+            <td>Dallas-Fort Worth</td>
+            <td>$21.7M</td>
+            <td>$23.7M</td>
+            <td class="var-negative">-$2.0M</td>
+            <td class="var-negative">-8.3%</td>
+            <td class="positive">+6.0%</td>
+            <td>72.5%</td>
+          </tr>
+          <tr>
+            <td>Ashburn Data Campus - Alpha</td>
+            <td>Data Center</td>
+            <td>Ashburn/NoVA Data Corridor</td>
+            <td>$21.1M</td>
+            <td>$24.5M</td>
+            <td class="var-negative">-$3.4M</td>
+            <td class="var-negative">-13.8%</td>
+            <td class="positive">+9.7%</td>
+            <td>65.9%</td>
+          </tr>
+          <tr>
+            <td>Newark Logistics Hub</td>
+            <td>Industrial</td>
+            <td>Philadelphia Metro</td>
+            <td>$18.2M</td>
+            <td>$19.6M</td>
+            <td class="var-negative">-$1.4M</td>
+            <td class="var-negative">-6.9%</td>
+            <td class="positive">+7.4%</td>
+            <td>74.9%</td>
+          </tr>
+          <tr>
+            <td>Innovation District HQ</td>
+            <td>Office</td>
+            <td>Greater Boston</td>
+            <td>$18.1M</td>
+            <td>$23.9M</td>
+            <td class="var-negative">-$5.8M</td>
+            <td class="var-negative">-24.2%</td>
+            <td class="positive">+2.0%</td>
+            <td>63.0%</td>
+          </tr>
+          <tr>
+            <td>Pennsylvania Avenue Office</td>
+            <td>Office</td>
+            <td>Washington DC Metro</td>
+            <td>$16.6M</td>
+            <td>$21.8M</td>
+            <td class="var-negative">-$5.2M</td>
+            <td class="var-negative">-23.9%</td>
+            <td class="positive">+0.7%</td>
+            <td>64.1%</td>
+          </tr>
+          <tr>
+            <td>Hartsfield Cargo Hub</td>
+            <td>Industrial</td>
+            <td>Atlanta Metro</td>
+            <td>$15.9M</td>
+            <td>$17.4M</td>
+            <td class="var-negative">-$1.5M</td>
+            <td class="var-negative">-8.4%</td>
+            <td class="positive">+5.4%</td>
+            <td>73.5%</td>
+          </tr>
+          <tr>
+            <td>Ashburn Data Campus - Beta</td>
+            <td>Data Center</td>
+            <td>Ashburn/NoVA Data Corridor</td>
+            <td>$15.0M</td>
+            <td>$18.2M</td>
+            <td class="var-negative">-$3.2M</td>
+            <td class="var-negative">-17.4%</td>
+            <td class="positive">+4.1%</td>
+            <td>65.2%</td>
+          </tr>
+          <tr>
+            <td>Elk Grove Distribution Center</td>
+            <td>Industrial</td>
+            <td>Chicago Metro</td>
+            <td>$11.8M</td>
+            <td>$13.3M</td>
+            <td class="var-negative">-$1.5M</td>
+            <td class="var-negative">-11.5%</td>
+            <td class="positive">+1.2%</td>
+            <td>73.1%</td>
+          </tr>
+          <tr>
+            <td>DFW Data Center Park</td>
+            <td>Data Center</td>
+            <td>Dallas-Fort Worth</td>
+            <td>$11.6M</td>
+            <td>$13.7M</td>
+            <td class="var-negative">-$2.1M</td>
+            <td class="var-negative">-15.1%</td>
+            <td class="positive">+6.3%</td>
+            <td>67.3%</td>
+          </tr>
+          <tr>
+            <td>Michigan Avenue Office Plex</td>
+            <td>Office</td>
+            <td>Chicago Metro</td>
+            <td>$11.2M</td>
+            <td>$15.3M</td>
+            <td class="var-negative">-$4.2M</td>
+            <td class="var-negative">-27.1%</td>
+            <td class="negative">-2.2%</td>
+            <td>61.2%</td>
+          </tr>
+          <tr>
+            <td>Puget Sound Logistics Park</td>
+            <td>Industrial</td>
+            <td>Seattle Metro</td>
+            <td>$10.7M</td>
+            <td>$12.1M</td>
+            <td class="var-negative">-$1.4M</td>
+            <td class="var-negative">-11.5%</td>
+            <td class="positive">+1.1%</td>
+            <td>73.1%</td>
+          </tr>
+          <tr>
+            <td>Fifth Avenue Retail Center</td>
+            <td>Retail</td>
+            <td>New York City Metro</td>
+            <td>$10.6M</td>
+            <td>$13.4M</td>
+            <td class="var-negative">-$2.8M</td>
+            <td class="var-negative">-20.8%</td>
+            <td class="positive">+3.7%</td>
+            <td>64.1%</td>
+          </tr>
+          <tr>
+            <td>Las Vegas Industrial Park</td>
+            <td>Industrial</td>
+            <td>Las Vegas Metro</td>
+            <td>$9.9M</td>
+            <td>$11.0M</td>
+            <td class="var-negative">-$1.1M</td>
+            <td class="var-negative">-9.7%</td>
+            <td class="positive">+3.4%</td>
+            <td>73.8%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      Generated by xFalcon RetailEdge | Data as of 2025-12-31
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    mk('noiTrendChart', {
+      type: 'line',
+      data: {
+        labels: ['Jan-24', 'Feb-24', 'Mar-24', 'Apr-24', 'May-24', 'Jun-24', 'Jul-24', 'Aug-24', 'Sep-24', 'Oct-24', 'Nov-24', 'Dec-24', 'Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25', 'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'],
+        datasets: [
+          {
+            label: 'Actual NOI',
+            data: [26.7, 25.7, 26.9, 26.9, 27.2, 26.3, 27.3, 27.5, 27.1, 26.7, 27.2, 27.4, 27.7, 27.8, 28.2, 27.7, 27.8, 27.1, 28.0, 27.8, 27.8, 27.5, 28.1, 28.4],
+            borderColor: '#006AFF',
+            backgroundColor: 'rgba(0, 106, 255, 0.05)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointBackgroundColor: '#006AFF',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+          },
+          {
+            label: 'Budget NOI',
+            data: [34.4, 34.4, 34.4, 34.2, 34.5, 34.8, 34.4, 34.8, 34.7, 34.7, 35.1, 35.0, 35.2, 34.7, 35.4, 35.4, 35.7, 35.1, 35.8, 35.9, 35.7, 35.6, 35.8, 36.1],
+            borderColor: '#1A7F64',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0,
+            tension: 0.4
+          },
+          {
+            label: 'Prior Year NOI',
+            data: [26.7, 25.7, 26.9, 26.9, 27.2, 26.3, 27.3, 27.5, 27.1, 26.7, 27.2, 27.4, null, null, null, null, null, null, null, null, null, null, null, null],
+            borderColor: '#94A3B8',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { font: { size: 12, family: "'Inter', sans-serif" }, padding: 15, usePointStyle: true } },
+          tooltip: { backgroundColor: '#FFFFFF', titleColor: '#1F2937', bodyColor: '#1F2937', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, titleFont: { weight: 'bold' }, callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(1) + 'M'; } } }
+        },
+        scales: {
+          y: { beginAtZero: false, min: 20, max: 40, ticks: { font: { size: 11, family: "'Inter', sans-serif" }, callback: function(val) { return '$' + val + 'M'; } }, grid: { color: '#F3F4F6', drawBorder: false } },
+          x: { ticks: { font: { size: 11, family: "'Inter', sans-serif" } }, grid: { display: false, drawBorder: false } }
+        }
+      }
+    });
+
+    mk('assetClassChart', {
+      type: 'bar',
+      data: {
+        labels: ['Office', 'Industrial', 'Data Center', 'Retail', 'Residential', 'Healthcare', 'Telecom Tower'],
+        datasets: [
+          {
+            label: 'Actual NOI',
+            data: [108.1, 88.3, 57.0, 39.3, 28.7, 8.0, 4.7],
+            backgroundColor: '#006AFF',
+            barThickness: 'flex',
+            maxBarThickness: 50
+          },
+          {
+            label: 'Budget NOI',
+            data: [143.2, 97.1, 67.3, 50.1, 50.7, 13.8, 4.2],
+            backgroundColor: '#1A7F64',
+            barThickness: 'flex',
+            maxBarThickness: 50
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { font: { size: 12, family: "'Inter', sans-serif" }, padding: 15, usePointStyle: true } },
+          tooltip: { backgroundColor: '#FFFFFF', titleColor: '#1F2937', bodyColor: '#1F2937', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.parsed.x.toFixed(1) + 'M'; } } }
+        },
+        scales: {
+          x: { ticks: { font: { size: 11, family: "'Inter', sans-serif" }, callback: function(val) { return '$' + val + 'M'; } }, grid: { color: '#F3F4F6', drawBorder: false } },
+          y: { ticks: { font: { size: 11, family: "'Inter', sans-serif" } }, grid: { display: false, drawBorder: false } }
+        }
+      }
+    });
+
+    mk('expenseChart', {
+      type: 'bar',
+      data: {
+        labels: ['Rental\nRevenue', 'Other\nIncome', 'Property\nTax', 'Insurance', 'Utilities', 'Maintenance', 'Management\nFee', 'Admin &\nOther', 'NOI'],
+        datasets: [{
+          label: 'Amount',
+          data: [500.7, 27.5, -13.9, -4.0, -49.2, -59.2, -32.9, -34.9, 334.0],
+          backgroundColor: function(ctx) {
+            var val = ctx.raw;
+            if (val > 0 && ctx.dataIndex < 2) return '#006AFF';
+            if (val < 0) return '#E5E7EB';
+            if (val > 0 && ctx.dataIndex >= 8) return '#1A7F64';
+            return '#006AFF';
+          },
+          barThickness: 40
+        }]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#FFFFFF', titleColor: '#1F2937', bodyColor: '#1F2937', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, callbacks: { label: function(ctx) { return '$' + Math.abs(ctx.parsed.y).toFixed(1) + 'M'; } } }
+        },
+        scales: {
+          y: { ticks: { font: { size: 11, family: "'Inter', sans-serif" }, callback: function(val) { return '$' + val + 'M'; } }, grid: { color: '#F3F4F6', drawBorder: false } },
+          x: { ticks: { font: { size: 11, family: "'Inter', sans-serif" } }, grid: { display: false, drawBorder: false } }
+        }
+      }
+    });
+
+    mk('occupancyAssetChart', {
+      type: 'bar',
+      data: {
+        labels: ['Office', 'Industrial', 'Data Center', 'Retail', 'Residential', 'Healthcare', 'Telecom Tower'],
+        datasets: [{
+          label: 'Occupancy Rate %',
+          data: [71.0, 97.5, 92.0, 89.5, 92.0, 86.2, 82.2],
+          backgroundColor: '#006AFF',
+          barThickness: 'flex',
+          maxBarThickness: 50
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#FFFFFF', titleColor: '#1F2937', bodyColor: '#1F2937', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, callbacks: { label: function(ctx) { return ctx.parsed.x.toFixed(1) + '%'; } } }
+        },
+        scales: {
+          x: { min: 0, max: 100, ticks: { font: { size: 11, family: "'Inter', sans-serif" }, callback: function(val) { return val + '%'; } }, grid: { color: '#F3F4F6', drawBorder: false } },
+          y: { ticks: { font: { size: 11, family: "'Inter', sans-serif" } }, grid: { display: false, drawBorder: false } }
+        }
+      }
+    });
+
+    mk('occupancyTrendChart', {
+      type: 'line',
+      data: {
+        labels: ['Jan-24', 'Feb-24', 'Mar-24', 'Apr-24', 'May-24', 'Jun-24', 'Jul-24', 'Aug-24', 'Sep-24', 'Oct-24', 'Nov-24', 'Dec-24', 'Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25', 'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'],
+        datasets: [
+          {
+            label: 'Physical Occupancy',
+            data: [87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3, 87.3],
+            borderColor: '#006AFF',
+            backgroundColor: 'rgba(0, 106, 255, 0.05)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 2,
+            pointBackgroundColor: '#006AFF'
+          },
+          {
+            label: 'Economic Occupancy',
+            data: [85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5, 85.5],
+            borderColor: '#1A7F64',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { font: { size: 12, family: "'Inter', sans-serif" }, padding: 15, usePointStyle: true } },
+          tooltip: { backgroundColor: '#FFFFFF', titleColor: '#1F2937', bodyColor: '#1F2937', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%'; } } }
+        },
+        scales: {
+          y: { beginAtZero: false, min: 80, max: 95, ticks: { font: { size: 11, family: "'Inter', sans-serif" }, callback: function(val) { return val + '%'; } }, grid: { color: '#F3F4F6', drawBorder: false } },
+          x: { ticks: { font: { size: 11, family: "'Inter', sans-serif" } }, grid: { display: false, drawBorder: false } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

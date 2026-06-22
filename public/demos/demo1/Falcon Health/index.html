@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedVista Health System — Analytics Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* Top bar */
+        .top-bar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .top-bar .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .top-bar .brand-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.3px;
+        }
+
+        .top-bar .brand-text span {
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .top-bar .meta {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .top-bar .meta .live-dot {
+            width: 7px;
+            height: 7px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #0c1929 0%, #162033 50%, #0f172a 100%);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+            padding: 48px 32px 40px;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            font-size: 14px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .val {
+            font-size: 26px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .hero-stat .lbl {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Main content */
+        .content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+
+        /* Section headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            margin-top: 16px;
+        }
+
+        .section-header .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .section-header h3 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #94a3b8;
+        }
+
+        .section-header .line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), transparent);
+        }
+
+        /* Report cards grid */
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+            margin-bottom: 36px;
+        }
+
+        .report-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            border-radius: 12px;
+            padding: 20px 22px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .report-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(56, 189, 248, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .report-card .num {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .report-card .info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .report-card .info p {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .report-card .arrow {
+            margin-left: auto;
+            color: #475569;
+            font-size: 18px;
+            transition: color 0.2s, transform 0.2s;
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        .report-card:hover .arrow {
+            color: #38bdf8;
+            transform: translateX(3px);
+        }
+
+        /* Color themes for sections */
+        .clr-volume { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+        .clr-clinical { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .clr-provider { background: linear-gradient(135deg, #a855f7, #9333ea); }
+        .clr-financial { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .clr-patient { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .clr-ops { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+        .icon-volume { background: rgba(14, 165, 233, 0.15); color: #38bdf8; }
+        .icon-clinical { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .icon-provider { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .icon-financial { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .icon-patient { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+        .icon-ops { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 11px;
+            color: #475569;
+            border-top: 1px solid rgba(56, 189, 248, 0.08);
+        }
+
+        .footer a { color: #38bdf8; text-decoration: none; }
+
+        @media (max-width: 720px) {
+            .hero-stats { gap: 20px; }
+            .report-grid { grid-template-columns: 1fr; }
+            .top-bar { padding: 12px 16px; }
+            .hero { padding: 32px 16px 28px; }
+            .content { padding: 24px 16px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="brand">
+        <div class="logo-icon">M</div>
+        <div class="brand-text">
+            <h1>MedVista Health System</h1>
+            <span>Analytics Portal</span>
+        </div>
+    </div>
+    <div class="meta">
+        <span><span class="live-dot"></span>Data Current</span>
+        <span>Jan 2023 – Dec 2025</span>
+    </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+    <h2>Clinical & Operational Intelligence</h2>
+    <p>18 interactive dashboards covering encounter volume, clinical outcomes, provider performance, financial metrics, and patient demographics across the MedVista network.</p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="val">1,497</div>
+            <div class="lbl">Encounters</div>
+        </div>
+        <div class="hero-stat">
+            <div class="val">477</div>
+            <div class="lbl">Patients</div>
+        </div>
+        <div class="hero-stat">
+            <div class="val">$11.9M</div>
+            <div class="lbl">Total Billed</div>
+        </div>
+        <div class="hero-stat">
+            <div class="val">17</div>
+            <div class="lbl">Departments</div>
+        </div>
+        <div class="hero-stat">
+            <div class="val">100</div>
+            <div class="lbl">Providers</div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Links -->
+<div class="content">
+
+    <!-- Volume & Trends -->
+    <div class="section-header">
+        <div class="icon icon-volume">&#9733;</div>
+        <h3>Volume & Trends</h3>
+        <div class="line"></div>
+    </div>
+    <div class="report-grid">
+        <a class="report-card" href="01_encounter_volume_trends.html">
+            <div class="num clr-volume">01</div>
+            <div class="info">
+                <h4>Encounter Volume Trends</h4>
+                <p>Monthly trends, day-of-week patterns, quarterly volume, YoY comparison</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="02_busiest_departments.html">
+            <div class="num clr-volume">02</div>
+            <div class="info">
+                <h4>Busiest Departments</h4>
+                <p>Department ranking, type distribution, day-of-week heatmap</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="03_length_of_stay_duration.html">
+            <div class="num clr-volume">03</div>
+            <div class="info">
+                <h4>Length of Stay & Duration</h4>
+                <p>LOS distribution, inpatient vs outpatient, department and diagnosis LOS</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+    </div>
+
+    <!-- Clinical Analysis -->
+    <div class="section-header">
+        <div class="icon icon-clinical">&#9829;</div>
+        <h3>Clinical Analysis</h3>
+        <div class="line"></div>
+    </div>
+    <div class="report-grid">
+        <a class="report-card" href="04_diagnoses_chief_complaints.html">
+            <div class="num clr-clinical">04</div>
+            <div class="info">
+                <h4>Diagnoses & Chief Complaints</h4>
+                <p>Top diagnoses, body systems, chronic vs acute, complaint severity</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="05_top_procedures.html">
+            <div class="num clr-clinical">05</div>
+            <div class="info">
+                <h4>Top Procedures</h4>
+                <p>Procedure ranking, surgical vs non-surgical, RVU distribution</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="06_drg_distribution.html">
+            <div class="num clr-clinical">06</div>
+            <div class="info">
+                <h4>DRG Distribution & Case Mix</h4>
+                <p>DRG volume, LOS variance, severity, weight vs billed, MDC breakdown</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+    </div>
+
+    <!-- Provider Intelligence -->
+    <div class="section-header">
+        <div class="icon icon-provider">&#9879;</div>
+        <h3>Provider Intelligence</h3>
+        <div class="line"></div>
+    </div>
+    <div class="report-grid">
+        <a class="report-card" href="07_provider_workload.html">
+            <div class="num clr-provider">07</div>
+            <div class="info">
+                <h4>Provider Workload</h4>
+                <p>Top 20 providers, type distribution, specialty volume, efficiency</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="08_provider_specialization.html">
+            <div class="num clr-provider">08</div>
+            <div class="info">
+                <h4>Provider Specialization</h4>
+                <p>Specialty-department heatmap, PCP vs specialist, network status</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="09_dept_staffing_volume.html">
+            <div class="num clr-provider">09</div>
+            <div class="info">
+                <h4>Department Staffing vs Volume</h4>
+                <p>Provider-to-encounter ratios, efficiency metrics, patient load</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+    </div>
+
+    <!-- Financial & Payer -->
+    <div class="section-header">
+        <div class="icon icon-financial">&#9670;</div>
+        <h3>Financial & Payer</h3>
+        <div class="line"></div>
+    </div>
+    <div class="report-grid">
+        <a class="report-card" href="10_payer_mix.html">
+            <div class="num clr-financial">10</div>
+            <div class="info">
+                <h4>Payer Mix</h4>
+                <p>8 insurance plans, tier distribution, collection rates, avg billed</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="11_coverage_diagnosis_patterns.html">
+            <div class="num clr-financial">11</div>
+            <div class="info">
+                <h4>Coverage vs Diagnosis Patterns</h4>
+                <p>Plan type case mix, body system by payer, avg billed heatmap</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="12_drg_revenue_analysis.html">
+            <div class="num clr-financial">12</div>
+            <div class="info">
+                <h4>DRG Revenue Analysis</h4>
+                <p>Revenue by DRG, weight vs billed, collection rates, MDC revenue</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+    </div>
+
+    <!-- Patient Demographics -->
+    <div class="section-header">
+        <div class="icon icon-patient">&#9834;</div>
+        <h3>Patient Demographics</h3>
+        <div class="line"></div>
+    </div>
+    <div class="report-grid">
+        <a class="report-card" href="13_patient_demographics.html">
+            <div class="num clr-patient">13</div>
+            <div class="info">
+                <h4>Patient Demographics</h4>
+                <p>Age, gender, race, language distribution, demographic KPIs</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="14_demographic_diagnosis_patterns.html">
+            <div class="num clr-patient">14</div>
+            <div class="info">
+                <h4>Demographic Diagnosis Patterns</h4>
+                <p>Age group vs diagnosis, gender-specific conditions, equity analysis</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+    </div>
+
+    <!-- Operations & Logistics -->
+    <div class="section-header">
+        <div class="icon icon-ops">&#9881;</div>
+        <h3>Operations & Logistics</h3>
+        <div class="line"></div>
+    </div>
+    <div class="report-grid">
+        <a class="report-card" href="15_readmission_patterns.html">
+            <div class="num clr-ops">15</div>
+            <div class="info">
+                <h4>Readmission Patterns</h4>
+                <p>Readmission rates, high-risk diagnoses, time-to-readmission</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="16_encounter_duration_drivers.html">
+            <div class="num clr-ops">16</div>
+            <div class="info">
+                <h4>Encounter Duration Drivers</h4>
+                <p>What drives long stays — diagnosis, department, acuity factors</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="17_place_of_service.html">
+            <div class="num clr-ops">17</div>
+            <div class="info">
+                <h4>Place of Service</h4>
+                <p>Facility utilization, service location trends, inpatient vs outpatient</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+        <a class="report-card" href="18_source_referral_patterns.html">
+            <div class="num clr-ops">18</div>
+            <div class="info">
+                <h4>Source & Referral Patterns</h4>
+                <p>Admission sources, referral networks, transfer patterns</p>
+            </div>
+            <span class="arrow">&rsaquo;</span>
+        </a>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    MedVista Health System &mdash; Confidential &amp; Proprietary &nbsp;|&nbsp; Analytics powered by <a href="#">IDA Platform</a> &nbsp;|&nbsp; Data: Jan 2023 – Dec 2025
+</div>
+<script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
+</body>
+</html>

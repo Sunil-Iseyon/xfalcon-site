@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warranty Analysis Dashboard | Falcon</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F3F4F6; color: #1E293B; }
+        .topbar { background: #1B3A5C; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
+        .logo { width: 28px; height: 28px; background: #E87722; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+        .topbar-right { display: flex; gap: 16px; align-items: center; }
+        .back-link { color: #E87722; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .back-link:hover { color: #D97106; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 14px; background: white; color: #1E293B; cursor: pointer; }
+        .filter-select:focus { outline: none; border-color: #E87722; box-shadow: 0 0 0 2px rgba(232, 119, 34, 0.1); }
+        .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .kpi { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-left: 4px solid #E87722; }
+        .kpi-label { font-size: 12px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1E293B; line-height: 1.2; margin-bottom: 4px; }
+        .kpi-positive { color: #059669; }
+        .kpi-negative { color: #D32F2F; }
+        .charts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+        .chart-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 16px; font-weight: 700; color: #1B3A5C; margin-bottom: 16px; }
+        .chart-container { position: relative; height: 320px; }
+        .chart-wrap { position: relative; height: 320px; }
+        .table-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        .table-title { font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table thead { background: #1B3A5C; color: white; }
+        table th { padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #1B3A5C; }
+        table td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+        table tbody tr:hover { background: #F8FAFC; }
+        .text-right { text-align: right; }
+        @media (max-width: 1200px) {
+            .kpis { grid-template-columns: repeat(2, 1fr) !important; }
+            .charts { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 600px) {
+            .kpis { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">xF</div>
+            <span>Warranty Analysis</span>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select class="filter-select" id="yearFilter" onchange="applyFilters()">
+                    <option value="">All Years</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Claim Type</label>
+                <select class="filter-select" id="typeFilter" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    <option value="WARRANTY">Warranty</option>
+                    <option value="RECALL">Recall</option>
+                    <option value="CAMPAIGN">Campaign</option>
+                    <option value="GOODWILL">Goodwill</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Failure Category</label>
+                <select class="filter-select" id="categoryFilter" onchange="applyFilters()">
+                    <option value="">All Categories</option>
+                    <option value="ELECTRICAL">Electrical</option>
+                    <option value="BODY">Body</option>
+                    <option value="BRAKES">Brakes</option>
+                    <option value="ENGINE">Engine</option>
+                    <option value="TRANSMISSION">Transmission</option>
+                    <option value="SUSPENSION">Suspension</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpis" id="kpiContainer">
+            <div class="kpi">
+                <div class="kpi-label">Total Claims</div>
+                <div class="kpi-value" id="totalClaims">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Total Repair Cost</div>
+                <div class="kpi-value" id="totalRepair">$0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Cost/Claim</div>
+                <div class="kpi-value" id="avgCostPerClaim">$0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Supplier Chargebacks</div>
+                <div class="kpi-value" id="totalChargeback">$0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Odometer</div>
+                <div class="kpi-value" id="avgOdometer">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Open Claims</div>
+                <div class="kpi-value" id="openClaims">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Recall Claims</div>
+                <div class="kpi-value" id="recallClaims">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Top Failure Category</div>
+                <div class="kpi-value" id="topCategory" style="font-size: 18px;">-</div>
+            </div>
+        </div>
+
+        <div class="charts">
+            <div class="chart-card">
+                <div class="chart-title">Claims by Failure Category</div>
+                <div class="chart-container"><canvas id="claimsByCategory"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Claims by Claim Type</div>
+                <div class="chart-container"><canvas id="claimsByType"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Repair Cost Trend by Year</div>
+                <div class="chart-container"><canvas id="costTrend"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Chargeback by Supplier</div>
+                <div class="chart-container"><canvas id="chargebackBySupplier"></canvas></div>
+            </div>
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-title">Claims by Model</div>
+                <div class="chart-container" style="height: 350px;"><canvas id="claimsByModel"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-title">Warranty Claim Details</div>
+            <table id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Model</th>
+                        <th>Brand</th>
+                        <th>Claim Type</th>
+                        <th>Failure Category</th>
+                        <th>Status</th>
+                        <th class="text-right">Claims</th>
+                        <th class="text-right">Repair Cost</th>
+                        <th class="text-right">Chargeback</th>
+                        <th class="text-right">Avg Odometer</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var rawData = [
+            {YEAR: 2020, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 3, repair_cost: 2060.02, chargeback: 337.31, avg_odometer: 70807},
+            {YEAR: 2020, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "BODY", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1077.12, chargeback: 195.65, avg_odometer: 125589},
+            {YEAR: 2020, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 904.45, chargeback: 0.00, avg_odometer: 52740},
+            {YEAR: 2020, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "ENGINE", CLAIM_STATUS: "PAID", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1136.00, chargeback: 201.84, avg_odometer: 106568},
+            {YEAR: 2020, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "BODY", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1249.88, chargeback: 294.01, avg_odometer: 32792},
+            {YEAR: 2020, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1089.07, chargeback: 218.01, avg_odometer: 87237},
+            {YEAR: 2020, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "SUSPENSION", CLAIM_STATUS: "PAID", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 771.03, chargeback: 180.17, avg_odometer: 72676},
+            {YEAR: 2020, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "ENGINE", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1146.20, chargeback: 452.22, avg_odometer: 88735},
+            {YEAR: 2020, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "SUSPENSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 453.35, chargeback: 0.00, avg_odometer: 159090},
+            {YEAR: 2020, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "BODY", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 771.29, chargeback: 0.00, avg_odometer: 50983},
+            {YEAR: 2020, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 690.85, chargeback: 378.30, avg_odometer: 103334},
+            {YEAR: 2020, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 391.42, chargeback: 0.00, avg_odometer: 42660},
+            {YEAR: 2020, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "SUSPENSION", CLAIM_STATUS: "REJECTED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 532.77, chargeback: 0.00, avg_odometer: 146240},
+            {YEAR: 2020, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 635.84, chargeback: 295.54, avg_odometer: 137719},
+            {YEAR: 2020, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "BODY", CLAIM_STATUS: "PAID", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 1, repair_cost: 231.90, chargeback: 131.19, avg_odometer: 137587},
+            {YEAR: 2021, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 3, repair_cost: 1880.49, chargeback: 695.90, avg_odometer: 79581},
+            {YEAR: 2021, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 3, repair_cost: 1889.98, chargeback: 210.67, avg_odometer: 85095},
+            {YEAR: 2021, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 583.10, chargeback: 96.05, avg_odometer: 83846},
+            {YEAR: 2021, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "SUSPENSION", CLAIM_STATUS: "PAID", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1150.75, chargeback: 253.45, avg_odometer: 28102},
+            {YEAR: 2021, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 930.61, chargeback: 0.00, avg_odometer: 98831},
+            {YEAR: 2021, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "ENGINE", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1082.22, chargeback: 272.96, avg_odometer: 154760},
+            {YEAR: 2021, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1264.12, chargeback: 241.06, avg_odometer: 98937},
+            {YEAR: 2022, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 4, repair_cost: 1808.28, chargeback: 594.62, avg_odometer: 104168},
+            {YEAR: 2022, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 3, repair_cost: 1958.01, chargeback: 629.53, avg_odometer: 115264},
+            {YEAR: 2022, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 3, repair_cost: 1687.22, chargeback: 264.97, avg_odometer: 64800},
+            {YEAR: 2022, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "SUSPENSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 3, repair_cost: 1049.99, chargeback: 109.07, avg_odometer: 77045},
+            {YEAR: 2022, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 931.22, chargeback: 229.28, avg_odometer: 35174},
+            {YEAR: 2022, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Mustang", BRAND: "Ford", SUPPLIER_NAME: "Motherson Sumi Systems", claims: 2, repair_cost: 1197.55, chargeback: 280.10, avg_odometer: 133140},
+            {YEAR: 2023, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 5, repair_cost: 3559.43, chargeback: 1076.98, avg_odometer: 71464},
+            {YEAR: 2023, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "SUSPENSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 2125.08, chargeback: 0.00, avg_odometer: 65740},
+            {YEAR: 2023, CLAIM_TYPE: "CAMPAIGN", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "PAID", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 1483.65, chargeback: 336.86, avg_odometer: 76624},
+            {YEAR: 2023, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "ENGINE", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 1975.08, chargeback: 0.00, avg_odometer: 73172},
+            {YEAR: 2023, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 2302.65, chargeback: 0.00, avg_odometer: 137946},
+            {YEAR: 2023, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "PAID", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 1862.27, chargeback: 0.00, avg_odometer: 63175},
+            {YEAR: 2023, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 2644.12, chargeback: 0.00, avg_odometer: 99877},
+            {YEAR: 2023, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "ELECTRICAL", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 2612.06, chargeback: 1064.75, avg_odometer: 109605},
+            {YEAR: 2023, CLAIM_TYPE: "GOODWILL", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 2687.90, chargeback: 848.61, avg_odometer: 65361},
+            {YEAR: 2024, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "BRAKES", CLAIM_STATUS: "OPEN", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 3, repair_cost: 2105.55, chargeback: 0.00, avg_odometer: 45230},
+            {YEAR: 2024, CLAIM_TYPE: "RECALL", FAILURE_CATEGORY: "TRANSMISSION", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 3, repair_cost: 2987.41, chargeback: 456.88, avg_odometer: 92156},
+            {YEAR: 2024, CLAIM_TYPE: "WARRANTY", FAILURE_CATEGORY: "ENGINE", CLAIM_STATUS: "APPROVED", MODEL_NAME: "Civic", BRAND: "Honda", SUPPLIER_NAME: "ZF Friedrichshafen", claims: 2, repair_cost: 1864.77, chargeback: 567.34, avg_odometer: 78945}
+        ];
+
+        var charts = {};
+
+        function getFilters() {
+            var year = document.getElementById('yearFilter').value;
+            var type = document.getElementById('typeFilter').value;
+            var category = document.getElementById('categoryFilter').value;
+            return { year: year, type: type, category: category };
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = rawData.filter(function(row) {
+                var yearMatch = !filters.year || row.YEAR == parseInt(filters.year);
+                var typeMatch = !filters.type || row.CLAIM_TYPE === filters.type;
+                var catMatch = !filters.category || row.FAILURE_CATEGORY === filters.category;
+                return yearMatch && typeMatch && catMatch;
+            });
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+        }
+
+        function updateKPIs(data) {
+            var totalClaims = 0;
+            var totalRepair = 0;
+            var totalChargeback = 0;
+            var totalOdometer = 0;
+            var openClaims = 0;
+            var recallClaims = 0;
+            var categoryMap = {};
+
+            data.forEach(function(row) {
+                totalClaims += row.claims;
+                totalRepair += row.repair_cost;
+                totalChargeback += row.chargeback;
+                totalOdometer += row.avg_odometer * row.claims;
+                if (row.CLAIM_STATUS === 'OPEN') openClaims += row.claims;
+                if (row.CLAIM_TYPE === 'RECALL') recallClaims += row.claims;
+                categoryMap[row.FAILURE_CATEGORY] = (categoryMap[row.FAILURE_CATEGORY] || 0) + row.claims;
+            });
+
+            var avgCost = totalClaims > 0 ? (totalRepair / totalClaims).toFixed(0) : 0;
+            var avgOdometer = totalClaims > 0 ? (totalOdometer / totalClaims).toFixed(0) : 0;
+            var topCategory = Object.keys(categoryMap).length > 0 ? Object.keys(categoryMap).reduce(function(a, b) { return categoryMap[a] > categoryMap[b] ? a : b; }) : '-';
+
+            document.getElementById('totalClaims').textContent = totalClaims;
+            document.getElementById('totalRepair').textContent = '$' + (totalRepair / 1000).toFixed(1) + 'K';
+            document.getElementById('avgCostPerClaim').textContent = '$' + avgCost;
+            document.getElementById('totalChargeback').textContent = '$' + (totalChargeback / 1000).toFixed(1) + 'K';
+            document.getElementById('avgOdometer').textContent = avgOdometer + ' km';
+            document.getElementById('openClaims').textContent = openClaims;
+            document.getElementById('recallClaims').textContent = recallClaims;
+            document.getElementById('topCategory').textContent = topCategory;
+
+            fitKpiText();
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var text = el.textContent;
+                if (text.length > 12) {
+                    el.style.fontSize = '22px';
+                } else if (text.length > 8) {
+                    el.style.fontSize = '26px';
+                } else {
+                    el.style.fontSize = '28px';
+                }
+            });
+        }
+
+        function updateCharts(data) {
+            var categoryData = {};
+            var typeData = {};
+            var yearData = {};
+            var supplierChargebacks = {};
+            var modelData = {};
+
+            data.forEach(function(row) {
+                if (!categoryData[row.FAILURE_CATEGORY]) categoryData[row.FAILURE_CATEGORY] = 0;
+                categoryData[row.FAILURE_CATEGORY] += row.claims;
+
+                if (!typeData[row.CLAIM_TYPE]) typeData[row.CLAIM_TYPE] = 0;
+                typeData[row.CLAIM_TYPE] += row.claims;
+
+                if (!yearData[row.YEAR]) yearData[row.YEAR] = 0;
+                yearData[row.YEAR] += row.repair_cost;
+
+                if (!supplierChargebacks[row.SUPPLIER_NAME]) supplierChargebacks[row.SUPPLIER_NAME] = 0;
+                supplierChargebacks[row.SUPPLIER_NAME] += row.chargeback;
+
+                if (!modelData[row.MODEL_NAME]) modelData[row.MODEL_NAME] = 0;
+                modelData[row.MODEL_NAME] += row.claims;
+            });
+
+            updateChart('claimsByCategory', Object.keys(categoryData), Object.values(categoryData), 'bar', 'y');
+            updateChart('claimsByType', Object.keys(typeData), Object.values(typeData), 'bar');
+            updateChart('costTrend', Object.keys(yearData).sort(), Object.keys(yearData).sort().map(function(k) { return yearData[k]; }), 'line');
+            updateChart('chargebackBySupplier', Object.keys(supplierChargebacks), Object.values(supplierChargebacks), 'bar', 'y');
+            updateChart('claimsByModel', Object.keys(modelData), Object.values(modelData), 'bar');
+        }
+
+        function updateChart(canvasId, labels, values, type, indexAxis) {
+            if (charts[canvasId]) charts[canvasId].destroy();
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            var config = {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: type === 'line' ? 'Cost ($)' : 'Count',
+                        data: values,
+                        borderColor: '#1B3A5C',
+                        backgroundColor: type === 'line' ? 'transparent' : '#E87722',
+                        borderWidth: type === 'line' ? 2 : 0,
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    indexAxis: indexAxis || 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { beginAtZero: true }
+                    }
+                }
+            };
+            charts[canvasId] = new Chart(ctx, config);
+        }
+
+        function updateTable(data) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            data.forEach(function(row) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.YEAR + '</td><td>' + row.MODEL_NAME + '</td><td>' + row.BRAND + '</td><td>' + row.CLAIM_TYPE + '</td><td>' + row.FAILURE_CATEGORY + '</td><td>' + row.CLAIM_STATUS + '</td><td class="text-right">' + row.claims + '</td><td class="text-right">$' + row.repair_cost.toFixed(0) + '</td><td class="text-right">$' + row.chargeback.toFixed(0) + '</td><td class="text-right">' + row.avg_odometer + ' km</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

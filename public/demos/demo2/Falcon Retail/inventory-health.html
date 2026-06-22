@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Health & Stock Management - Falcon Retail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #1A1A1A;
+            color: #F5F0E8;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #2D2D2D;
+            border-bottom: 2px solid #8B6F3A;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #C9A84C;
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            color: #C9A84C;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #E8913A;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #C9A84C;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .kpi-card {
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover {
+            background-color: #3A3A3A;
+            border-color: #C9A84C;
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.15);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #9A9590;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #C9A84C;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-unit {
+            font-size: 0.75rem;
+            color: #9A9590;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #8B6F3A;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            color: #9A9590;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-button:hover {
+            color: #C9A84C;
+        }
+
+        .tab-button.active {
+            color: #C9A84C;
+            border-bottom-color: #C9A84C;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #C9A84C;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #8B6F3A;
+            padding-bottom: 0.8rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 1rem;
+        }
+
+        .full-width-chart {
+            grid-column: 1 / -1;
+        }
+
+        .alert-panel {
+            background-color: #2D2D2D;
+            border: 1px solid #E74C3C;
+            border-left: 4px solid #E74C3C;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .alert-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #E74C3C;
+            margin-bottom: 1rem;
+        }
+
+        .alert-list {
+            list-style: none;
+        }
+
+        .alert-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #8B6F3A;
+            font-size: 0.95rem;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-label {
+            font-weight: 600;
+            color: #C9A84C;
+        }
+
+        .metric-value {
+            color: #F5F0E8;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+
+        .status-danger {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #E74C3C;
+        }
+
+        .status-warning {
+            background-color: rgba(232, 145, 58, 0.2);
+            color: #E8913A;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #1A1A1A;
+            border-bottom: 2px solid #8B6F3A;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #C9A84C;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #8B6F3A;
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #3A3A3A;
+        }
+
+        .metric-cell {
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .color-healthy {
+            color: #4CAF50;
+        }
+
+        .color-warning {
+            color: #E8913A;
+        }
+
+        .color-danger {
+            color: #E74C3C;
+        }
+
+        .health-score {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .health-excellent {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .health-good {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #6BC34A;
+        }
+
+        .health-fair {
+            background-color: rgba(232, 145, 58, 0.2);
+            color: #E8913A;
+        }
+
+        .health-poor {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #E74C3C;
+        }
+
+        .footer {
+            background-color: #2D2D2D;
+            border-top: 2px solid #8B6F3A;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            color: #9A9590;
+            font-size: 0.9rem;
+        }
+
+        .metrics-summary {
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #8B6F3A;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: #9A9590;
+            font-size: 0.9rem;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #C9A84C;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .tabs {
+                gap: 0;
+            }
+
+            .tab-button {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">FALCON RETAIL</div>
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Inventory Health & Stock Management</h1>
+
+        <!-- KPI Bar -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Units on Hand</div>
+                <div class="kpi-value">3.8M</div>
+                <div class="kpi-unit">Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Sell-Through Rate</div>
+                <div class="kpi-value" style="color: #4CAF50;">79.8%</div>
+                <div class="kpi-unit">Healthy</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Weeks of Supply</div>
+                <div class="kpi-value">16.7</div>
+                <div class="kpi-unit">Weeks</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Stockouts</div>
+                <div class="kpi-value" style="color: #E74C3C;">689</div>
+                <div class="kpi-unit">SKUs</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Markdown Depth</div>
+                <div class="kpi-value">39.7%</div>
+                <div class="kpi-unit">Discount</div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('tab1', this)">Category Overview</button>
+            <button class="tab-button" onclick="switchTab('tab2', this)">Stock Health</button>
+            <button class="tab-button" onclick="switchTab('tab3', this)">Markdown Analysis</button>
+        </div>
+
+        <!-- TAB 1: Category Overview -->
+        <div id="tab1" class="tab-content active">
+            <div class="chart-grid">
+                <div class="chart-card full-width-chart">
+                    <div class="chart-title">Units on Hand by Category</div>
+                    <div class="chart-container">
+                        <canvas id="uohChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card full-width-chart">
+                    <div class="chart-title">Sell-Through % vs Markdown % by Category</div>
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Units on Hand</th>
+                            <th>Units Sold</th>
+                            <th>Sell-Through %</th>
+                            <th>Weeks of Supply</th>
+                            <th>Markdown %</th>
+                            <th>Stockouts</th>
+                            <th>Health Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Outerwear</strong></td>
+                            <td class="metric-cell">1,112,396</td>
+                            <td class="metric-cell">847,181</td>
+                            <td class="metric-cell color-healthy">74.4%</td>
+                            <td class="metric-cell">14.5</td>
+                            <td class="metric-cell">37.1%</td>
+                            <td class="metric-cell">225</td>
+                            <td><span class="health-score health-good">GOOD</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Activewear</strong></td>
+                            <td class="metric-cell">915,565</td>
+                            <td class="metric-cell">761,508</td>
+                            <td class="metric-cell color-healthy">82.3%</td>
+                            <td class="metric-cell">14.5</td>
+                            <td class="metric-cell">41.2%</td>
+                            <td class="metric-cell">164</td>
+                            <td><span class="health-score health-excellent">EXCELLENT</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bottoms</strong></td>
+                            <td class="metric-cell">666,505</td>
+                            <td class="metric-cell">445,584</td>
+                            <td class="metric-cell color-warning">65.7%</td>
+                            <td class="metric-cell">15.8</td>
+                            <td class="metric-cell">32.8%</td>
+                            <td class="metric-cell">116</td>
+                            <td><span class="health-score health-fair">FAIR</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tops</strong></td>
+                            <td class="metric-cell">461,284</td>
+                            <td class="metric-cell">359,567</td>
+                            <td class="metric-cell color-healthy">76.2%</td>
+                            <td class="metric-cell">17.9</td>
+                            <td class="metric-cell">38.0%</td>
+                            <td class="metric-cell">77</td>
+                            <td><span class="health-score health-good">GOOD</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Accessories</strong></td>
+                            <td class="metric-cell">360,118</td>
+                            <td class="metric-cell">297,789</td>
+                            <td class="metric-cell color-healthy">82.9%</td>
+                            <td class="metric-cell">22.4</td>
+                            <td class="metric-cell">41.7%</td>
+                            <td class="metric-cell">43</td>
+                            <td><span class="health-score health-excellent">EXCELLENT</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loungewear</strong></td>
+                            <td class="metric-cell">192,095</td>
+                            <td class="metric-cell">167,367</td>
+                            <td class="metric-cell color-healthy">85.1%</td>
+                            <td class="metric-cell">17.6</td>
+                            <td class="metric-cell">42.3%</td>
+                            <td class="metric-cell">37</td>
+                            <td><span class="health-score health-excellent">EXCELLENT</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Denim</strong></td>
+                            <td class="metric-cell">112,991</td>
+                            <td class="metric-cell">104,855</td>
+                            <td class="metric-cell color-healthy">91.6%</td>
+                            <td class="metric-cell">17.0</td>
+                            <td class="metric-cell">45.8%</td>
+                            <td class="metric-cell">24</td>
+                            <td><span class="health-score health-excellent">EXCELLENT</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Footwear</strong></td>
+                            <td class="metric-cell">5,084</td>
+                            <td class="metric-cell">5,722</td>
+                            <td class="metric-cell color-healthy">98.2%</td>
+                            <td class="metric-cell">14.5</td>
+                            <td class="metric-cell">48.6%</td>
+                            <td class="metric-cell">3</td>
+                            <td><span class="health-score health-excellent">EXCELLENT</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: Stock Health Indicators -->
+        <div id="tab2" class="tab-content">
+            <div class="alert-panel">
+                <div class="alert-title">⚠ Stock Health Alerts</div>
+                <ul class="alert-list">
+                    <li class="alert-item">
+                        <span class="category-label">Bottoms:</span>
+                        <span class="metric-value">Low sell-through rate (65.7%) - Consider markdown or inventory redistribution</span>
+                        <span class="status-badge status-warning">ATTENTION NEEDED</span>
+                    </li>
+                    <li class="alert-item">
+                        <span class="category-label">Outerwear:</span>
+                        <span class="metric-value">Highest stockout count (225 SKUs) - May indicate high demand for specific styles</span>
+                        <span class="status-badge status-warning">MONITOR</span>
+                    </li>
+                    <li class="alert-item">
+                        <span class="category-label">Accessories:</span>
+                        <span class="metric-value">High weeks of supply (22.4) with strong sell-through - Optimal inventory position</span>
+                        <span class="status-badge status-danger" style="background-color: rgba(76, 175, 80, 0.2); color: #4CAF50;">HEALTHY</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card full-width-chart">
+                    <div class="chart-title">Sell-Through Rate vs Weeks of Supply</div>
+                    <div class="chart-container">
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Category Health Scores</div>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card metrics-summary">
+                    <div class="chart-title" style="margin-bottom: 1rem;">Health Metrics Summary</div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">Excellent Categories</span>
+                            <span class="summary-value">5</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Good Categories</span>
+                            <span class="summary-value">2</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fair Categories</span>
+                            <span class="summary-value">1</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Avg STR</span>
+                            <span class="summary-value">79.8%</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Avg WOS</span>
+                            <span class="summary-value">16.7w</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Critical SKUs</span>
+                            <span class="summary-value">689</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Markdown Analysis -->
+        <div id="tab3" class="tab-content">
+            <div class="chart-grid">
+                <div class="chart-card full-width-chart">
+                    <div class="chart-title">Markdown Depth by Category</div>
+                    <div class="chart-container">
+                        <canvas id="markdownChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card full-width-chart">
+                    <div class="chart-title">Markdown % vs Sell-Through Rate Relationship</div>
+                    <div class="chart-container">
+                        <canvas id="mdRelationshipChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Markdown Depth %</th>
+                            <th>Units Discounted</th>
+                            <th>Sell-Through %</th>
+                            <th>Markdown ROI</th>
+                            <th>Recommended Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Footwear</strong></td>
+                            <td class="metric-cell">48.6%</td>
+                            <td class="metric-cell">2,470</td>
+                            <td class="metric-cell color-healthy">98.2%</td>
+                            <td class="metric-cell color-healthy">Excellent</td>
+                            <td>Maintain current strategy - High velocity</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Denim</strong></td>
+                            <td class="metric-cell">45.8%</td>
+                            <td class="metric-cell">51,830</td>
+                            <td class="metric-cell color-healthy">91.6%</td>
+                            <td class="metric-cell color-healthy">Strong</td>
+                            <td>Continue aggressive markdown - Performing well</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loungewear</strong></td>
+                            <td class="metric-cell">42.3%</td>
+                            <td class="metric-cell">81,371</td>
+                            <td class="metric-cell color-healthy">85.1%</td>
+                            <td class="metric-cell color-healthy">Strong</td>
+                            <td>Optimize markdown timing - Peak season approaching</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Activewear</strong></td>
+                            <td class="metric-cell">41.2%</td>
+                            <td class="metric-cell">377,361</td>
+                            <td class="metric-cell color-healthy">82.3%</td>
+                            <td class="metric-cell color-healthy">Good</td>
+                            <td>Monitor closely - Largest discounted volume</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Accessories</strong></td>
+                            <td class="metric-cell">41.7%</td>
+                            <td class="metric-cell">150,062</td>
+                            <td class="metric-cell color-healthy">82.9%</td>
+                            <td class="metric-cell color-healthy">Good</td>
+                            <td>Maintain strategy - Strong performance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tops</strong></td>
+                            <td class="metric-cell">38.0%</td>
+                            <td class="metric-cell">175,100</td>
+                            <td class="metric-cell color-healthy">76.2%</td>
+                            <td class="metric-cell color-warning">Fair</td>
+                            <td>Increase markdown depth - Below-average sell-through</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Outerwear</strong></td>
+                            <td class="metric-cell">37.1%</td>
+                            <td class="metric-cell">412,498</td>
+                            <td class="metric-cell color-healthy">74.4%</td>
+                            <td class="metric-cell color-warning">Fair</td>
+                            <td>Strategic markdown increase - Seasonal adjustment needed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bottoms</strong></td>
+                            <td class="metric-cell">32.8%</td>
+                            <td class="metric-cell">146,111</td>
+                            <td class="metric-cell color-warning">65.7%</td>
+                            <td class="metric-cell color-danger">Poor</td>
+                            <td>Aggressive markdown required - Lowest sell-through</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated March 16, 2026 | Data as of March 16, 2026 | Falcon Retail Inventory Management System</p>
+    </div>
+
+    <script>
+        const colors = ['#C9A84C', '#6A9BC3', '#5BA67D', '#E8913A', '#C75B5B', '#8E6BBF', '#4ECDC4', '#D4A843'];
+        const categories = ['Outerwear', 'Activewear', 'Bottoms', 'Tops', 'Accessories', 'Loungewear', 'Denim', 'Footwear'];
+        const unitsOnHand = [1112396, 915565, 666505, 461284, 360118, 192095, 112991, 5084];
+        const sellThrough = [74.4, 82.3, 65.7, 76.2, 82.9, 85.1, 91.6, 98.2];
+        const markdown = [37.1, 41.2, 32.8, 38.0, 41.7, 42.3, 45.8, 48.6];
+        const weeksOfSupply = [14.5, 14.5, 15.8, 17.9, 22.4, 17.6, 17.0, 14.5];
+        const stockouts = [225, 164, 116, 77, 43, 37, 24, 3];
+
+        // Chart 1: Units on Hand
+        const uohCtx = document.getElementById('uohChart').getContext('2d');
+        const uohChart = new Chart(uohCtx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: 'Units on Hand',
+                    data: unitsOnHand,
+                    backgroundColor: colors[0],
+                    borderColor: '#8B6F3A',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#F5F0E8',
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' }
+                    },
+                    y: {
+                        ticks: { color: '#F5F0E8' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Sell-Through vs Markdown Comparison
+        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+        const comparisonChart = new Chart(comparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [
+                    {
+                        label: 'Sell-Through %',
+                        data: sellThrough,
+                        backgroundColor: colors[2],
+                        borderColor: '#8B6F3A',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Markdown %',
+                        data: markdown,
+                        backgroundColor: colors[3],
+                        borderColor: '#8B6F3A',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 12 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' },
+                        max: 100
+                    },
+                    x: {
+                        ticks: { color: '#F5F0E8' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Scatter Plot - STR vs WOS
+        const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+        const scatterChart = new Chart(scatterCtx, {
+            type: 'bubble',
+            data: {
+                datasets: categories.map((cat, idx) => ({
+                    label: cat,
+                    data: [{
+                        x: weeksOfSupply[idx],
+                        y: sellThrough[idx],
+                        r: Math.sqrt(unitsOnHand[idx]) / 250
+                    }],
+                    backgroundColor: colors[idx],
+                    borderColor: '#8B6F3A',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.r ? 'Bubble size = Units on Hand' : '';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { text: 'Weeks of Supply', color: '#F5F0E8' },
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' }
+                    },
+                    y: {
+                        title: { text: 'Sell-Through %', color: '#F5F0E8' },
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' },
+                        min: 60,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Radar - Category Health
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['STR', 'WOS (Inv)', 'Low Stockouts', 'Low Markdown', 'Volume Balance'],
+                datasets: [
+                    {
+                        label: 'Activewear',
+                        data: [82.3, 85.5, 84, 58.8, 85],
+                        borderColor: colors[1],
+                        backgroundColor: 'rgba(106, 155, 195, 0.1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Bottoms',
+                        data: [65.7, 84.2, 89.4, 67.2, 62],
+                        borderColor: colors[2],
+                        backgroundColor: 'rgba(91, 166, 125, 0.1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Denim',
+                        data: [91.6, 83.0, 96.5, 54.2, 55],
+                        borderColor: colors[6],
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#F5F0E8', font: { size: 11 } } }
+                },
+                scales: {
+                    r: {
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' },
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Chart 5: Markdown Depth
+        const markdownCtx = document.getElementById('markdownChart').getContext('2d');
+        const markdownChart = new Chart(markdownCtx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: 'Markdown Depth %',
+                    data: markdown,
+                    backgroundColor: colors[3],
+                    borderColor: '#8B6F3A',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { labels: { color: '#F5F0E8', font: { size: 12 } } }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' },
+                        max: 50
+                    },
+                    y: {
+                        ticks: { color: '#F5F0E8' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 6: Markdown vs STR Relationship
+        const mdRelCtx = document.getElementById('mdRelationshipChart').getContext('2d');
+        const mdRelChart = new Chart(mdRelCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Category Performance',
+                    data: categories.map((cat, idx) => ({
+                        x: markdown[idx],
+                        y: sellThrough[idx]
+                    })),
+                    backgroundColor: colors,
+                    borderColor: '#8B6F3A',
+                    borderWidth: 1,
+                    pointRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                return categories[context.dataIndex];
+                            }
+                        }
+                    },
+                    legend: { labels: { color: '#F5F0E8' } }
+                },
+                scales: {
+                    x: {
+                        title: { text: 'Markdown %', color: '#F5F0E8' },
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' }
+                    },
+                    y: {
+                        title: { text: 'Sell-Through %', color: '#F5F0E8' },
+                        ticks: { color: '#9A9590' },
+                        grid: { color: '#3A3A3A' },
+                        min: 60,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Tab switching function
+        function switchTab(tabId, button) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            button.classList.add('active');
+
+            // Trigger chart resize
+            setTimeout(() => {
+                uohChart.resize();
+                comparisonChart.resize();
+                scatterChart.resize();
+                radarChart.resize();
+                markdownChart.resize();
+                mdRelChart.resize();
+            }, 100);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 3: Length of Stay & Encounter Duration</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; color: #2d3436; padding: 24px; }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .header .subtitle { font-size: 14px; color: #636e72; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .kpi-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; margin-bottom: 8px; }
+        .kpi-card .value { font-size: 26px; font-weight: 700; }
+        .kpi-card .sub { font-size: 12px; color: #636e72; margin-top: 4px; }
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #2d3436; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #dfe6e9; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f2f6; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .highlight-bar { display: inline-block; height: 10px; border-radius: 5px; vertical-align: middle; }
+        .generated-note { text-align: center; font-size: 11px; color: #b2bec3; margin-top: 32px; padding-top: 16px; border-top: 1px solid #dfe6e9; }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Area 3: Length of Stay & Encounter Duration</h1>
+    <div class="subtitle">Jan 2023 – Dec 2025 | 1,497 Encounters | 593 Total Bed Days | Generated March 11, 2026</div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="label">Overall Avg LOS</div>
+        <div class="value">0.40 days</div>
+        <div class="sub">Majority same-day visits</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Same-Day Encounters</div>
+        <div class="value">93.9%</div>
+        <div class="sub">1,405 of 1,497</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Inpatient (1+ day)</div>
+        <div class="value">92</div>
+        <div class="sub">6.1% of all encounters</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Total Bed Days</div>
+        <div class="value">593</div>
+        <div class="sub">Across all encounters</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Max LOS Observed</div>
+        <div class="value">21 days</div>
+        <div class="sub">General Surgery / Ortho / GI</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Avg Billed (Inpatient)</div>
+        <div class="value">$57.4K</div>
+        <div class="sub">vs $2.1K same-day avg</div>
+    </div>
+</div>
+
+<!-- LOS Distribution + LOS Category -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>LOS Distribution (Days)</h3>
+        <div class="chart-wrap h300">
+            <canvas id="losDistChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Encounters by LOS Category</h3>
+        <div class="chart-wrap h300">
+            <canvas id="losCategoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Department LOS + Quarterly Trend -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Average LOS by Department (Inpatient Departments Only)</h3>
+        <div class="chart-wrap h300">
+            <canvas id="deptLosChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Quarterly LOS Trend & Inpatient Volume</h3>
+        <div class="chart-wrap h300">
+            <canvas id="quarterlyLosChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- LOS vs Cost + Diagnosis LOS -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>LOS Days vs Avg Billed Amount</h3>
+        <div class="chart-wrap h300">
+            <canvas id="losCostChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Cost of Stay Band Distribution</h3>
+        <div class="chart-wrap h300">
+            <canvas id="costBandChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Diagnosis LOS Table -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Average LOS by Primary Diagnosis (Top 25)</h3>
+        <div class="chart-wrap h350">
+            <canvas id="diagLosChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Department Detail Grid -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Department LOS Detail Grid</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th class="num">Encounters</th>
+                        <th class="num">Inpatient Count</th>
+                        <th class="num">% Inpatient</th>
+                        <th class="num">Avg LOS (Days)</th>
+                        <th class="num">Max LOS</th>
+                        <th class="num">Total Bed Days</th>
+                    </tr>
+                </thead>
+                <tbody id="deptTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="generated-note">
+    Generated by IDA | Length of Stay Analysis | Data: Jan 2023 – Dec 2025
+</div>
+
+<script>
+const COLORS = { primary:'#2C5F8A', secondary:'#E8913A', success:'#5BA67D', danger:'#C75B5B', warning:'#D4A843', info:'#6A9BC3', purple:'#8E6BBF', teal:'#4ECDC4', muted:'#B2BEC3' };
+
+function formatDollars(v) {
+    if (Math.abs(v) >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
+    if (Math.abs(v) >= 1000) return '$' + (v/1000).toFixed(0) + 'K';
+    return '$' + v.toFixed(0);
+}
+
+// === DATA ===
+const losDistData = [
+    {days:0,count:1347,avgBilled:2074},
+    {days:1,count:23,avgBilled:59144},
+    {days:2,count:35,avgBilled:70034},
+    {days:3,count:26,avgBilled:50874},
+    {days:4,count:20,avgBilled:64114},
+    {days:5,count:14,avgBilled:59936},
+    {days:6,count:14,avgBilled:55176},
+    {days:7,count:11,avgBilled:61314},
+    {days:10,count:2,avgBilled:59762},
+    {days:14,count:2,avgBilled:73792},
+    {days:21,count:3,avgBilled:55363}
+];
+
+const losCatData = [
+    {cat:"Same Day (0)",count:1405,billed:6605487,avgBilled:4701,avgPaid:2075},
+    {cat:"1 Day",count:60,billed:3444125,avgBilled:57402,avgPaid:22632},
+    {cat:"Short Stay (2-3)",count:27,billed:1566443,avgBilled:58016,avgPaid:23998},
+    {cat:"Short Stay (4-7)",count:2,billed:147585,avgBilled:73792,avgPaid:32647},
+    {cat:"Extended (8-14)",count:3,billed:166089,avgBilled:55363,avgPaid:21127}
+];
+
+const deptLosData = [
+    {name:"General Surgery",avgLos:5.80,maxLos:21,totalDays:58,encounters:10,inpatient:10},
+    {name:"Nephrology",avgLos:4.00,maxLos:14,totalDays:68,encounters:17,inpatient:17},
+    {name:"ICU",avgLos:3.40,maxLos:7,totalDays:51,encounters:15,inpatient:15},
+    {name:"Oncology",avgLos:3.12,maxLos:7,totalDays:53,encounters:17,inpatient:17},
+    {name:"Pulmonology",avgLos:2.29,maxLos:5,totalDays:32,encounters:14,inpatient:14},
+    {name:"Gastroenterology",avgLos:1.07,maxLos:21,totalDays:89,encounters:83,inpatient:17},
+    {name:"Orthopedics",avgLos:0.83,maxLos:21,totalDays:66,encounters:80,inpatient:13},
+    {name:"Cardiology",avgLos:0.80,maxLos:7,totalDays:66,encounters:83,inpatient:17},
+    {name:"Internal Medicine",avgLos:0.76,maxLos:14,totalDays:75,encounters:99,inpatient:21},
+    {name:"Neurology",avgLos:0.41,maxLos:7,totalDays:35,encounters:85,inpatient:9}
+];
+
+const outpatientDepts = [
+    {name:"Laboratory",avgLos:0,maxLos:0,totalDays:0,encounters:293,inpatient:0},
+    {name:"Family Medicine",avgLos:0,maxLos:0,totalDays:0,encounters:229,inpatient:0},
+    {name:"Pediatrics",avgLos:0,maxLos:0,totalDays:0,encounters:142,inpatient:0},
+    {name:"Emergency Medicine",avgLos:0,maxLos:0,totalDays:0,encounters:121,inpatient:0},
+    {name:"Psychiatry",avgLos:0,maxLos:0,totalDays:0,encounters:74,inpatient:0},
+    {name:"Physical Therapy",avgLos:0,maxLos:0,totalDays:0,encounters:68,inpatient:0},
+    {name:"OB/GYN",avgLos:0,maxLos:0,totalDays:0,encounters:67,inpatient:0}
+];
+
+const quarterlyData = [
+    {q:"2023-Q1",avgLos:0.198,totalDays:23,encounters:116,inpatient:10},
+    {q:"2023-Q2",avgLos:0.456,totalDays:62,encounters:136,inpatient:15},
+    {q:"2023-Q3",avgLos:0.336,totalDays:37,encounters:110,inpatient:12},
+    {q:"2023-Q4",avgLos:0.358,totalDays:49,encounters:137,inpatient:10},
+    {q:"2024-Q1",avgLos:0.468,totalDays:65,encounters:139,inpatient:17},
+    {q:"2024-Q2",avgLos:0.699,totalDays:93,encounters:133,inpatient:17},
+    {q:"2024-Q3",avgLos:0.312,totalDays:34,encounters:109,inpatient:9},
+    {q:"2024-Q4",avgLos:0.438,totalDays:57,encounters:130,inpatient:11},
+    {q:"2025-Q1",avgLos:0.453,totalDays:62,encounters:137,inpatient:18},
+    {q:"2025-Q2",avgLos:0.570,totalDays:73,encounters:128,inpatient:17},
+    {q:"2025-Q3",avgLos:0.196,totalDays:20,encounters:102,inpatient:7},
+    {q:"2025-Q4",avgLos:0.150,totalDays:18,encounters:120,inpatient:7}
+];
+
+const diagLosData = [
+    {name:"Dyslipidemia",body:"Endocrine",avgLos:1.07,enc:45,avgBilled:11483,days:48},
+    {name:"General Adult Exam",body:"Preventive",avgLos:0.98,enc:62,avgBilled:5954,days:61},
+    {name:"Osteoarthritis (R Knee)",body:"Musculoskeletal",avgLos:0.72,enc:54,avgBilled:11752,days:39},
+    {name:"Chronic Kidney Disease",body:"Genitourinary",avgLos:0.64,enc:64,avgBilled:8204,days:41},
+    {name:"Coronary Artery Disease",body:"Circulatory",avgLos:0.59,enc:66,avgBilled:8544,days:39},
+    {name:"Hypothyroidism",body:"Endocrine",avgLos:0.56,enc:62,avgBilled:7788,days:35},
+    {name:"Type 2 Diabetes",body:"Endocrine",avgLos:0.49,enc:65,avgBilled:11189,days:32},
+    {name:"Obstructive Sleep Apnea",body:"Nervous",avgLos:0.46,enc:59,avgBilled:14120,days:27},
+    {name:"Psoriasis Vulgaris",body:"Dermatologic",avgLos:0.42,enc:50,avgBilled:8058,days:21},
+    {name:"UTI",body:"Genitourinary",avgLos:0.41,enc:63,avgBilled:7242,days:26},
+    {name:"Major Depression",body:"Mental Health",avgLos:0.40,enc:55,avgBilled:9339,days:22},
+    {name:"Femur Fracture",body:"Musculoskeletal",avgLos:0.38,enc:45,avgBilled:8017,days:17},
+    {name:"Low Back Pain",body:"Musculoskeletal",avgLos:0.33,enc:57,avgBilled:5739,days:19},
+    {name:"Hypertension",body:"Circulatory",avgLos:0.32,enc:68,avgBilled:12135,days:22},
+    {name:"GERD",body:"Digestive",avgLos:0.31,enc:78,avgBilled:5118,days:24},
+    {name:"Migraine",body:"Nervous",avgLos:0.30,enc:60,avgBilled:10176,days:18},
+    {name:"Abdominal Pain",body:"Digestive",avgLos:0.27,enc:62,avgBilled:5091,days:17},
+    {name:"Immunization",body:"Preventive",avgLos:0.25,enc:51,avgBilled:7757,days:13},
+    {name:"Atrial Fibrillation",body:"Circulatory",avgLos:0.23,enc:64,avgBilled:8567,days:15},
+    {name:"Asthma",body:"Respiratory",avgLos:0.22,enc:68,avgBilled:8136,days:15},
+    {name:"Heart Failure",body:"Circulatory",avgLos:0.20,enc:56,avgBilled:5476,days:11},
+    {name:"Gallstones",body:"Digestive",avgLos:0.19,enc:59,avgBilled:6024,days:11},
+    {name:"Pneumonia",body:"Respiratory",avgLos:0.14,enc:58,avgBilled:5346,days:8},
+    {name:"COPD Exacerbation",body:"Respiratory",avgLos:0.11,enc:55,avgBilled:6212,days:6},
+    {name:"Acute URI",body:"Respiratory",avgLos:0.08,enc:71,avgBilled:3590,days:6}
+];
+
+const costBandData = [
+    {band:"$0-$5K",count:1465,billed:10049612,avgBilled:6860},
+    {band:"$5K-$10K",count:27,billed:1566443,avgBilled:58016},
+    {band:"$10K-$20K",count:2,billed:147585,avgBilled:73792},
+    {band:"$20K-$50K",count:3,billed:166089,avgBilled:55363}
+];
+
+// === Chart 1: LOS Distribution ===
+new Chart(document.getElementById('losDistChart'), {
+    type: 'bar',
+    data: {
+        labels: losDistData.map(d => d.days + ' days'),
+        datasets: [{
+            label: 'Encounters',
+            data: losDistData.map(d => d.count),
+            backgroundColor: losDistData.map(d => d.days === 0 ? COLORS.primary : COLORS.secondary),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    afterLabel: ctx => 'Avg Billed: ' + formatDollars(losDistData[ctx.dataIndex].avgBilled)
+                }
+            }
+        },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Encounters' } }
+        }
+    }
+});
+
+// === Chart 2: LOS Category Doughnut ===
+new Chart(document.getElementById('losCategoryChart'), {
+    type: 'doughnut',
+    data: {
+        labels: losCatData.map(d => d.cat + ': ' + d.count),
+        datasets: [{
+            data: losCatData.map(d => d.count),
+            backgroundColor: [COLORS.primary, COLORS.secondary, COLORS.success, COLORS.warning, COLORS.danger],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+                callbacks: {
+                    afterLabel: ctx => {
+                        const d = losCatData[ctx.dataIndex];
+                        return `Avg Billed: ${formatDollars(d.avgBilled)}\nAvg Paid: ${formatDollars(d.avgPaid)}`;
+                    }
+                }
+            }
+        }
+    }
+});
+
+// === Chart 3: Department LOS (horizontal bar, inpatient only) ===
+new Chart(document.getElementById('deptLosChart'), {
+    type: 'bar',
+    data: {
+        labels: deptLosData.map(d => d.name),
+        datasets: [
+            {
+                label: 'Avg LOS (Days)',
+                data: deptLosData.map(d => d.avgLos),
+                backgroundColor: COLORS.primary,
+                borderRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Inpatient Count',
+                data: deptLosData.map(d => d.inpatient),
+                type: 'line',
+                borderColor: COLORS.secondary,
+                backgroundColor: 'transparent',
+                tension: 0.3,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Avg LOS (Days)' } },
+            y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Inpatient Count' } }
+        }
+    }
+});
+
+// === Chart 4: Quarterly LOS Trend ===
+new Chart(document.getElementById('quarterlyLosChart'), {
+    type: 'line',
+    data: {
+        labels: quarterlyData.map(d => d.q),
+        datasets: [
+            {
+                label: 'Avg LOS (Days)',
+                data: quarterlyData.map(d => d.avgLos),
+                borderColor: COLORS.primary,
+                backgroundColor: 'rgba(44,95,138,0.1)',
+                fill: true,
+                tension: 0.3,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Inpatient Count',
+                data: quarterlyData.map(d => d.inpatient),
+                borderColor: COLORS.danger,
+                backgroundColor: 'transparent',
+                borderDash: [5,5],
+                tension: 0.3,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Avg LOS (Days)' } },
+            y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Inpatient Count' } }
+        }
+    }
+});
+
+// === Chart 5: LOS vs Cost ===
+new Chart(document.getElementById('losCostChart'), {
+    type: 'bar',
+    data: {
+        labels: losDistData.filter(d => d.days > 0).map(d => d.days + ' days'),
+        datasets: [{
+            label: 'Avg Billed ($)',
+            data: losDistData.filter(d => d.days > 0).map(d => d.avgBilled),
+            backgroundColor: COLORS.success,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { callback: v => formatDollars(v) }, title: { display: true, text: 'Avg Billed ($)' } }
+        }
+    }
+});
+
+// === Chart 6: Cost Band ===
+new Chart(document.getElementById('costBandChart'), {
+    type: 'bar',
+    data: {
+        labels: costBandData.map(d => d.band),
+        datasets: [
+            {
+                label: 'Encounters',
+                data: costBandData.map(d => d.count),
+                backgroundColor: COLORS.primary,
+                borderRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Avg Billed',
+                data: costBandData.map(d => d.avgBilled),
+                type: 'line',
+                borderColor: COLORS.danger,
+                backgroundColor: 'transparent',
+                tension: 0.3,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Encounters' } },
+            y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => formatDollars(v) } }
+        }
+    }
+});
+
+// === Chart 7: Diagnosis LOS (horizontal bar) ===
+new Chart(document.getElementById('diagLosChart'), {
+    type: 'bar',
+    data: {
+        labels: diagLosData.map(d => d.name),
+        datasets: [{
+            label: 'Avg LOS (Days)',
+            data: diagLosData.map(d => d.avgLos),
+            backgroundColor: diagLosData.map(d => {
+                const colors = {Endocrine:COLORS.secondary, Preventive:COLORS.success, Musculoskeletal:COLORS.warning,
+                    Genitourinary:COLORS.purple, Circulatory:COLORS.danger, Nervous:COLORS.info,
+                    Dermatologic:COLORS.teal, 'Mental Health':'#8E6BBF', Digestive:'#E8913A',
+                    Respiratory:'#6A9BC3'};
+                return colors[d.body] || COLORS.primary;
+            }),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    afterLabel: ctx => {
+                        const d = diagLosData[ctx.dataIndex];
+                        return `Body System: ${d.body}\nEncounters: ${d.enc}\nAvg Billed: ${formatDollars(d.avgBilled)}`;
+                    }
+                }
+            }
+        },
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Avg LOS (Days)' } } }
+    }
+});
+
+// === Department Detail Table ===
+(function() {
+    const allDepts = [...deptLosData, ...outpatientDepts].sort((a,b) => b.avgLos - a.avgLos);
+    const tbody = document.getElementById('deptTableBody');
+    tbody.innerHTML = allDepts.map(d => {
+        const pctInpatient = d.encounters > 0 ? ((d.inpatient/d.encounters)*100).toFixed(1) + '%' : '0%';
+        return `<tr>
+            <td><strong>${d.name}</strong></td>
+            <td class="num">${d.encounters}</td>
+            <td class="num">${d.inpatient}</td>
+            <td class="num">${pctInpatient}</td>
+            <td class="num">${d.avgLos.toFixed(2)}</td>
+            <td class="num">${d.maxLos}</td>
+            <td class="num">${d.totalDays}</td>
+        </tr>`;
+    }).join('');
+})();
+</script>
+
+</body>
+</html>

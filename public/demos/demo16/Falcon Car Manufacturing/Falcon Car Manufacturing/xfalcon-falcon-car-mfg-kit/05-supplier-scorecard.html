@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Supplier Scorecard Dashboard</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #F3F4F6; color: #1E293B; }
+		.topbar { background-color: #1B3A5C; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; color: white; }
+		.logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+		.logo-x { color: #E87722; }
+		.topbar-right { display: flex; gap: 24px; align-items: center; }
+		.topbar a { color: white; text-decoration: none; font-size: 14px; }
+		.topbar a:hover { opacity: 0.8; }
+		.container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+		.page-title { font-size: 32px; font-weight: 700; margin-bottom: 24px; color: #1E293B; }
+		.filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; align-items: end; }
+		.filter-group { display: flex; flex-direction: column; gap: 6px; }
+		.filter-group label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; }
+		.filter-group select { padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 4px; font-size: 14px; background: white; cursor: pointer; }
+		.btn { padding: 8px 16px; background-color: #E87722; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; }
+		.btn:hover { background-color: #D06E1A; }
+		.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+		.kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #E87722; }
+		.kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; margin-bottom: 8px; }
+		.kpi-value { font-size: 28px; font-weight: 700; color: #1E293B; }
+		.kpi-value.positive { color: #059669; }
+		.kpi-value.negative { color: #D32F2F; }
+		.kpi-subtext { font-size: 12px; color: #94A3B8; margin-top: 6px; }
+		.charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+		.chart-card { background: white; padding: 20px; border-radius: 8px; }
+		.chart-title { font-size: 16px; font-weight: 700; color: #1B3A5C; margin-bottom: 16px; }
+		.table-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
+		table { width: 100%; border-collapse: collapse; font-size: 14px; }
+		th { background-color: #1B3A5C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+		td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+		tr:hover { background-color: #F8FAFC; }
+		.number { text-align: right; font-family: 'Courier New', monospace; }
+		canvas { max-height: 300px; }
+		.chart-wrap { position: relative; height: 320px; }
+		@media (max-width: 1200px) {
+			.kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+			.charts-grid { grid-template-columns: 1fr !important; }
+		}
+		@media (max-width: 600px) {
+			.kpi-grid { grid-template-columns: 1fr !important; }
+		}
+	</style>
+</head>
+<body>
+	<div class="topbar">
+		<div class="logo"><span class="logo-x">x</span><span style="color: white;">F</span></div>
+		<div class="topbar-right">
+			<a href="index.html">Back to Analytics</a>
+		</div>
+	</div>
+
+	<div class="container">
+		<h1 class="page-title">Supplier Scorecard</h1>
+
+		<div class="filters">
+			<div class="filter-group">
+				<label>Year</label>
+				<select id="yearFilter">
+					<option value="">All Years</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label>Category</label>
+				<select id="categoryFilter">
+					<option value="">All Categories</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label>Tier</label>
+				<select id="tierFilter">
+					<option value="">All Tiers</option>
+				</select>
+			</div>
+			<button class="btn" onclick="applyFilters()">Apply Filters</button>
+		</div>
+
+		<div class="kpi-grid" id="kpiGrid"></div>
+
+		<div class="charts-grid">
+			<div class="chart-card">
+				<div class="chart-title">Quality Rating by Supplier</div>
+				<div class="chart-wrap"><canvas id="qualityChart"></canvas></div>
+			</div>
+			<div class="chart-card">
+				<div class="chart-title">On-Time Delivery % by Supplier</div>
+				<div class="chart-wrap"><canvas id="deliveryChart"></canvas></div>
+			</div>
+		</div>
+
+		<div class="charts-grid">
+			<div class="chart-card">
+				<div class="chart-title">PO Spend by Supplier</div>
+				<div class="chart-wrap"><canvas id="spendChart"></canvas></div>
+			</div>
+			<div class="chart-card">
+				<div class="chart-title">Days Late Trend by Year</div>
+				<div class="chart-wrap"><canvas id="lateChart"></canvas></div>
+			</div>
+		</div>
+
+		<div class="chart-card" style="margin-bottom: 24px;">
+			<div class="chart-title">Suppliers by Region</div>
+			<div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+		</div>
+
+		<div class="table-card">
+			<div class="chart-title">Full Supplier Scorecard</div>
+			<table id="suppliersTable">
+				<thead>
+					<tr>
+						<th>Supplier Name</th>
+						<th>Region</th>
+						<th>Tier</th>
+						<th>Category</th>
+						<th class="number">Quality Rating</th>
+						<th class="number">On-Time %</th>
+						<th class="number">Avg Days Late</th>
+						<th class="number">Total POs</th>
+						<th class="number">Total Spend</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+		</div>
+	</div>
+
+	<script>
+		var supplierMaster = [
+			{supplierId: 105, name: 'Aisin Seiki', country: 'Japan', region: 'Asia Pacific', tier: 1, category: 'BODY', quality: 9.3, onTime: 97.5},
+			{supplierId: 91, name: 'Bosch Automotive Systems', country: 'Germany', region: 'Europe', tier: 1, category: 'ELECTRONICS', quality: 9.2, onTime: 96.5},
+			{supplierId: 101, name: 'ZF Friedrichshafen', country: 'Germany', region: 'Europe', tier: 1, category: 'BODY', quality: 9.1, onTime: 96.0},
+			{supplierId: 92, name: 'Denso Corporation', country: 'Japan', region: 'Asia Pacific', tier: 1, category: 'ENGINE_PARTS', quality: 9.0, onTime: 97.0},
+			{supplierId: 99, name: 'Valeo SA', country: 'France', region: 'Europe', tier: 1, category: 'ENGINE_PARTS', quality: 8.9, onTime: 95.5},
+			{supplierId: 95, name: 'Hyundai Mobis', country: 'South Korea', region: 'Asia Pacific', tier: 1, category: 'BODY', quality: 8.8, onTime: 95.0},
+			{supplierId: 93, name: 'Continental AG', country: 'Germany', region: 'Europe', tier: 1, category: 'TYRES', quality: 8.7, onTime: 94.0},
+			{supplierId: 100, name: 'BorgWarner', country: 'USA', region: 'North America', tier: 1, category: 'ENGINE_PARTS', quality: 8.6, onTime: 93.0},
+			{supplierId: 94, name: 'Delphi Technologies', country: 'USA', region: 'North America', tier: 1, category: 'ELECTRONICS', quality: 8.5, onTime: 93.5},
+			{supplierId: 96, name: 'CATL Battery Systems', country: 'China', region: 'Asia Pacific', tier: 1, category: 'ELECTRONICS', quality: 8.3, onTime: 91.0},
+			{supplierId: 104, name: 'Faurecia Exhaust Systems', country: 'Poland', region: 'Europe', tier: 2, category: 'ENGINE_PARTS', quality: 8.0, onTime: 91.5},
+			{supplierId: 97, name: 'Nemak Aluminium Castings', country: 'Mexico', region: 'North America', tier: 2, category: 'ENGINE_PARTS', quality: 7.9, onTime: 90.5},
+			{supplierId: 102, name: 'Foxconn EV Components', country: 'Taiwan', region: 'Asia Pacific', tier: 2, category: 'ELECTRONICS', quality: 7.8, onTime: 88.5},
+			{supplierId: 98, name: 'Motherson Sumi Systems', country: 'India', region: 'Asia Pacific', tier: 2, category: 'BODY', quality: 7.6, onTime: 89.0},
+			{supplierId: 103, name: 'Marcopolo Components', country: 'Brazil', region: 'South America', tier: 2, category: 'BODY', quality: 7.4, onTime: 87.0}
+		];
+
+		var purchaseOrders = [
+			{year: 2020, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 25, spend: 4270383.98, daysLate: 2.9, qualityStatus: 'ACCEPTED'},
+			{year: 2020, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 1, spend: 202876.68, daysLate: 8.0, qualityStatus: 'PENDING_INSPECTION'},
+			{year: 2020, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 12, spend: 2682147.24, daysLate: 3.3, qualityStatus: 'ACCEPTED'},
+			{year: 2020, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 1, spend: 229099.17, daysLate: 8.0, qualityStatus: 'PENDING_INSPECTION'},
+			{year: 2020, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 11, spend: 2805460.89, daysLate: 2.3, qualityStatus: 'ACCEPTED'},
+			{year: 2020, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 1, spend: 224170.86, daysLate: 0.0, qualityStatus: 'PENDING_INSPECTION'},
+			{year: 2020, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 1, spend: 206026.62, daysLate: 7.0, qualityStatus: 'REJECTED'},
+			{year: 2020, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 11, spend: 1076460.17, daysLate: 4.1, qualityStatus: 'ACCEPTED'},
+			{year: 2020, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 1, spend: 99453.87, daysLate: 1.0, qualityStatus: 'PENDING_INSPECTION'},
+			{year: 2020, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 1, spend: 111912.57, daysLate: 4.0, qualityStatus: 'REJECTED'},
+			{year: 2021, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 13, spend: 3103562.62, daysLate: 2.5, qualityStatus: 'ACCEPTED'},
+			{year: 2021, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 12, spend: 2708303.62, daysLate: 3.8, qualityStatus: 'ACCEPTED'},
+			{year: 2021, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 1, spend: 224490.75, daysLate: 4.0, qualityStatus: 'PENDING_INSPECTION'},
+			{year: 2021, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 13, spend: 1405961.57, daysLate: 3.0, qualityStatus: 'ACCEPTED'},
+			{year: 2021, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 26, spend: 4489855.30, daysLate: 3.2, qualityStatus: 'ACCEPTED'},
+			{year: 2022, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 13, spend: 3083742.56, daysLate: 2.5, qualityStatus: 'ACCEPTED'},
+			{year: 2022, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 13, spend: 2917455.17, daysLate: 3.6, qualityStatus: 'ACCEPTED'},
+			{year: 2022, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 13, spend: 1226753.58, daysLate: 2.7, qualityStatus: 'ACCEPTED'},
+			{year: 2022, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 26, spend: 4747552.77, daysLate: 2.6, qualityStatus: 'ACCEPTED'},
+			{year: 2023, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 14, spend: 3168759.10, daysLate: 3.6, qualityStatus: 'ACCEPTED'},
+			{year: 2023, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 14, spend: 3251131.82, daysLate: 3.7, qualityStatus: 'ACCEPTED'},
+			{year: 2023, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 14, spend: 1533365.08, daysLate: 2.3, qualityStatus: 'ACCEPTED'},
+			{year: 2023, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 25, spend: 4338075.72, daysLate: 3.6, qualityStatus: 'ACCEPTED'},
+			{year: 2023, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 2, spend: 361767.85, daysLate: 3.5, qualityStatus: 'PENDING_INSPECTION'},
+			{year: 2023, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 1, spend: 171411.80, daysLate: 0.0, qualityStatus: 'REJECTED'},
+			{year: 2024, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 9, spend: 2135048.61, daysLate: 3.2, qualityStatus: 'ACCEPTED'},
+			{year: 2024, supplier: 'BorgWarner', supplierId: 100, tier: 1, category: 'ENGINE_PARTS', poCount: 1, spend: 258531.81, daysLate: 4.0, qualityStatus: 'REJECTED'},
+			{year: 2024, supplier: 'Faurecia Exhaust Systems', supplierId: 104, tier: 2, category: 'ENGINE_PARTS', poCount: 10, spend: 2331080.75, daysLate: 1.7, qualityStatus: 'ACCEPTED'},
+			{year: 2024, supplier: 'Nemak Aluminium Castings', supplierId: 97, tier: 2, category: 'ENGINE_PARTS', poCount: 10, spend: 1065830.83, daysLate: 2.4, qualityStatus: 'ACCEPTED'},
+			{year: 2024, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 18, spend: 3180991.07, daysLate: 4.4, qualityStatus: 'ACCEPTED'},
+			{year: 2024, supplier: 'ZF Friedrichshafen', supplierId: 101, tier: 1, category: 'BODY', poCount: 2, spend: 336876.15, daysLate: 2.5, qualityStatus: 'PENDING_INSPECTION'}
+		];
+
+		var charts = {};
+
+		function mk(id) { return document.getElementById(id); }
+
+		function fitKpiText() {
+			var kpiValues = document.querySelectorAll('.kpi-value');
+			kpiValues.forEach(function(el) {
+				var parent = el.closest('.kpi-card');
+				var initialSize = 28;
+				var size = initialSize;
+				el.style.fontSize = size + 'px';
+				while (el.scrollWidth > parent.offsetWidth - 40 && size > 16) {
+					size = size - 2;
+					el.style.fontSize = size + 'px';
+				}
+			});
+		}
+
+		function getFilters() {
+			return {
+				year: mk('yearFilter').value,
+				category: mk('categoryFilter').value,
+				tier: mk('tierFilter').value
+			};
+		}
+
+		function populateFilterOptions() {
+			var years = new Set();
+			var categories = new Set();
+			var tiers = new Set();
+
+			purchaseOrders.forEach(function(po) {
+				years.add(po.year);
+				categories.add(po.category);
+				tiers.add(po.tier);
+			});
+
+			var yearSelect = mk('yearFilter');
+			Array.from(years).sort(function(a, b) { return b - a; }).forEach(function(y) {
+				var opt = document.createElement('option');
+				opt.value = y;
+				opt.textContent = y;
+				yearSelect.appendChild(opt);
+			});
+
+			var catSelect = mk('categoryFilter');
+			Array.from(categories).sort().forEach(function(c) {
+				var opt = document.createElement('option');
+				opt.value = c;
+				opt.textContent = c;
+				catSelect.appendChild(opt);
+			});
+
+			var tierSelect = mk('tierFilter');
+			Array.from(tiers).sort(function(a, b) { return a - b; }).forEach(function(t) {
+				var opt = document.createElement('option');
+				opt.value = t;
+				opt.textContent = 'Tier ' + t;
+				tierSelect.appendChild(opt);
+			});
+		}
+
+		function getFilteredData() {
+			var filters = getFilters();
+			var filtered = purchaseOrders.filter(function(po) {
+				if (filters.year && po.year != parseInt(filters.year)) return false;
+				if (filters.category && po.category !== filters.category) return false;
+				if (filters.tier && po.tier != parseInt(filters.tier)) return false;
+				return true;
+			});
+			return filtered;
+		}
+
+		function getSupplierScorecard() {
+			var filtered = getFilteredData();
+			var scorecard = {};
+
+			supplierMaster.forEach(function(sup) {
+				scorecard[sup.supplierId] = {
+					name: sup.name,
+					region: sup.region,
+					tier: sup.tier,
+					category: sup.category,
+					quality: sup.quality,
+					onTime: sup.onTime,
+					poCount: 0,
+					spend: 0,
+					daysLate: 0,
+					poYears: 0
+				};
+			});
+
+			filtered.forEach(function(po) {
+				if (scorecard[po.supplierId]) {
+					scorecard[po.supplierId].poCount += po.poCount;
+					scorecard[po.supplierId].spend += po.spend;
+					scorecard[po.supplierId].daysLate += (po.daysLate * po.poCount);
+					scorecard[po.supplierId].poYears += po.poCount;
+				}
+			});
+
+			Object.keys(scorecard).forEach(function(k) {
+				if (scorecard[k].poYears > 0) {
+					scorecard[k].daysLate = scorecard[k].daysLate / scorecard[k].poYears;
+					scorecard[k].daysLate = Math.round(scorecard[k].daysLate * 100) / 100;
+				} else {
+					scorecard[k].daysLate = null;
+				}
+			});
+
+			return scorecard;
+		}
+
+		function updateKPIs() {
+			var scorecard = getSupplierScorecard();
+			var suppliers = Object.values(scorecard);
+
+			var totalSuppliers = suppliers.length;
+			var avgQuality = suppliers.reduce(function(sum, s) { return sum + s.quality; }, 0) / totalSuppliers;
+			var avgOnTime = suppliers.reduce(function(sum, s) { return sum + s.onTime; }, 0) / totalSuppliers;
+			var totalSpend = suppliers.reduce(function(sum, s) { return sum + s.spend; }, 0);
+			var avgDaysLate = suppliers.filter(function(s) { return s.daysLate !== null; }).reduce(function(sum, s, arr) {
+				return sum + s.daysLate;
+			}, 0);
+			avgDaysLate = avgDaysLate / suppliers.filter(function(s) { return s.daysLate !== null; }).length;
+
+			var tier1Count = suppliers.filter(function(s) { return s.tier === 1; }).length;
+			var totalPos = suppliers.reduce(function(sum, s) { return sum + s.poCount; }, 0);
+			var topSupplier = suppliers.sort(function(a, b) { return (b.quality * b.onTime) - (a.quality * a.onTime); })[0];
+			var topScore = topSupplier ? ((topSupplier.quality * topSupplier.onTime) / 100).toFixed(2) : 0;
+
+			var kpiData = [
+				{label: 'Total Suppliers', value: totalSuppliers.toString(), subtext: 'in dataset'},
+				{label: 'Avg Quality Rating', value: avgQuality.toFixed(2), subtext: 'out of 10'},
+				{label: 'Avg On-Time Delivery', value: avgOnTime.toFixed(1) + '%', subtext: 'across all'},
+				{label: 'Total PO Spend', value: '$' + (totalSpend / 1000000).toFixed(1) + 'M', subtext: 'all periods'},
+				{label: 'Avg Days Late', value: avgDaysLate.toFixed(2), subtext: 'across active'},
+				{label: 'Tier 1 Suppliers', value: tier1Count.toString(), subtext: 'premium tier'},
+				{label: 'Total POs', value: totalPos.toString(), subtext: 'orders placed'},
+				{label: 'Top Supplier Score', value: topScore, subtext: topSupplier ? topSupplier.name : 'N/A'}
+			];
+
+			var html = '';
+			kpiData.forEach(function(kpi) {
+				html += '<div class="kpi-card"><div class="kpi-label">' + kpi.label + '</div><div class="kpi-value">' + kpi.value + '</div><div class="kpi-subtext">' + kpi.subtext + '</div></div>';
+			});
+			mk('kpiGrid').innerHTML = html;
+			fitKpiText();
+		}
+
+		function updateCharts() {
+			var scorecard = getSupplierScorecard();
+			var suppliers = Object.values(scorecard).sort(function(a, b) { return b.quality - a.quality; });
+
+			if (charts.quality) charts.quality.destroy();
+			var qualityLabels = suppliers.map(function(s) { return s.name; });
+			var qualityData = suppliers.map(function(s) { return s.quality; });
+			if (qualityLabels.length === 0 || qualityData.length === 0) {
+				var ctx = document.getElementById('qualityChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.quality = new Chart(mk('qualityChart'), {
+					type: 'bar',
+					data: {
+						labels: qualityLabels,
+						datasets: [{
+							label: 'Quality Rating',
+							data: qualityData,
+							backgroundColor: '#1B3A5C',
+							borderRadius: 4
+						}]
+					},
+					options: {
+						indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: true,
+						scales: { x: { max: 10 } },
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+
+			if (charts.delivery) charts.delivery.destroy();
+			suppliers = Object.values(scorecard).sort(function(a, b) { return b.onTime - a.onTime; });
+			var deliveryLabels = suppliers.map(function(s) { return s.name; });
+			var deliveryData = suppliers.map(function(s) { return s.onTime; });
+			if (deliveryLabels.length === 0 || deliveryData.length === 0) {
+				var ctx = document.getElementById('deliveryChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.delivery = new Chart(mk('deliveryChart'), {
+					type: 'bar',
+					data: {
+						labels: deliveryLabels,
+						datasets: [{
+							label: 'On-Time %',
+							data: deliveryData,
+							backgroundColor: '#E87722',
+							borderRadius: 4
+						}]
+					},
+					options: {
+						indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: true,
+						scales: { x: { max: 100 } },
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+
+			if (charts.spend) charts.spend.destroy();
+			suppliers = Object.values(scorecard).sort(function(a, b) { return b.spend - a.spend; }).slice(0, 8);
+			var spendLabels = suppliers.map(function(s) { return s.name; });
+			var spendData = suppliers.map(function(s) { return s.spend / 1000000; });
+			if (spendLabels.length === 0 || spendData.length === 0) {
+				var ctx = document.getElementById('spendChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.spend = new Chart(mk('spendChart'), {
+					type: 'bar',
+					data: {
+						labels: spendLabels,
+						datasets: [{
+							label: 'Spend ($)',
+							data: spendData,
+							backgroundColor: '#0EA5E9',
+							borderRadius: 4
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+
+			if (charts.late) charts.late.destroy();
+			var yearData = {};
+			getFilteredData().forEach(function(po) {
+				if (!yearData[po.year]) yearData[po.year] = {total: 0, count: 0};
+				yearData[po.year].total += po.daysLate * po.poCount;
+				yearData[po.year].count += po.poCount;
+			});
+			var years = Object.keys(yearData).sort(function(a, b) { return a - b; });
+			var avgLates = years.map(function(y) { return yearData[y].total / yearData[y].count; });
+
+			if (years.length === 0 || avgLates.length === 0) {
+				var ctx = document.getElementById('lateChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.late = new Chart(mk('lateChart'), {
+					type: 'line',
+					data: {
+						labels: years,
+						datasets: [{
+							label: 'Avg Days Late',
+							data: avgLates,
+							borderColor: '#D32F2F',
+							backgroundColor: '#D32F2F20',
+							borderWidth: 2,
+							tension: 0.4,
+							fill: true
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: true, position: 'top' } }
+					}
+				});
+			}
+
+			if (charts.region) charts.region.destroy();
+			var regionData = {};
+			Object.values(scorecard).forEach(function(s) {
+				if (!regionData[s.region]) regionData[s.region] = 0;
+				regionData[s.region]++;
+			});
+			var regions = Object.keys(regionData).sort();
+			var regionCounts = regions.map(function(r) { return regionData[r]; });
+
+			if (regions.length === 0 || regionCounts.length === 0) {
+				var ctx = document.getElementById('regionChart').getContext('2d');
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.font = '14px Inter';
+				ctx.fillStyle = '#94A3B8';
+				ctx.textAlign = 'center';
+				ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+			} else {
+				charts.region = new Chart(mk('regionChart'), {
+					type: 'bar',
+					data: {
+						labels: regions,
+						datasets: [{
+							label: 'Number of Suppliers',
+							data: regionCounts,
+							backgroundColor: ['#1B3A5C', '#E87722', '#0EA5E9', '#F59E0B', '#94A3B8'],
+							borderRadius: 4
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				});
+			}
+		}
+
+		function updateTable() {
+			var scorecard = getSupplierScorecard();
+			var suppliers = Object.values(scorecard).sort(function(a, b) { return b.quality - a.quality; });
+			var html = '';
+
+			suppliers.forEach(function(s) {
+				html += '<tr>' +
+					'<td>' + s.name + '</td>' +
+					'<td>' + s.region + '</td>' +
+					'<td>Tier ' + s.tier + '</td>' +
+					'<td>' + s.category + '</td>' +
+					'<td class="number">' + s.quality.toFixed(2) + '</td>' +
+					'<td class="number">' + s.onTime.toFixed(1) + '%</td>' +
+					'<td class="number">' + (s.daysLate !== null ? s.daysLate.toFixed(2) : 'N/A') + '</td>' +
+					'<td class="number">' + s.poCount + '</td>' +
+					'<td class="number">$' + (s.spend / 1000000).toFixed(2) + 'M</td>' +
+					'</tr>';
+			});
+
+			mk('tableBody').innerHTML = html;
+		}
+
+		function applyFilters() {
+			updateKPIs();
+			updateCharts();
+			updateTable();
+		}
+
+		function initDashboard() {
+			populateFilterOptions();
+			applyFilters();
+		}
+
+		window.addEventListener('load', initDashboard);
+	</script>
+</body>
+</html>

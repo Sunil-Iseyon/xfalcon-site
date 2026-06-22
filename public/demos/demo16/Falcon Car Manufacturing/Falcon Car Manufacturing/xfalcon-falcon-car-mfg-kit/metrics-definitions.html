@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics & KPI Definitions - Falcon Car Manufacturing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+        .topbar {
+            background-color: #1B3A5C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .logo-x {
+            color: #E87722;
+        }
+        .logo-f {
+            color: white;
+        }
+        .title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: #E87722;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .search-section {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #1E293B;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #E87722;
+            box-shadow: 0 0 0 3px rgba(232, 119, 34, 0.1);
+        }
+        .search-help {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 8px;
+        }
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #F1F5F9;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748B;
+            transition: all 0.2s;
+        }
+        .chip:hover {
+            border-color: #E87722;
+            background-color: #FFF7F3;
+            color: #E87722;
+        }
+        .chip.active {
+            background-color: #E87722;
+            color: white;
+            border-color: #E87722;
+        }
+        .chip-count {
+            margin-left: 6px;
+            font-weight: 600;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .metric-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 10px;
+        }
+        .metric-definition {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+        .metric-details {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            font-size: 12px;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #1E293B;
+            min-width: 80px;
+        }
+        .detail-value {
+            color: #64748B;
+            text-align: right;
+            flex: 1;
+            margin-left: 10px;
+        }
+        .direction-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .direction-higher {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .direction-lower {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .metric-formula {
+            background-color: #F8FAFC;
+            border-left: 3px solid #E87722;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+            color: #475569;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+        .dashboard-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .dashboard-tag {
+            display: inline-block;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .tag-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 8px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 48px 24px;
+            color: #64748B;
+        }
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        .results-count {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 12px;
+        }
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            .topbar-left {
+                width: 100%;
+            }
+            .back-link {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="title">Falcon Car Manufacturing / Metrics & KPI Definitions</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="search-section">
+            <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="Search by metric name, definition, or formula..."
+                autocomplete="off"
+            >
+            <div class="search-help">
+                Tip: Type to filter metrics in real-time, or click category filters below
+            </div>
+            <div class="filter-chips">
+                <div class="chip active" data-category="all">All Metrics <span class="chip-count">(37)</span></div>
+                <div class="chip" data-category="Production & Efficiency">Production & Efficiency <span class="chip-count">(8)</span></div>
+                <div class="chip" data-category="Labor & Workforce">Labor & Workforce <span class="chip-count">(5)</span></div>
+                <div class="chip" data-category="Quality & Defects">Quality & Defects <span class="chip-count">(6)</span></div>
+                <div class="chip" data-category="Supplier Performance">Supplier Performance <span class="chip-count">(4)</span></div>
+                <div class="chip" data-category="Inventory & Supply Chain">Inventory & Supply Chain <span class="chip-count">(4)</span></div>
+                <div class="chip" data-category="Service & After-Sales">Service & After-Sales <span class="chip-count">(5)</span></div>
+                <div class="chip" data-category="Warranty">Warranty <span class="chip-count">(5)</span></div>
+            </div>
+        </div>
+
+        <div id="metricsContainer" class="metrics-grid"></div>
+        <div id="noResults" class="no-results" style="display: none;">
+            <div class="no-results-icon">∅</div>
+            <div>No metrics found matching your search</div>
+            <div class="results-count">Try adjusting your search terms or filters</div>
+        </div>
+    </div>
+
+    <script>
+        var metricsData = [
+            {
+                id: 1,
+                name: 'OEE (Overall Equipment Effectiveness)',
+                category: 'Production & Efficiency',
+                definition: 'Measures equipment effectiveness combining availability, performance, and quality. Calculated as AVG(OEE_PCT) from FACT_ASSEMBLY_OUTPUT.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'AVG(OEE_PCT) from FACT_ASSEMBLY_OUTPUT',
+                dashboards: [1, 2, 3]
+            },
+            {
+                id: 2,
+                name: 'Production Yield',
+                category: 'Production & Efficiency',
+                definition: 'Actual vs planned production ratio. Shows the percentage of planned units successfully produced.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'SUM(UNITS_PRODUCED) / SUM(UNITS_PLANNED) × 100',
+                dashboards: [1, 2]
+            },
+            {
+                id: 3,
+                name: 'Scrap Rate',
+                category: 'Production & Efficiency',
+                definition: 'Percentage of planned units scrapped. Indicates production waste and material loss.',
+                unit: '%',
+                direction: 'Lower is better',
+                formula: 'SUM(UNITS_SCRAPPED) / SUM(UNITS_PLANNED) × 100',
+                dashboards: [1, 2, 3]
+            },
+            {
+                id: 4,
+                name: 'Rework Rate',
+                category: 'Production & Efficiency',
+                definition: 'Units requiring rework as a percentage of total output. Reflects quality issues requiring correction.',
+                unit: '%',
+                direction: 'Lower is better',
+                formula: 'SUM(UNITS_REWORKED) / SUM(UNITS_PRODUCED) × 100',
+                dashboards: [1, 2]
+            },
+            {
+                id: 5,
+                name: 'First Pass Yield (FPY)',
+                category: 'Production & Efficiency',
+                definition: 'Units passing inspection without requiring rework. Indicates first-time quality performance.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: '(SUM(UNITS_PRODUCED) - SUM(UNITS_REWORKED)) / SUM(UNITS_PRODUCED) × 100',
+                dashboards: [1, 4]
+            },
+            {
+                id: 6,
+                name: 'Plan Attainment',
+                category: 'Production & Efficiency',
+                definition: 'Production order completion rate. Measures the percentage of planned quantities delivered.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'SUM(ACTUAL_QUANTITY) / SUM(PLANNED_QUANTITY) × 100',
+                dashboards: [1, 2]
+            },
+            {
+                id: 7,
+                name: 'Downtime Rate',
+                category: 'Production & Efficiency',
+                definition: 'Unplanned equipment downtime as a percentage of total available production minutes.',
+                unit: '%',
+                direction: 'Lower is better',
+                formula: 'SUM(DOWNTIME_MINUTES) / total available minutes × 100',
+                dashboards: [3]
+            },
+            {
+                id: 8,
+                name: 'Cycle Time Efficiency',
+                category: 'Production & Efficiency',
+                definition: 'Actual vs designed cycle time efficiency. Compares standard cycle time to actual measured time.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'Standard cycle time / CYCLE_TIME_ACTUAL_SEC × 100',
+                dashboards: [3]
+            },
+            {
+                id: 9,
+                name: 'Labor Cost per Unit',
+                category: 'Labor & Workforce',
+                definition: 'Direct labor cost per vehicle produced. Key metric for manufacturing efficiency and labor optimization.',
+                unit: 'USD',
+                direction: 'Lower is better',
+                formula: 'SUM(LABOR_COST) / SUM(UNITS_PRODUCED)',
+                dashboards: [2, 9]
+            },
+            {
+                id: 10,
+                name: 'Total Labor Cost',
+                category: 'Labor & Workforce',
+                definition: 'Total direct labor spend across all production and service operations.',
+                unit: 'USD',
+                direction: 'Informational',
+                formula: 'SUM(LABOR_COST) or SUM(TOTAL_LABOR_COST)',
+                dashboards: [1, 9]
+            },
+            {
+                id: 11,
+                name: 'Labor Hours per Unit',
+                category: 'Labor & Workforce',
+                definition: 'Direct labor time required per unit produced. Indicates labor productivity and efficiency.',
+                unit: 'Hours',
+                direction: 'Lower is better',
+                formula: 'SUM(LABOR_HOURS) / SUM(UNITS_PRODUCED)',
+                dashboards: [9]
+            },
+            {
+                id: 12,
+                name: 'Employee Productivity',
+                category: 'Labor & Workforce',
+                definition: 'Units produced per worker. Measures workforce efficiency and output per employee.',
+                unit: 'Units',
+                direction: 'Higher is better',
+                formula: 'SUM(UNITS_PRODUCED) / COUNT(DISTINCT EMPLOYEE_ID)',
+                dashboards: [9]
+            },
+            {
+                id: 13,
+                name: 'Average Hourly Rate',
+                category: 'Labor & Workforce',
+                definition: 'Workforce compensation benchmark. Average hourly wage across all employees.',
+                unit: 'USD/hr',
+                direction: 'Informational',
+                formula: 'AVG(HOURLY_RATE) from DIM_EMPLOYEE',
+                dashboards: [9]
+            },
+            {
+                id: 14,
+                name: 'Defect Count',
+                category: 'Quality & Defects',
+                definition: 'Total defects detected during production and quality inspection processes.',
+                unit: 'Count',
+                direction: 'Lower is better',
+                formula: 'COUNT(*) from FACT_DEFECTS',
+                dashboards: [1, 4]
+            },
+            {
+                id: 15,
+                name: 'Escaped Defects',
+                category: 'Quality & Defects',
+                definition: 'Defects that passed all QC checkpoints and reached the customer. Critical quality metric.',
+                unit: 'Count',
+                direction: 'Lower is better',
+                formula: 'COUNT where IS_ESCAPED = TRUE',
+                dashboards: [4]
+            },
+            {
+                id: 16,
+                name: 'Defect Rate (per 1000)',
+                category: 'Quality & Defects',
+                definition: 'Defect frequency normalized to per-1000-units basis for standardized comparison.',
+                unit: 'per 1000',
+                direction: 'Lower is better',
+                formula: '(Total Defects / Total Inspections) × 1000',
+                dashboards: [4]
+            },
+            {
+                id: 17,
+                name: 'Total Rework Cost',
+                category: 'Quality & Defects',
+                definition: 'Total cost to fix detected defects. Includes labor and materials for rework operations.',
+                unit: 'USD',
+                direction: 'Lower is better',
+                formula: 'SUM(REWORK_COST)',
+                dashboards: [4]
+            },
+            {
+                id: 18,
+                name: 'Inspections Pass Rate',
+                category: 'Quality & Defects',
+                definition: 'Quality control inspection success rate. Percentage of units passing inspection.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'COUNT(RESULT=\'Pass\') / COUNT(*) × 100',
+                dashboards: [4]
+            },
+            {
+                id: 19,
+                name: 'Average Rework Hours',
+                category: 'Quality & Defects',
+                definition: 'Average time required to fix each defect. Indicates rework complexity and duration.',
+                unit: 'Hours',
+                direction: 'Lower is better',
+                formula: 'AVG(REWORK_HOURS)',
+                dashboards: [4]
+            },
+            {
+                id: 20,
+                name: 'Supplier Quality Rating',
+                category: 'Supplier Performance',
+                definition: 'Composite quality score for suppliers on a 0-10 scale based on historical performance.',
+                unit: 'Score',
+                direction: 'Higher is better',
+                formula: 'QUALITY_RATING from DIM_SUPPLIER',
+                dashboards: [5]
+            },
+            {
+                id: 21,
+                name: 'On-Time Delivery %',
+                category: 'Supplier Performance',
+                definition: 'Supplier delivery performance percentage. Historical on-time delivery rate.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'ON_TIME_DELIVERY_PCT from DIM_SUPPLIER',
+                dashboards: [5]
+            },
+            {
+                id: 22,
+                name: 'Average Days Late',
+                category: 'Supplier Performance',
+                definition: 'Mean purchase order delivery delay in days. Indicates supplier reliability.',
+                unit: 'Days',
+                direction: 'Lower is better',
+                formula: 'AVG(DAYS_LATE) from FACT_PURCHASE_ORDERS',
+                dashboards: [5, 10]
+            },
+            {
+                id: 23,
+                name: 'PO Fill Rate',
+                category: 'Supplier Performance',
+                definition: 'Order fulfillment completeness. Percentage of ordered quantity actually received.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'SUM(QUANTITY_RECEIVED) / SUM(QUANTITY_ORDERED) × 100',
+                dashboards: [10]
+            },
+            {
+                id: 24,
+                name: 'Net Inventory Movement',
+                category: 'Inventory & Supply Chain',
+                definition: 'Net stock change across all inventory movement types (inbound, outbound, transfers).',
+                unit: 'Units',
+                direction: 'Informational',
+                formula: 'SUM(QUANTITY) across all movement types',
+                dashboards: [6]
+            },
+            {
+                id: 25,
+                name: 'Inventory Turnover',
+                category: 'Inventory & Supply Chain',
+                definition: 'Stock rotation speed. Measures how many times inventory is consumed and replenished.',
+                unit: 'Ratio',
+                direction: 'Higher is better',
+                formula: 'Consumption Value / Average Stock Value',
+                dashboards: [6]
+            },
+            {
+                id: 26,
+                name: 'Stock Level',
+                category: 'Inventory & Supply Chain',
+                definition: 'Running inventory balance. Current stock quantity after all movements.',
+                unit: 'Units',
+                direction: 'Informational',
+                formula: 'STOCK_LEVEL_AFTER from FACT_INVENTORY_MOVEMENTS',
+                dashboards: [6]
+            },
+            {
+                id: 27,
+                name: 'Inventory Value',
+                category: 'Inventory & Supply Chain',
+                definition: 'Total monetary value of inventory movements. Economic impact of inventory changes.',
+                unit: 'USD',
+                direction: 'Informational',
+                formula: 'SUM(TOTAL_VALUE)',
+                dashboards: [6]
+            },
+            {
+                id: 28,
+                name: 'Customer Satisfaction Score (CSAT)',
+                category: 'Service & After-Sales',
+                definition: 'Post-service customer rating on a 1-5 scale. Measures service quality and customer experience.',
+                unit: 'Score',
+                direction: 'Higher is better',
+                formula: 'AVG(CUSTOMER_SATISFACTION_SCORE)',
+                dashboards: [1, 7]
+            },
+            {
+                id: 29,
+                name: 'Average Days in Shop',
+                category: 'Service & After-Sales',
+                definition: 'Service turnaround time. Average days required to complete service work.',
+                unit: 'Days',
+                direction: 'Lower is better',
+                formula: 'AVG(DAYS_IN_SHOP)',
+                dashboards: [7]
+            },
+            {
+                id: 30,
+                name: 'Total Service Cost',
+                category: 'Service & After-Sales',
+                definition: 'Combined labor and parts cost for all service work. Total service department expense.',
+                unit: 'USD',
+                direction: 'Informational',
+                formula: 'SUM(TOTAL_COST)',
+                dashboards: [7]
+            },
+            {
+                id: 31,
+                name: 'Service Labor Hours',
+                category: 'Service & After-Sales',
+                definition: 'Technician time for service operations. Total labor hours spent on service work.',
+                unit: 'Hours',
+                direction: 'Informational',
+                formula: 'SUM(LABOUR_HOURS)',
+                dashboards: [7]
+            },
+            {
+                id: 32,
+                name: 'Warranty Coverage Rate',
+                category: 'Service & After-Sales',
+                definition: 'Percentage of service jobs covered by warranty. Indicates warranty program effectiveness.',
+                unit: '%',
+                direction: 'Higher is better',
+                formula: 'COUNT(IS_WARRANTY_COVERED=TRUE) / COUNT(*) × 100',
+                dashboards: [7]
+            },
+            {
+                id: 33,
+                name: 'Warranty Claims',
+                category: 'Warranty',
+                definition: 'Total warranty claims filed by customers. Volume of post-sale warranty work.',
+                unit: 'Count',
+                direction: 'Lower is better',
+                formula: 'COUNT(*) from FACT_WARRANTY_CLAIMS',
+                dashboards: [1, 8]
+            },
+            {
+                id: 34,
+                name: 'Total Repair Cost',
+                category: 'Warranty',
+                definition: 'Warranty repair expense. Total cost of parts and labor for warranty work.',
+                unit: 'USD',
+                direction: 'Lower is better',
+                formula: 'SUM(REPAIR_COST)',
+                dashboards: [8]
+            },
+            {
+                id: 35,
+                name: 'Avg Cost per Claim',
+                category: 'Warranty',
+                definition: 'Average cost per warranty claim. Indicates claim complexity and repair expense.',
+                unit: 'USD',
+                direction: 'Lower is better',
+                formula: 'SUM(REPAIR_COST) / COUNT(*)',
+                dashboards: [8]
+            },
+            {
+                id: 36,
+                name: 'Supplier Chargebacks',
+                category: 'Warranty',
+                definition: 'Costs recovered from suppliers for warranty repairs. Supplier liability for defects.',
+                unit: 'USD',
+                direction: 'Higher is better',
+                formula: 'SUM(SUPPLIER_CHARGEBACK)',
+                dashboards: [8]
+            },
+            {
+                id: 37,
+                name: 'Avg Odometer at Failure',
+                category: 'Warranty',
+                definition: 'Mean vehicle mileage when failure occurs. Indicates reliability and failure timing patterns.',
+                unit: 'km',
+                direction: 'Informational',
+                formula: 'AVG(ODOMETER_AT_FAILURE_KM)',
+                dashboards: [8]
+            }
+        ];
+
+        var currentFilter = 'all';
+        var currentSearch = '';
+
+        function renderMetrics() {
+            var container = document.getElementById('metricsContainer');
+            container.innerHTML = '';
+
+            var filtered = metricsData.filter(function(metric) {
+                var matchesCategory = currentFilter === 'all' || metric.category === currentFilter;
+                var searchLower = currentSearch.toLowerCase();
+                var matchesSearch = searchLower === '' ||
+                    metric.name.toLowerCase().indexOf(searchLower) > -1 ||
+                    metric.definition.toLowerCase().indexOf(searchLower) > -1 ||
+                    metric.formula.toLowerCase().indexOf(searchLower) > -1;
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('noResults').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('noResults').style.display = 'none';
+
+            filtered.forEach(function(metric) {
+                var directionClass = metric.direction === 'Lower is better' ? 'direction-lower' :
+                                   metric.direction === 'Higher is better' ? 'direction-higher' : '';
+                var directionBadge = metric.direction !== 'Informational' ?
+                    '<span class="direction-badge ' + directionClass + '">' + metric.direction + '</span>' : '';
+
+                var dashboardsHtml = metric.dashboards.map(function(dash) {
+                    return '<div class="dashboard-tag">Dashboard ' + dash + '</div>';
+                }).join('');
+
+                var html = '<div class="metric-card">' +
+                    '<div class="metric-name">' + metric.name + '</div>' +
+                    '<div class="metric-definition">' + metric.definition + '</div>' +
+                    '<div class="metric-details">' +
+                        '<div class="detail-row">' +
+                            '<div class="detail-label">Unit:</div>' +
+                            '<div class="detail-value">' + metric.unit + '</div>' +
+                        '</div>' +
+                        '<div class="detail-row">' +
+                            '<div class="detail-label">Direction:</div>' +
+                            '<div class="detail-value">' + directionBadge + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="metric-formula">' + metric.formula + '</div>' +
+                    '<div class="tag-label">Used in:</div>' +
+                    '<div class="dashboard-tags">' + dashboardsHtml + '</div>' +
+                    '</div>';
+
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function setupEventListeners() {
+            var searchInput = document.getElementById('searchInput');
+            var chips = document.querySelectorAll('.chip');
+
+            searchInput.addEventListener('input', function(e) {
+                currentSearch = e.target.value;
+                renderMetrics();
+            });
+
+            chips.forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    chips.forEach(function(c) { c.classList.remove('active'); });
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-category');
+                    renderMetrics();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMetrics();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>

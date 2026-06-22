@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Geographic Performance — Falcon Consumer</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'retailedge')</script>
+<link rel="stylesheet" href="theme.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#F3F4F6;color:#1E293B;line-height:1.5}.topbar{background:#1A1A2E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 4px rgba(0,0,0,.1)}.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:32px;font-weight:700;letter-spacing:-2px}.topbar-title{font-size:20px;font-weight:700;color:#FFF}.topbar-subtitle{font-size:12px;font-weight:600;color:#94A3B8;margin-top:2px}.topbar-right a{color:#94A3B8;text-decoration:none;font-size:13px;font-weight:600}.topbar-right a:hover{color:#00AEFF}.container{max-width:1400px;margin:0 auto;padding:24px}.page-title{font-size:22px;font-weight:700;margin-bottom:4px}.page-subtitle{font-size:13px;color:#64748B;margin-bottom:20px}.filter-bar{background:#FFF;border:1px solid #E2E8F0;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;box-shadow:0 1px 3px rgba(0,0,0,.05)}.filter-group{display:flex;flex-direction:column;gap:4px}.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#64748B}.filter-group select,.filter-group .multi{padding:8px 10px;border:1px solid #CBD5E1;border-radius:6px;font-size:13px;background:#FFF;color:#1E293B;min-width:180px;cursor:pointer}.filter-group .multi{position:relative;user-select:none}.multi-summary{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.multi-dropdown{position:absolute;top:100%;left:0;right:0;background:#FFF;border:1px solid #CBD5E1;border-radius:6px;margin-top:4px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:50;max-height:240px;overflow-y:auto;display:none}.multi.open .multi-dropdown{display:block}.multi-dropdown label{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:13px;cursor:pointer;color:#1E293B;font-weight:400}.multi-dropdown label:hover{background:#F1F5F9;border-radius:4px}.toggle-group{display:flex;align-items:center;gap:10px;padding:6px 12px;background:#F8FAFC;border-radius:6px;height:36px;border:1px solid #E2E8F0;cursor:pointer}.toggle-switch{position:relative;width:36px;height:20px;background:#CBD5E1;border-radius:20px;flex-shrink:0}.toggle-switch.on{background:#00AEFF}.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#FFF;border-radius:50%;transition:transform .2s}.toggle-switch.on::after{transform:translateX(16px)}.toggle-label{font-size:13px;font-weight:600}.reset-btn{padding:8px 14px;border:1px solid #CBD5E1;background:#FFF;border-radius:6px;font-size:13px;font-weight:600;color:#475569;cursor:pointer;height:36px}.disclaimer{background:#FEF3C7;border-left:4px solid #F59E0B;padding:12px 16px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:20px}.disclaimer strong{color:#7C2D12}.disclaimer code{background:#FDE68A;padding:1px 4px;border-radius:3px;font-size:11px}.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}.kpi-card{background:#FFF;border-radius:8px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0}.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#64748B;letter-spacing:.5px;margin-bottom:10px}.kpi-value{font-size:26px;font-weight:700;color:#00AEFF;margin-bottom:6px}.kpi-delta{font-size:12px;font-weight:600;color:#64748B}.kpi-delta.positive{color:#059669}.kpi-delta.negative{color:#D32F2F}.section-title{font-size:16px;font-weight:700;margin:24px 0 12px}.chart-grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:20px;margin-bottom:24px}.chart-card{background:#FFF;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0}.chart-card.full{grid-column:1/-1}.chart-title{font-size:14px;font-weight:700;color:#00AEFF;margin-bottom:14px}.chart-sub{font-size:11px;color:#64748B;margin-bottom:12px}.chart-wrapper{position:relative;height:320px}.chart-wrapper.tall{height:360px}.table-card{background:#FFF;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0;overflow:hidden;margin-bottom:24px}.table-header{padding:20px;border-bottom:1px solid #E2E8F0}table{width:100%;border-collapse:collapse}th{background:#F8FAFC;color:#475569;padding:12px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid #E2E8F0}td{padding:12px 14px;border-bottom:1px solid #F1F5F9;font-size:13px}tr:last-child td{border-bottom:none}tr:hover td{background:#F8FAFC}.text-right{text-align:right}.pos{color:#059669;font-weight:600}.neg{color:#D32F2F;font-weight:600}.footer{text-align:center;padding:24px;font-size:12px;color:#64748B;margin-top:24px}.footer a{color:#00AEFF;text-decoration:none;font-weight:600}
+</style></head><body>
+
+<div class="topbar"><div class="topbar-left"><span class="logo"><span style="color:#00AEFF">x</span><span style="color:#1A7F64">F</span></span><div><div class="topbar-title">Geographic Performance</div><div class="topbar-subtitle">Falcon Consumer · xFalcon AnalyticsPro</div></div></div><div class="topbar-right"><a href="index.html">← Dashboard suite</a></div></div>
+
+<div class="container">
+<div class="page-title">Geographic Performance</div>
+<div class="page-subtitle">Store transactions by state, region, and urban/suburban/rural locality. Filters apply to every visual.</div>
+
+<div class="filter-bar">
+<div class="filter-group"><label for="yearSel">Year</label><select id="yearSel"><option value="2024" selected>FY 2024</option><option value="2023">FY 2023</option><option value="2022">FY 2022</option></select></div>
+<div class="filter-group"><label>Region</label><div class="multi" id="regMulti"><div class="multi-summary" id="regSummary" onclick="toggleMulti('regMulti')">All (5)</div><div class="multi-dropdown" id="regDropdown"></div></div></div>
+<div class="filter-group"><label>Locality</label><div class="multi" id="locMulti"><div class="multi-summary" id="locSummary" onclick="toggleMulti('locMulti')">All (3)</div><div class="multi-dropdown" id="locDropdown"></div></div></div>
+<div class="filter-group"><label>&nbsp;</label><div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div></div>
+<div class="filter-group"><label>&nbsp;</label><button class="reset-btn" onclick="resetFilters()">Reset</button></div>
+</div>
+
+<div class="disclaimer"><strong>Data governance:</strong> Store-level transaction counts from <code>FACT_SALES_TRANSACTION</code> joined to <code>DIM_LOCATION</code>. Metric = transaction count (the source doesn't carry sales amounts at transaction level). Region codes: NE=Northeast, MW=Midwest, SE=Southeast, SO=South, WE=West.</div>
+
+<div class="section-title" id="kpiSectionTitle">FY 2024 Geographic KPIs</div>
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="chart-grid-2">
+<div class="chart-card"><div class="chart-title" id="stateTitle">Transactions by State — FY 2024</div><div class="chart-wrapper"><canvas id="stateChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-title" id="regTitle">Transactions by Region — FY 2024</div><div class="chart-wrapper"><canvas id="regChart"></canvas></div></div>
+</div>
+
+<div class="chart-grid-2">
+<div class="chart-card"><div class="chart-title" id="locTitle">Locality Split — FY 2024</div><div class="chart-sub">URBAN / SUBURBAN / RURAL customer classification.</div><div class="chart-wrapper"><canvas id="locChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-title" id="regLocTitle">Region × Locality — FY 2024</div><div class="chart-wrapper"><canvas id="regLocChart"></canvas></div></div>
+</div>
+
+<div class="table-card"><div class="table-header"><div class="chart-title" id="tableTitle" style="margin-bottom:4px;">State Detail — FY 2024</div><div class="chart-sub">Transactions by state, broken down by locality.</div></div>
+<table><thead><tr><th>State</th><th>Region</th><th class="text-right">Total Txns</th><th class="text-right">Urban</th><th class="text-right">Suburban</th><th class="text-right">Rural</th><th class="text-right">YoY</th></tr></thead><tbody id="tableBody"></tbody><tfoot><tr id="tableFoot" style="background:#F8FAFC;font-weight:700;"></tr></tfoot></table></div>
+
+<div class="table-card"><div class="table-header"><div class="chart-title" style="margin-bottom:4px;">Store Locations (20)</div><div class="chart-sub">Physical + virtual footprint across 7 BUs.</div></div>
+<table><thead><tr><th>Location</th><th>Type</th><th>City</th><th>State</th><th>Region</th><th>Channel</th><th>Business Unit</th></tr></thead><tbody id="locationsBody"></tbody></table></div>
+
+<div class="footer">Falcon Consumer · xFalcon AnalyticsPro · Source: FACT_SALES_TRANSACTION, DIM_LOCATION, DIM_BUSINESS_UNIT · <a href="metrics-definitions.html">Metric definitions</a></div>
+</div>
+
+<script>
+// State × locality × region × year (126 rows, real)
+const DATA = [
+{y:2022,loc:"URBAN",reg:"GR_SO",st:"TX",t:305},{y:2022,loc:"URBAN",reg:"GR_NE",st:"NY",t:302},{y:2022,loc:"URBAN",reg:"GR_WE",st:"CA",t:287},{y:2022,loc:"URBAN",reg:"GR_SE",st:"FL",t:274},{y:2022,loc:"SUBURBAN",reg:"GR_NE",st:"NY",t:254},{y:2022,loc:"SUBURBAN",reg:"GR_SO",st:"TX",t:252},{y:2022,loc:"SUBURBAN",reg:"GR_WE",st:"CA",t:249},{y:2022,loc:"SUBURBAN",reg:"GR_SE",st:"FL",t:223},{y:2022,loc:"URBAN",reg:"GR_MW",st:"MN",t:206},{y:2022,loc:"URBAN",reg:"GR_WE",st:"CO",t:176},{y:2022,loc:"URBAN",reg:"GR_MW",st:"IL",t:176},{y:2022,loc:"URBAN",reg:"GR_WE",st:"AZ",t:165},{y:2022,loc:"SUBURBAN",reg:"GR_MW",st:"MN",t:161},{y:2022,loc:"URBAN",reg:"GR_WE",st:"WA",t:160},{y:2022,loc:"URBAN",reg:"GR_NE",st:"MA",t:160},{y:2022,loc:"URBAN",reg:"GR_SE",st:"GA",t:151},{y:2022,loc:"SUBURBAN",reg:"GR_WE",st:"CO",t:143},{y:2022,loc:"URBAN",reg:"GR_SE",st:"TN",t:140},{y:2022,loc:"SUBURBAN",reg:"GR_NE",st:"MA",t:136},{y:2022,loc:"URBAN",reg:"GR_NE",st:"NJ",t:135},{y:2022,loc:"URBAN",reg:"GR_WE",st:"NV",t:133},{y:2022,loc:"SUBURBAN",reg:"GR_MW",st:"IL",t:131},{y:2022,loc:"SUBURBAN",reg:"GR_NE",st:"NJ",t:129},{y:2022,loc:"SUBURBAN",reg:"GR_WE",st:"AZ",t:126},{y:2022,loc:"SUBURBAN",reg:"GR_SE",st:"TN",t:120},{y:2022,loc:"SUBURBAN",reg:"GR_SE",st:"GA",t:111},{y:2022,loc:"SUBURBAN",reg:"GR_WE",st:"NV",t:110},{y:2022,loc:"SUBURBAN",reg:"GR_WE",st:"WA",t:103},{y:2022,loc:"RURAL",reg:"GR_SO",st:"TX",t:63},{y:2022,loc:"RURAL",reg:"GR_SE",st:"FL",t:58},{y:2022,loc:"RURAL",reg:"GR_NE",st:"NY",t:52},{y:2022,loc:"RURAL",reg:"GR_WE",st:"CA",t:48},{y:2022,loc:"RURAL",reg:"GR_MW",st:"MN",t:40},{y:2022,loc:"RURAL",reg:"GR_WE",st:"AZ",t:39},{y:2022,loc:"RURAL",reg:"GR_MW",st:"IL",t:37},{y:2022,loc:"RURAL",reg:"GR_WE",st:"CO",t:35},{y:2022,loc:"RURAL",reg:"GR_SE",st:"TN",t:32},{y:2022,loc:"RURAL",reg:"GR_WE",st:"WA",t:32},{y:2022,loc:"RURAL",reg:"GR_SE",st:"GA",t:30},{y:2022,loc:"RURAL",reg:"GR_NE",st:"MA",t:29},{y:2022,loc:"RURAL",reg:"GR_WE",st:"NV",t:25},{y:2022,loc:"RURAL",reg:"GR_NE",st:"NJ",t:22},
+{y:2023,loc:"URBAN",reg:"GR_SO",st:"TX",t:345},{y:2023,loc:"URBAN",reg:"GR_NE",st:"NY",t:314},{y:2023,loc:"URBAN",reg:"GR_SE",st:"FL",t:302},{y:2023,loc:"URBAN",reg:"GR_WE",st:"CA",t:292},{y:2023,loc:"SUBURBAN",reg:"GR_NE",st:"NY",t:264},{y:2023,loc:"SUBURBAN",reg:"GR_SO",st:"TX",t:239},{y:2023,loc:"SUBURBAN",reg:"GR_SE",st:"FL",t:232},{y:2023,loc:"SUBURBAN",reg:"GR_WE",st:"CA",t:220},{y:2023,loc:"URBAN",reg:"GR_MW",st:"MN",t:183},{y:2023,loc:"URBAN",reg:"GR_WE",st:"CO",t:183},{y:2023,loc:"URBAN",reg:"GR_NE",st:"MA",t:181},{y:2023,loc:"URBAN",reg:"GR_MW",st:"IL",t:165},{y:2023,loc:"URBAN",reg:"GR_NE",st:"NJ",t:156},{y:2023,loc:"URBAN",reg:"GR_WE",st:"WA",t:154},{y:2023,loc:"SUBURBAN",reg:"GR_WE",st:"CO",t:151},{y:2023,loc:"SUBURBAN",reg:"GR_NE",st:"MA",t:144},{y:2023,loc:"URBAN",reg:"GR_SE",st:"TN",t:140},{y:2023,loc:"URBAN",reg:"GR_WE",st:"AZ",t:140},{y:2023,loc:"URBAN",reg:"GR_WE",st:"NV",t:138},{y:2023,loc:"SUBURBAN",reg:"GR_MW",st:"IL",t:136},{y:2023,loc:"SUBURBAN",reg:"GR_SE",st:"GA",t:135},{y:2023,loc:"SUBURBAN",reg:"GR_WE",st:"AZ",t:133},{y:2023,loc:"SUBURBAN",reg:"GR_MW",st:"MN",t:127},{y:2023,loc:"URBAN",reg:"GR_SE",st:"GA",t:127},{y:2023,loc:"SUBURBAN",reg:"GR_WE",st:"WA",t:119},{y:2023,loc:"SUBURBAN",reg:"GR_SE",st:"TN",t:108},{y:2023,loc:"SUBURBAN",reg:"GR_WE",st:"NV",t:91},{y:2023,loc:"SUBURBAN",reg:"GR_NE",st:"NJ",t:91},{y:2023,loc:"RURAL",reg:"GR_NE",st:"NY",t:77},{y:2023,loc:"RURAL",reg:"GR_WE",st:"CA",t:58},{y:2023,loc:"RURAL",reg:"GR_SE",st:"FL",t:55},{y:2023,loc:"RURAL",reg:"GR_SO",st:"TX",t:52},{y:2023,loc:"RURAL",reg:"GR_MW",st:"IL",t:48},{y:2023,loc:"RURAL",reg:"GR_WE",st:"CO",t:35},{y:2023,loc:"RURAL",reg:"GR_MW",st:"MN",t:34},{y:2023,loc:"RURAL",reg:"GR_NE",st:"MA",t:34},{y:2023,loc:"RURAL",reg:"GR_SE",st:"GA",t:31},{y:2023,loc:"RURAL",reg:"GR_WE",st:"AZ",t:28},{y:2023,loc:"RURAL",reg:"GR_WE",st:"NV",t:28},{y:2023,loc:"RURAL",reg:"GR_WE",st:"WA",t:26},{y:2023,loc:"RURAL",reg:"GR_SE",st:"TN",t:23},{y:2023,loc:"RURAL",reg:"GR_NE",st:"NJ",t:21},
+{y:2024,loc:"URBAN",reg:"GR_NE",st:"NY",t:320},{y:2024,loc:"URBAN",reg:"GR_SO",st:"TX",t:313},{y:2024,loc:"URBAN",reg:"GR_SE",st:"FL",t:281},{y:2024,loc:"URBAN",reg:"GR_WE",st:"CA",t:264},{y:2024,loc:"SUBURBAN",reg:"GR_WE",st:"CA",t:260},{y:2024,loc:"SUBURBAN",reg:"GR_SO",st:"TX",t:242},{y:2024,loc:"SUBURBAN",reg:"GR_SE",st:"FL",t:234},{y:2024,loc:"SUBURBAN",reg:"GR_NE",st:"NY",t:229},{y:2024,loc:"URBAN",reg:"GR_WE",st:"CO",t:187},{y:2024,loc:"URBAN",reg:"GR_MW",st:"IL",t:183},{y:2024,loc:"URBAN",reg:"GR_MW",st:"MN",t:181},{y:2024,loc:"URBAN",reg:"GR_NE",st:"MA",t:174},{y:2024,loc:"URBAN",reg:"GR_NE",st:"NJ",t:156},{y:2024,loc:"URBAN",reg:"GR_SE",st:"GA",t:154},{y:2024,loc:"SUBURBAN",reg:"GR_NE",st:"MA",t:151},{y:2024,loc:"SUBURBAN",reg:"GR_WE",st:"CO",t:149},{y:2024,loc:"URBAN",reg:"GR_WE",st:"AZ",t:148},{y:2024,loc:"URBAN",reg:"GR_WE",st:"WA",t:146},{y:2024,loc:"SUBURBAN",reg:"GR_MW",st:"IL",t:141},{y:2024,loc:"URBAN",reg:"GR_SE",st:"TN",t:138},{y:2024,loc:"SUBURBAN",reg:"GR_MW",st:"MN",t:137},{y:2024,loc:"URBAN",reg:"GR_WE",st:"NV",t:133},{y:2024,loc:"SUBURBAN",reg:"GR_SE",st:"GA",t:127},{y:2024,loc:"SUBURBAN",reg:"GR_WE",st:"AZ",t:124},{y:2024,loc:"SUBURBAN",reg:"GR_SE",st:"TN",t:118},{y:2024,loc:"SUBURBAN",reg:"GR_NE",st:"NJ",t:108},{y:2024,loc:"SUBURBAN",reg:"GR_WE",st:"NV",t:100},{y:2024,loc:"SUBURBAN",reg:"GR_WE",st:"WA",t:97},{y:2024,loc:"RURAL",reg:"GR_NE",st:"NY",t:64},{y:2024,loc:"RURAL",reg:"GR_SO",st:"TX",t:62},{y:2024,loc:"RURAL",reg:"GR_SE",st:"FL",t:56},{y:2024,loc:"RURAL",reg:"GR_WE",st:"CA",t:51},{y:2024,loc:"RURAL",reg:"GR_MW",st:"MN",t:45},{y:2024,loc:"RURAL",reg:"GR_MW",st:"IL",t:42},{y:2024,loc:"RURAL",reg:"GR_WE",st:"CO",t:38},{y:2024,loc:"RURAL",reg:"GR_NE",st:"MA",t:36},{y:2024,loc:"RURAL",reg:"GR_SE",st:"GA",t:32},{y:2024,loc:"RURAL",reg:"GR_WE",st:"AZ",t:31},{y:2024,loc:"RURAL",reg:"GR_WE",st:"NV",t:28},{y:2024,loc:"RURAL",reg:"GR_SE",st:"TN",t:26},{y:2024,loc:"RURAL",reg:"GR_WE",st:"WA",t:25},{y:2024,loc:"RURAL",reg:"GR_NE",st:"NJ",t:22}
+];
+
+// All locations (20 stores)
+const LOCATIONS = [
+{name:"Bijou — Scottsdale",type:"STORE",state:"AZ",city:"Scottsdale",reg:"GR_WE",ch:"RETAIL",bu:"Bijou Accessories"},
+{name:"Bijou — Rodeo Drive",type:"STORE",state:"CA",city:"Beverly Hills",reg:"GR_WE",ch:"RETAIL",bu:"Bijou Accessories"},
+{name:"Bijou — Union Square",type:"STORE",state:"CA",city:"San Francisco",reg:"GR_WE",ch:"RETAIL",bu:"Bijou Accessories"},
+{name:"Urban Thread — Denver",type:"STORE",state:"CO",city:"Denver",reg:"GR_WE",ch:"RETAIL",bu:"Urban Thread"},
+{name:"SoleStep — Miami Beach",type:"STORE",state:"FL",city:"Miami",reg:"GR_SE",ch:"RETAIL",bu:"SoleStep Footwear"},
+{name:"LuxeStyle Outlet — Orlando",type:"OUTLET",state:"FL",city:"Orlando",reg:"GR_SE",ch:"RETAIL",bu:"LuxeStyle Outlet"},
+{name:"SoleStep — Buckhead",type:"STORE",state:"GA",city:"Atlanta",reg:"GR_SE",ch:"RETAIL",bu:"SoleStep Footwear"},
+{name:"Urban Thread — Magnificent Mile",type:"STORE",state:"IL",city:"Chicago",reg:"GR_MW",ch:"RETAIL",bu:"Urban Thread"},
+{name:"LuxeStyle Online — US Warehouse",type:"WAREHOUSE",state:"KY",city:"Louisville",reg:"GR_ALL",ch:"WEB",bu:"LuxeStyle Online"},
+{name:"Maison Luxe — Newbury Street",type:"STORE",state:"MA",city:"Boston",reg:"GR_NE",ch:"RETAIL",bu:"Maison Luxe"},
+{name:"Urban Thread — Minneapolis",type:"STORE",state:"MN",city:"Minneapolis",reg:"GR_MW",ch:"RETAIL",bu:"Urban Thread"},
+{name:"LuxeStyle Outlet — Jersey Gardens",type:"OUTLET",state:"NJ",city:"Elizabeth",reg:"GR_NE",ch:"RETAIL",bu:"LuxeStyle Outlet"},
+{name:"LuxeStyle Outlet — Las Vegas",type:"OUTLET",state:"NV",city:"Las Vegas",reg:"GR_WE",ch:"RETAIL",bu:"LuxeStyle Outlet"},
+{name:"LuxeStyle Outlet — Woodbury Commons",type:"OUTLET",state:"NY",city:"Central Valley",reg:"GR_NE",ch:"RETAIL",bu:"LuxeStyle Outlet"},
+{name:"LuxeStyle Mobile — HQ",type:"VIRTUAL",state:"NY",city:"New York",reg:"GR_ALL",ch:"MOBILE",bu:"LuxeStyle Mobile App"},
+{name:"Maison Luxe — Fifth Avenue",type:"STORE",state:"NY",city:"New York",reg:"GR_NE",ch:"RETAIL",bu:"Maison Luxe"},
+{name:"SoleStep — Nashville",type:"STORE",state:"TN",city:"Nashville",reg:"GR_SE",ch:"RETAIL",bu:"SoleStep Footwear"},
+{name:"Maison Luxe — Dallas",type:"STORE",state:"TX",city:"Dallas",reg:"GR_SO",ch:"RETAIL",bu:"Maison Luxe"},
+{name:"SoleStep — Houston Galleria",type:"STORE",state:"TX",city:"Houston",reg:"GR_SO",ch:"RETAIL",bu:"SoleStep Footwear"},
+{name:"Bijou — Seattle Center",type:"STORE",state:"WA",city:"Seattle",reg:"GR_WE",ch:"RETAIL",bu:"Bijou Accessories"}
+];
+
+const REG_LIST=["GR_NE","GR_MW","GR_SE","GR_SO","GR_WE"];
+const REG_NAMES={GR_NE:"Northeast",GR_MW:"Midwest",GR_SE:"Southeast",GR_SO:"South",GR_WE:"West",GR_ALL:"National"};
+const LOC_LIST=["URBAN","SUBURBAN","RURAL"];
+const YEAR_COLORS = {2022:"#94A3B8",2023:"#1A7F64",2024:"#00AEFF"};
+const LOC_COLORS = {URBAN:"#00AEFF",SUBURBAN:"#1A7F64",RURAL:"#94A3B8"};
+
+const state={year:2024,compare:false,regs:new Set(REG_LIST),locs:new Set(LOC_LIST)};
+const fmtInt=v=>v==null||isNaN(v)?"—":Math.round(v).toLocaleString("en-US");
+const fmtPct=v=>v==null||isNaN(v)?"—":(v>=0?"+":"")+v.toFixed(1)+"%";
+
+function filtered(year){return DATA.filter(r=>r.y===year && state.regs.has(r.reg) && state.locs.has(r.loc))}
+function byState(year){const o={};filtered(year).forEach(r=>{if(!o[r.st])o[r.st]={total:0,urban:0,suburban:0,rural:0,reg:r.reg};o[r.st].total+=r.t;o[r.st][r.loc.toLowerCase()]+=r.t});return o}
+function byRegion(year){const o={};REG_LIST.forEach(r=>o[r]=0);filtered(year).forEach(r=>o[r.reg]+=r.t);return o}
+function byLocality(year){const o={};LOC_LIST.forEach(l=>o[l]=0);filtered(year).forEach(r=>o[r.loc]+=r.t);return o}
+
+function buildMulti(name,list,set,sumId,ddId,labels){
+  const dd=document.getElementById(ddId);dd.innerHTML="";
+  const all=document.createElement("label");
+  all.innerHTML=`<input type="checkbox" id="${name}All" ${set.size===list.length?'checked':''}> <strong>All</strong>`;
+  all.querySelector("input").addEventListener("change",e=>{if(e.target.checked){list.forEach(v=>set.add(v))}else{set.clear()};buildMulti(name,list,set,sumId,ddId,labels);render()});
+  dd.appendChild(all);
+  list.forEach(v=>{
+    const l=document.createElement("label");
+    l.innerHTML=`<input type="checkbox" ${set.has(v)?'checked':''}> ${labels?labels[v]||v:v}`;
+    l.querySelector("input").addEventListener("change",e=>{if(e.target.checked)set.add(v);else set.delete(v);document.getElementById(name+"All").checked=set.size===list.length;updateSum(sumId,set,list);render()});
+    dd.appendChild(l);
+  });
+  updateSum(sumId,set,list);
+}
+function updateSum(id,set,list){document.getElementById(id).textContent=set.size===list.length?`All (${list.length})`:set.size===0?"None":set.size===1?[...set][0]:`${set.size} selected`}
+function toggleMulti(id){document.querySelectorAll(".multi").forEach(m=>{if(m.id!==id)m.classList.remove("open")});document.getElementById(id).classList.toggle("open")}
+document.addEventListener("click",e=>{if(!e.target.closest(".multi"))document.querySelectorAll(".multi").forEach(m=>m.classList.remove("open"))});
+function toggleCompare(){state.compare=!state.compare;document.getElementById("cmpSwitch").classList.toggle("on",state.compare);render()}
+function resetFilters(){state.year=2024;state.compare=false;state.regs=new Set(REG_LIST);state.locs=new Set(LOC_LIST);document.getElementById("yearSel").value="2024";document.getElementById("cmpSwitch").classList.remove("on");buildAllMulti();render()}
+function buildAllMulti(){buildMulti("reg",REG_LIST,state.regs,"regSummary","regDropdown",REG_NAMES);buildMulti("loc",LOC_LIST,state.locs,"locSummary","locDropdown")}
+document.getElementById("yearSel").addEventListener("change",e=>{state.year=parseInt(e.target.value);render()});
+
+const charts={};
+function mk(id,t,d,o){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),{type:t,data:d,options:o})}
+const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"},color:'#1E293B',boxWidth:14,padding:12}},tooltip:{backgroundColor:'rgba(30,41,59,.95)',padding:10,titleFont:{size:12,weight:'600'},bodyFont:{size:12}}}};
+
+function render(){renderTitles();renderKPIs();renderState();renderReg();renderLoc();renderRegLoc();renderTable();renderLocations()}
+function renderTitles(){
+  const yl=state.compare?"2022 · 2023 · 2024":"FY "+state.year;
+  document.getElementById("kpiSectionTitle").textContent=state.compare?"Year-over-Year Geographic KPIs":`FY ${state.year} Geographic KPIs`;
+  document.getElementById("stateTitle").textContent=state.compare?"Transactions by State — 3 Years":`Transactions by State — ${yl}`;
+  document.getElementById("regTitle").textContent=state.compare?"Transactions by Region — 3 Years":`Transactions by Region — ${yl}`;
+  document.getElementById("locTitle").textContent=`Locality Split — ${yl}`;
+  document.getElementById("regLocTitle").textContent=state.compare?"Region × Locality — 3 Years":`Region × Locality — ${yl}`;
+  document.getElementById("tableTitle").textContent=state.compare?"State Detail — FY 2024":`State Detail — ${yl}`;
+}
+function renderKPIs(){
+  const row=document.getElementById("kpiRow");row.innerHTML="";
+  const year=state.compare?2024:state.year;
+  const f=filtered(year);
+  const prev=year>2022?filtered(year-1):null;
+  const total=f.reduce((s,r)=>s+r.t,0);
+  const urban=f.filter(r=>r.loc==="URBAN").reduce((s,r)=>s+r.t,0);
+  const suburban=f.filter(r=>r.loc==="SUBURBAN").reduce((s,r)=>s+r.t,0);
+  const rural=f.filter(r=>r.loc==="RURAL").reduce((s,r)=>s+r.t,0);
+  const states=new Set(f.map(r=>r.st)).size;
+  const prevTotal=prev?prev.reduce((s,r)=>s+r.t,0):null;
+  const yoy=prevTotal&&prevTotal>0?((total-prevTotal)/prevTotal)*100:null;
+  const ks=[
+    {l:`Total Transactions ${year}`,v:fmtInt(total),d:yoy!==null?`${yoy>=0?'↑':'↓'} ${Math.abs(yoy).toFixed(1)}% YoY`:null,cls:yoy>0?'positive':yoy<0?'negative':''},
+    {l:"Urban",v:fmtInt(urban),d:total>0?(urban/total*100).toFixed(1)+"% of total":""},
+    {l:"Suburban",v:fmtInt(suburban),d:total>0?(suburban/total*100).toFixed(1)+"% of total":""},
+    {l:"Rural",v:fmtInt(rural),d:total>0?(rural/total*100).toFixed(1)+"% of total":""},
+    {l:"States Active",v:fmtInt(states),d:"Of 13 tracked"},
+    {l:"Store Locations",v:"20",d:"Incl. warehouse + virtual"}
+  ];
+  ks.forEach(k=>{const c=document.createElement("div");c.className="kpi-card";c.innerHTML=`<div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div>${k.d?`<div class="kpi-delta ${k.cls||''}">${k.d}</div>`:""}`;row.appendChild(c)});
+}
+function renderState(){
+  const year=state.compare?2024:state.year;
+  const d=byState(year);
+  const sorted=Object.entries(d).sort((a,b)=>b[1].total-a[1].total);
+  mk("stateChart","bar",{labels:sorted.map(r=>r[0]),datasets:[{label:`FY ${year} Txns`,data:sorted.map(r=>r[1].total),backgroundColor:"#00AEFF",borderRadius:4}]},{...bo,indexAxis:'y',plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>fmtInt(c.parsed.x)+" transactions"}}},scales:{x:{beginAtZero:true,ticks:{color:'#64748B',callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},y:{ticks:{color:'#64748B'},grid:{display:false}}}});
+}
+function renderReg(){
+  if(state.compare){
+    const ds=[2022,2023,2024].map(y=>{const d=byRegion(y);return {label:String(y),data:REG_LIST.map(r=>d[r]),backgroundColor:YEAR_COLORS[y],borderRadius:4}});
+    mk("regChart","bar",{labels:REG_LIST.map(r=>REG_NAMES[r]),datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>c.dataset.label+": "+fmtInt(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B'},grid:{display:false}}}});
+  } else {
+    const d=byRegion(state.year);
+    mk("regChart","bar",{labels:REG_LIST.map(r=>REG_NAMES[r]),datasets:[{label:`FY ${state.year}`,data:REG_LIST.map(r=>d[r]),backgroundColor:"#1A7F64",borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>fmtInt(c.parsed.y)+" txns"}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B'},grid:{display:false}}}});
+  }
+}
+function renderLoc(){
+  const d=byLocality(state.year);
+  mk("locChart","doughnut",{labels:LOC_LIST,datasets:[{data:LOC_LIST.map(l=>d[l]),backgroundColor:LOC_LIST.map(l=>LOC_COLORS[l]),borderColor:"#FFF",borderWidth:2}]},{...bo,plugins:{...bo.plugins,legend:{position:'right',labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"},color:'#1E293B',boxWidth:14,padding:12}},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>{const t=c.dataset.data.reduce((s,v)=>s+v,0);return c.label+": "+fmtInt(c.parsed)+" ("+(t>0?(c.parsed/t*100).toFixed(1):"0")+"%)"}}}}});
+}
+function renderRegLoc(){
+  const year=state.compare?2024:state.year;
+  const matrix={};REG_LIST.forEach(r=>matrix[r]={URBAN:0,SUBURBAN:0,RURAL:0});
+  filtered(year).forEach(r=>matrix[r.reg][r.loc]+=r.t);
+  const ds=LOC_LIST.map(l=>({label:l,data:REG_LIST.map(r=>matrix[r][l]),backgroundColor:LOC_COLORS[l],borderRadius:4}));
+  mk("regLocChart","bar",{labels:REG_LIST.map(r=>REG_NAMES[r]),datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,mode:'index',callbacks:{label:c=>c.dataset.label+": "+fmtInt(c.parsed.y)}}},scales:{y:{stacked:true,beginAtZero:true,ticks:{color:'#64748B',callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},x:{stacked:true,ticks:{color:'#64748B'},grid:{display:false}}}});
+}
+function renderTable(){
+  const body=document.getElementById("tableBody");body.innerHTML="";
+  const year=state.compare?2024:state.year;
+  const cur=byState(year);const prev=year>2022?byState(year-1):null;
+  const sorted=Object.entries(cur).sort((a,b)=>b[1].total-a[1].total);
+  let tT=0,tU=0,tS=0,tR=0,tP=0;
+  sorted.forEach(([st,d])=>{
+    const p=prev?prev[st]:null;const yoy=p&&p.total>0?((d.total-p.total)/p.total)*100:null;
+    tT+=d.total;tU+=d.urban;tS+=d.suburban;tR+=d.rural;tP+=p?p.total:0;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><strong>${st}</strong></td><td>${REG_NAMES[d.reg]}</td><td class="text-right">${fmtInt(d.total)}</td><td class="text-right">${fmtInt(d.urban)}</td><td class="text-right">${fmtInt(d.suburban)}</td><td class="text-right">${fmtInt(d.rural)}</td><td class="text-right">${yoy===null?'—':`<span class="${yoy>=0?'pos':'neg'}">${fmtPct(yoy)}</span>`}</td>`;
+    body.appendChild(tr);
+  });
+  const tYoy=prev&&tP>0?((tT-tP)/tP)*100:null;
+  document.getElementById("tableFoot").innerHTML=`<td colspan="2"><strong>TOTAL (${sorted.length} states)</strong></td><td class="text-right"><strong>${fmtInt(tT)}</strong></td><td class="text-right"><strong>${fmtInt(tU)}</strong></td><td class="text-right"><strong>${fmtInt(tS)}</strong></td><td class="text-right"><strong>${fmtInt(tR)}</strong></td><td class="text-right">${tYoy===null?'—':`<span class="${tYoy>=0?'pos':'neg'}"><strong>${fmtPct(tYoy)}</strong></span>`}</td>`;
+}
+function renderLocations(){
+  const body=document.getElementById("locationsBody");body.innerHTML="";
+  const sorted=LOCATIONS.filter(l=>state.regs.has(l.reg) || l.reg==="GR_ALL");
+  sorted.forEach(l=>{const tr=document.createElement("tr");tr.innerHTML=`<td><strong>${l.name}</strong></td><td>${l.type}</td><td>${l.city}</td><td>${l.state}</td><td>${REG_NAMES[l.reg]}</td><td>${l.ch}</td><td>${l.bu}</td>`;body.appendChild(tr)});
+}
+buildAllMulti();render();
+</script>
+<script src="theme.js"></script>
+</body></html>

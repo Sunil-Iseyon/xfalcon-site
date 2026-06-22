@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Car Manufacturing - Analytics Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+
+        /* Topbar */
+        .topbar {
+            background-color: #1B3A5C;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo-x {
+            color: #E87722;
+        }
+
+        .logo-f {
+            color: #1B3A5C;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section title */
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #E87722;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #E87722;
+            transition: box-shadow 0.2s;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-yoy {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748B;
+        }
+
+        .yoy-positive {
+            color: #059669;
+        }
+
+        .yoy-negative {
+            color: #D32F2F;
+        }
+
+        /* Charts Container */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Table */
+        .table-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table thead {
+            background-color: #1B3A5C;
+            color: white;
+        }
+
+        table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #E5E7EB;
+            color: #1E293B;
+        }
+
+        table tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Dashboard Directory */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #E87722;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .dashboard-number {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-description {
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .dashboard-status {
+            display: inline-block;
+            background-color: #D1FAE5;
+            color: #059669;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        /* Reference Section */
+        .reference-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #E87722;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .reference-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .reference-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1B3A5C;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            font-size: 13px;
+            margin-top: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="topbar-title">Falcon Car Manufacturing</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- KPI Section -->
+        <div class="section-title">Key Performance Indicators (2024)</div>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Production</div>
+                <div class="kpi-value">367,383</div>
+                <div class="kpi-yoy"><span class="yoy-negative">-1.5%</span> vs 373,097 (2023)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">OEE</div>
+                <div class="kpi-value">88.0%</div>
+                <div class="kpi-yoy"><span class="yoy-negative">-0.01pp</span> vs 88.0% (2023)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Plan Attainment</div>
+                <div class="kpi-value">97.5%</div>
+                <div class="kpi-yoy">Stable</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Scrap Rate</div>
+                <div class="kpi-value">0.33%</div>
+                <div class="kpi-yoy"><span class="yoy-positive">-0.01pp</span> improvement</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Rework Rate</div>
+                <div class="kpi-value">2.50%</div>
+                <div class="kpi-yoy"><span class="yoy-negative">+0.02pp</span> vs 2.48% (2023)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Defects</div>
+                <div class="kpi-value">40</div>
+                <div class="kpi-yoy"><span class="yoy-positive">-16.7%</span> vs 48 (2023)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Service CSAT</div>
+                <div class="kpi-value">2.85</div>
+                <div class="kpi-yoy"><span class="yoy-negative">-3.7%</span> vs 2.96 (2023)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Warranty Claims</div>
+                <div class="kpi-value">33</div>
+                <div class="kpi-yoy"><span class="yoy-positive">-8.3%</span> vs 36 (2023)</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="section-title">Production Analytics</div>
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Annual Production Volume (2020-2024)</div>
+                <div class="chart-container">
+                    <canvas id="productionAnnual"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Production by Brand (2024)</div>
+                <div class="chart-container">
+                    <canvas id="productionBrand"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-title">Monthly Production Trend (2023 vs 2024)</div>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="productionMonthly"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plant Summary -->
+        <div class="section-title">Top Plants by Production (2024)</div>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plant</th>
+                        <th>Country</th>
+                        <th>Region</th>
+                        <th>2024 Production</th>
+                        <th>2023 Production</th>
+                        <th>YoY %</th>
+                        <th>Avg OEE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Stuttgart Assembly</td>
+                        <td>Germany</td>
+                        <td>Europe</td>
+                        <td>127,827</td>
+                        <td>129,734</td>
+                        <td><span class="yoy-negative">-1.5%</span></td>
+                        <td>88.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Detroit Production Hub</td>
+                        <td>USA</td>
+                        <td>North America</td>
+                        <td>95,802</td>
+                        <td>97,332</td>
+                        <td><span class="yoy-negative">-1.6%</span></td>
+                        <td>87.9%</td>
+                    </tr>
+                    <tr>
+                        <td>Nagoya Main Assembly</td>
+                        <td>Japan</td>
+                        <td>Asia Pacific</td>
+                        <td>79,886</td>
+                        <td>81,084</td>
+                        <td><span class="yoy-negative">-1.5%</span></td>
+                        <td>88.1%</td>
+                    </tr>
+                    <tr>
+                        <td>Chennai Vehicle Plant</td>
+                        <td>India</td>
+                        <td>Asia Pacific</td>
+                        <td>63,868</td>
+                        <td>64,947</td>
+                        <td><span class="yoy-negative">-1.7%</span></td>
+                        <td>88.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Dashboard Directory -->
+        <div class="section-title">Dashboard Directory</div>
+        <div class="dashboard-grid">
+            <a href="01-executive-overview.html" class="dashboard-card">
+                <div class="dashboard-number">01</div>
+                <div class="dashboard-name">Executive Overview</div>
+                <div class="dashboard-description">High-level KPI summary and business metrics across all operations</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="02-production-performance.html" class="dashboard-card">
+                <div class="dashboard-number">02</div>
+                <div class="dashboard-name">Production Performance</div>
+                <div class="dashboard-description">Production volume, capacity, and efficiency metrics by line</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="03-oee-equipment.html" class="dashboard-card">
+                <div class="dashboard-number">03</div>
+                <div class="dashboard-name">OEE & Equipment</div>
+                <div class="dashboard-description">Equipment effectiveness, downtime analysis, and maintenance</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="04-quality-defects.html" class="dashboard-card">
+                <div class="dashboard-number">04</div>
+                <div class="dashboard-name">Quality & Defects</div>
+                <div class="dashboard-description">Defect tracking, scrap rates, and quality improvement trends</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="05-supplier-scorecard.html" class="dashboard-card">
+                <div class="dashboard-number">05</div>
+                <div class="dashboard-name">Supplier Scorecard</div>
+                <div class="dashboard-description">Supplier performance, delivery, and quality ratings</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="06-inventory-supply-chain.html" class="dashboard-card">
+                <div class="dashboard-number">06</div>
+                <div class="dashboard-name">Inventory & Supply Chain</div>
+                <div class="dashboard-description">Inventory levels, turnover, and supply chain optimization</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="07-service-after-sales.html" class="dashboard-card">
+                <div class="dashboard-number">07</div>
+                <div class="dashboard-name">Service & After-Sales</div>
+                <div class="dashboard-description">Service center performance and customer satisfaction metrics</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="08-warranty-analysis.html" class="dashboard-card">
+                <div class="dashboard-number">08</div>
+                <div class="dashboard-name">Warranty Analysis</div>
+                <div class="dashboard-description">Warranty claims, costs, and root cause analysis</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="09-workforce-labor.html" class="dashboard-card">
+                <div class="dashboard-number">09</div>
+                <div class="dashboard-name">Workforce & Labor</div>
+                <div class="dashboard-description">Workforce productivity, safety, and labor cost metrics</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+
+            <a href="10-purchase-orders.html" class="dashboard-card">
+                <div class="dashboard-number">10</div>
+                <div class="dashboard-name">Purchase Orders</div>
+                <div class="dashboard-description">Purchase order management and procurement analytics</div>
+                <div class="dashboard-status">READY</div>
+            </a>
+        </div>
+
+        <!-- Research Reports -->
+        <div class="section-title">Research Reports</div>
+        <div class="card-grid" style="grid-template-columns: repeat(2, 1fr)">
+            <a href="AutoExplore/sessions/2026-04-13/ev-strategy-report.html" class="dashboard-card" style="border-left: 4px solid #E87722">
+                <div class="dashboard-number" style="color:#E87722">EV</div>
+                <div class="dashboard-name">Electric Vehicle Strategy Report</div>
+                <div class="dashboard-description">AutoExplore analysis comparing electrified vs ICE across production, quality, revenue, and after-sales. 20 iterations, fact-checked.</div>
+                <div class="dashboard-status" style="background:#E87722">NEW</div>
+            </a>
+        </div>
+
+        <!-- Reference Section -->
+        <div class="section-title">Reference Materials</div>
+        <a href="metrics-definitions.html" class="reference-card">
+            <div class="reference-name">Metrics & KPI Definitions</div>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Falcon Car Manufacturing Analytics Suite | Powered by xFalcon AnalyticsPro | Generated Apr 2026
+    </footer>
+
+    <script>
+        // Chart instance manager
+        var charts = {};
+
+        function mk(canvasId, type, data, options) {
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            charts[canvasId] = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options
+            });
+            return charts[canvasId];
+        }
+
+        // KPI text fitting
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var text = el.textContent;
+                if (text.length > 10) {
+                    el.style.fontSize = '24px';
+                } else if (text.length > 8) {
+                    el.style.fontSize = '26px';
+                } else {
+                    el.style.fontSize = '28px';
+                }
+            });
+        }
+
+        // Chart 1: Annual Production Volume
+        var data1 = {
+            labels: ['2020', '2021', '2022', '2023', '2024'],
+            datasets: [{
+                label: 'Annual Production',
+                data: [374755, 374743, 373285, 373097, 367383],
+                backgroundColor: '#1B3A5C',
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        };
+
+        var options1 = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 400000,
+                    ticks: {
+                        callback: function(value) {
+                            return (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        };
+
+        mk('productionAnnual', 'bar', data1, options1);
+
+        // Chart 2: Production by Brand
+        var data2 = {
+            labels: ['Toyota', 'Volkswagen', 'Ford', 'Honda', 'BMW', 'Mercedes'],
+            datasets: [{
+                label: '2024 Production by Brand',
+                data: [79740, 82147, 65482, 60608, 52273, 27133],
+                backgroundColor: '#E87722',
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        };
+
+        var options2 = {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 90000,
+                    ticks: {
+                        callback: function(value) {
+                            return (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        };
+
+        mk('productionBrand', 'bar', data2, options2);
+
+        // Chart 3: Monthly Production Trend
+        var months12 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var data2023 = [32065, 29156, 32054, 29119, 33540, 30587, 30613, 33528, 29167, 32040, 32062, 29166];
+        var data2024 = [33509, 30622, 29161, 32114, 33529, 27689, 33541, 32092, 29130, 33527, 30602, 21867];
+
+        var data3 = {
+            labels: months12,
+            datasets: [
+                {
+                    label: '2023 Production',
+                    data: data2023,
+                    borderColor: '#94A3B8',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#94A3B8'
+                },
+                {
+                    label: '2024 Production',
+                    data: data2024,
+                    borderColor: '#1B3A5C',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [],
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#1B3A5C'
+                }
+            ]
+        };
+
+        var options3 = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 35000,
+                    ticks: {
+                        callback: function(value) {
+                            return (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        };
+
+        mk('productionMonthly', 'line', data3, options3);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fitKpiText();
+        });
+    </script>
+</body>
+</html>

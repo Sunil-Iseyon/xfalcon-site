@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / Supply Chain Risk Memo</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .memo { max-width: 900px; margin: 0 auto; padding: 0 8px; }
+    .memo h1 { font-size: 28px; font-weight: 800; color: var(--color-primary); margin: 24px 0 8px; }
+    .memo h2 { font-size: 20px; font-weight: 700; color: var(--color-primary); margin: 28px 0 8px; border-bottom: 1px solid var(--color-border); padding-bottom: 6px; }
+    .memo h3 { font-size: 16px; font-weight: 700; color: var(--color-text); margin: 20px 0 8px; }
+    .memo p { font-size: 15px; line-height: 1.7; color: var(--color-text); margin-bottom: 12px; }
+    .memo ul, .memo ol { margin: 8px 0 16px 24px; }
+    .memo li { font-size: 15px; line-height: 1.7; color: var(--color-text); margin-bottom: 6px; }
+    .memo .evidence { background: var(--color-surface-alt); border-left: 3px solid var(--color-primary); padding: 12px 16px; margin: 12px 0; border-radius: 4px; font-size: 14px; }
+    .memo .evidence strong { color: var(--color-primary); }
+    .memo .lede { font-size: 16px; color: var(--color-text-muted); font-style: italic; margin-bottom: 20px; line-height: 1.6; }
+    .action-row { display: grid; grid-template-columns: 80px 1fr; gap: 16px; margin-bottom: 10px; }
+    .action-priority { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-align: center; height: fit-content; text-transform: uppercase; letter-spacing: 0.04em; }
+    .action-priority.p1 { background: #FEE2E2; color: #991B1B; }
+    .action-priority.p2 { background: #FEF3C7; color: #92400E; }
+    .action-priority.p3 { background: #DBEAFE; color: #1E40AF; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / Supply Chain Risk Memo</div>
+        <div class="topbar-subtitle">AutoExplore narrative &middot; 2026-04-20 &middot; 20 hypotheses tested, 6 findings</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <main class="content">
+    <div class="memo">
+
+      <h1>Supply Chain Vulnerabilities at Falcon Defense &amp; Aerospace</h1>
+      <p class="lede">An AutoExplore run across FACT_PARTS_SUPPLY, DIM_SUPPLIER, and DIM_PARTS identified six concentrated supply-chain vulnerabilities. The largest is not in Tier 1 or Tier 2 &mdash; it's the Tier 3 small-business layer handling 74% of parts spend with 0% DCAA approval. Recommended interventions are prioritized below.</p>
+
+      <h2>Executive Summary</h2>
+      <p>The active supplier portfolio is 198 vendors arranged in a three-tier structure. The traditional narrative &mdash; Tier 1 primes carry the heavy lifting, Tier 3 handles niche commodity supply &mdash; does not match the data. Across 5 years and 700,000 purchase orders, Tier 3 accounts for <strong>$1.007T of $1.36T in total PO value</strong>. This is the supply chain's center of gravity, and it's also its most structurally exposed layer.</p>
+      <p>Combined with a <strong>30% sole-source rate on Mission Critical parts</strong> and a step-function drop in OTD performance once quality ratings fall below 4.5, the portfolio presents a two-layered risk: concentration at the vendor level and single-point-of-failure at the part level.</p>
+
+      <h2>Finding 1 &mdash; Tier 3 Owns 74% of Parts Spend</h2>
+      <p>Each of the ten Tier 1 OEM relationships averages $25.9B of spend over five years &mdash; clearly a heavy commitment per vendor. But summed, Tier 3 dwarfs the other tiers combined:</p>
+      <div class="evidence"><strong>Evidence:</strong> Tier 1 = $258,990M (10 suppliers) &middot; Tier 2 = $94,039M (16 suppliers) &middot; Tier 3 = $1,007,031M (172 suppliers). Tier 3 per-supplier spend averages $5.9B &mdash; comparable to low-end Tier 1.</div>
+      <p>The concentration risk is not that any one T3 supplier is too big; it's that the <em>layer</em> is load-bearing. A labor dispute, a sub-component shortage, or a capacity ceiling in the small-business tier cascades into 3/4 of ARES's parts pipeline.</p>
+
+      <h2>Finding 2 &mdash; Mission Critical Parts Show Highest Sole-Source Rate</h2>
+      <p>Sole-source concentration by part criticality runs counter to intuition. The most critical hardware should have the most backup options:</p>
+      <div class="evidence"><strong>Evidence:</strong> Mission Critical parts 30.1% sole-source (144 of 479) &middot; Flight Safety 29.0% (184 of 634) &middot; Operational 24.3% &middot; Routine 28.7%. Expected pattern: Mission Critical sole-source rate should be lowest, not highest.</div>
+      <p>Each of those 144 Mission Critical sole-source parts is a program-stoppable failure: if the supplier can't deliver, there is no qualified alternate in DIM_PARTS. This pattern typically emerges from "easier to qualify one vendor" decisions made years ago, never revisited.</p>
+
+      <h2>Finding 3 &mdash; Tier 3 Has Zero DCAA Approval</h2>
+      <p>DCAA approval is a gating condition for cost-type contract pass-through. Without it, ARES absorbs vendor audit risk internally:</p>
+      <div class="evidence"><strong>Evidence:</strong> Tier 1: 10/10 DCAA approved (100%). Tier 2: 8/16 approved (50%). Tier 3: <strong>0/172 approved (0%)</strong>. $1.01T in T3 spend flows through non-DCAA-compliant accounting systems.</div>
+      <p>This is both a compliance risk (cost-type pass-through is inefficient) and a competitive threat: ARES competitors with higher T3-DCAA coverage have better cost-contract economics. A targeted "DCAA-upgrade" program on the top-20 T3 vendors by spend (~$300B coverage) would shift the structural picture.</p>
+
+      <h2>Finding 4 &mdash; Quality-OTD Correlation is Step-Function, Not Linear</h2>
+      <p>Binning active suppliers by quality rating reveals a discontinuity:</p>
+      <div class="evidence"><strong>Evidence:</strong> Quality rating &lt;3.0 &rarr; 79.65% OTD; 3.0-3.5 &rarr; 79.66%; 3.5-4.0 &rarr; 79.96%; 4.0-4.5 &rarr; 80.26%; <strong>4.5+ &rarr; 96.02%</strong>. First four bins are statistically indistinguishable.</div>
+      <p>Improving a supplier from 3.5 to 4.0 yields no meaningful OTD lift. The supplier-development framework should be restructured around identifying "step-function candidates" &mdash; vendors with the structural capacity to reach 4.5+ &mdash; rather than continuous improvement coaching of the 3.0-4.0 band, which doesn't pay off.</p>
+
+      <h2>Finding 5 &mdash; 95 Active Suppliers are Single-Points-of-Failure</h2>
+      <p>Combining low OTD with sole-source exclusivity yields a concentrated exposure list:</p>
+      <div class="evidence"><strong>Evidence:</strong> 95 of 198 active suppliers (48%) combine ON_TIME_DELIVERY_PCT &lt; 80% with supply of at least one IS_SOLE_SOURCE part. 144 Mission Critical parts overall are sole-source.</div>
+      <p>A targeted dual-sourcing program on these 95 would reclassify roughly half the active portfolio's risk profile. Priority order: (a) Mission Critical sole-source parts first, (b) then Flight Safety, (c) then sole-source parts on contracts with near-term period-of-performance expiries from Dashboard 8.</p>
+
+      <h2>Finding 6 &mdash; Lead Time Variability is Not a Differentiator</h2>
+      <p>Against the common assumption that Tier 3 small businesses run looser schedules, the data shows tight parity:</p>
+      <div class="evidence"><strong>Evidence:</strong> Tier 1 avg lead time 188.1 days, abs deviation 4.78d; Tier 2: 187.3d / 4.69d; Tier 3: 186.1d / 4.73d. No tier shows meaningfully different predictability.</div>
+      <p>Don't invest in lead-time forecasting differentiation &mdash; it's a commodity performance layer. The leverage is elsewhere (OTD hit rate, sole-source reduction, DCAA upgrade). Scheduling systems can treat all tiers as equivalent.</p>
+
+      <h2>What We Didn't Find (Null Results)</h2>
+      <p>Nine hypotheses returned no meaningful signal. Recording them prevents future sessions from re-litigating the same questions:</p>
+      <ul>
+        <li><strong>No domain-supplier correlation.</strong> The distribution of supplier tiers across warfighting domains (Air, Land, Sea, Space, Cyber, Multi-Domain) is uniform. No domain carries more T3 risk than another.</li>
+        <li><strong>No seasonality in OTD.</strong> Monthly OTD by tier shows ~&plusmn;0.5pp noise, no September-vs-March pattern, no holiday dips.</li>
+        <li><strong>No defect-rate year-over-year trend.</strong> First-pass yield held steady at ~96.5% across all five years and all three tiers. No deterioration, no improvement.</li>
+        <li><strong>No geographic clustering of at-risk suppliers.</strong> Bottom-15 OTD vendors span 8 distinct geographies. Not a localized problem.</li>
+        <li><strong>No correlation between MIL-SPEC flag and OTD.</strong> MIL-SPEC and COTS parts show equivalent delivery performance.</li>
+        <li><strong>No supplier concentration by contract vehicle.</strong> IDIQ, BOA, GSA vehicles draw from the same T3 pool. No vehicle-specific risk.</li>
+        <li><strong>PPV did not correlate with OTD.</strong> Suppliers charging premium prices over catalog did not deliver more reliably.</li>
+        <li><strong>Quality rating 4.5+ cohort has no DCAA skew.</strong> The 9 top-quality suppliers are distributed across T1/T2/T3 in line with population share.</li>
+        <li><strong>No first-year supplier effect.</strong> Suppliers onboarded in 2023-2024 show the same OTD distribution as legacy suppliers. The issue is structural, not ramp-period.</li>
+      </ul>
+
+      <h2>Recommended Actions (Prioritized)</h2>
+
+      <div class="action-row"><div class="action-priority p1">P1 &middot; 0-30d</div><div>
+        <strong>Stand up the "144 Dual-Source Project."</strong> Target: dual-source 30 of 144 Mission Critical sole-source parts in 90 days. Sponsor: CPO + Chief Engineer. Success metric: 30 parts with at least one qualified alternate supplier loaded in DIM_PARTS.
+      </div></div>
+
+      <div class="action-row"><div class="action-priority p1">P1 &middot; 0-60d</div><div>
+        <strong>Launch T3 DCAA-Upgrade Program.</strong> Top 20 T3 suppliers by spend (~$300B coverage). ARES-funded technical assistance to achieve DCAA-approved accounting systems. Success metric: 10 of 20 DCAA-approved within 6 months.
+      </div></div>
+
+      <div class="action-row"><div class="action-priority p2">P2 &middot; 30-90d</div><div>
+        <strong>Shift supplier development framework to "step-function" model.</strong> Deprecate linear coaching of 3.0-4.0 rated vendors. Identify 20 "step-function candidates" and invest in elevation to 4.5+. Re-baseline supplier development KPIs around the 4.5+ jump.
+      </div></div>
+
+      <div class="action-row"><div class="action-priority p2">P2 &middot; 30-90d</div><div>
+        <strong>Close out the 95-supplier SPOF list.</strong> Categorize each of the 95 single-point-of-failure suppliers as: Dual-source (31), Requalify alternate (28), Exit &amp; find new (14), Accept risk with mitigation (22). Assign owners. Track quarterly.
+      </div></div>
+
+      <div class="action-row"><div class="action-priority p3">P3 &middot; 90-180d</div><div>
+        <strong>Quantify the "T3 cascade" scenario.</strong> Run a what-if analysis: if 5% of T3 spend is disrupted for 60 days, which programs hit schedule breach? Build the playbook ahead of the incident, not during.
+      </div></div>
+
+      <div class="action-row"><div class="action-priority p3">P3 &middot; Ongoing</div><div>
+        <strong>Don't invest in lead-time differentiation tooling.</strong> The ~4.7 day abs-deviation across tiers is the commodity baseline. Redirect forecasting investment to OTD hit-rate prediction and sole-source part coverage detection.
+      </div></div>
+
+      <h2>Methodology</h2>
+      <p>The AutoExplore session ran 20 directed-mode hypotheses on 2026-04-20. Each hypothesis was framed as a specific question about tier concentration, sole-source exposure, DCAA coverage, quality-performance correlation, or cross-dimension pattern. Queries ran against FACT_PARTS_SUPPLY (700K rows, 5 years), DIM_SUPPLIER (220 rows, 198 active), and DIM_PARTS (1,800 rows).</p>
+      <p>Findings reported above passed the dual filter of (a) a materiality threshold (&gt;10% deviation from portfolio mean or &gt;5pp band difference) and (b) reproducibility across at least two adjacent tier/category slices. Null results are preserved in <code>autoexplore-journal.md</code>.</p>
+      <p>Limitations: this analysis uses the demo ARES dataset. Real-world deployment would cross-reference against sub-component BOM depth, multi-program criticality scoring, and ITAR/classification overlays not present in the current schema.</p>
+
+      <div class="disclaimer" style="margin-top:40px;">
+        <strong>Generated:</strong> 2026-04-20 by the Falcon Defense &amp; Aerospace AnalyticsPro kit &middot; xFalcon AutoExplore (directed mode, theme: supply chain vulnerabilities). See <a href="autoexplore-dashboard.html">Evidence Dashboard</a> for chart-backed findings.
+      </div>
+
+    </div>
+  </main>
+  <script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop Lab Craft Soda - Analytics Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fizz bubble background animation */
+        .bubble {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.1;
+            pointer-events: none;
+            background: radial-gradient(circle at 30% 30%, rgba(76, 224, 210, 0.4), rgba(76, 224, 210, 0.1));
+            animation: float 8s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.05; }
+            50% { transform: translateY(-100px) translateX(30px); opacity: 0.15; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4CE0D2 0%, #FF1654 50%, #4CE0D2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(76, 224, 210, 0.3);
+            filter: drop-shadow(0 0 20px rgba(76, 224, 210, 0.2));
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #888888;
+            letter-spacing: 2px;
+        }
+
+        /* Marquee Ticker */
+        .marquee-container {
+            background: linear-gradient(90deg, rgba(76, 224, 210, 0.1), rgba(255, 22, 84, 0.1), rgba(76, 224, 210, 0.1));
+            border-top: 3px solid #4CE0D2;
+            border-bottom: 3px solid #FF1654;
+            padding: 15px 0;
+            margin: 40px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .marquee {
+            font-family: 'Anton', sans-serif;
+            font-size: 1.2rem;
+            color: #4CE0D2;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+            text-shadow: 0 0 10px rgba(76, 224, 210, 0.5);
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Film Strip Divider */
+        .filmstrip {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 50px 0;
+            padding: 20px;
+            background: #111111;
+            border-top: 3px solid #333333;
+            border-bottom: 3px solid #333333;
+            position: relative;
+        }
+
+        .filmstrip-cell {
+            width: 30px;
+            height: 40px;
+            background: #333333;
+            border-radius: 2px;
+            margin: 0 5px;
+        }
+
+        .filmstrip-star {
+            font-size: 2rem;
+            color: #4CE0D2;
+            text-shadow: 0 0 10px rgba(76, 224, 210, 0.5);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .dashboard-card {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #4CE0D2;
+            box-shadow: 0 0 15px rgba(76, 224, 210, 0.6);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            border-color: #4CE0D2;
+            box-shadow: 0 20px 40px rgba(76, 224, 210, 0.2);
+        }
+
+        .card-number {
+            font-family: 'Anton', sans-serif;
+            font-size: 3.5rem;
+            color: #333333;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .dashboard-card:hover .card-number {
+            color: #4CE0D2;
+            text-shadow: 0 0 20px rgba(76, 224, 210, 0.4);
+        }
+
+        .card-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: #4CE0D2;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: #888888;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px 0;
+            border-top: 1px solid #333333;
+            color: #888888;
+        }
+
+        .footer-brand {
+            font-family: 'Anton', sans-serif;
+            font-size: 1.5rem;
+            color: #4CE0D2;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+
+        .star-accent {
+            color: #FF1654;
+            margin: 0 10px;
+        }
+
+        .dashboard-card[href$=".pptx"]:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(255, 22, 84, 0.15);
+        }
+
+        .dashboard-card[href$=".pptx"]::before {
+            background: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Bubbles -->
+    <div class="bubble" style="width: 100px; height: 100px; top: 10%; left: 5%; animation-delay: 0s;"></div>
+    <div class="bubble" style="width: 150px; height: 150px; top: 30%; left: 80%; animation-delay: 2s;"></div>
+    <div class="bubble" style="width: 80px; height: 80px; top: 50%; left: 10%; animation-delay: 4s;"></div>
+    <div class="bubble" style="width: 120px; height: 120px; top: 70%; left: 85%; animation-delay: 1s;"></div>
+    <div class="bubble" style="width: 90px; height: 90px; top: 20%; left: 50%; animation-delay: 3s;"></div>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1 class="hero-title">POP LAB</h1>
+            <p class="hero-subtitle">Craft Soda Analytics Dashboard</p>
+        </div>
+
+        <!-- Marquee Ticker -->
+        <div class="marquee-container">
+            <div class="marquee">★ ANALYTICS DASHBOARD ★ CRAFT YOUR OWN FLAVOR ★ REAL-TIME INSIGHTS ★ DATA DRIVEN DECISIONS ★ ANALYTICS DASHBOARD ★ CRAFT YOUR OWN FLAVOR ★ REAL-TIME INSIGHTS ★</div>
+        </div>
+
+        <!-- Film Strip Divider -->
+        <div class="filmstrip">
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-star">★</div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-star">★</div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+        </div>
+
+        <!-- Dashboard Cards Grid -->
+        <div class="dashboard-grid">
+            <a href="executive-overview.html" class="dashboard-card">
+                <div class="card-number">01</div>
+                <div class="card-title">Executive Overview</div>
+                <div class="card-description">Revenue, gross profit, EBITDA, net profit trends and margin analysis across all quarters.</div>
+            </a>
+
+            <a href="sales-performance.html" class="dashboard-card">
+                <div class="card-number">02</div>
+                <div class="card-title">Sales Performance</div>
+                <div class="card-description">Revenue by category, channel, and region with trend analysis and mix breakdowns.</div>
+            </a>
+
+            <a href="inventory-health.html" class="dashboard-card">
+                <div class="card-number">03</div>
+                <div class="card-title">Inventory Health</div>
+                <div class="card-description">Days of stock, stockout rates, near-expiry units, and inventory value tracking.</div>
+            </a>
+
+            <a href="supply-chain.html" class="dashboard-card">
+                <div class="card-number">04</div>
+                <div class="card-title">Supply Chain</div>
+                <div class="card-description">Lead times, late delivery rates, supplier reliability ratings, and procurement costs.</div>
+            </a>
+
+            <a href="production-efficiency.html" class="dashboard-card">
+                <div class="card-number">05</div>
+                <div class="card-title">Production Efficiency</div>
+                <div class="card-description">Capacity utilization, yield rates, defect rates, downtime hours, and cost per unit.</div>
+            </a>
+
+            <a href="quality-compliance.html" class="dashboard-card">
+                <div class="card-number">06</div>
+                <div class="card-title">Quality & Compliance</div>
+                <div class="card-description">Inspection pass rates, FDA violations, product recalls, and labeling issues.</div>
+            </a>
+
+            <a href="marketing-roi.html" class="dashboard-card">
+                <div class="card-number">07</div>
+                <div class="card-title">Marketing ROI</div>
+                <div class="card-description">Marketing ROI, cost per acquisition, conversion rates, and spend vs revenue.</div>
+            </a>
+
+            <a href="esg-sustainability.html" class="dashboard-card">
+                <div class="card-number">08</div>
+                <div class="card-title">ESG & Sustainability</div>
+                <div class="card-description">Carbon emissions, water usage, renewable energy, waste, eco-packaging, and glass recycling.</div>
+            </a>
+
+            <a href="metrics-dictionary.html" class="dashboard-card">
+                <div class="card-number">09</div>
+                <div class="card-title">Metrics Dictionary</div>
+                <div class="card-description">Complete data catalog with 100+ metric definitions, formulas, and business context across all 8 domains.</div>
+            </a>
+        </div>
+
+        <!-- QBR Section -->
+        <div class="filmstrip">
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-star">★</div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-star">★</div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="font-family: 'Anton', sans-serif; font-size: 2.5rem; color: #4CE0D2; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 10px;">Quarterly Business Reviews</h2>
+            <p style="color: #888888; font-size: 1rem; letter-spacing: 1px;">2025 QBR Presentations — Click to Download</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <a href="QBR_Q1_2025.pptx" class="dashboard-card" style="border-top: 4px solid #FF1654;">
+                <div class="card-number" style="color: #FF1654;">Q1</div>
+                <div class="card-title">Jan — Mar 2025</div>
+                <div class="card-description">Baseline quarter. Revenue $35.7K, Gross Margin 49.4%, Marketing ROI 3.56x. 12 slides with executive summary, sales deep dive, and strategic recommendations.</div>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #4CE0D2; letter-spacing: 1px;">★ DOWNLOAD PPTX</div>
+            </a>
+
+            <a href="QBR_Q2_2025.pptx" class="dashboard-card" style="border-top: 4px solid #FF8C42;">
+                <div class="card-number" style="color: #FF8C42;">Q2</div>
+                <div class="card-title">Apr — Jun 2025</div>
+                <div class="card-description">Growth quarter. Revenue surged to $104.9K (+194% QoQ), EBITDA $82.1M. Distributor channel leads at $506K. Stockout rate climbed to 5.19%.</div>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #4CE0D2; letter-spacing: 1px;">★ DOWNLOAD PPTX</div>
+            </a>
+
+            <a href="QBR_Q3_2025.pptx" class="dashboard-card" style="border-top: 4px solid #9B59B6;">
+                <div class="card-number" style="color: #9B59B6;">Q3</div>
+                <div class="card-title">Jul — Sep 2025</div>
+                <div class="card-description">Consolidation quarter. Revenue $99.3K (-5.3% QoQ), but units grew to 71.3K. Return rate improved to 1.77%. Q3 saw 7 recalls — highest of the year.</div>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #4CE0D2; letter-spacing: 1px;">★ DOWNLOAD PPTX</div>
+            </a>
+
+            <a href="QBR_Q4_2025.pptx" class="dashboard-card" style="border-top: 4px solid #7BC142;">
+                <div class="card-number" style="color: #7BC142;">Q4</div>
+                <div class="card-title">Oct — Dec 2025</div>
+                <div class="card-description">Record quarter. Revenue hit $160.4K (+61.5% QoQ), EBITDA $131.9M. Quality pass rate best at 99.1%. Strong year-end close across all domains.</div>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #4CE0D2; letter-spacing: 1px;">★ DOWNLOAD PPTX</div>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-brand">★ POP LAB CRAFT SODA ★</div>
+            <div class="footer-text">Powered by Advanced Analytics</div>
+            <div class="footer-text">Crafting Data-Driven Decisions <span class="star-accent">★</span> Since 2020</div>
+            <div class="footer-text" style="margin-top: 20px; color: #4CE0D2;">www.poplabcraftsoda.com</div>
+        </div>
+    </div>
+    <script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Food & Snacks / 11. Geographic Performance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #1F2937; }
+        .topbar { background-color: #0F172A; padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #006AFF; }
+        .logo-f { color: #1A7F64; }
+        .topbar-title { color: white; font-size: 1rem; font-weight: 600; }
+        .topbar-right { display: flex; align-items: center; gap: 1rem; }
+        .back-link { color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem; border-radius: 0.375rem; transition: all 0.2s; }
+        .back-link:hover { background-color: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .kpi-card { background: #FFFFFF; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-left: 4px solid #006AFF; }
+        .kpi-label { font-size: 0.85rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 0.5rem; }
+        .kpi-value { font-size: 1.875rem; font-weight: 700; color: #1F2937; margin-bottom: 0.25rem; }
+        .kpi-delta { font-size: 0.875rem; font-weight: 500; }
+        .kpi-positive { color: #059669; }
+        .kpi-negative { color: #D32F2F; }
+        .filter-section { background: #FFFFFF; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; display: flex; gap: 1.5rem; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-label { font-size: 0.875rem; font-weight: 600; color: #374151; }
+        .filter-select { padding: 0.625rem 0.875rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; font-size: 0.875rem; font-family: 'Inter', sans-serif; cursor: pointer; background-color: #F9FAFB; }
+        .filter-select:focus { outline: none; border-color: #006AFF; background-color: #FFFFFF; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .chart-card { background: #FFFFFF; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; }
+        .full-width { grid-column: 1 / -1; }
+        canvas { max-height: 350px; }
+        .table-container { background: #FFFFFF; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); overflow-x: auto; }
+        .table-title { font-size: 1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        table th { background-color: #0F172A; color: white; padding: 0.75rem; text-align: left; font-weight: 600; }
+        table td { padding: 0.75rem; border-bottom: 1px solid #E5E7EB; }
+        table tr:hover { background-color: #F9FAFB; }
+        table tr:last-child td { border-bottom: none; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div>
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        </div>
+        <div class="topbar-title">Falcon Food & Snacks / 11. Geographic Performance</div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-group">
+                <label class="filter-label">Country</label>
+                <select id="countryFilter" class="filter-select" onchange="applyFilters()">
+                    <option value="all">All Markets</option>
+                    <option value="us">United States</option>
+                    <option value="ca">Canada</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select id="yearFilter" class="filter-select" onchange="applyFilters()">
+                    <option value="2025" selected>2025</option>
+                    <option value="2024">2024</option>
+                    <option value="all">2024-2025</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Net Revenue</div>
+                <div class="kpi-value">$31.5M</div>
+                <div class="kpi-delta">Total Markets</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">US Revenue</div>
+                <div class="kpi-value">$26.2M</div>
+                <div class="kpi-delta kpi-positive">83% of Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Canada Revenue</div>
+                <div class="kpi-value">$5.3M</div>
+                <div class="kpi-delta kpi-positive">17% of Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top US Region</div>
+                <div class="kpi-value">$7.19M</div>
+                <div class="kpi-delta">Midwest</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top CA Province</div>
+                <div class="kpi-value">$771K</div>
+                <div class="kpi-delta">Manitoba</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">US YoY Growth</div>
+                <div class="kpi-value">+28%</div>
+                <div class="kpi-delta">2024 vs 2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Canada YoY Growth</div>
+                <div class="kpi-value">+382%</div>
+                <div class="kpi-delta kpi-positive">Explosive Growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Markets</div>
+                <div class="kpi-value">15</div>
+                <div class="kpi-delta">5 US + 10 CA</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card full-width">
+                <div class="chart-title">US Regions: 2024 vs 2025 Revenue</div>
+                <canvas id="usRegionsChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Canada Provinces by Revenue (2025)</div>
+                <canvas id="caProvinceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">US vs Canada Revenue Split (2025)</div>
+                <canvas id="countrySplitChart"></canvas>
+            </div>
+            <div class="chart-card full-width">
+                <div class="chart-title">Regional Growth % (2024 vs 2025)</div>
+                <canvas id="growthPercentChart"></canvas>
+            </div>
+            <div class="chart-card full-width">
+                <div class="chart-title">Top 15 Markets by Revenue (2025)</div>
+                <canvas id="top15MarketsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Geographic Performance Detail (All Regions & Provinces)</div>
+            <table id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Region/Province</th>
+                        <th>Country</th>
+                        <th class="text-right">2025 Revenue</th>
+                        <th class="text-right">2024 Revenue</th>
+                        <th class="text-right">YoY %</th>
+                        <th class="text-right">2025 Units</th>
+                        <th class="text-right">Revenue/Unit</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        var geoData = [
+            { region: 'Midwest', country: 'US', rev2025: 7.19, rev2024: 5.26, units2025: 916000 },
+            { region: 'Northeast', country: 'US', rev2025: 6.49, rev2024: 4.41, units2025: 1210000 },
+            { region: 'Southeast', country: 'US', rev2025: 5.81, rev2024: 4.96, units2025: 1020000 },
+            { region: 'Southwest', country: 'US', rev2025: 4.91, rev2024: 3.88, units2025: 556000 },
+            { region: 'West', country: 'US', rev2025: 1.81, rev2024: 1.99, units2025: 446000 },
+            { region: 'Manitoba', country: 'Canada', rev2025: 0.771, rev2024: null, units2025: 81000 },
+            { region: 'Nova Scotia', country: 'Canada', rev2025: 0.641, rev2024: null, units2025: 79000 },
+            { region: 'Ontario', country: 'Canada', rev2025: 0.640, rev2024: null, units2025: 73000 },
+            { region: 'Alberta', country: 'Canada', rev2025: 0.620, rev2024: null, units2025: 88000 },
+            { region: 'Quebec', country: 'Canada', rev2025: 0.555, rev2024: null, units2025: 97000 },
+            { region: 'British Columbia', country: 'Canada', rev2025: 0.482, rev2024: null, units2025: 98000 },
+            { region: 'Saskatchewan', country: 'Canada', rev2025: 0.459, rev2024: null, units2025: 83000 },
+            { region: 'New Brunswick', country: 'Canada', rev2025: 0.401, rev2024: null, units2025: 61000 },
+            { region: 'Prince Edward Island', country: 'Canada', rev2025: 0.396, rev2024: null, units2025: 82000 },
+            { region: 'Newfoundland', country: 'Canada', rev2025: 0.344, rev2024: null, units2025: 84000 }
+        ];
+
+        function buildTableRows() {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            geoData.forEach(function(item) {
+                var yoyStr = item.rev2024 !== null ? (((item.rev2025 - item.rev2024) / item.rev2024 * 100).toFixed(1) + '%') : 'N/A';
+                var revPerUnit = (item.rev2025 * 1000000 / item.units2025).toFixed(2);
+                var row = '<tr><td>' + item.region + '</td><td>' + item.country + '</td><td class="text-right">$' + item.rev2025.toFixed(2) + 'M</td><td class="text-right">' + (item.rev2024 !== null ? '$' + item.rev2024.toFixed(2) + 'M' : 'N/A') + '</td><td class="text-right">' + yoyStr + '</td><td class="text-right">' + item.units2025.toLocaleString() + '</td><td class="text-right">$' + revPerUnit + '</td></tr>';
+                tbody.innerHTML = tbody.innerHTML + row;
+            });
+        }
+
+        function initCharts() {
+            mk('usRegionsChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Midwest', 'Northeast', 'Southeast', 'Southwest', 'West'],
+                    datasets: [
+                        { label: '2024', data: [5.26, 4.41, 4.96, 3.88, 1.99], backgroundColor: '#1A7F64', borderRadius: 4 },
+                        { label: '2025', data: [7.19, 6.49, 5.81, 4.91, 1.81], backgroundColor: '#006AFF', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: true, labels: { font: { family: "'Inter', sans-serif" } } } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            mk('caProvinceChart', {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['Manitoba', 'Nova Scotia', 'Ontario', 'Alberta', 'Quebec', 'BC', 'Saskatchewan', 'New Brunswick', 'PEI', 'Newfoundland'],
+                    datasets: [{
+                        label: 'Revenue ($M)',
+                        data: [0.771, 0.641, 0.640, 0.620, 0.555, 0.482, 0.459, 0.401, 0.396, 0.344],
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+            });
+
+            mk('countrySplitChart', {
+                type: 'bar',
+                data: {
+                    labels: ['United States', 'Canada'],
+                    datasets: [{
+                        label: '2025 Revenue ($M)',
+                        data: [26.2, 5.3],
+                        backgroundColor: ['#006AFF', '#1A7F64'],
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            mk('growthPercentChart', {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['Midwest', 'Northeast', 'Southeast', 'Southwest', 'West'],
+                    datasets: [{
+                        label: 'YoY Growth %',
+                        data: [36.7, 47.2, 17.1, 26.5, -9.0],
+                        backgroundColor: function(context) {
+                            var value = context.dataset.data[context.dataIndex];
+                            return value >= 0 ? '#059669' : '#D32F2F';
+                        },
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+            });
+
+            mk('top15MarketsChart', {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['Midwest', 'Northeast', 'Southeast', 'Southwest', 'West', 'Manitoba', 'Nova Scotia', 'Ontario', 'Alberta', 'Quebec', 'BC', 'Saskatchewan', 'NB', 'PEI', 'Newfoundland'],
+                    datasets: [{
+                        label: 'Revenue ($M)',
+                        data: [7.19, 6.49, 5.81, 4.91, 1.81, 0.771, 0.641, 0.640, 0.620, 0.555, 0.482, 0.459, 0.401, 0.396, 0.344],
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+            });
+        }
+
+        function applyFilters() {
+            initCharts();
+            buildTableRows();
+        }
+
+        // Read URL params to set filters from training guide generator
+        function getUrlParam(name) {
+            var match = window.location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        var urlYear = getUrlParam('year');
+        if (urlYear) {
+            var yearSelect = document.getElementById('yearFilter');
+            for (var i = 0; i < yearSelect.options.length; i++) {
+                if (yearSelect.options[i].value === urlYear) {
+                    yearSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        var urlCountry = getUrlParam('country');
+        if (urlCountry) {
+            var countrySelect = document.getElementById('countryFilter');
+            for (var i = 0; i < countrySelect.options.length; i++) {
+                if (countrySelect.options[i].value === urlCountry) {
+                    countrySelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        initCharts();
+        buildTableRows();
+    </script>
+</body>
+</html>

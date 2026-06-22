@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service & After-Sales Dashboard | Falcon</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F3F4F6; color: #1E293B; }
+        .topbar { background: #1B3A5C; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
+        .logo { width: 28px; height: 28px; background: #E87722; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+        .topbar-right { display: flex; gap: 16px; align-items: center; }
+        .back-link { color: #E87722; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .back-link:hover { color: #D97106; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 14px; background: white; color: #1E293B; cursor: pointer; }
+        .filter-select:focus { outline: none; border-color: #E87722; box-shadow: 0 0 0 2px rgba(232, 119, 34, 0.1); }
+        .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .kpi { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .kpi-label { font-size: 12px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1E293B; line-height: 1.2; margin-bottom: 4px; }
+        .kpi-positive { color: #059669; }
+        .kpi-negative { color: #D32F2F; }
+        .charts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+        .chart-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 16px; font-weight: 700; color: #1B3A5C; margin-bottom: 16px; }
+        .chart-container { position: relative; height: 320px; }
+        .table-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        .table-title { font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table thead { background: #1B3A5C; color: white; }
+        table th { padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #1B3A5C; }
+        table td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+        table tbody tr:hover { background: #F8FAFC; }
+        .text-right { text-align: right; }
+        .kpi { border-left: 4px solid #E87722; }
+        @media (max-width: 1200px) {
+            .kpis { grid-template-columns: repeat(2, 1fr) !important; }
+            .charts { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 600px) {
+            .kpis { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">xF</div>
+            <span>Service & After-Sales</span>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select class="filter-select" id="yearFilter" onchange="applyFilters()">
+                    <option value="">All Years</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Service Type</label>
+                <select class="filter-select" id="typeFilter" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    <option value="WARRANTY">Warranty</option>
+                    <option value="RECALL">Recall</option>
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="UNSCHEDULED">Unscheduled</option>
+                    <option value="BODYWORK">Bodywork</option>
+                    <option value="INSPECTION">Inspection</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpis" id="kpiContainer">
+            <div class="kpi">
+                <div class="kpi-label">Total Jobs</div>
+                <div class="kpi-value" id="totalJobs">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Total Cost</div>
+                <div class="kpi-value" id="totalCost">$0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Labor Hours</div>
+                <div class="kpi-value" id="avgLabor">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg CSAT Score</div>
+                <div class="kpi-value" id="avgCSAT">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Days in Shop</div>
+                <div class="kpi-value" id="avgDays">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Warranty Covered</div>
+                <div class="kpi-value" id="warrantyCovered">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Parts Cost</div>
+                <div class="kpi-value" id="avgPartsCost">$0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Top Service Type</div>
+                <div class="kpi-value" id="topService" style="font-size: 18px;">-</div>
+            </div>
+        </div>
+
+        <div class="charts">
+            <div class="chart-card">
+                <div class="chart-title">Jobs by Service Type</div>
+                <div class="chart-container"><canvas id="jobsByType"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Cost Trend by Year</div>
+                <div class="chart-container"><canvas id="costTrend"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">CSAT by Service Type</div>
+                <div class="chart-container"><canvas id="csatByType"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Days in Shop Distribution</div>
+                <div class="chart-container"><canvas id="daysDistribution"></canvas></div>
+            </div>
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-title">Cost Breakdown: Labor vs Parts</div>
+                <div class="chart-container" style="height: 350px;"><canvas id="costBreakdown"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-title">Service Job Details</div>
+            <table id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Model</th>
+                        <th>Brand</th>
+                        <th>Service Type</th>
+                        <th class="text-right">Jobs</th>
+                        <th class="text-right">Total Cost</th>
+                        <th class="text-right">Avg Labor Hrs</th>
+                        <th class="text-right">Avg CSAT</th>
+                        <th class="text-right">Warranty Covered</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var daysDistData = [
+            {days: 1, jobs: 82},
+            {days: 2, jobs: 184},
+            {days: 3, jobs: 185},
+            {days: 4, jobs: 181},
+            {days: 5, jobs: 171},
+            {days: 6, jobs: 85}
+        ];
+
+        var rawData = [
+            {YEAR: 2020, SERVICE_TYPE: "RECALL", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 40, total_cost: 20647.52, labor_cost: 11532.68, parts_cost: 9114.84, avg_labor_hrs: 6.92, avg_csat: 2.95, avg_days: 3.20, warranty_covered: 13},
+            {YEAR: 2020, SERVICE_TYPE: "BODYWORK", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 37, total_cost: 17449.99, labor_cost: 10037.13, parts_cost: 7412.86, avg_labor_hrs: 6.68, avg_csat: 2.92, avg_days: 3.19, warranty_covered: 9},
+            {YEAR: 2020, SERVICE_TYPE: "UNSCHEDULED", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 32, total_cost: 16162.01, labor_cost: 8943.46, parts_cost: 7218.55, avg_labor_hrs: 7.28, avg_csat: 3.06, avg_days: 3.56, warranty_covered: 5},
+            {YEAR: 2020, SERVICE_TYPE: "WARRANTY", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 31, total_cost: 14935.06, labor_cost: 8411.88, parts_cost: 6523.18, avg_labor_hrs: 7.69, avg_csat: 2.65, avg_days: 3.52, warranty_covered: 6},
+            {YEAR: 2020, SERVICE_TYPE: "INSPECTION", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 18, total_cost: 8647.14, labor_cost: 4162.20, parts_cost: 4484.94, avg_labor_hrs: 6.92, avg_csat: 3.33, avg_days: 3.39, warranty_covered: 6},
+            {YEAR: 2020, SERVICE_TYPE: "SCHEDULED", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 10, total_cost: 5307.99, labor_cost: 3065.29, parts_cost: 2242.70, avg_labor_hrs: 8.40, avg_csat: 2.50, avg_days: 3.60, warranty_covered: 5},
+            {YEAR: 2021, SERVICE_TYPE: "WARRANTY", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 40, total_cost: 21313.23, labor_cost: 13279.69, parts_cost: 8033.54, avg_labor_hrs: 6.11, avg_csat: 2.95, avg_days: 3.63, warranty_covered: 8},
+            {YEAR: 2021, SERVICE_TYPE: "BODYWORK", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 39, total_cost: 18622.65, labor_cost: 11331.32, parts_cost: 7291.33, avg_labor_hrs: 6.64, avg_csat: 3.10, avg_days: 3.54, warranty_covered: 13},
+            {YEAR: 2021, SERVICE_TYPE: "UNSCHEDULED", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 37, total_cost: 18770.69, labor_cost: 11320.45, parts_cost: 7450.24, avg_labor_hrs: 5.91, avg_csat: 3.05, avg_days: 3.35, warranty_covered: 10},
+            {YEAR: 2021, SERVICE_TYPE: "RECALL", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 33, total_cost: 16062.31, labor_cost: 9418.12, parts_cost: 6644.19, avg_labor_hrs: 7.26, avg_csat: 2.45, avg_days: 3.39, warranty_covered: 12},
+            {YEAR: 2021, SERVICE_TYPE: "SCHEDULED", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 17, total_cost: 7958.25, labor_cost: 4917.84, parts_cost: 3040.41, avg_labor_hrs: 6.66, avg_csat: 2.94, avg_days: 3.41, warranty_covered: 5},
+            {YEAR: 2021, SERVICE_TYPE: "INSPECTION", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 16, total_cost: 8612.41, labor_cost: 5539.72, parts_cost: 3072.69, avg_labor_hrs: 5.86, avg_csat: 3.00, avg_days: 3.38, warranty_covered: 3},
+            {YEAR: 2022, SERVICE_TYPE: "RECALL", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 43, total_cost: 23053.41, labor_cost: 12747.20, parts_cost: 10306.21, avg_labor_hrs: 6.94, avg_csat: 3.02, avg_days: 3.60, warranty_covered: 10},
+            {YEAR: 2022, SERVICE_TYPE: "BODYWORK", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 41, total_cost: 19685.46, labor_cost: 11446.44, parts_cost: 8239.02, avg_labor_hrs: 7.70, avg_csat: 3.41, avg_days: 3.73, warranty_covered: 13},
+            {YEAR: 2022, SERVICE_TYPE: "UNSCHEDULED", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 30, total_cost: 15731.38, labor_cost: 9488.98, parts_cost: 6242.40, avg_labor_hrs: 7.32, avg_csat: 2.93, avg_days: 3.37, warranty_covered: 8},
+            {YEAR: 2022, SERVICE_TYPE: "WARRANTY", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 29, total_cost: 13814.88, labor_cost: 8405.88, parts_cost: 5409.00, avg_labor_hrs: 6.62, avg_csat: 2.97, avg_days: 3.83, warranty_covered: 14},
+            {YEAR: 2022, SERVICE_TYPE: "INSPECTION", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 21, total_cost: 11604.21, labor_cost: 7269.14, parts_cost: 4335.07, avg_labor_hrs: 6.30, avg_csat: 2.86, avg_days: 3.52, warranty_covered: 10},
+            {YEAR: 2022, SERVICE_TYPE: "SCHEDULED", MODEL_NAME: "Mustang", BRAND: "Ford", PLANT_NAME: "Chicago Service Hub", jobs: 19, total_cost: 10172.13, labor_cost: 6240.94, parts_cost: 3931.19, avg_labor_hrs: 5.99, avg_csat: 2.68, avg_days: 2.95, warranty_covered: 5},
+            {YEAR: 2023, SERVICE_TYPE: "WARRANTY", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 43, total_cost: 49859.80, labor_cost: 12917.01, parts_cost: 36942.79, avg_labor_hrs: 7.80, avg_csat: 3.21, avg_days: 3.56, warranty_covered: 15},
+            {YEAR: 2023, SERVICE_TYPE: "UNSCHEDULED", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 39, total_cost: 47854.77, labor_cost: 12509.48, parts_cost: 35345.29, avg_labor_hrs: 7.10, avg_csat: 2.54, avg_days: 3.54, warranty_covered: 13},
+            {YEAR: 2023, SERVICE_TYPE: "BODYWORK", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 34, total_cost: 37421.25, labor_cost: 12130.96, parts_cost: 25290.29, avg_labor_hrs: 7.19, avg_csat: 3.15, avg_days: 2.82, warranty_covered: 7},
+            {YEAR: 2023, SERVICE_TYPE: "RECALL", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 34, total_cost: 40314.96, labor_cost: 13061.43, parts_cost: 27253.53, avg_labor_hrs: 7.65, avg_csat: 3.00, avg_days: 3.44, warranty_covered: 8},
+            {YEAR: 2023, SERVICE_TYPE: "INSPECTION", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 18, total_cost: 24886.82, labor_cost: 5891.25, parts_cost: 18995.57, avg_labor_hrs: 6.00, avg_csat: 2.89, avg_days: 3.33, warranty_covered: 3},
+            {YEAR: 2023, SERVICE_TYPE: "SCHEDULED", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 15, total_cost: 18578.97, labor_cost: 4841.22, parts_cost: 13737.75, avg_labor_hrs: 8.04, avg_csat: 2.93, avg_days: 4.07, warranty_covered: 2},
+            {YEAR: 2024, SERVICE_TYPE: "UNSCHEDULED", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 45, total_cost: 52601.71, labor_cost: 14872.98, parts_cost: 37728.73, avg_labor_hrs: 7.31, avg_csat: 2.91, avg_days: 3.56, warranty_covered: 13},
+            {YEAR: 2024, SERVICE_TYPE: "RECALL", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 36, total_cost: 33933.03, labor_cost: 8950.53, parts_cost: 24982.50, avg_labor_hrs: 6.71, avg_csat: 2.53, avg_days: 3.67, warranty_covered: 9},
+            {YEAR: 2024, SERVICE_TYPE: "WARRANTY", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 30, total_cost: 32145.12, labor_cost: 9792.21, parts_cost: 22352.91, avg_labor_hrs: 7.65, avg_csat: 2.77, avg_days: 3.40, warranty_covered: 7},
+            {YEAR: 2024, SERVICE_TYPE: "BODYWORK", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 28, total_cost: 33649.79, labor_cost: 9384.11, parts_cost: 24265.68, avg_labor_hrs: 7.30, avg_csat: 3.11, avg_days: 4.11, warranty_covered: 2},
+            {YEAR: 2024, SERVICE_TYPE: "SCHEDULED", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 19, total_cost: 24330.59, labor_cost: 6764.40, parts_cost: 17566.19, avg_labor_hrs: 7.21, avg_csat: 3.00, avg_days: 2.95, warranty_covered: 4},
+            {YEAR: 2024, SERVICE_TYPE: "INSPECTION", MODEL_NAME: "Civic", BRAND: "Honda", PLANT_NAME: "Munich Service Centre", jobs: 14, total_cost: 15650.42, labor_cost: 4249.59, parts_cost: 11400.83, avg_labor_hrs: 7.70, avg_csat: 3.00, avg_days: 4.07, warranty_covered: 6}
+        ];
+
+        var charts = {};
+
+        function getFilters() {
+            var year = document.getElementById('yearFilter').value;
+            var type = document.getElementById('typeFilter').value;
+            return { year: year, type: type };
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = rawData.filter(function(row) {
+                var yearMatch = !filters.year || row.YEAR == parseInt(filters.year);
+                var typeMatch = !filters.type || row.SERVICE_TYPE === filters.type;
+                return yearMatch && typeMatch;
+            });
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+        }
+
+        function updateKPIs(data) {
+            var totalJobs = 0;
+            var totalCost = 0;
+            var totalLabor = 0;
+            var totalCSAT = 0;
+            var totalDays = 0;
+            var totalWarranty = 0;
+            var totalParts = 0;
+            var typeMap = {};
+
+            data.forEach(function(row) {
+                totalJobs += row.jobs;
+                totalCost += row.total_cost;
+                totalLabor += row.avg_labor_hrs * row.jobs;
+                totalCSAT += row.avg_csat * row.jobs;
+                totalDays += row.avg_days * row.jobs;
+                totalWarranty += row.warranty_covered;
+                totalParts += row.parts_cost;
+                typeMap[row.SERVICE_TYPE] = (typeMap[row.SERVICE_TYPE] || 0) + row.jobs;
+            });
+
+            var avgLabor = totalJobs > 0 ? (totalLabor / totalJobs).toFixed(2) : 0;
+            var avgCSAT = totalJobs > 0 ? (totalCSAT / totalJobs).toFixed(2) : 0;
+            var avgDays = totalJobs > 0 ? (totalDays / totalJobs).toFixed(2) : 0;
+            var avgParts = totalJobs > 0 ? (totalParts / totalJobs).toFixed(0) : 0;
+            var topType = Object.keys(typeMap).length > 0 ? Object.keys(typeMap).reduce(function(a, b) { return typeMap[a] > typeMap[b] ? a : b; }) : '-';
+
+            document.getElementById('totalJobs').textContent = totalJobs;
+            document.getElementById('totalCost').textContent = '$' + (totalCost / 1000).toFixed(1) + 'K';
+            document.getElementById('avgLabor').textContent = avgLabor;
+            document.getElementById('avgCSAT').textContent = avgCSAT;
+            document.getElementById('avgDays').textContent = avgDays;
+            document.getElementById('warrantyCovered').textContent = totalWarranty;
+            document.getElementById('avgPartsCost').textContent = '$' + avgParts;
+            document.getElementById('topService').textContent = topType;
+
+            fitKpiText();
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var text = el.textContent;
+                if (text.length > 12) {
+                    el.style.fontSize = '22px';
+                } else if (text.length > 8) {
+                    el.style.fontSize = '26px';
+                } else {
+                    el.style.fontSize = '28px';
+                }
+            });
+        }
+
+        function updateCharts(data) {
+            var typeData = {};
+            var yearData = {};
+            var csatData = {};
+            var laborByType = {};
+            var partsByType = {};
+
+            data.forEach(function(row) {
+                if (!typeData[row.SERVICE_TYPE]) typeData[row.SERVICE_TYPE] = 0;
+                typeData[row.SERVICE_TYPE] += row.jobs;
+
+                if (!yearData[row.YEAR]) yearData[row.YEAR] = 0;
+                yearData[row.YEAR] += row.total_cost;
+
+                if (!csatData[row.SERVICE_TYPE]) csatData[row.SERVICE_TYPE] = { sum: 0, count: 0 };
+                csatData[row.SERVICE_TYPE].sum += row.avg_csat * row.jobs;
+                csatData[row.SERVICE_TYPE].count += row.jobs;
+
+                if (!laborByType[row.SERVICE_TYPE]) laborByType[row.SERVICE_TYPE] = 0;
+                laborByType[row.SERVICE_TYPE] += row.labor_cost;
+
+                if (!partsByType[row.SERVICE_TYPE]) partsByType[row.SERVICE_TYPE] = 0;
+                partsByType[row.SERVICE_TYPE] += row.parts_cost;
+            });
+
+            updateChart('jobsByType', Object.keys(typeData), Object.values(typeData), 'bar', 'y');
+
+            var sortedYears = Object.keys(yearData).sort();
+            var sortedCosts = sortedYears.map(function(k) { return yearData[k]; });
+            updateChart('costTrend', sortedYears, sortedCosts, 'line');
+
+            var csatLabels = Object.keys(csatData);
+            var csatValues = csatLabels.map(function(label) { return parseFloat((csatData[label].sum / csatData[label].count).toFixed(2)); });
+            updateChart('csatByType', csatLabels, csatValues, 'bar');
+
+            var daysLabels = daysDistData.map(function(d) { return d.days + ' day' + (d.days > 1 ? 's' : ''); });
+            var daysValues = daysDistData.map(function(d) { return d.jobs; });
+            updateChart('daysDistribution', daysLabels, daysValues, 'bar');
+
+            var typeLabels = Object.keys(laborByType);
+            updateChartGrouped('costBreakdown', typeLabels, Object.values(laborByType), Object.values(partsByType));
+        }
+
+        function updateChart(canvasId, labels, values, type, indexAxis) {
+            if (charts[canvasId]) charts[canvasId].destroy();
+            if (labels.length === 0 || values.length === 0) {
+                var ctx = document.getElementById(canvasId).getContext('2d');
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#94A3B8';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            var config = {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: type === 'line' ? 'Cost ($)' : 'Count',
+                        data: values,
+                        borderColor: '#1B3A5C',
+                        backgroundColor: type === 'line' ? 'transparent' : '#E87722',
+                        borderWidth: type === 'line' ? 2 : 0,
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    indexAxis: indexAxis || 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { beginAtZero: true }
+                    }
+                }
+            };
+            charts[canvasId] = new Chart(ctx, config);
+        }
+
+        function updateChartGrouped(canvasId, labels, laborValues, partsValues) {
+            if (charts[canvasId]) charts[canvasId].destroy();
+            if (labels.length === 0 || laborValues.length === 0 || partsValues.length === 0) {
+                var ctx = document.getElementById(canvasId).getContext('2d');
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#94A3B8';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data for selected filters', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            var config = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Labor Cost',
+                            data: laborValues,
+                            backgroundColor: '#1B3A5C'
+                        },
+                        {
+                            label: 'Parts Cost',
+                            data: partsValues,
+                            backgroundColor: '#E87722'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, stacked: false } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            };
+            charts[canvasId] = new Chart(ctx, config);
+        }
+
+        function updateTable(data) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            data.forEach(function(row) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.YEAR + '</td><td>' + row.MODEL_NAME + '</td><td>' + row.BRAND + '</td><td>' + row.SERVICE_TYPE + '</td><td class="text-right">' + row.jobs + '</td><td class="text-right">$' + row.total_cost.toFixed(0) + '</td><td class="text-right">' + row.avg_labor_hrs.toFixed(2) + '</td><td class="text-right">' + row.avg_csat.toFixed(2) + '</td><td class="text-right">' + row.warranty_covered + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

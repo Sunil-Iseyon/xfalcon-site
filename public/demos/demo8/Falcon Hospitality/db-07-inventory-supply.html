@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB-07: Inventory & Supply Chain - Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #1B2A4A;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-brand {
+            color: #C8A951;
+            font-size: 1.3rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            flex: 1;
+            margin: 0 2rem;
+        }
+
+        .nav-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+            border-radius: 3px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(200, 169, 81, 0.2);
+        }
+
+        .nav-links a.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-content h1 {
+            color: #1B2A4A;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-content p {
+            color: #636E72;
+            font-size: 1.1rem;
+        }
+
+        /* Time Filter */
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            background-color: #FFFFFF;
+            color: #2D3436;
+            border: 2px solid #C8A951;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+        }
+
+        .filter-btn:hover {
+            background-color: #C8A951;
+            color: #1B2A4A;
+        }
+
+        /* KPI Row */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-top: 4px solid #C8A951;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-card h3 {
+            color: #636E72;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card .value {
+            color: #1B2A4A;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .kpi-comparison .year {
+            color: #636E72;
+            font-weight: 500;
+        }
+
+        .kpi-comparison .change {
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .change.positive {
+            background-color: rgba(46, 125, 50, 0.1);
+            color: #2E7D32;
+        }
+
+        .change.negative {
+            background-color: rgba(198, 40, 40, 0.1);
+            color: #C62828;
+        }
+
+        /* Charts Container */
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .chart-container h2 {
+            color: #1B2A4A;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #F5ECD7;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-grid .chart-container {
+            padding: 1.5rem;
+        }
+
+        .chart-grid .chart-wrapper {
+            height: 350px;
+        }
+
+        /* Full width chart */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Table Container */
+        .table-container {
+            background-color: #FFFFFF;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: #1B2A4A;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #F5ECD7;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .detail-table thead {
+            background-color: #F5ECD7;
+        }
+
+        .detail-table th {
+            color: #1B2A4A;
+            font-weight: 600;
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 2px solid #E8D5A0;
+        }
+
+        .detail-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #E8D5A0;
+        }
+
+        .detail-table tbody tr:hover {
+            background-color: #F9F9F9;
+        }
+
+        .detail-table .positive {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .detail-table .negative {
+            color: #C62828;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .time-filter {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .nav-links a {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+
+            .header-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .detail-table {
+                font-size: 0.8rem;
+            }
+
+            .detail-table th,
+            .detail-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #636E72;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">Falcon Hotels & Restaurants</div>
+        <div class="nav-links">
+            <a href="index.html">Overview</a>
+            <a href="db-01-executive-overview.html">DB-01</a>
+            <a href="db-02-revenue-finance.html">DB-02</a>
+            <a href="db-03-hotel-operations.html">DB-03</a>
+            <a href="db-04-restaurant-fb.html">DB-04</a>
+            <a href="db-05-guest-experience.html">DB-05</a>
+            <a href="db-06-labor-workforce.html">DB-06</a>
+            <a href="db-07-inventory-supply.html" class="active">DB-07</a>
+            <a href="db-08-social-marketing.html">DB-08</a>
+            <a href="db-09-whatif-analysis.html">What-If</a>
+            <a href="db-10-metrics-dictionary.html">Metrics</a>
+            <a href="db-11-competitive-analysis.html">Competitive</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>DB-07 | Inventory & Supply Chain</h1>
+                <p>Comprehensive Deep-Dive: Stock Movements, Waste Management & Cost Analysis</p>
+            </div>
+            <div class="time-filter">
+                <button class="filter-btn active" data-period="monthly">Monthly</button>
+                <button class="filter-btn" data-period="quarterly">Quarterly</button>
+                <button class="filter-btn" data-period="yearly">Yearly</button>
+            </div>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <h3>Total Inventory Cost</h3>
+                <div class="value">$13.5M</div>
+                <div class="kpi-comparison">
+                    <div>
+                        <span class="year">2025: $13,481,116</span>
+                    </div>
+                    <div class="change positive">+0.1%</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Waste Cost</h3>
+                <div class="value">$165.2K</div>
+                <div class="kpi-comparison">
+                    <div>
+                        <span class="year">2025: $165,184</span>
+                    </div>
+                    <div class="change positive">-0.3%</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Waste Rate</h3>
+                <div class="value">1.22%</div>
+                <div class="kpi-comparison">
+                    <div>
+                        <span class="year">2025 vs 2024</span>
+                    </div>
+                    <div class="change positive">-0.8%</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Qty Received</h3>
+                <div class="value">1.58M</div>
+                <div class="kpi-comparison">
+                    <div>
+                        <span class="year">2025: 1,577,623</span>
+                    </div>
+                    <div class="change positive">-0.4%</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Qty Used</h3>
+                <div class="value">1.12M</div>
+                <div class="kpi-comparison">
+                    <div>
+                        <span class="year">2025: 1,120,681</span>
+                    </div>
+                    <div class="change positive">-0.3%</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Qty Wasted</h3>
+                <div class="value">33.2K</div>
+                <div class="kpi-comparison">
+                    <div>
+                        <span class="year">2025: 33,219</span>
+                    </div>
+                    <div class="change positive">-0.3%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 1: Inventory Cost & Waste Trend (Full Width) -->
+        <div class="chart-container">
+            <h2>Inventory Cost & Waste Trend (Monthly 2025)</h2>
+            <div class="chart-wrapper">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts 2 & 3: Waste Rate & Received vs Used vs Wasted -->
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h2>Waste Rate Trend (2025 vs 2024)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="wasteRateChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h2>Received vs Used vs Wasted (Monthly 2025)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="stockFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 4: Waste by Category (Half Width) -->
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h2>Waste by Category (Full Period)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="wasteCategoryChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h2>Waste Cost YoY Comparison (2025 vs 2024)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="wasteCostYoYChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 6: Inventory Turnover Trend -->
+        <div class="chart-container">
+            <h2>Inventory Turnover Trend (Monthly 2025)</h2>
+            <div class="chart-wrapper">
+                <canvas id="turnoverChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Table: Monthly Detail -->
+        <div class="table-container">
+            <h2>Monthly Detail Table (2025)</h2>
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total Cost</th>
+                        <th>Waste Cost</th>
+                        <th>Waste %</th>
+                        <th>Received</th>
+                        <th>Used</th>
+                        <th>Wasted</th>
+                        <th>Turnover Ratio</th>
+                        <th>vs PY Waste Cost</th>
+                        <th>% Change</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Falcon Hotels & Restaurants | Inventory & Supply Chain | Generated March 2026</p>
+    </footer>
+
+    <script>
+        // Chart.js default options
+        Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+        Chart.defaults.color = '#2D3436';
+
+        // Color palette
+        const colors = {
+            navy: '#1B2A4A',
+            gold: '#C8A951',
+            blue: '#3A6B8A',
+            darkgold: '#D4B96A',
+            lightblue: '#6C8EBF',
+            lightgold: '#E8D5A0'
+        };
+
+        // Data for monthly charts
+        const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const totalCost2025 = [1149701, 1039124, 1148555, 1112094, 1148800, 1112129, 1149701, 1148800, 1112129, 1149701, 1111828, 1148555];
+        const wasteCost2025 = [13983, 12661, 14075, 13582, 14050, 13582, 13983, 14050, 13582, 13983, 13582, 14075];
+        const wasteCost2024 = [14075, 13112, 14050, 13582, 13983, 13582, 14075, 13983, 13582, 14075, 13582, 14050];
+        const received2025 = [134068, 121103, 134090, 129750, 134068, 129750, 134068, 134068, 129750, 134068, 129750, 134090];
+        const used2025 = [95227, 85949, 95178, 92154, 95106, 92107, 95227, 95106, 92107, 95227, 92065, 95178];
+        const wasted2025 = [2818, 2547, 2821, 2730, 2822, 2730, 2818, 2822, 2730, 2818, 2730, 2821];
+
+        // Calculate waste rate
+        const wasteRate2025 = totalCost2025.map((cost, idx) => (wasteCost2025[idx] / cost * 100).toFixed(2));
+        const wasteRate2024 = totalCost2025.map((cost, idx) => (wasteCost2024[idx] / cost * 100).toFixed(2));
+
+        // Calculate turnover ratio
+        const turnoverRatio = used2025.map((used, idx) => (used / received2025[idx]).toFixed(2));
+
+        // Helper function: Aggregate data to quarterly
+        function aggregateToQuarterly(data) {
+            return [
+                data[0] + data[1] + data[2],
+                data[3] + data[4] + data[5],
+                data[6] + data[7] + data[8],
+                data[9] + data[10] + data[11]
+            ];
+        }
+
+        // Helper function: Aggregate data to yearly
+        function aggregateToYearly(data) {
+            return [data.reduce((a, b) => a + b, 0)];
+        }
+
+        // Helper function: Average data to quarterly (for rates)
+        function averageToQuarterly(data) {
+            return [
+                (parseFloat(data[0]) + parseFloat(data[1]) + parseFloat(data[2])) / 3,
+                (parseFloat(data[3]) + parseFloat(data[4]) + parseFloat(data[5])) / 3,
+                (parseFloat(data[6]) + parseFloat(data[7]) + parseFloat(data[8])) / 3,
+                (parseFloat(data[9]) + parseFloat(data[10]) + parseFloat(data[11])) / 3
+            ];
+        }
+
+        // Helper function: Average data to yearly (for rates)
+        function averageToYearly(data) {
+            const avg = data.reduce((a, b) => a + parseFloat(b), 0) / data.length;
+            return [avg];
+        }
+
+        // Helper function: Get labels based on granularity
+        function getLabels(granularity) {
+            if (granularity === 'quarterly') return ['Q1', 'Q2', 'Q3', 'Q4'];
+            if (granularity === 'yearly') return ['2025'];
+            return monthLabels;
+        }
+
+        // Chart instances for updating
+        let chartInstances = {
+            trend: null,
+            wasteRate: null,
+            stockFlow: null,
+            wasteCategory: null,
+            wasteCostYoY: null,
+            turnover: null
+        };
+
+        // Current granularity
+        let currentGranularity = 'monthly';
+
+        // Chart 1: Inventory Cost & Waste Trend
+        function updateTrendChart(granularity) {
+            let labels, costData, wasteData;
+
+            if (granularity === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                costData = aggregateToQuarterly(totalCost2025);
+                wasteData = aggregateToQuarterly(wasteCost2025);
+            } else if (granularity === 'yearly') {
+                labels = ['2025'];
+                costData = aggregateToYearly(totalCost2025);
+                wasteData = aggregateToYearly(wasteCost2025);
+            } else {
+                labels = monthLabels;
+                costData = totalCost2025;
+                wasteData = wasteCost2025;
+            }
+
+            if (chartInstances.trend) chartInstances.trend.destroy();
+
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            chartInstances.trend = new Chart(trendCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Inventory Cost',
+                            data: costData,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'Waste Cost',
+                            data: wasteData,
+                            borderColor: colors.gold,
+                            borderWidth: 3,
+                            type: 'line',
+                            yAxisID: 'y1',
+                            fill: false,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.gold,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            tension: 0.4,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { usePointStyle: true, padding: 15, font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Total Cost ($)', color: '#2D3436' },
+                            ticks: { callback: function(value) { return '$' + (value / 1000000).toFixed(2) + 'M'; } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Waste Cost ($)', color: '#2D3436' },
+                            ticks: { callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'K'; } },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        updateTrendChart('monthly');
+
+        // Chart 2: Waste Rate Trend
+        function updateWasteRateChart(granularity) {
+            let labels, rateData2025, rateData2024;
+
+            if (granularity === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                rateData2025 = averageToQuarterly(wasteRate2025);
+                rateData2024 = averageToQuarterly(wasteRate2024);
+            } else if (granularity === 'yearly') {
+                labels = ['2025'];
+                rateData2025 = averageToYearly(wasteRate2025);
+                rateData2024 = averageToYearly(wasteRate2024);
+            } else {
+                labels = monthLabels;
+                rateData2025 = wasteRate2025;
+                rateData2024 = wasteRate2024;
+            }
+
+            if (chartInstances.wasteRate) chartInstances.wasteRate.destroy();
+
+            const wasteRateCtx = document.getElementById('wasteRateChart').getContext('2d');
+            chartInstances.wasteRate = new Chart(wasteRateCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Waste Rate 2025',
+                            data: rateData2025,
+                            borderColor: colors.navy,
+                            borderWidth: 3,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: colors.navy,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: 'Waste Rate 2024',
+                            data: rateData2024,
+                            borderColor: colors.gold,
+                            borderWidth: 3,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.gold,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            tension: 0.4,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 15 } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: function(value) { return value.toFixed(2) + '%'; } }
+                        }
+                    }
+                }
+            });
+        }
+
+        updateWasteRateChart('monthly');
+
+        // Chart 3: Received vs Used vs Wasted
+        function updateStockFlowChart(granularity) {
+            let labels, receivedData, usedData, wastedData;
+
+            if (granularity === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                receivedData = aggregateToQuarterly(received2025);
+                usedData = aggregateToQuarterly(used2025);
+                wastedData = aggregateToQuarterly(wasted2025);
+            } else if (granularity === 'yearly') {
+                labels = ['2025'];
+                receivedData = aggregateToYearly(received2025);
+                usedData = aggregateToYearly(used2025);
+                wastedData = aggregateToYearly(wasted2025);
+            } else {
+                labels = monthLabels;
+                receivedData = received2025;
+                usedData = used2025;
+                wastedData = wasted2025;
+            }
+
+            if (chartInstances.stockFlow) chartInstances.stockFlow.destroy();
+
+            const stockFlowCtx = document.getElementById('stockFlowChart').getContext('2d');
+            chartInstances.stockFlow = new Chart(stockFlowCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Received',
+                            data: receivedData,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Used',
+                            data: usedData,
+                            backgroundColor: colors.blue,
+                            borderColor: colors.blue,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Wasted',
+                            data: wastedData,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 15 } }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, ticks: { callback: function(value) { return (value / 1000).toFixed(0) + 'K'; } } }
+                    }
+                }
+            });
+        }
+
+        updateStockFlowChart('monthly');
+
+        // Chart 4: Waste by Category
+        function updateWasteCategoryChart(granularity) {
+            if (chartInstances.wasteCategory) chartInstances.wasteCategory.destroy();
+
+            const wasteCategoryCtx = document.getElementById('wasteCategoryChart').getContext('2d');
+            chartInstances.wasteCategory = new Chart(wasteCategoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Protein', 'Bakery', 'Beverage', 'Spice', 'Dairy', 'Produce', 'Dry Goods', 'Frozen'],
+                    datasets: [
+                        {
+                            label: 'Waste Cost',
+                            data: [471273, 164950, 135167, 119310, 63624, 39757, 17884, 16694],
+                            backgroundColor: [colors.navy, colors.blue, colors.lightblue, colors.gold, colors.darkgold, colors.lightgold, '#9BA4AF', '#B8BEC7'],
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'K'; } }
+                        }
+                    }
+                }
+            });
+        }
+
+        updateWasteCategoryChart('monthly');
+
+        // Chart 5: Waste Cost YoY Comparison
+        function updateWasteCostYoYChart(granularity) {
+            let labels, cost2024Data, cost2025Data;
+
+            if (granularity === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                cost2024Data = aggregateToQuarterly(wasteCost2024);
+                cost2025Data = aggregateToQuarterly(wasteCost2025);
+            } else if (granularity === 'yearly') {
+                labels = ['2025'];
+                cost2024Data = aggregateToYearly(wasteCost2024);
+                cost2025Data = aggregateToYearly(wasteCost2025);
+            } else {
+                labels = monthLabels;
+                cost2024Data = wasteCost2024;
+                cost2025Data = wasteCost2025;
+            }
+
+            if (chartInstances.wasteCostYoY) chartInstances.wasteCostYoY.destroy();
+
+            const wasteCostYoYCtx = document.getElementById('wasteCostYoYChart').getContext('2d');
+            chartInstances.wasteCostYoY = new Chart(wasteCostYoYCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2024',
+                            data: cost2024Data,
+                            backgroundColor: colors.blue,
+                            borderColor: colors.blue,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '2025',
+                            data: cost2025Data,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 15 } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'K'; } }
+                        }
+                    }
+                }
+            });
+        }
+
+        updateWasteCostYoYChart('monthly');
+
+        // Chart 6: Inventory Turnover Trend
+        function updateTurnoverChart(granularity) {
+            let labels, turnoverData;
+
+            if (granularity === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                const received = aggregateToQuarterly(received2025);
+                const used = aggregateToQuarterly(used2025);
+                turnoverData = received.map((rec, idx) => (used[idx] / rec).toFixed(2));
+            } else if (granularity === 'yearly') {
+                labels = ['2025'];
+                const received = aggregateToYearly(received2025);
+                const used = aggregateToYearly(used2025);
+                turnoverData = [(used[0] / received[0]).toFixed(2)];
+            } else {
+                labels = monthLabels;
+                turnoverData = turnoverRatio;
+            }
+
+            if (chartInstances.turnover) chartInstances.turnover.destroy();
+
+            const turnoverCtx = document.getElementById('turnoverChart').getContext('2d');
+            chartInstances.turnover = new Chart(turnoverCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Turnover Ratio (Used/Received)',
+                            data: turnoverData,
+                            borderColor: colors.navy,
+                            borderWidth: 3,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.gold,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            tension: 0.4,
+                            fill: false,
+                            backgroundColor: 'rgba(27, 42, 74, 0.1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 15 } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: { callback: function(value) { return value.toFixed(2); } }
+                        }
+                    }
+                }
+            });
+        }
+
+        updateTurnoverChart('monthly');
+
+        // Populate Detail Table
+        function populateDetailTable(granularity) {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+
+            let periods, labels;
+            const quarterLabels = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const yearLabels = ['2025'];
+
+            if (granularity === 'quarterly') {
+                periods = 4;
+                labels = quarterLabels;
+            } else if (granularity === 'yearly') {
+                periods = 1;
+                labels = yearLabels;
+            } else {
+                periods = 12;
+                labels = monthLabels;
+            }
+
+            for (let i = 0; i < periods; i++) {
+                let totalCost, wasteCost, pyWasteCost, received, used, wasted;
+
+                if (granularity === 'quarterly') {
+                    const start = i * 3;
+                    const end = start + 3;
+                    totalCost = totalCost2025.slice(start, end).reduce((a, b) => a + b, 0);
+                    wasteCost = wasteCost2025.slice(start, end).reduce((a, b) => a + b, 0);
+                    pyWasteCost = wasteCost2024.slice(start, end).reduce((a, b) => a + b, 0);
+                    received = received2025.slice(start, end).reduce((a, b) => a + b, 0);
+                    used = used2025.slice(start, end).reduce((a, b) => a + b, 0);
+                    wasted = wasted2025.slice(start, end).reduce((a, b) => a + b, 0);
+                } else if (granularity === 'yearly') {
+                    totalCost = totalCost2025.reduce((a, b) => a + b, 0);
+                    wasteCost = wasteCost2025.reduce((a, b) => a + b, 0);
+                    pyWasteCost = wasteCost2024.reduce((a, b) => a + b, 0);
+                    received = received2025.reduce((a, b) => a + b, 0);
+                    used = used2025.reduce((a, b) => a + b, 0);
+                    wasted = wasted2025.reduce((a, b) => a + b, 0);
+                } else {
+                    totalCost = totalCost2025[i];
+                    wasteCost = wasteCost2025[i];
+                    pyWasteCost = wasteCost2024[i];
+                    received = received2025[i];
+                    used = used2025[i];
+                    wasted = wasted2025[i];
+                }
+
+                const wastePercent = ((wasteCost / totalCost) * 100).toFixed(2);
+                const change = wasteCost - pyWasteCost;
+                const changePercent = ((change / pyWasteCost) * 100).toFixed(2);
+                const changeClass = change >= 0 ? 'negative' : 'positive';
+                const turnover = (used / received).toFixed(2);
+
+                const row = `
+                    <tr>
+                        <td>${labels[i]}</td>
+                        <td>$${totalCost.toLocaleString()}</td>
+                        <td>$${wasteCost.toLocaleString()}</td>
+                        <td>${wastePercent}%</td>
+                        <td>${received.toLocaleString()}</td>
+                        <td>${used.toLocaleString()}</td>
+                        <td>${wasted.toLocaleString()}</td>
+                        <td>${turnover}</td>
+                        <td>$${pyWasteCost.toLocaleString()}</td>
+                        <td class="${changeClass}">${changePercent > 0 ? '+' : ''}${changePercent}%</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            }
+        }
+
+        // Initialize table
+        populateDetailTable('monthly');
+
+        // Time filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const period = this.getAttribute('data-period');
+                currentGranularity = period;
+
+                // Update all charts with selected granularity
+                updateTrendChart(period);
+                updateWasteRateChart(period);
+                updateStockFlowChart(period);
+                updateWasteCategoryChart(period);
+                updateWasteCostYoYChart(period);
+                updateTurnoverChart(period);
+
+                // Update detail table
+                populateDetailTable(period);
+            });
+        });
+    </script>
+</body>
+</html>

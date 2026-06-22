@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom / 7. Billing & Payments</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+        .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+        .logo-x { color: #E20074; }
+        .logo-f { color: white; }
+        .title { flex: 1; margin-left: 24px; }
+        .title-main { font-weight: 600; font-size: 16px; }
+        .title-sub { font-size: 13px; color: #94A3B8; }
+        .back-link { color: #E20074; text-decoration: none; font-weight: 500; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .filters { background: white; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; gap: 16px; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; }
+        .filter-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; }
+        select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 13px; font-family: 'Inter'; background: white; cursor: pointer; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi { background: white; border-radius: 8px; padding: 20px; border-left: 4px solid #E20074; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #E20074; margin-bottom: 8px; word-break: break-word; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; }
+        .kpi-delta { font-size: 13px; margin-top: 8px; font-weight: 500; }
+        .kpi-delta.positive { color: #059669; }
+        .kpi-delta.negative { color: #D32F2F; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .card-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+        .chart-container { position: relative; height: 300px; margin-bottom: 20px; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #1D1D2C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+        tr:hover { background: #F8FAFC; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        <div class="title">
+            <div class="title-main">Falcon Telecom / 7. Billing & Payments</div>
+            <div class="title-sub" id="reporting-period">2025 Full Year</div>
+        </div>
+        <a href="index.html" class="back-link">← Back</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select id="yearSelect" onchange="applyFilters()">
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi">
+                <div class="kpi-value" id="kpi1">₹224.7Cr</div>
+                <div class="kpi-label">Total Billed</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi2">71.4%</div>
+                <div class="kpi-label">Payment Rate</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi3">14.3%</div>
+                <div class="kpi-label">Late Payment Rate</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi4">₹3.2Cr</div>
+                <div class="kpi-label">Unpaid Amount</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi5">15.0</div>
+                <div class="kpi-label">Avg Days to Payment</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi6">₹3.4Cr</div>
+                <div class="kpi-label">Tax Collected</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi7">₹2.1Cr</div>
+                <div class="kpi-label">Credits Applied</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi8">₹9.9L</div>
+                <div class="kpi-label">Overage Revenue</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Payment Status Distribution by Year</div>
+            <div class="chart-container">
+                <canvas id="chart1"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Monthly Revenue Trend (2024 vs 2025)</div>
+            <div class="chart-container">
+                <canvas id="chart2"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Revenue Composition</div>
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Paid vs Late vs Unpaid Amounts</div>
+            <div class="chart-container">
+                <canvas id="chart4"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Tax & Credits Trend (Monthly)</div>
+            <div class="chart-container">
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">ARPU Trend (Monthly)</div>
+            <div class="chart-container">
+                <canvas id="chart6"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Monthly Revenue Detail</div>
+            <div class="table-wrapper">
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Total Revenue</th>
+                            <th>Base</th>
+                            <th>Overage</th>
+                            <th>Roaming</th>
+                            <th>Add-on</th>
+                            <th>Taxes</th>
+                            <th>Credits</th>
+                            <th>ARPU</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var BILLING_YEARLY = [
+            {year:2023, status:'Paid', records:127600, amount:127889390, avgDays:15.0},
+            {year:2023, status:'Late', records:25757, amount:25942702, avgDays:15.0},
+            {year:2023, status:'Unpaid', records:25559, amount:25982874, avgDays:0.0},
+            {year:2024, status:'Paid', records:151916, amount:153526888, avgDays:15.0},
+            {year:2024, status:'Late', records:30551, amount:30944518, avgDays:15.0},
+            {year:2024, status:'Unpaid', records:30229, amount:30645901, avgDays:0.0},
+            {year:2025, status:'Paid', records:157304, amount:160481766, avgDays:15.0},
+            {year:2025, status:'Late', records:31507, amount:32149735, avgDays:15.1},
+            {year:2025, status:'Unpaid', records:31363, amount:32058355, avgDays:0.0}
+        ];
+
+        var MONTHLY = [
+            {year:2024, month:1, name:'Jan', revenue:16590292, arpu:1006, subs:16485, baseRev:13618687, overageRev:72450, roamingRev:74878, addonRev:423995, taxes:2554201, credits:153919},
+            {year:2024, month:2, name:'Feb', revenue:16857929, arpu:1008, subs:16720, baseRev:13830625, overageRev:76101, roamingRev:80952, addonRev:436149, taxes:2596289, credits:162188},
+            {year:2024, month:3, name:'Mar', revenue:17099954, arpu:1008, subs:16964, baseRev:14037804, overageRev:73689, roamingRev:70760, addonRev:443602, taxes:2632654, credits:158554},
+            {year:2024, month:4, name:'Apr', revenue:17313197, arpu:1008, subs:17169, baseRev:14208416, overageRev:75696, roamingRev:82710, addonRev:440847, taxes:2665380, credits:159851},
+            {year:2024, month:5, name:'May', revenue:17556597, arpu:1008, subs:17412, baseRev:14418861, overageRev:78720, roamingRev:80136, addonRev:444922, taxes:2704075, credits:170117},
+            {year:2024, month:6, name:'Jun', revenue:17821406, arpu:1010, subs:17637, baseRev:14635955, overageRev:77947, roamingRev:75273, addonRev:458393, taxes:2744562, credits:170723},
+            {year:2024, month:7, name:'Jul', revenue:18070183, arpu:1013, subs:17840, baseRev:14815618, overageRev:81027, roamingRev:86933, addonRev:471678, taxes:2781946, credits:167018},
+            {year:2024, month:8, name:'Aug', revenue:18314588, arpu:1013, subs:18080, baseRev:15025810, overageRev:78454, roamingRev:92208, addonRev:469237, taxes:2819827, credits:170948},
+            {year:2024, month:9, name:'Sep', revenue:18554037, arpu:1014, subs:18304, baseRev:15230869, overageRev:84801, roamingRev:79572, addonRev:472229, taxes:2856145, credits:169578},
+            {year:2024, month:10, name:'Oct', revenue:18775565, arpu:1015, subs:18499, baseRev:15421215, overageRev:83659, roamingRev:84438, addonRev:467959, taxes:2890308, credits:172013},
+            {year:2024, month:11, name:'Nov', revenue:18976508, arpu:1015, subs:18688, baseRev:15574513, overageRev:78947, roamingRev:86889, addonRev:491604, taxes:2921752, credits:177198},
+            {year:2024, month:12, name:'Dec', revenue:19187051, arpu:1015, subs:18898, baseRev:15754850, overageRev:81384, roamingRev:85239, addonRev:494513, taxes:2954877, credits:183813},
+            {year:2025, month:1, name:'Jan', revenue:19138644, arpu:1017, subs:18821, baseRev:15700616, overageRev:86317, roamingRev:87901, addonRev:495019, taxes:2946574, credits:177782},
+            {year:2025, month:2, name:'Feb', revenue:19061926, arpu:1018, subs:18733, baseRev:15638341, overageRev:85343, roamingRev:84631, addonRev:489228, taxes:2933558, credits:169175},
+            {year:2025, month:3, name:'Mar', revenue:18985740, arpu:1018, subs:18649, baseRev:15589660, overageRev:82862, roamingRev:75209, addonRev:495892, taxes:2923853, credits:181736},
+            {year:2025, month:4, name:'Apr', revenue:18932464, arpu:1019, subs:18572, baseRev:15535325, overageRev:86027, roamingRev:86605, addonRev:482485, taxes:2914280, credits:172258},
+            {year:2025, month:5, name:'May', revenue:18832639, arpu:1019, subs:18475, baseRev:15452354, overageRev:79560, roamingRev:86466, addonRev:485578, taxes:2898713, credits:170032},
+            {year:2025, month:6, name:'Jun', revenue:18768579, arpu:1021, subs:18385, baseRev:15383094, overageRev:84125, roamingRev:82088, addonRev:492223, taxes:2887475, credits:160426},
+            {year:2025, month:7, name:'Jul', revenue:18692227, arpu:1021, subs:18313, baseRev:15344486, overageRev:83102, roamingRev:87205, addonRev:472348, taxes:2877685, credits:172600},
+            {year:2025, month:8, name:'Aug', revenue:18613458, arpu:1021, subs:18232, baseRev:15285144, overageRev:87123, roamingRev:83025, addonRev:473094, taxes:2867110, credits:182037},
+            {year:2025, month:9, name:'Sep', revenue:18549943, arpu:1022, subs:18142, baseRev:15224769, overageRev:83712, roamingRev:82326, addonRev:467709, taxes:2854533, credits:163106},
+            {year:2025, month:10, name:'Oct', revenue:18448133, arpu:1023, subs:18031, baseRev:15144232, overageRev:80631, roamingRev:83542, addonRev:469931, taxes:2840100, credits:170303},
+            {year:2025, month:11, name:'Nov', revenue:18366986, arpu:1024, subs:17937, baseRev:15076506, overageRev:83745, roamingRev:83481, addonRev:464086, taxes:2827407, credits:168239},
+            {year:2025, month:12, name:'Dec', revenue:18299117, arpu:1023, subs:17884, baseRev:15037343, overageRev:80035, roamingRev:70559, addonRev:463564, taxes:2817271, credits:169655}
+        ];
+
+        var charts = {};
+
+        function formatCurrency(val) {
+            if (val >= 10000000) return '₹' + (val / 10000000).toFixed(1) + 'Cr';
+            if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + 'L';
+            return '₹' + val.toLocaleString();
+        }
+
+        function formatNumber(val) {
+            if (val >= 1000) return (val / 1000).toFixed(1) + 'K';
+            return val.toFixed(0);
+        }
+
+        function applyFilters() {
+            var year = parseInt(document.getElementById('yearSelect').value);
+            var billing = BILLING_YEARLY.filter(function(d) { return d.year === year; });
+            var monthly = MONTHLY.filter(function(d) { return d.year === year; });
+
+            updateKPIs(billing, monthly);
+            updateCharts(billing, monthly, year);
+            updateTable(monthly);
+            updateSubtitle(year);
+            fitKpiText();
+        }
+
+        function updateKPIs(billing, monthly) {
+            var paid = billing.find(function(d) { return d.status === 'Paid'; }) || {};
+            var late = billing.find(function(d) { return d.status === 'Late'; }) || {};
+            var unpaid = billing.find(function(d) { return d.status === 'Unpaid'; }) || {};
+            var totalBilled = (paid.amount || 0) + (late.amount || 0) + (unpaid.amount || 0);
+            var paidRate = totalBilled > 0 ? (paid.amount / totalBilled * 100) : 0;
+            var lateRate = totalBilled > 0 ? (late.amount / totalBilled * 100) : 0;
+            var taxSum = monthly.reduce(function(sum, m) { return sum + m.taxes; }, 0);
+            var creditSum = monthly.reduce(function(sum, m) { return sum + m.credits; }, 0);
+            var overageSum = monthly.reduce(function(sum, m) { return sum + m.overageRev; }, 0);
+
+            document.getElementById('kpi1').textContent = formatCurrency(totalBilled);
+            document.getElementById('kpi2').textContent = paidRate.toFixed(1) + '%';
+            document.getElementById('kpi3').textContent = lateRate.toFixed(1) + '%';
+            document.getElementById('kpi4').textContent = formatCurrency(unpaid.amount || 0);
+            document.getElementById('kpi5').textContent = (paid.avgDays || 0).toFixed(1);
+            document.getElementById('kpi6').textContent = formatCurrency(taxSum);
+            document.getElementById('kpi7').textContent = formatCurrency(creditSum);
+            document.getElementById('kpi8').textContent = formatCurrency(overageSum);
+        }
+
+        function updateCharts(billing, monthly, year) {
+            // Chart 1: Payment Status by Year (show selected year only)
+            var statusLabels = ['Paid', 'Late', 'Unpaid'];
+            var paidData = [];
+            var lateData = [];
+            var unpaidData = [];
+
+            var paid = billing.find(function(d) { return d.status === 'Paid'; }) || {};
+            var late = billing.find(function(d) { return d.status === 'Late'; }) || {};
+            var unpd = billing.find(function(d) { return d.status === 'Unpaid'; }) || {};
+            paidData.push(paid.amount || 0);
+            lateData.push(late.amount || 0);
+            unpaidData.push(unpd.amount || 0);
+
+            if (charts.chart1) charts.chart1.destroy();
+            charts.chart1 = new Chart(document.getElementById('chart1'), {
+                type: 'bar',
+                data: {
+                    labels: statusLabels,
+                    datasets: [
+                        { label: 'Paid', data: paidData, backgroundColor: '#1A7F64' },
+                        { label: 'Late', data: lateData, backgroundColor: '#F59E0B' },
+                        { label: 'Unpaid', data: unpaidData, backgroundColor: '#94A3B8' }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { x: { stacked: false }, y: { stacked: false } }
+                }
+            });
+
+            // Chart 2: Monthly Revenue Trend (uses filtered monthly for selected year)
+            var m24Labels = monthly.map(function(d) { return d.name; });
+            var mRev = monthly.map(function(d) { return d.revenue; });
+
+            if (charts.chart2) charts.chart2.destroy();
+            charts.chart2 = new Chart(document.getElementById('chart2'), {
+                type: 'line',
+                data: {
+                    labels: m24Labels,
+                    datasets: [
+                        { label: String(year), data: mRev, borderColor: '#006AFF', backgroundColor: 'rgba(0,106,255,0.1)', tension: 0.4, fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 3: Revenue Composition
+            var compLabels = monthly.map(function(d) { return d.name; });
+            var baseData = monthly.map(function(d) { return d.baseRev; });
+            var overageData = monthly.map(function(d) { return d.overageRev; });
+            var roamingData = monthly.map(function(d) { return d.roamingRev; });
+            var addonData = monthly.map(function(d) { return d.addonRev; });
+
+            if (charts.chart3) charts.chart3.destroy();
+            charts.chart3 = new Chart(document.getElementById('chart3'), {
+                type: 'bar',
+                data: {
+                    labels: compLabels,
+                    datasets: [
+                        { label: 'Base', data: baseData, backgroundColor: '#006AFF' },
+                        { label: 'Overage', data: overageData, backgroundColor: '#1A7F64' },
+                        { label: 'Roaming', data: roamingData, backgroundColor: '#0EA5E9' },
+                        { label: 'Add-on', data: addonData, backgroundColor: '#F59E0B' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 4: Paid vs Late vs Unpaid (from filtered billing data)
+            var paidF = billing.find(function(d) { return d.status === 'Paid'; }) || {};
+            var lateF = billing.find(function(d) { return d.status === 'Late'; }) || {};
+            var unpaidF = billing.find(function(d) { return d.status === 'Unpaid'; }) || {};
+
+            if (charts.chart4) charts.chart4.destroy();
+            charts.chart4 = new Chart(document.getElementById('chart4'), {
+                type: 'bar',
+                data: {
+                    labels: ['Paid', 'Late', 'Unpaid'],
+                    datasets: [
+                        { label: String(year), data: [paidF.amount || 0, lateF.amount || 0, unpaidF.amount || 0], backgroundColor: '#006AFF' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 5: Tax & Credits Trend
+            var taxData = monthly.map(function(d) { return d.taxes; });
+            var creditData = monthly.map(function(d) { return d.credits; });
+
+            if (charts.chart5) charts.chart5.destroy();
+            charts.chart5 = new Chart(document.getElementById('chart5'), {
+                type: 'line',
+                data: {
+                    labels: monthly.map(function(d) { return d.name; }),
+                    datasets: [
+                        { label: 'Taxes', data: taxData, borderColor: '#006AFF', tension: 0.4, yAxisID: 'y' },
+                        { label: 'Credits', data: creditData, borderColor: '#F59E0B', tension: 0.4, yAxisID: 'y' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 6: ARPU Trend
+            var arputData = monthly.map(function(d) { return d.arpu; });
+
+            if (charts.chart6) charts.chart6.destroy();
+            charts.chart6 = new Chart(document.getElementById('chart6'), {
+                type: 'line',
+                data: {
+                    labels: monthly.map(function(d) { return d.name; }),
+                    datasets: [
+                        { label: 'ARPU', data: arputData, borderColor: '#1A7F64', backgroundColor: 'rgba(26,127,100,0.1)', tension: 0.4, fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+        }
+
+        function updateTable(monthly) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            monthly.forEach(function(row) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.name + '</td>' +
+                    '<td>' + formatCurrency(row.revenue) + '</td>' +
+                    '<td>' + formatCurrency(row.baseRev) + '</td>' +
+                    '<td>' + formatCurrency(row.overageRev) + '</td>' +
+                    '<td>' + formatCurrency(row.roamingRev) + '</td>' +
+                    '<td>' + formatCurrency(row.addonRev) + '</td>' +
+                    '<td>' + formatCurrency(row.taxes) + '</td>' +
+                    '<td>' + formatCurrency(row.credits) + '</td>' +
+                    '<td>₹' + row.arpu + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateSubtitle(year) {
+            document.getElementById('reporting-period').textContent = String(year) + ' Full Year';
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var len = el.textContent.length;
+                if (len > 12) el.style.fontSize = '22px';
+                else if (len > 10) el.style.fontSize = '26px';
+                else el.style.fontSize = '28px';
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / 10. Service Line Mix</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.filter-bar{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px;display:flex;gap:18px;align-items:end;margin-bottom:24px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.filter-bar select{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--color-text);cursor:pointer;min-width:140px;font-family:inherit}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);margin-top:8px;line-height:1.1}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px}.kpi-delta.positive{color:var(--color-positive)}.kpi-delta.negative{color:var(--color-negative)}.kpi-delta.neutral{color:var(--color-tertiary)}
+.section-title{font-size:18px;font-weight:700;color:var(--color-primary);margin:32px 0 16px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:6px}
+.chart-sub{font-size:12px;color:var(--color-text-muted);margin-bottom:12px}
+.chart-container{position:relative;height:280px}
+.table-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-card .chart-title{padding:18px 20px 0}.table-card .chart-sub{padding:0 20px 12px}
+.detail-table{width:100%;border-collapse:collapse;font-size:13px}
+.detail-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:12px 16px;text-align:left;font-size:13px;font-weight:600}
+.detail-table th.num,.detail-table td.num{text-align:right}
+.detail-table tbody tr{border-top:1px solid var(--color-border)}.detail-table td{padding:10px 16px}
+.detail-table tbody tr:hover{background:#FAFAFE}
+.disclaimer{font-size:12px;color:var(--color-text-muted);margin-top:24px;padding:14px 18px;background:#FAFAFE;border-radius:var(--radius);border-left:3px solid var(--color-secondary)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row,.chart-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / 10. Service Line Mix</div>
+    <div class="topbar-sub" id="reporting-period">Reporting Period: Jan–Dec 2024</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-group"><label for="filterYear">Year</label>
+      <select id="filterYear" onchange="render()"><option value="2024" selected>2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select></div>
+    <div class="filter-group"><label for="filterCat">Service Category</label>
+      <select id="filterCat" onchange="render()"><option value="All">All</option><option value="Creative">Creative</option><option value="Strategy">Strategy</option><option value="Production">Production</option><option value="Media">Media</option></select></div>
+    <div class="filter-group" style="flex:1"></div>
+    <div class="filter-group"><label>&nbsp;</label><button onclick="resetFilters()" style="padding:7px 14px;border:1px solid var(--color-border);background:white;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px">Reset</button></div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+  <div class="kpi-row" id="kpiRow2"></div>
+
+  <h2 class="section-title">Service Mix</h2>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Revenue by Service Category</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cCat"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Hours by Service Category</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cHrs"></canvas></div></div>
+  </div>
+
+  <div class="chart-row-3">
+    <div class="chart-card"><div class="chart-title">Top 10 Service Lines (Billed)</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cTop"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Realized Rate vs Range</div><div class="chart-sub">Realized = Billed/Hours</div><div class="chart-container"><canvas id="cRate"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Project Volume Mix</div><div class="chart-sub">Project counts by category</div><div class="chart-container"><canvas id="cProj"></canvas></div></div>
+  </div>
+
+  <h2 class="section-title">All Service Lines</h2>
+  <div class="table-card">
+    <div class="chart-title">Service Line Detail</div>
+    <div class="chart-sub">Filtered by category. Sorted by billed amount descending.</div>
+    <table class="detail-table"><thead><tr><th>#</th><th>Service Line</th><th>Category</th><th>Capability</th><th class="num">Projects</th><th class="num">Billed</th><th class="num">Hours</th><th class="num">Realized Rate</th><th class="num">Rate Range</th><th class="num">Margin</th></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
+
+  <div class="disclaimer">Source: FACT_PROJECTS × DIM_SERVICE_LINE. Realized Rate = SUM(BILLED_AMOUNT)/SUM(HOURS_ACTUAL). Rate Range from DIM_SERVICE_LINE.HOURLY_RATE_LOW–HIGH. 15 service lines in 4 categories. Reconciles to VALIDATION_BENCHMARKS.md.</div>
+</div>
+
+<script>
+var SVCS=[
+{n:'Email Marketing',cat:'Production',cap:'Email & CRM Production',proj:8994,bill:860.1,hrs:5446.7,margin:.430,rateLow:120,rateHigh:180},
+{n:'Media Planning & Buying',cat:'Media',cap:'Paid Media',proj:9040,bill:859.7,hrs:5440.6,margin:.430,rateLow:150,rateHigh:225},
+{n:'Campaign Strategy',cat:'Strategy',cap:'Campaign Planning',proj:9094,bill:859.7,hrs:5456.6,margin:.430,rateLow:175,rateHigh:275},
+{n:'UX/UI Design',cat:'Creative',cap:'Digital Design',proj:8949,bill:856.8,hrs:5463.2,margin:.429,rateLow:160,rateHigh:240},
+{n:'Video & Motion',cat:'Creative',cap:'Video Production',proj:9058,bill:850.2,hrs:5382.8,margin:.431,rateLow:165,rateHigh:255},
+{n:'Visual Design',cat:'Creative',cap:'Brand & Layout',proj:8998,bill:849.5,hrs:5394.9,margin:.429,rateLow:140,rateHigh:210},
+{n:'Content Creation',cat:'Creative',cap:'Editorial & Copy',proj:8939,bill:849.1,hrs:5379.4,margin:.429,rateLow:130,rateHigh:200},
+{n:'Branded Merchandise',cat:'Production',cap:'Physical Production',proj:9023,bill:848.1,hrs:5371.9,margin:.430,rateLow:115,rateHigh:175},
+{n:'Brand Strategy',cat:'Strategy',cap:'Brand Development',proj:8831,bill:848.1,hrs:5388.8,margin:.431,rateLow:200,rateHigh:325},
+{n:'Augmented Reality',cat:'Creative',cap:'Emerging Tech',proj:8866,bill:844.9,hrs:5366.6,margin:.427,rateLow:185,rateHigh:285},
+{n:'Direct Mail Production',cat:'Production',cap:'Print Production',proj:8928,bill:838.2,hrs:5311.2,margin:.430,rateLow:110,rateHigh:165},
+{n:'Store Signage',cat:'Production',cap:'Retail Production',proj:8964,bill:836.6,hrs:5305.3,margin:.430,rateLow:120,rateHigh:185},
+{n:'Digital Production',cat:'Production',cap:'Digital Build',proj:8869,bill:835.3,hrs:5302.2,margin:.429,rateLow:135,rateHigh:205},
+{n:'Insights & Analytics',cat:'Strategy',cap:'Data & Insights',proj:8889,bill:835.2,hrs:5296.1,margin:.429,rateLow:160,rateHigh:250},
+{n:'Customer Journey Mapping',cat:'Strategy',cap:'CX Planning',proj:8955,bill:834.9,hrs:5279.2,margin:.431,rateLow:155,rateHigh:240}
+];
+
+var state={year:2024,cat:'All'};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var L=els[i].textContent.length;if(L>14)els[i].style.fontSize='18px';else if(L>10)els[i].style.fontSize='22px';else els[i].style.fontSize='28px'}}
+
+var YR_R={2018:0.692,2019:0.709,2020:0.806,2021:0.906,2022:0.884,2023:0.988,2024:1.000};function ys(){return YR_R[state.year]||1.0}
+function _scaleS(x){var s=ys();return {n:x.n,cat:x.cat,cap:x.cap,proj:Math.round(x.proj*s),bill:x.bill*s,hrs:x.hrs*s,margin:x.margin,rateLow:x.rateLow,rateHigh:x.rateHigh}}
+function getSvcs(){var src=state.cat==='All'?SVCS:SVCS.filter(function(x){return x.cat===state.cat});return src.map(_scaleS)}
+function totByCat(cat,key){var s=ys();return SVCS.filter(function(x){return x.cat===cat}).reduce(function(sm,x){return sm+(key==='proj'?x[key]:x[key]*s)},0)}
+
+function renderKPIs(){
+  var f=getSvcs();
+  var tot=f.reduce(function(s,x){return s+x.bill},0);
+  var totHrs=f.reduce(function(s,x){return s+x.hrs},0);
+  var creative=totByCat('Creative','bill');var strategy=totByCat('Strategy','bill');var production=totByCat('Production','bill');var media=totByCat('Media','bill');
+  var allBill=creative+strategy+production+media;
+  function card(label,val,de){return '<div class="kpi-card"><div class="kpi-label">'+label+' '+state.year+'</div><div class="kpi-value">'+val+'</div>'+de+'</div>'}
+  document.getElementById('kpiRow').innerHTML=card('Total Billed','$'+(tot/1000).toFixed(2)+'B','<span class="kpi-delta neutral">selected categories</span>')
+    +card('Total Hours',(totHrs/1000).toFixed(2)+'M','<span class="kpi-delta neutral">recorded</span>')
+    +card('Service Lines',String(f.length),'<span class="kpi-delta neutral">of 15</span>')
+    +card('Realized Rate','$'+(totHrs?(tot*1000)/totHrs:0).toFixed(0)+'/hr','<span class="kpi-delta neutral">weighted</span>');
+  document.getElementById('kpiRow2').innerHTML=card('Creative Share',allBill?(creative/allBill*100).toFixed(1)+'%':'0%','<span class="kpi-delta neutral">5 service lines</span>')
+    +card('Strategy Share',allBill?(strategy/allBill*100).toFixed(1)+'%':'0%','<span class="kpi-delta neutral">4 service lines</span>')
+    +card('Production Share',allBill?(production/allBill*100).toFixed(1)+'%':'0%','<span class="kpi-delta neutral">5 service lines</span>')
+    +card('Media Share',allBill?(media/allBill*100).toFixed(1)+'%':'0%','<span class="kpi-delta neutral">1 service line</span>');
+  fitKpiText();
+}
+
+function renderCat(){
+  var cats=['Creative','Strategy','Production','Media'];
+  var data=cats.map(function(c){return totByCat(c,'bill')});
+  mk('cCat',{type:'bar',data:{labels:cats,datasets:[{label:'Billed',data:data,backgroundColor:['#4A4E8F','#A490C2','#94A3B8','#0EA5E9']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+function renderHrs(){
+  var cats=['Creative','Strategy','Production','Media'];
+  var data=cats.map(function(c){return totByCat(c,'hrs')});
+  mk('cHrs',{type:'bar',data:{labels:cats,datasets:[{label:'Hours',data:data,backgroundColor:'#A490C2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return (c.parsed.y/1000).toFixed(2)+'M hours'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return (v/1000).toFixed(1)+'M'}}}}}});
+}
+function renderTop(){
+  var f=getSvcs().slice().sort(function(a,b){return b.bill-a.bill}).slice(0,10);
+  mk('cTop',{type:'bar',data:{labels:f.map(function(s){return s.n}),datasets:[{label:'Billed',data:f.map(function(s){return s.bill}),backgroundColor:'#4A4E8F'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}}}}});
+}
+function renderRate(){
+  var f=getSvcs();
+  var realized=f.map(function(s){return s.hrs?(s.bill*1000)/s.hrs:0});
+  mk('cRate',{type:'bar',data:{labels:f.map(function(s){return s.n}),datasets:[
+    {label:'Realized',data:realized,backgroundColor:'#4A4E8F'},
+    {label:'Range Low',data:f.map(function(s){return s.rateLow}),backgroundColor:'#A490C2'},
+    {label:'Range High',data:f.map(function(s){return s.rateHigh}),backgroundColor:'#94A3B8'}
+  ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:11},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.x.toFixed(0)+'/hr'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v}}},y:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}}}}});
+}
+function renderProj(){
+  var cats=['Creative','Strategy','Production','Media'];
+  var data=cats.map(function(c){return totByCat(c,'proj')});
+  mk('cProj',{type:'bar',data:{labels:cats,datasets:[{label:'Projects',data:data,backgroundColor:['#4A4E8F','#A490C2','#94A3B8','#0EA5E9']}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.x.toLocaleString('en-US')+' projects'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470'}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+function renderTable(){
+  var f=getSvcs().slice().sort(function(a,b){return b.bill-a.bill});
+  var tbody=document.getElementById('tbody');tbody.innerHTML='';
+  for(var i=0;i<f.length;i++){
+    var s=f[i];var rate=s.hrs?(s.bill*1000)/s.hrs:0;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+String(i+1)+'</td><td><strong>'+s.n+'</strong></td><td>'+s.cat+'</td><td>'+s.cap+'</td><td class="num">'+s.proj.toLocaleString('en-US')+'</td><td class="num">$'+s.bill.toFixed(1)+'M</td><td class="num">'+(s.hrs/1000).toFixed(2)+'M</td><td class="num">$'+rate.toFixed(0)+'/hr</td><td class="num">$'+s.rateLow+'–$'+s.rateHigh+'</td><td class="num">'+(s.margin*100).toFixed(1)+'%</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function resetFilters(){state={year:2024,cat:'All'};document.getElementById('filterYear').value='2024';document.getElementById('filterCat').value='All';render()}
+function updateSubtitle(){var p=['Reporting Period: Jan–Dec '+state.year];if(state.cat!=='All')p.push(state.cat);document.getElementById('reporting-period').textContent=p.join(' · ')}
+function render(){state.year=parseInt(document.getElementById('filterYear').value,10);state.cat=document.getElementById('filterCat').value;renderKPIs();renderCat();renderHrs();renderTop();renderRate();renderProj();renderTable();updateSubtitle();fitKpiText()}
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

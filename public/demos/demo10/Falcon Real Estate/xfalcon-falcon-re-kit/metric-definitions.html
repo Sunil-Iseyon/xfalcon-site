@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Real Estate - Metric Definitions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #1F2937;
+            line-height: 1.5;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .topbar-logo {
+            font-weight: 700;
+            font-size: 16px;
+            color: #006AFF;
+            text-decoration: none;
+        }
+
+        .topbar-divider {
+            color: #D1D5DB;
+            font-size: 18px;
+        }
+
+        .topbar-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .topbar-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .topbar-link {
+            padding: 8px 12px;
+            border-radius: 4px;
+            background: none;
+            border: 1px solid #D1D5DB;
+            color: #374151;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .topbar-link:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* Search bar */
+        .search-container {
+            margin-bottom: 28px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #1F2937;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #006AFF;
+            box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* Summary stats */
+        .summary {
+            margin-bottom: 32px;
+            font-size: 14px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        /* Category section */
+        .category-section {
+            margin-bottom: 32px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #006AFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .category-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #006AFF;
+            margin: 0;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: #9CA3AF;
+            background: #F3F4F6;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .metric-list {
+            divide-y: 1px solid #F3F4F6;
+        }
+
+        .metric-row {
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr;
+            gap: 16px;
+            align-items: start;
+            background: white;
+            border-bottom: 1px solid #F3F4F6;
+            transition: background 0.2s;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-row:hover {
+            background: #FAFBFC;
+        }
+
+        .metric-row.hidden {
+            display: none;
+        }
+
+        .metric-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1F2937;
+            margin-bottom: 6px;
+        }
+
+        .metric-formula {
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            border-radius: 3px;
+            padding: 8px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #374151;
+            overflow-x: auto;
+            word-break: break-all;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .metric-source {
+            font-size: 12px;
+            color: #1A7F64;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .metric-dashboards {
+            font-size: 11px;
+            color: #6B7280;
+            margin-bottom: 6px;
+        }
+
+        .metric-dashboards-tag {
+            display: inline-block;
+            background: #F0F9FF;
+            color: #0369A1;
+            padding: 2px 6px;
+            border-radius: 2px;
+            margin-right: 4px;
+            margin-bottom: 2px;
+            font-size: 11px;
+        }
+
+        .metric-notes {
+            font-size: 12px;
+            color: #6B7280;
+            font-style: italic;
+        }
+
+        /* Badge styling */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .badge-better {
+            background: #EBF5E3;
+            color: #2E7D32;
+        }
+
+        .badge-worse {
+            background: #FDEDED;
+            color: #D32F2F;
+        }
+
+        .badge-context {
+            background: #EFF2F7;
+            color: #94A3B8;
+        }
+
+        .metric-direction {
+            text-align: right;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #E5E7EB;
+            text-align: center;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .metric-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .metric-direction {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="index.html" class="topbar-logo">xF</a>
+            <div class="topbar-divider">/</div>
+            <span class="topbar-title">Falcon Real Estate / Metric Definitions</span>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="topbar-link">← Back to Portal</a>
+        </div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Search bar -->
+        <div class="search-container">
+            <input
+                type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="Search metrics by name..."
+            >
+        </div>
+
+        <!-- Summary stats -->
+        <div class="summary">
+            <strong>32 metrics</strong> across <strong>7 categories</strong>
+        </div>
+
+        <!-- Category 1: Financial Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Financial Metrics</h2>
+                <span class="category-count">7 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Net Operating Income (NOI)</div>
+                        <div class="metric-formula">TOTAL_REVENUE_USD - TOTAL_OPERATING_EXPENSES_USD</div>
+                        <div class="metric-source">Source: FACT_NOI.NOI_USD</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                            <span class="metric-dashboards-tag">Property Manager Scorecard</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD ($)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Pre-computed, CHECK-constrained. Exclude inactive properties.</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Total Revenue</div>
+                        <div class="metric-formula">RENTAL_REVENUE_USD + OTHER_INCOME_USD</div>
+                        <div class="metric-source">Source: FACT_NOI.TOTAL_REVENUE_USD</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD ($)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Pre-computed</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">NOI Margin %</div>
+                        <div class="metric-formula">NOI_USD / TOTAL_REVENUE_USD * 100</div>
+                        <div class="metric-source">Source: FACT_NOI.NOI_MARGIN_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                            <span class="metric-dashboards-tag">Property Manager Scorecard</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Benchmark:</strong> Varies by asset class</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">NOI per Sqft/Unit</div>
+                        <div class="metric-formula">NOI_USD / LEASABLE_AREA_SQFT (or per unit for Residential)</div>
+                        <div class="metric-source">Source: FACT_NOI.NOI_PER_SQFT_UNIT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                            <span class="metric-dashboards-tag">Market Benchmarking</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD per sqft or per unit</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">NOI Budget Variance %</div>
+                        <div class="metric-formula">(NOI_USD - BUDGET_NOI_USD) / BUDGET_NOI_USD * 100</div>
+                        <div class="metric-source">Source: FACT_NOI.NOI_VS_BUDGET_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Positive = above budget</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">NOI YoY Growth %</div>
+                        <div class="metric-formula">(NOI_USD - PRIOR_YEAR_NOI_USD) / PRIOR_YEAR_NOI_USD * 100</div>
+                        <div class="metric-source">Source: FACT_NOI.NOI_YOY_GROWTH_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Operating Expense Ratio</div>
+                        <div class="metric-formula">TOTAL_OPERATING_EXPENSES_USD / TOTAL_REVENUE_USD * 100</div>
+                        <div class="metric-source">Source: Derived from FACT_NOI</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category 2: Occupancy Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Occupancy Metrics</h2>
+                <span class="category-count">6 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Physical Occupancy Rate</div>
+                        <div class="metric-formula">OCCUPIED_UNITS_SQFT / TOTAL_CAPACITY * 100</div>
+                        <div class="metric-source">Source: FACT_OCCUPANCY.OCCUPANCY_RATE_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                            <span class="metric-dashboards-tag">Occupancy Analytics</span>
+                            <span class="metric-dashboards-tag">Market Benchmarking</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Label varies by asset class</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Economic Occupancy Rate</div>
+                        <div class="metric-formula">EFFECTIVE_GROSS_INCOME_USD / GROSS_POTENTIAL_RENT_USD * 100</div>
+                        <div class="metric-source">Source: FACT_OCCUPANCY.ECONOMIC_OCCUPANCY_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Occupancy Analytics</span>
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Always ≤ Physical Occupancy (concessions reduce economic occupancy)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Vacancy Loss</div>
+                        <div class="metric-formula">GROSS_POTENTIAL_RENT_USD - EFFECTIVE_GROSS_INCOME_USD</div>
+                        <div class="metric-source">Source: FACT_OCCUPANCY.VACANCY_LOSS_USD</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Occupancy Analytics</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD ($)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Average Rent per Unit/Sqft</div>
+                        <div class="metric-formula">Weighted average of actual rents across occupied units</div>
+                        <div class="metric-source">Source: FACT_OCCUPANCY.AVG_RENT_PER_UNIT_SQFT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Occupancy Analytics</span>
+                            <span class="metric-dashboards-tag">Market Benchmarking</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD per unit or sqft</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Rent Spread (Actual vs. Asking)</div>
+                        <div class="metric-formula">AVG_RENT_PER_UNIT_SQFT - ASKING_RENT_PER_UNIT_SQFT</div>
+                        <div class="metric-source">Source: Derived from FACT_OCCUPANCY</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Occupancy Analytics</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD per unit or sqft</div>
+                        <div class="metric-notes"><strong>Note:</strong> Closer to zero is better. Negative means discounting.</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-context">◆ Context-Dependent</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Average Days Vacant per Unit</div>
+                        <div class="metric-formula">Average number of days units remain unoccupied</div>
+                        <div class="metric-source">Source: FACT_OCCUPANCY.AVG_DAYS_VACANT_PER_UNIT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Occupancy Analytics</span>
+                            <span class="metric-dashboards-tag">Property Manager Scorecard</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Days</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category 3: Rent Collection Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Rent Collection Metrics</h2>
+                <span class="category-count">4 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Collection Rate</div>
+                        <div class="metric-formula">RENT_COLLECTED_USD / TOTAL_CHARGED_USD * 100</div>
+                        <div class="metric-source">Source: FACT_RENT_COLLECTION.COLLECTION_RATE_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                            <span class="metric-dashboards-tag">Rent Collection & Delinquency</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Target:</strong> 98%+</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Delinquency Rate</div>
+                        <div class="metric-formula">COUNT(WHERE DELINQUENCY_FLAG = TRUE) / COUNT(*) * 100</div>
+                        <div class="metric-source">Source: FACT_RENT_COLLECTION.DELINQUENCY_FLAG</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Rent Collection & Delinquency</span>
+                            <span class="metric-dashboards-tag">Tenant Intelligence</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">At-Risk Tenants</div>
+                        <div class="metric-formula">COUNT(DISTINCT TENANT_ID) WHERE CONSECUTIVE_DELINQUENT_MONTHS ≥ 3</div>
+                        <div class="metric-source">Source: FACT_RENT_COLLECTION.CONSECUTIVE_DELINQUENT_MONTHS</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Rent Collection & Delinquency</span>
+                            <span class="metric-dashboards-tag">Tenant Intelligence</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Count</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Bad Debt Write-Off</div>
+                        <div class="metric-formula">SUM(BAD_DEBT_WRITTEN_OFF_USD)</div>
+                        <div class="metric-source">Source: FACT_RENT_COLLECTION.BAD_DEBT_WRITTEN_OFF_USD</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Rent Collection & Delinquency</span>
+                            <span class="metric-dashboards-tag">NOI & Financial</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD ($)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category 4: Leasing Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Leasing Metrics</h2>
+                <span class="category-count">5 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Weighted Average Lease Term (WALT)</div>
+                        <div class="metric-formula">SUM(LEASE_TERM_MONTHS * BASE_RENT_ANNUAL_USD) / SUM(BASE_RENT_ANNUAL_USD)</div>
+                        <div class="metric-source">Source: Derived from FACT_LEASE</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Lease Management</span>
+                            <span class="metric-dashboards-tag">Portfolio Overview</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Months</div>
+                        <div class="metric-notes"><strong>Note:</strong> Longer commitments = more stability</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Lease Expiry Exposure (12-month)</div>
+                        <div class="metric-formula">SUM(ANNUAL_RENT_AT_EXPIRY_USD) WHERE MONTHS_TO_EXPIRY ≤ 12</div>
+                        <div class="metric-source">Source: FACT_LEASE</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Lease Management & Expiry Wall</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD ($)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Lower = less rollover risk</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-context">◆ Context-Dependent</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Renewal Rate</div>
+                        <div class="metric-formula">COUNT(WHERE OUTCOME = 'Renewed') / COUNT(*) * 100</div>
+                        <div class="metric-source">Source: FACT_TENANT_RENEWAL.OUTCOME</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Lease Management</span>
+                            <span class="metric-dashboards-tag">Tenant Intelligence</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Rent Change on Renewal</div>
+                        <div class="metric-formula">AVG(RENT_CHANGE_PCT) WHERE OUTCOME = 'Renewed'</div>
+                        <div class="metric-source">Source: FACT_TENANT_RENEWAL.RENT_CHANGE_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Lease Management</span>
+                            <span class="metric-dashboards-tag">Tenant Intelligence</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Positive = rent growth on renewal</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Tenant Churn Cost</div>
+                        <div class="metric-formula">SUM(TOTAL_DOWNTIME_COST_USD) WHERE OUTCOME = 'Not Renewed'</div>
+                        <div class="metric-source">Source: FACT_TENANT_RENEWAL.TOTAL_DOWNTIME_COST_USD</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Lease Management</span>
+                            <span class="metric-dashboards-tag">Tenant Intelligence</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD ($)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Includes lost rent + TI + broker commission</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category 5: Maintenance Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Maintenance Metrics</h2>
+                <span class="category-count">5 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Reactive Maintenance %</div>
+                        <div class="metric-formula">COUNT(WHERE WO_TYPE = 'Reactive') / COUNT(*) * 100</div>
+                        <div class="metric-source">Source: FACT_MAINTENANCE_WO.WO_TYPE</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Maintenance Operations</span>
+                            <span class="metric-dashboards-tag">Property Manager Scorecard</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Target:</strong> < 40%. Scenario 3: reactive creep from 62% to 74%</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">SLA Breach Rate</div>
+                        <div class="metric-formula">COUNT(WHERE SLA_BREACHED = TRUE) / COUNT(*) * 100</div>
+                        <div class="metric-source">Source: FACT_MAINTENANCE_WO.SLA_BREACHED</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Maintenance Operations</span>
+                            <span class="metric-dashboards-tag">Property Manager Scorecard</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Average Days to Complete</div>
+                        <div class="metric-formula">AVG(DAYS_TO_COMPLETE)</div>
+                        <div class="metric-source">Source: FACT_MAINTENANCE_WO.DAYS_TO_COMPLETE</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Maintenance Operations</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Days</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Cost Variance (Estimated vs. Actual)</div>
+                        <div class="metric-formula">(ACTUAL_COST_USD - ESTIMATED_COST_USD) / ESTIMATED_COST_USD * 100</div>
+                        <div class="metric-source">Source: Derived from FACT_MAINTENANCE_WO</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Maintenance Operations</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Negative = under budget</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Recurring Work Order Rate</div>
+                        <div class="metric-formula">COUNT(WHERE IS_RECURRING = TRUE) / COUNT(*) * 100</div>
+                        <div class="metric-source">Source: FACT_MAINTENANCE_WO.IS_RECURRING</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Maintenance Operations</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> High recurrence = deferred maintenance</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category 6: CapEx Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">CapEx Metrics</h2>
+                <span class="category-count">3 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Budget Variance %</div>
+                        <div class="metric-formula">(SPENT_TO_DATE_USD - ORIGINAL_BUDGET_USD) / ORIGINAL_BUDGET_USD * 100</div>
+                        <div class="metric-source">Source: FACT_CAPEX_PROJECT.BUDGET_VARIANCE_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">CapEx Project Tracker</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Negative = under budget</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-worse">↓ Lower is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">ROI Actual vs. Projected</div>
+                        <div class="metric-formula">ROI_ACTUAL_PCT / ROI_PROJECTED_PCT * 100 (attainment)</div>
+                        <div class="metric-source">Source: FACT_CAPEX_PROJECT.ROI_ACTUAL_PCT, ROI_PROJECTED_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">CapEx Project Tracker</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> 100% = on target. Scenario 4: 12 projects show 35-55% of projected ROI</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">NOI Uplift Attainment</div>
+                        <div class="metric-formula">NOI_UPLIFT_ACTUAL_USD / NOI_UPLIFT_PROJECTED_USD * 100</div>
+                        <div class="metric-source">Source: FACT_CAPEX_PROJECT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">CapEx Project Tracker</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Excludes in-progress projects (NOI_UPLIFT_ACTUAL_USD IS NULL)</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category 7: Market Metrics -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Market Metrics</h2>
+                <span class="category-count">3 metrics</span>
+            </div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Portfolio vs. Market Occupancy Delta</div>
+                        <div class="metric-formula">PORTFOLIO_OCCUPANCY_PCT - MARKET_OCCUPANCY_PCT</div>
+                        <div class="metric-source">Source: FACT_MARKET_BENCHMARK.PORTFOLIO_VS_MARKET_OCC_DELTA</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Market Benchmarking</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage points</div>
+                        <div class="metric-notes"><strong>Note:</strong> Positive = outperforming. Scenario 6: delta < -8 indicates underperformance</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Portfolio vs. Market Rent Delta</div>
+                        <div class="metric-formula">PORTFOLIO_AVG_RENT_PSF - MARKET_AVG_RENT_PSF</div>
+                        <div class="metric-source">Source: FACT_MARKET_BENCHMARK.PORTFOLIO_VS_MARKET_RENT_DELTA</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Market Benchmarking</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> USD per sqft</div>
+                        <div class="metric-notes"><strong>Note:</strong> Positive = premium over market</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-better">↑ Higher is Better</div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-name">Market Cap Rate</div>
+                        <div class="metric-formula">External benchmark (from market data)</div>
+                        <div class="metric-source">Source: FACT_MARKET_BENCHMARK.MARKET_CAP_RATE_PCT</div>
+                        <div class="metric-dashboards">
+                            <span class="metric-dashboards-tag">Market Benchmarking</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-notes"><strong>Unit:</strong> Percentage (%)</div>
+                        <div class="metric-notes"><strong>Note:</strong> Lower cap rate = higher valuation</div>
+                    </div>
+                    <div class="metric-direction">
+                        <div class="badge badge-context">◆ Context-Dependent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Generated by xFalcon RetailEdge | Data as of 2025-12-31
+        </div>
+    </div>
+
+    <script>
+        var searchInput = document.getElementById('searchInput');
+        var metricRows = document.querySelectorAll('.metric-row');
+
+        searchInput.addEventListener('keyup', function(){
+            var searchTerm = this.value.toLowerCase();
+
+            metricRows.forEach(function(row){
+                var metricName = row.querySelector('.metric-name').textContent.toLowerCase();
+                if(metricName.includes(searchTerm)){
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

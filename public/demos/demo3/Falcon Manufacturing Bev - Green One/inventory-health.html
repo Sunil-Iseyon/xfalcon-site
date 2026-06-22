@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Health Dashboard - Beverage Manufacturing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #7CB701;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #7CB701;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .back-link {
+            background-color: #1A1A1A;
+            color: #95D600;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #7CB701;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: #7CB701;
+            color: #000000;
+        }
+
+        .filter-section {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #7CB701;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #95D600;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-group select {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            border: 1px solid #7CB701;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:hover {
+            border-color: #95D600;
+            box-shadow: 0 0 10px rgba(124, 183, 1, 0.3);
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #95D600;
+            box-shadow: 0 0 15px rgba(124, 183, 1, 0.5);
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #7CB701;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: #95D600;
+            box-shadow: 0 0 20px rgba(124, 183, 1, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #9B999B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #95D600;
+            margin-bottom: 5px;
+        }
+
+        .kpi-subtitle {
+            font-size: 12px;
+            color: #9B999B;
+        }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #7CB701;
+        }
+
+        .chart-container h3 {
+            color: #95D600;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .chart-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .table-container {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #7CB701;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .table-container h3 {
+            color: #95D600;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #0D0D0D;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-weight: 600;
+            color: #95D600;
+            border-bottom: 2px solid #7CB701;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #333333;
+            color: #FFFFFF;
+        }
+
+        tr:hover {
+            background-color: #252525;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #7CB701;
+            color: #9B999B;
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        .status-good {
+            color: #7CB701;
+            font-weight: 600;
+        }
+
+        .status-warning {
+            color: #FFB800;
+            font-weight: 600;
+        }
+
+        .status-danger {
+            color: #FF4444;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1200px) {
+            .chart-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .filter-section {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Inventory Health</h1>
+            <div class="header-nav">
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="yearFilter">Year</label>
+                <select id="yearFilter">
+                    <option value="">All Years</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="quarterFilter">Quarter</label>
+                <select id="quarterFilter">
+                    <option value="">All Quarters</option>
+                    <option value="1">Q1</option>
+                    <option value="2">Q2</option>
+                    <option value="3">Q3</option>
+                    <option value="4">Q4</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-section" id="kpiContainer"></div>
+
+        <div class="chart-section">
+            <div class="chart-container">
+                <h3>Inventory Value & Days of Stock Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-grid-2">
+            <div class="chart-container">
+                <h3>Stockout Events by Quarter</h3>
+                <div class="chart-wrapper">
+                    <canvas id="stockoutChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3>Expired vs Near Expiry Units</h3>
+                <div class="chart-wrapper">
+                    <canvas id="expiryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-grid-2">
+            <div class="chart-container">
+                <h3>Receipts vs Issues Flow</h3>
+                <div class="chart-wrapper">
+                    <canvas id="flowChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3>Slow Moving Items Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas id="slowMovingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>Summary by Quarter</h3>
+            <table id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Quarter</th>
+                        <th>Avg Stock</th>
+                        <th>Avg DOS</th>
+                        <th>Inv Value</th>
+                        <th>Receipts</th>
+                        <th>Issues</th>
+                        <th>Near Expiry</th>
+                        <th>Expired</th>
+                        <th>Stockouts</th>
+                        <th>Slow Moving</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Key Insights & Analysis -->
+        <div class="insights-section" style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+            <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+            <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+            <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+            <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+        </div>
+
+        <div class="footer">
+            Generated by IDA Analytics | Beverage Manufacturing Inventory Management System
+        </div>
+    </div>
+
+    <script>
+        // Quarterly aggregated data
+        const invQuarterly = [
+            {year:2020,quarter:1,avg_stock:78139,receipts:1116022,issues:867223,dos:46.7,inv_value:32569,near_expiry:29976,expired:4410,stockouts:5,slow_moving:65},
+            {year:2020,quarter:2,avg_stock:99144,receipts:1123272,issues:991532,dos:44.8,inv_value:37546,near_expiry:32409,expired:5555,stockouts:7,slow_moving:63},
+            {year:2020,quarter:3,avg_stock:117762,receipts:1385292,issues:1167613,dos:48.6,inv_value:44222,near_expiry:45823,expired:7477,stockouts:4,slow_moving:61},
+            {year:2020,quarter:4,avg_stock:133426,receipts:1246225,issues:982634,dos:50.7,inv_value:52552,near_expiry:49329,expired:7275,stockouts:7,slow_moving:80},
+            {year:2021,quarter:1,avg_stock:137305,receipts:1191305,issues:1131675,dos:48.1,inv_value:51369,near_expiry:55762,expired:8510,stockouts:9,slow_moving:97},
+            {year:2021,quarter:2,avg_stock:150508,receipts:1638916,issues:1222519,dos:51.1,inv_value:58013,near_expiry:69016,expired:10522,stockouts:6,slow_moving:103},
+            {year:2021,quarter:3,avg_stock:159159,receipts:1659459,issues:1538007,dos:48.2,inv_value:61388,near_expiry:68862,expired:10326,stockouts:8,slow_moving:92},
+            {year:2021,quarter:4,avg_stock:170243,receipts:1723727,issues:1337827,dos:52.6,inv_value:67017,near_expiry:84360,expired:12864,stockouts:5,slow_moving:112},
+            {year:2022,quarter:1,avg_stock:169644,receipts:1406184,issues:1233777,dos:52.2,inv_value:65928,near_expiry:81356,expired:12904,stockouts:5,slow_moving:117},
+            {year:2022,quarter:2,avg_stock:175506,receipts:1998013,issues:1737810,dos:51.3,inv_value:68614,near_expiry:97300,expired:14404,stockouts:7,slow_moving:134},
+            {year:2022,quarter:3,avg_stock:175325,receipts:2044149,issues:1903632,dos:49.9,inv_value:65662,near_expiry:100417,expired:14766,stockouts:14,slow_moving:123},
+            {year:2022,quarter:4,avg_stock:187636,receipts:2151922,issues:1564066,dos:51.7,inv_value:71270,near_expiry:110206,expired:16026,stockouts:3,slow_moving:141},
+            {year:2023,quarter:1,avg_stock:171224,receipts:1552324,issues:1388737,dos:51.3,inv_value:62248,near_expiry:87426,expired:13341,stockouts:9,slow_moving:128},
+            {year:2023,quarter:2,avg_stock:182394,receipts:1932054,issues:1650181,dos:48.2,inv_value:63489,near_expiry:96917,expired:14535,stockouts:11,slow_moving:137},
+            {year:2023,quarter:3,avg_stock:175565,receipts:2553508,issues:1969082,dos:49.1,inv_value:65294,near_expiry:119777,expired:19462,stockouts:8,slow_moving:143},
+            {year:2023,quarter:4,avg_stock:201161,receipts:2099728,issues:1878923,dos:50.4,inv_value:71198,near_expiry:118060,expired:18519,stockouts:14,slow_moving:140},
+            {year:2024,quarter:1,avg_stock:188771,receipts:2013499,issues:1647277,dos:52.5,inv_value:72003,near_expiry:117837,expired:17714,stockouts:9,slow_moving:160},
+            {year:2024,quarter:2,avg_stock:195448,receipts:2290362,issues:1886440,dos:51.2,inv_value:75036,near_expiry:127565,expired:18837,stockouts:8,slow_moving:163},
+            {year:2024,quarter:3,avg_stock:190782,receipts:2415285,issues:2018247,dos:50.8,inv_value:71891,near_expiry:132420,expired:20038,stockouts:7,slow_moving:161},
+            {year:2024,quarter:4,avg_stock:196244,receipts:2097437,issues:1760327,dos:51.0,inv_value:74102,near_expiry:119055,expired:18629,stockouts:10,slow_moving:158},
+            {year:2025,quarter:1,avg_stock:181505,receipts:1814285,issues:1527108,dos:50.2,inv_value:68931,near_expiry:105273,expired:15810,stockouts:7,slow_moving:146},
+            {year:2025,quarter:2,avg_stock:186732,receipts:2172836,issues:1831472,dos:50.6,inv_value:70898,near_expiry:115120,expired:17145,stockouts:6,slow_moving:148},
+            {year:2025,quarter:3,avg_stock:189614,receipts:2289701,issues:1921547,dos:51.2,inv_value:72231,near_expiry:118392,expired:17934,stockouts:8,slow_moving:152},
+            {year:2025,quarter:4,avg_stock:185892,receipts:2003214,issues:1674305,dos:52.1,inv_value:71542,near_expiry:110187,expired:16485,stockouts:5,slow_moving:139}
+        ];
+
+        let filteredData = [...invQuarterly];
+        let charts = {};
+
+        // Filter functions
+        function applyFilters() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const quarterFilter = document.getElementById('quarterFilter').value;
+
+            filteredData = invQuarterly.filter(row => {
+                if (yearFilter && row.year !== parseInt(yearFilter)) return false;
+                if (quarterFilter && row.quarter !== parseInt(quarterFilter)) return false;
+                return true;
+            });
+
+            updateDashboard();
+        }
+
+        function generateInventoryInsights() {
+            if (filteredData.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '';
+                document.getElementById('focusAreas').innerHTML = '';
+                return;
+            }
+
+            // Calculate metrics
+            const avgDOS = filteredData.reduce((sum, row) => sum + row.dos, 0) / filteredData.length;
+            const dosHealthy = avgDOS >= 30 && avgDOS <= 60;
+            const totalStockouts = filteredData.reduce((sum, row) => sum + row.stockouts, 0);
+            const totalExpired = filteredData.reduce((sum, row) => sum + row.expired, 0);
+            const totalNearExpiry = filteredData.reduce((sum, row) => sum + row.near_expiry, 0);
+            const totalSlowMoving = filteredData.reduce((sum, row) => sum + row.slow_moving, 0);
+            const avgInvValue = filteredData.reduce((sum, row) => sum + row.inv_value, 0) / filteredData.length;
+
+            // Expiry risk assessment
+            const expiryRisk = totalExpired > 10000 ? 'high' : totalExpired > 5000 ? 'moderate' : 'low';
+            const nearExpiryRisk = totalNearExpiry > 100000 ? 'high' : totalNearExpiry > 50000 ? 'moderate' : 'low';
+
+            // Stockout frequency
+            const avgStockouts = totalStockouts / filteredData.length;
+            const stockoutFrequency = avgStockouts > 10 ? 'high' : avgStockouts > 5 ? 'moderate' : 'low';
+
+            // Slow moving assessment
+            const slowMovingPercent = (totalSlowMoving > 0 ? (totalSlowMoving / (filteredData.length * 150)) * 100 : 0);
+
+            let insights = `
+                <div style="margin-left:20px;">
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Average days of stock: ${avgDOS.toFixed(1)} days (${dosHealthy ? 'healthy range 30-60' : avgDOS < 30 ? 'below target' : 'above target'})</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Stockout frequency: ${stockoutFrequency} with ${totalStockouts} total events (${avgStockouts.toFixed(1)} per period)</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Expired inventory risk: ${expiryRisk} (${totalExpired.toLocaleString()} units)</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Near-expiry inventory: ${nearExpiryRisk} risk with ${totalNearExpiry.toLocaleString()} units approaching expiration</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Slow-moving inventory concern: ${totalSlowMoving} items identified as slow-moving</div>
+                </div>
+            `;
+
+            let focusItems = [];
+            if (!dosHealthy) {
+                if (avgDOS < 30) {
+                    focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Days of stock too low - risk of stockouts, increase safety stock</div>');
+                } else {
+                    focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Days of stock too high - excess inventory, optimize ordering</div>');
+                }
+            }
+            if (stockoutFrequency !== 'low') {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> High stockout frequency impacting customer service - review demand forecasting</div>');
+            }
+            if (expiryRisk !== 'low') {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Significant expired inventory - improve FIFO controls and demand planning</div>');
+            }
+            if (nearExpiryRisk !== 'low') {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Large near-expiry quantities - accelerate sales or promotions</div>');
+            }
+            if (slowMovingPercent > 10) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> High percentage of slow-moving items - review SKU portfolio</div>');
+            }
+
+            if (focusItems.length === 0) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#7CB701;">✓</span> Inventory health metrics in good standing - continue current management practices</div>');
+            }
+
+            document.getElementById('insightsContent').innerHTML = insights;
+            document.getElementById('focusAreas').innerHTML = focusItems.join('');
+        }
+
+        function updateDashboard() {
+            updateKPIs();
+            updateCharts();
+            updateTable();
+            generateInventoryInsights();
+        }
+
+        function updateKPIs() {
+            const avgDOS = (filteredData.reduce((sum, row) => sum + row.dos, 0) / filteredData.length).toFixed(1);
+            const totalStockouts = filteredData.reduce((sum, row) => sum + row.stockouts, 0);
+            const totalExpired = filteredData.reduce((sum, row) => sum + row.expired, 0);
+            const totalNearExpiry = filteredData.reduce((sum, row) => sum + row.near_expiry, 0);
+            const avgInvValue = (filteredData.reduce((sum, row) => sum + row.inv_value, 0) / filteredData.length).toFixed(0);
+
+            const kpiContainer = document.getElementById('kpiContainer');
+            kpiContainer.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Days of Stock</div>
+                    <div class="kpi-value">${avgDOS}</div>
+                    <div class="kpi-subtitle">days</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Stockout Events</div>
+                    <div class="kpi-value">${totalStockouts}</div>
+                    <div class="kpi-subtitle">events</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Expired Units</div>
+                    <div class="kpi-value">${totalExpired.toLocaleString()}</div>
+                    <div class="kpi-subtitle">units</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Near Expiry Units</div>
+                    <div class="kpi-value">${totalNearExpiry.toLocaleString()}</div>
+                    <div class="kpi-subtitle">units</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Inventory Value</div>
+                    <div class="kpi-value">$${(avgInvValue / 1000).toFixed(1)}K</div>
+                    <div class="kpi-subtitle">thousands</div>
+                </div>
+            `;
+        }
+
+        function updateCharts() {
+            // Prepare data for charts
+            const labels = filteredData.map(row => `${row.year} Q${row.quarter}`);
+            const invValues = filteredData.map(row => row.inv_value);
+            const dosValues = filteredData.map(row => row.dos);
+            const stockoutValues = filteredData.map(row => row.stockouts);
+            const expiredValues = filteredData.map(row => row.expired);
+            const nearExpiryValues = filteredData.map(row => row.near_expiry);
+            const receiptsValues = filteredData.map(row => row.receipts);
+            const issuesValues = filteredData.map(row => row.issues);
+            const slowMovingValues = filteredData.map(row => row.slow_moving);
+
+            // Trend Chart (Inventory Value & DOS)
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            if (charts.trendChart) charts.trendChart.destroy();
+            charts.trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Inventory Value ($K)',
+                            data: invValues,
+                            borderColor: '#7CB701',
+                            backgroundColor: 'rgba(124, 183, 1, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y',
+                            pointBackgroundColor: '#95D600',
+                            pointBorderColor: '#7CB701',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Days of Stock',
+                            data: dosValues,
+                            borderColor: '#95D600',
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            pointBackgroundColor: '#7CB701',
+                            pointBorderColor: '#95D600',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' },
+                            title: { display: true, text: 'Inventory Value ($K)', color: '#95D600' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#9B999B' },
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Days of Stock', color: '#95D600' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+
+            // Stockout Chart
+            const stockoutCtx = document.getElementById('stockoutChart').getContext('2d');
+            if (charts.stockoutChart) charts.stockoutChart.destroy();
+            charts.stockoutChart = new Chart(stockoutCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Stockout Events',
+                        data: stockoutValues,
+                        backgroundColor: '#FF4444',
+                        borderColor: '#FFB800',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+
+            // Expiry Chart (Stacked Bar)
+            const expiryCtx = document.getElementById('expiryChart').getContext('2d');
+            if (charts.expiryChart) charts.expiryChart.destroy();
+            charts.expiryChart = new Chart(expiryCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Expired Units',
+                            data: expiredValues,
+                            backgroundColor: '#FF4444',
+                            borderColor: '#FF4444',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Near Expiry Units',
+                            data: nearExpiryValues,
+                            backgroundColor: '#FFB800',
+                            borderColor: '#FFB800',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'x',
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Flow Chart (Receipts vs Issues)
+            const flowCtx = document.getElementById('flowChart').getContext('2d');
+            if (charts.flowChart) charts.flowChart.destroy();
+            charts.flowChart = new Chart(flowCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Receipts',
+                            data: receiptsValues,
+                            backgroundColor: '#7CB701',
+                            borderColor: '#95D600',
+                            borderWidth: 2,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Issues',
+                            data: issuesValues,
+                            backgroundColor: '#95D600',
+                            borderColor: '#7CB701',
+                            borderWidth: 2,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+
+            // Slow Moving Trend
+            const slowCtx = document.getElementById('slowMovingChart').getContext('2d');
+            if (charts.slowMovingChart) charts.slowMovingChart.destroy();
+            charts.slowMovingChart = new Chart(slowCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Slow Moving Items',
+                        data: slowMovingValues,
+                        borderColor: '#FFB800',
+                        backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FFB800',
+                        pointBorderColor: '#FF4444',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('summaryBody');
+            tbody.innerHTML = '';
+
+            filteredData.forEach(row => {
+                const tr = document.createElement('tr');
+                const turnover = (row.issues / row.avg_stock * 100).toFixed(1);
+                const expiryStatus = row.expired > 5000 ? 'status-danger' : row.expired > 2000 ? 'status-warning' : 'status-good';
+
+                tr.innerHTML = `
+                    <td>${row.year}</td>
+                    <td>Q${row.quarter}</td>
+                    <td>${row.avg_stock.toLocaleString()}</td>
+                    <td>${row.dos.toFixed(1)}</td>
+                    <td>$${row.inv_value.toLocaleString()}</td>
+                    <td>${row.receipts.toLocaleString()}</td>
+                    <td>${row.issues.toLocaleString()}</td>
+                    <td>${row.near_expiry.toLocaleString()}</td>
+                    <td class="${expiryStatus}">${row.expired.toLocaleString()}</td>
+                    <td>${row.stockouts}</td>
+                    <td>${row.slow_moving}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('yearFilter').addEventListener('change', applyFilters);
+        document.getElementById('quarterFilter').addEventListener('change', applyFilters);
+
+        // Initialize dashboard
+        updateDashboard();
+    </script>
+</body>
+</html>

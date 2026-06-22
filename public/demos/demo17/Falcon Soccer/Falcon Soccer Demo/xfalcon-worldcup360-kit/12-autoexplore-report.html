@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoExplore Discovery Report | xFalcon World Cup 360</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #333;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20, #0A2E11);
+            border-bottom: 3px solid #FFD600;
+            padding: 24px 32px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFD600;
+        }
+
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .topbar-title p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 32px auto;
+            padding: 0 32px;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 20px;
+            border-top: 3px solid #FFD600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2E7D32;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-row.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        .findings-table {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 32px;
+            overflow-x: auto;
+        }
+
+        .findings-table h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 2px solid #E5E7EB;
+            font-weight: 600;
+            color: #2E7D32;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #E5E7EB;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-high {
+            background-color: #FFE0B2;
+            color: #E65100;
+        }
+
+        .badge-medium {
+            background-color: #C8E6C9;
+            color: #1B5E20;
+        }
+
+        .badge-low {
+            background-color: #BBDEFB;
+            color: #0D47A1;
+        }
+
+        .footer {
+            background-color: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
+            padding: 24px 32px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            margin-top: 48px;
+        }
+
+        .footer-link {
+            display: inline-block;
+            margin-top: 12px;
+        }
+
+        .footer-link a {
+            color: #2E7D32;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: #1B5E20;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+            }
+
+            .topbar-left {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">xFalcon</div>
+            <div class="topbar-title">
+                <h1>AutoExplore Discovery Report</h1>
+                <p>FIFA World Cup Database | 30 Iterations | 8 Findings</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- KPI Row -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Matches Analyzed</div>
+                <div class="kpi-value">836</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Tables Explored</div>
+                <div class="kpi-value">22</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Exploration Iterations</div>
+                <div class="kpi-value">30</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Key Findings</div>
+                <div class="kpi-value">8</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Player Appearances</div>
+                <div class="kpi-value">37,330</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Data Span</div>
+                <div class="kpi-value">92 Years</div>
+            </div>
+        </div>
+
+        <!-- Chart 1: Goals Per Match Evolution -->
+        <div class="chart-row full-width">
+            <div class="chart-container">
+                <div class="chart-title">Goals Per Match Evolution</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart1"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 2 & 3 -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <div class="chart-title">Goals by Tournament Stage</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart2"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Goalless HT Effect</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart3"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 4 & 5 -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <div class="chart-title">Substitute Goal Revolution</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart4"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Brazil's 84-Year Stability</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart5"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 6 -->
+        <div class="chart-row full-width">
+            <div class="chart-container">
+                <div class="chart-title">Team Win Rate Evolution</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart6"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 7 & 8 -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <div class="chart-title">Card Inflation</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart7"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Home Designation Advantage</div>
+                <div class="chart-wrapper">
+                    <canvas id="chart8"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Findings Table -->
+        <div class="findings-table">
+            <h2>Summary Findings</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Finding #</th>
+                        <th>Title</th>
+                        <th>Key Number</th>
+                        <th>Sample Size</th>
+                        <th>Surprise Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Goals Per Match Evolution</td>
+                        <td>1954: 5.38 (peak)</td>
+                        <td>22 tournaments</td>
+                        <td><span class="badge badge-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Goals by Tournament Stage</td>
+                        <td>3rd Place: 3.94</td>
+                        <td>6 stages</td>
+                        <td><span class="badge badge-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Goalless HT Effect</td>
+                        <td>Knockout: 88.8%</td>
+                        <td>836 matches</td>
+                        <td><span class="badge badge-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Substitute Goal Revolution</td>
+                        <td>2014: 20.1%</td>
+                        <td>12 decades</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Brazil's 84-Year Stability</td>
+                        <td>67% avg win rate</td>
+                        <td>3 eras</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Team Win Rate Evolution</td>
+                        <td>Germany +22.7%</td>
+                        <td>6 teams, 3 eras</td>
+                        <td><span class="badge badge-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Card Inflation</td>
+                        <td>4.13 yellow/match</td>
+                        <td>4 eras</td>
+                        <td><span class="badge badge-low">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Home Designation Advantage</td>
+                        <td>57.5% home win</td>
+                        <td>836 matches</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div>AutoExplore Discovery Report | 30 iterations | April 14, 2026 | xFalcon AnalyticsPro | Powered by IDA MCP</div>
+        <div class="footer-link"><a href="index.html">← Back to Portal</a></div>
+    </div>
+
+    <script>
+        (function() {
+            var instances = {};
+
+            function mk(id, cfg) {
+                if (instances[id]) {
+                    instances[id].destroy();
+                }
+                var ctx = document.getElementById(id);
+                if (!ctx) return null;
+                instances[id] = new Chart(ctx.getContext('2d'), cfg);
+                return instances[id];
+            }
+
+            function fitKpiText() {
+                var els = document.querySelectorAll('.kpi-value');
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    var text = el.textContent;
+                    if (text.length > 10) el.style.fontSize = '20px';
+                    else if (text.length > 7) el.style.fontSize = '24px';
+                    else el.style.fontSize = '28px';
+                }
+            }
+
+            // Chart 1: Goals Per Match Evolution
+            mk('chart1', {
+                type: 'line',
+                data: {
+                    labels: ['1930', '1934', '1938', '1950', '1954', '1958', '1962', '1966', '1970', '1974', '1978', '1982', '1986', '1990', '1994', '1998', '2002', '2006', '2010', '2014', '2018', '2022'],
+                    datasets: [{
+                        label: 'Goals Per Match',
+                        data: [3.89, 4.12, 4.67, 4.00, 5.38, 3.60, 2.78, 2.78, 2.97, 2.55, 2.68, 2.81, 2.54, 2.21, 2.71, 2.67, 2.52, 2.30, 2.27, 2.67, 2.64, 2.69],
+                        borderColor: '#2E7D32',
+                        backgroundColor: 'rgba(46,125,50,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2E7D32',
+                        pointBorderColor: '#FFF',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { font: { size: 12, family: "'Inter', sans-serif" } }
+                        },
+                        annotation: {
+                            annotations: {
+                                peak: {
+                                    type: 'label',
+                                    xValue: '1954',
+                                    yValue: 5.38,
+                                    content: ['1954 Peak: 5.38'],
+                                    font: { size: 12 }
+                                },
+                                low: {
+                                    type: 'label',
+                                    xValue: '1990',
+                                    yValue: 2.21,
+                                    content: ['1990 Low: 2.21'],
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 1.5,
+                            max: 6,
+                            title: { display: true, text: 'Goals Per Match', font: { size: 12, weight: 600 } }
+                        },
+                        x: {
+                            title: { display: true, text: 'Year', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Goals by Tournament Stage
+            mk('chart2', {
+                type: 'bar',
+                data: {
+                    labels: ['Group Stage', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final', '3rd Place'],
+                    datasets: [{
+                        label: 'Goals Per Match',
+                        data: [2.72, 2.56, 2.82, 3.62, 3.58, 3.94],
+                        backgroundColor: ['#2E7D32', '#2E7D32', '#2E7D32', '#FFD600', '#2E7D32', '#FF6B00'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 4.5,
+                            title: { display: true, text: 'Goals Per Match', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: Goalless HT Effect
+            mk('chart3', {
+                type: 'bar',
+                data: {
+                    labels: ['Knockout', 'Group'],
+                    datasets: [
+                        {
+                            label: 'Scoring Rate %',
+                            data: [88.8, 70.1],
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Avg 2H Goals',
+                            data: [2.32, 1.25],
+                            backgroundColor: '#FFD600',
+                            borderRadius: 6,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { font: { size: 12, family: "'Inter', sans-serif" } } }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Scoring Rate %', font: { size: 12, weight: 600 } },
+                            max: 100
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Avg Goals', font: { size: 12, weight: 600 } },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+
+            // Chart 4: Substitute Goal Revolution
+            mk('chart4', {
+                type: 'bar',
+                data: {
+                    labels: ['1970', '1974', '1978', '1982', '1986', '1990', '1994', '1998', '2002', '2006', '2010', '2014'],
+                    datasets: [
+                        {
+                            label: 'Subs/Match',
+                            type: 'bar',
+                            data: [3.2, 2.8, 3.1, 3.2, 3.6, 3.7, 3.8, 5.3, 5.4, 5.7, 5.5, 5.8],
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 6,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'Sub Goal %',
+                            type: 'line',
+                            data: [4.9, 5.8, 4.6, 10.9, 9.3, 19.6, 10.4, 8.8, 12.7, 16.2, 10.5, 20.1],
+                            borderColor: '#FFD600',
+                            backgroundColor: 'rgba(255,214,0,0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#FFD600',
+                            order: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { font: { size: 12, family: "'Inter', sans-serif" } } }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Subs/Match', font: { size: 12, weight: 600 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Sub Goal %', font: { size: 12, weight: 600 } },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+
+            // Chart 5: Brazil's 84-Year Stability
+            mk('chart5', {
+                type: 'bar',
+                data: {
+                    labels: ['Classic\n(1930-70)', 'Expansion\n(1974-94)', 'Modern\n(1998-2014)'],
+                    datasets: [
+                        {
+                            label: 'Brazil',
+                            data: [68.4, 65.7, 67.7],
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Germany',
+                            data: [50, 60, 72.7],
+                            backgroundColor: '#1565C0',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { font: { size: 12, family: "'Inter', sans-serif" } } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 80,
+                            title: { display: true, text: 'Win Rate %', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 6: Team Win Rate Evolution
+            mk('chart6', {
+                type: 'bar',
+                data: {
+                    labels: ['Germany', 'Spain', 'Colombia', 'Uruguay', 'Italy', 'Portugal'],
+                    datasets: [
+                        {
+                            label: 'Classic (1930-70)',
+                            data: [50, 40, 0, 53.8, 57.7, 83.3],
+                            backgroundColor: '#81C784',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Expansion (1974-94)',
+                            data: [60, 40.9, 28.6, 9.1, 57.1, 33.3],
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Modern (1998-2014)',
+                            data: [72.7, 63.6, 62.5, 35.7, 45.5, 41.2],
+                            backgroundColor: '#1B5E20',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { font: { size: 12, family: "'Inter', sans-serif" } } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 90,
+                            title: { display: true, text: 'Win Rate %', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 7: Card Inflation
+            mk('chart7', {
+                type: 'bar',
+                data: {
+                    labels: ['Pre-Cards', 'Early (70-90)', 'Modern (94-02)', 'Recent (06-14)'],
+                    datasets: [{
+                        label: 'Yellows/Match',
+                        data: [0.12, 2.28, 4.16, 4.13],
+                        backgroundColor: '#FFD600',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: { display: true, text: 'Yellows/Match', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 8: Home Designation Advantage
+            mk('chart8', {
+                type: 'bar',
+                data: {
+                    labels: ['Home Win', 'Draw', 'Away Win'],
+                    datasets: [{
+                        label: 'Percentage',
+                        data: [57.5, 22.2, 20.2],
+                        backgroundColor: ['#2E7D32', '#FFD600', '#C62828'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 70,
+                            title: { display: true, text: 'Percentage %', font: { size: 12, weight: 600 } }
+                        }
+                    }
+                }
+            });
+
+            // Apply responsive sizing
+            fitKpiText();
+            window.addEventListener('resize', fitKpiText);
+        })();
+    </script>
+</body>
+</html>

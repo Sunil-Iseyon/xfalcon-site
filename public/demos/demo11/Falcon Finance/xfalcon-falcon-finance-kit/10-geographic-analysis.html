@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Finance - Geographic Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #1A1A2E; min-height: 100vh; }
+    .topbar { background: #1D3557; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .topbar .logo { font-weight: 800; font-size: 22px; color: #F1FAEE; }
+    .topbar .logo .x { color: #A8DADC; }
+    .topbar .logo .f { color: #E63946; }
+    .topbar .title { color: #F1FAEE; font-weight: 600; font-size: 16px; margin-left: 14px; }
+    .topbar-left { display: flex; align-items: center; }
+    .back-link { color: #A8DADC; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .kpi-card { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; }
+    .kpi-label { font-size: 12px; font-weight: 600; color: #5F6B7A; text-transform: uppercase; margin-bottom: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #1D3557; margin-bottom: 8px; }
+    .kpi-subtext { font-size: 13px; color: #5F6B7A; }
+    .kpi-positive { color: #2E7D32; }
+    .kpi-negative { color: #D32F2F; }
+    .chart-section { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1D3557; margin-bottom: 16px; }
+    .chart-container { position: relative; height: 300px; margin-bottom: 24px; }
+    .detail-table { width: 100%; border-collapse: collapse; background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; overflow: hidden; }
+    .detail-table thead { background: #1D3557; color: #F1FAEE; }
+    .detail-table th { padding: 14px; text-align: left; font-weight: 600; font-size: 13px; }
+    .detail-table td { padding: 14px; border-top: 1px solid #ECEEF1; font-size: 13px; }
+    .detail-table tbody tr:hover { background: #F1F3F5; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="x">x</span><span class="f">F</span></div>
+      <div class="title">Falcon Finance / 10. Geographic Analysis</div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Customers 2025</div>
+        <div class="kpi-value">167.9K</div>
+        <div class="kpi-subtext">Across 31 states</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Balance 2025</div>
+        <div class="kpi-value">$488.7B</div>
+        <div class="kpi-subtext">All geographic markets</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Largest Market</div>
+        <div class="kpi-value">California</div>
+        <div class="kpi-subtext">$61.7B balance, 28.9K customers</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Regional Leader</div>
+        <div class="kpi-value">South</div>
+        <div class="kpi-subtext">$194.9B balance (39.9% of total)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Urban Distribution</div>
+        <div class="kpi-value">56.4M</div>
+        <div class="kpi-subtext">$134.6B balance from urban areas</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mixed/Rural Areas</div>
+        <div class="kpi-value">111.7K</div>
+        <div class="kpi-subtext">59.8% of all customers</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Top 10 States</div>
+        <div class="kpi-value">85.7%</div>
+        <div class="kpi-subtext">Of total customer base</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Regional Concentration</div>
+        <div class="kpi-value">CA, TX, FL</div>
+        <div class="kpi-subtext">41.2% of all customers</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Top 10 States by Customer Count (2025)</div>
+      <div class="chart-container">
+        <canvas id="topStatesChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Census Region Distribution (2025)</div>
+      <div class="chart-container">
+        <canvas id="regionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Urban vs Rural Distribution (2025)</div>
+      <div class="chart-container">
+        <canvas id="urbanRuralChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">State Balance Distribution - Top 15 States</div>
+      <div class="chart-container">
+        <canvas id="stateBalanceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Regional Balance Trend (2024 vs 2025)</div>
+      <div class="chart-container">
+        <canvas id="regionTrendChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Customer Concentration by State (Top 12)</div>
+      <div class="chart-container">
+        <canvas id="concentrationChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">All States Summary (2025)</div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Code</th>
+            <th>Region</th>
+            <th>Urban/Rural</th>
+            <th class="text-right">Customers</th>
+            <th class="text-right">Balance</th>
+            <th class="text-right">Avg Balance/Customer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>California</td>
+            <td>CA</td>
+            <td>Pacific</td>
+            <td>Urban</td>
+            <td class="text-right">28,971</td>
+            <td class="text-right">$61.7B</td>
+            <td class="text-right">$2.13M</td>
+          </tr>
+          <tr>
+            <td>Texas</td>
+            <td>TX</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">23,768</td>
+            <td class="text-right">$49.1B</td>
+            <td class="text-right">$2.07M</td>
+          </tr>
+          <tr>
+            <td>Florida</td>
+            <td>FL</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">18,778</td>
+            <td class="text-right">$37.7B</td>
+            <td class="text-right">$2.01M</td>
+          </tr>
+          <tr>
+            <td>New York</td>
+            <td>NY</td>
+            <td>Northeast</td>
+            <td>Urban</td>
+            <td class="text-right">15,485</td>
+            <td class="text-right">$31.1B</td>
+            <td class="text-right">$2.01M</td>
+          </tr>
+          <tr>
+            <td>Pennsylvania</td>
+            <td>PA</td>
+            <td>Northeast</td>
+            <td>Mixed</td>
+            <td class="text-right">10,448</td>
+            <td class="text-right">$21.0B</td>
+            <td class="text-right">$2.01M</td>
+          </tr>
+          <tr>
+            <td>Illinois</td>
+            <td>IL</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">10,090</td>
+            <td class="text-right">$20.1B</td>
+            <td class="text-right">$2.00M</td>
+          </tr>
+          <tr>
+            <td>Ohio</td>
+            <td>OH</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">9,708</td>
+            <td class="text-right">$19.2B</td>
+            <td class="text-right">$1.98M</td>
+          </tr>
+          <tr>
+            <td>Georgia</td>
+            <td>GA</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">8,758</td>
+            <td class="text-right">$17.4B</td>
+            <td class="text-right">$1.99M</td>
+          </tr>
+          <tr>
+            <td>North Carolina</td>
+            <td>NC</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">8,811</td>
+            <td class="text-right">$17.1B</td>
+            <td class="text-right">$1.94M</td>
+          </tr>
+          <tr>
+            <td>Michigan</td>
+            <td>MI</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">7,954</td>
+            <td class="text-right">$15.8B</td>
+            <td class="text-right">$1.99M</td>
+          </tr>
+          <tr>
+            <td>New Jersey</td>
+            <td>NJ</td>
+            <td>Northeast</td>
+            <td>Urban</td>
+            <td class="text-right">7,601</td>
+            <td class="text-right">$14.9B</td>
+            <td class="text-right">$1.96M</td>
+          </tr>
+          <tr>
+            <td>Virginia</td>
+            <td>VA</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">7,198</td>
+            <td class="text-right">$14.2B</td>
+            <td class="text-right">$1.97M</td>
+          </tr>
+          <tr>
+            <td>Washington</td>
+            <td>WA</td>
+            <td>West</td>
+            <td>Mixed</td>
+            <td class="text-right">6,738</td>
+            <td class="text-right">$13.2B</td>
+            <td class="text-right">$1.97M</td>
+          </tr>
+          <tr>
+            <td>Arizona</td>
+            <td>AZ</td>
+            <td>West</td>
+            <td>Mixed</td>
+            <td class="text-right">6,396</td>
+            <td class="text-right">$12.7B</td>
+            <td class="text-right">$1.99M</td>
+          </tr>
+          <tr>
+            <td>Massachusetts</td>
+            <td>MA</td>
+            <td>Northeast</td>
+            <td>Urban</td>
+            <td class="text-right">5,859</td>
+            <td class="text-right">$11.3B</td>
+            <td class="text-right">$1.93M</td>
+          </tr>
+          <tr>
+            <td>Tennessee</td>
+            <td>TN</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">5,818</td>
+            <td class="text-right">$11.0B</td>
+            <td class="text-right">$1.90M</td>
+          </tr>
+          <tr>
+            <td>Indiana</td>
+            <td>IN</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">5,585</td>
+            <td class="text-right">$11.0B</td>
+            <td class="text-right">$1.96M</td>
+          </tr>
+          <tr>
+            <td>Maryland</td>
+            <td>MD</td>
+            <td>South</td>
+            <td>Urban</td>
+            <td class="text-right">5,170</td>
+            <td class="text-right">$10.0B</td>
+            <td class="text-right">$1.94M</td>
+          </tr>
+          <tr>
+            <td>Missouri</td>
+            <td>MO</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">5,100</td>
+            <td class="text-right">$9.9B</td>
+            <td class="text-right">$1.95M</td>
+          </tr>
+          <tr>
+            <td>Wisconsin</td>
+            <td>WI</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">4,777</td>
+            <td class="text-right">$9.5B</td>
+            <td class="text-right">$1.99M</td>
+          </tr>
+          <tr>
+            <td>Colorado</td>
+            <td>CO</td>
+            <td>West</td>
+            <td>Mixed</td>
+            <td class="text-right">4,794</td>
+            <td class="text-right">$9.4B</td>
+            <td class="text-right">$1.96M</td>
+          </tr>
+          <tr>
+            <td>Minnesota</td>
+            <td>MN</td>
+            <td>Midwest</td>
+            <td>Mixed</td>
+            <td class="text-right">4,650</td>
+            <td class="text-right">$9.2B</td>
+            <td class="text-right">$1.98M</td>
+          </tr>
+          <tr>
+            <td>South Carolina</td>
+            <td>SC</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">4,454</td>
+            <td class="text-right">$8.6B</td>
+            <td class="text-right">$1.92M</td>
+          </tr>
+          <tr>
+            <td>Alabama</td>
+            <td>AL</td>
+            <td>South</td>
+            <td>Rural</td>
+            <td class="text-right">4,184</td>
+            <td class="text-right">$8.1B</td>
+            <td class="text-right">$1.94M</td>
+          </tr>
+          <tr>
+            <td>Kentucky</td>
+            <td>KY</td>
+            <td>South</td>
+            <td>Rural</td>
+            <td class="text-right">3,870</td>
+            <td class="text-right">$7.6B</td>
+            <td class="text-right">$1.96M</td>
+          </tr>
+          <tr>
+            <td>Louisiana</td>
+            <td>LA</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">3,869</td>
+            <td class="text-right">$7.5B</td>
+            <td class="text-right">$1.93M</td>
+          </tr>
+          <tr>
+            <td>Oregon</td>
+            <td>OR</td>
+            <td>West</td>
+            <td>Mixed</td>
+            <td class="text-right">3,487</td>
+            <td class="text-right">$6.7B</td>
+            <td class="text-right">$1.92M</td>
+          </tr>
+          <tr>
+            <td>Oklahoma</td>
+            <td>OK</td>
+            <td>South</td>
+            <td>Mixed</td>
+            <td class="text-right">3,324</td>
+            <td class="text-right">$6.6B</td>
+            <td class="text-right">$1.98M</td>
+          </tr>
+          <tr>
+            <td>Utah</td>
+            <td>UT</td>
+            <td>West</td>
+            <td>Mixed</td>
+            <td class="text-right">2,932</td>
+            <td class="text-right">$5.7B</td>
+            <td class="text-right">$1.95M</td>
+          </tr>
+          <tr>
+            <td>Connecticut</td>
+            <td>CT</td>
+            <td>Northeast</td>
+            <td>Urban</td>
+            <td class="text-right">2,914</td>
+            <td class="text-right">$5.5B</td>
+            <td class="text-right">$1.90M</td>
+          </tr>
+          <tr>
+            <td>Nevada</td>
+            <td>NV</td>
+            <td>West</td>
+            <td>Mixed</td>
+            <td class="text-right">2,770</td>
+            <td class="text-right">$5.1B</td>
+            <td class="text-right">$1.84M</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function mk(ctx, type, data, opts) {
+      return new Chart(ctx, { type: type, data: data, options: opts });
+    }
+
+    mk(document.getElementById('topStatesChart'), 'bar', {
+      labels: ['California', 'Texas', 'New York', 'Georgia', 'Florida', 'Arizona', 'Michigan', 'North Carolina', 'New Jersey', 'Pennsylvania'],
+      datasets: [{
+        label: 'Customer Count',
+        data: [28971, 23768, 15485, 8758, 18778, 6396, 7954, 8811, 7601, 10448],
+        backgroundColor: '#006AFF',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'K'; } } } }
+    });
+
+    mk(document.getElementById('regionChart'), 'bar', {
+      labels: ['South', 'Midwest', 'Northeast', 'Pacific', 'West'],
+      datasets: [{
+        label: 'Customer Count',
+        data: [74411, 41838, 38061, 28971, 25129],
+        backgroundColor: ['#1A7F64', '#006AFF', '#0EA5E9', '#F59E0B', '#94A3B8'],
+        borderRadius: 4
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'K'; } } } }
+    });
+
+    mk(document.getElementById('urbanRuralChart'), 'bar', {
+      labels: ['Mixed', 'Urban', 'Rural'],
+      datasets: [{
+        label: 'Customer Count',
+        data: [103728, 56355, 7963],
+        backgroundColor: ['#0EA5E9', '#006AFF', '#F59E0B'],
+        borderRadius: 4
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'K'; } } } }
+    });
+
+    mk(document.getElementById('stateBalanceChart'), 'bar', {
+      labels: ['California', 'Texas', 'Florida', 'New York', 'Pennsylvania', 'Illinois', 'Ohio', 'Georgia', 'North Carolina', 'Michigan', 'New Jersey', 'Virginia', 'Washington', 'Arizona', 'Massachusetts'],
+      datasets: [{
+        label: 'Total Balance ($)',
+        data: [61735424.14, 49126299.50, 37713663.69, 31072744.34, 20962937.72, 20134062.11, 19177447.92, 17399171.02, 17120572.65, 15841764.51, 14923449.91, 14187214.55, 13248746.96, 12742694.12, 11332998.58],
+        backgroundColor: '#1A7F64',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: function(v) { return '$' + (v / 1000000000).toFixed(1) + 'B'; } } } }
+    });
+
+    mk(document.getElementById('regionTrendChart'), 'bar', {
+      labels: ['South', 'Midwest', 'Northeast', 'Pacific', 'West'],
+      datasets: [
+        { label: '2024', data: [188482019.84, 101701052.10, 92271263.42, 33606000, 36896960], backgroundColor: '#94A3B8', borderRadius: 4 },
+        { label: '2025', data: [194898848.99, 94786443.25, 83827006.47, 61735424.14, 52901510.59], backgroundColor: '#006AFF', borderRadius: 4 }
+      ]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: { y: { ticks: { callback: function(v) { return '$' + (v / 1000000000).toFixed(0) + 'B'; } } } }
+    });
+
+    mk(document.getElementById('concentrationChart'), 'bar', {
+      labels: ['California', 'Texas', 'Florida', 'New York', 'Pennsylvania', 'Illinois', 'Ohio', 'Georgia', 'North Carolina', 'Michigan', 'New Jersey', 'Virginia'],
+      datasets: [{
+        label: 'Customers (%)',
+        data: [17.3, 14.2, 11.2, 9.2, 6.2, 6.0, 5.8, 5.2, 5.2, 4.7, 4.5, 4.3],
+        backgroundColor: '#0EA5E9',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: function(v) { return v.toFixed(1) + '%'; } } } }
+    });
+  </script>
+</body>
+</html>

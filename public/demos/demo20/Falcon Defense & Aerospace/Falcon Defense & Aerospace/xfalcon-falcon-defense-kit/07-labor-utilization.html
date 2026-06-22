@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 7. Labor Utilization &amp; Workforce</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 7. Labor Utilization &amp; Workforce</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024 &middot; Active employees only</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option><option value="2021">2021</option>
+        <option value="2022">2022</option><option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Filter: DIM_EMPLOYEE.IS_ACTIVE = TRUE &middot; 3,772 active of 4,200 total</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Workforce KPIs</div>
+    <div class="section-subtitle" id="kpiSubtitle">2024</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Utilization &amp; Capacity Analysis</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">Monthly Utilization % (Direct / (Direct + Indirect))</div>
+        <div class="chart-subtitle" id="monthlySub">2024 &middot; target band 80-88%</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chMonthly"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Utilization by Job Family</div>
+        <div class="chart-subtitle">Top 9 job families</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chJobFamily"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Clearance Level Capacity</div>
+        <div class="chart-subtitle">Active headcount by clearance</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chClearance"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Job Family Detail</div>
+      <table class="detail-table" id="tblJobFam">
+        <thead><tr>
+          <th>Job Family</th>
+          <th class="num">Active Headcount</th>
+          <th class="num">Direct Hrs</th>
+          <th class="num">Indirect Hrs</th>
+          <th class="num">Utilization %</th>
+          <th class="num">Avg Rate ($/hr)</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Methodology.</strong> Utilization = SUM(HOURS_DIRECT) / (SUM(HOURS_DIRECT) + SUM(HOURS_INDIRECT)). Row-level UTILIZATION_RATE column is NOT averaged (biased). Target band 80-88%: below 80% drives indirect-rate increases, above 88% signals capacity risk and burnout. Classified hours split 65% unclassified / 35% classified. Indirect rate around 11-12% is the 5-year stable baseline. Synthetic demo data.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    var MONTHLY_2024 = [
+      {m:1, util:88.94, direct:432240, indirect:53749, ot:30291},
+      {m:2, util:89.01, direct:335049, indirect:41384, ot:22912},
+      {m:3, util:89.12, direct:329060, indirect:40179, ot:23287},
+      {m:4, util:89.14, direct:396338, indirect:48304, ot:28048},
+      {m:5, util:89.02, direct:311397, indirect:38394, ot:22190},
+      {m:6, util:89.00, direct:305010, indirect:37706, ot:21545},
+      {m:7, util:89.04, direct:362126, indirect:44597, ot:25044},
+      {m:8, util:89.10, direct:279148, indirect:34137, ot:20187},
+      {m:9, util:89.05, direct:329836, indirect:40563, ot:23067},
+      {m:10,util:89.00, direct:260885, indirect:32233, ot:18581},
+      {m:11,util:89.03, direct:252452, indirect:31102, ot:17923},
+      {m:12,util:89.02, direct:309742, indirect:38204, ot:21006}
+    ];
+    var JOB_FAMILY_2024 = [
+      {fam:'IT/Software',           hc:270,  d:358088, i:43748, util:89.11, rate:110.78},
+      {fam:'Intelligence Analysis', hc:164,  d:212953, i:26024, util:89.11, rate:109.91},
+      {fam:'Manufacturing',         hc:249,  d:316160, i:38759, util:89.08, rate:115.91},
+      {fam:'Cybersecurity',         hc:300,  d:380494, i:46739, util:89.06, rate:113.61},
+      {fam:'Program Management',    hc:318,  d:392854, i:48264, util:89.06, rate:114.98},
+      {fam:'Finance & Contracts',   hc:237,  d:309411, i:38028, util:89.05, rate:113.96},
+      {fam:'Administrative',        hc:61,   d:69585,  i:8589,  util:89.01, rate:117.00},
+      {fam:'Engineering',           hc:851,  d:1098508,i:135692,util:89.01, rate:112.75},
+      {fam:'Logistics',             hc:276,  d:373715, i:46420, util:88.95, rate:113.03}
+    ];
+    var CLEARANCE_2024 = [
+      {lvl:'Secret',       hc:1117, d:1432740, classified:498317},
+      {lvl:'Public Trust', hc:606,  d:785053,  classified:275708},
+      {lvl:'Top Secret',   hc:512,  d:654564,  classified:224932},
+      {lvl:'None',         hc:306,  d:396199,  classified:139825},
+      {lvl:'TS/SCI',       hc:185,  d:243212,  classified:82853}
+    ];
+
+    var state = { year: 2024 };
+    function kpiCard(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>';}
+
+    function renderKPIs(yr){
+      var totD=0, totI=0, totOt=0;
+      for (var i=0;i<MONTHLY_2024.length;i++){ totD+=MONTHLY_2024[i].direct; totI+=MONTHLY_2024[i].indirect; totOt+=MONTHLY_2024[i].ot; }
+      var util = totD/(totD+totI)*100;
+      var otPct = totOt/totD*100;
+      var totHc = 0;
+      for (var j=0;j<JOB_FAMILY_2024.length;j++) totHc += JOB_FAMILY_2024[j].hc;
+      var topFam = JOB_FAMILY_2024.slice().sort(function(a,b){return b.hc-a.hc;})[0];
+      var avgRate = 0;
+      for (var k=0;k<JOB_FAMILY_2024.length;k++) avgRate += JOB_FAMILY_2024[k].rate * JOB_FAMILY_2024[k].hc;
+      avgRate = avgRate / totHc;
+
+      var totClassifiedHc = 0;
+      for (var l=0;l<CLEARANCE_2024.length;l++) if (CLEARANCE_2024[l].lvl !== 'None') totClassifiedHc += CLEARANCE_2024[l].hc;
+      var clearedPct = totClassifiedHc / totHc * 100;
+
+      var html = '';
+      html += kpiCard('Utilization ' + yr, util.toFixed(1)+'%', {txt:'Target 80-88%',cls: (util>=80&&util<=92)?'positive':'negative'});
+      html += kpiCard('Active Headcount ' + yr, String(fmtInt(totHc)), {txt:'89.8% of 4,200',cls:'neutral'});
+      html += kpiCard('Direct Hours ' + yr, fmtInt(totD/1000)+'K', {txt:'Billable to contracts',cls:'neutral'});
+      html += kpiCard('Indirect Rate ' + yr, (totI/(totD+totI)*100).toFixed(1)+'%', {txt:'Target &le; 12%',cls:'neutral'});
+      html += kpiCard('Overtime %', otPct.toFixed(1)+'%', {txt:'Burn risk indicator',cls: otPct>7?'negative':'neutral'});
+      html += kpiCard('Largest Job Family', topFam.fam, {txt:String(topFam.hc)+' headcount',cls:'neutral'});
+      html += kpiCard('Cleared Workforce', clearedPct.toFixed(1)+'%', {txt:'Secret + TS + TS/SCI + PT',cls:'neutral'});
+      html += kpiCard('Avg Std Rate ' + yr, '$'+avgRate.toFixed(0)+'/hr', {txt:'Fully-loaded',cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = yr.toString();
+    }
+
+    function renderMonthly(){
+      var p = fdPalette();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      mk('chMonthly', {
+        type:'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label:'Utilization %', data: MONTHLY_2024.map(function(r){return r.util;}), borderColor: p.primary, backgroundColor:'rgba(54,69,79,0.08)', fill:true, tension:0.3, borderWidth:3, pointRadius:3, yAxisID:'y' },
+            { label:'OT Hours', data: MONTHLY_2024.map(function(r){return r.ot;}), borderColor: p.amber, backgroundColor:'transparent', borderDash:[5,5], tension:0.3, borderWidth:2, pointRadius:2, yAxisID:'y1' }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { min:85, max:92, grid: { color: p.grid }, ticks: { callback: function(v){return v+'%';} } },
+            y1:{ position:'right', beginAtZero:true, grid: { display:false }, ticks: { callback: function(v){return (v/1000).toFixed(0)+'K';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderJobFamily(){
+      var p = fdPalette();
+      var rows = JOB_FAMILY_2024.slice().sort(function(a,b){return b.hc-a.hc;});
+      mk('chJobFamily', {
+        type:'bar',
+        data: {
+          labels: rows.map(function(r){return r.fam;}),
+          datasets: [
+            { label:'Headcount', data: rows.map(function(r){return r.hc;}), backgroundColor: p.primary, borderRadius:4 }
+          ]
+        },
+        options: {
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { beginAtZero:true, grid: { color: p.grid } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderClearance(){
+      var p = fdPalette();
+      mk('chClearance', {
+        type:'bar',
+        data: {
+          labels: CLEARANCE_2024.map(function(r){return r.lvl;}),
+          datasets: [
+            { label:'Active Headcount', data: CLEARANCE_2024.map(function(r){return r.hc;}), backgroundColor: p.primary, borderRadius:4 }
+          ]
+        },
+        options: {
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { beginAtZero:true, grid: { color: p.grid } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTable(){
+      var rows = JOB_FAMILY_2024.slice().sort(function(a,b){return b.hc-a.hc;});
+      var html = '';
+      var thc=0,td=0,ti=0;
+      for (var i=0;i<rows.length;i++){
+        var r=rows[i];
+        html += '<tr><td><strong>'+r.fam+'</strong></td>'+
+          '<td class="num">'+String(fmtInt(r.hc))+'</td>'+
+          '<td class="num">'+String(fmtInt(r.d))+'</td>'+
+          '<td class="num">'+String(fmtInt(r.i))+'</td>'+
+          '<td class="num">'+String(r.util.toFixed(2))+'%</td>'+
+          '<td class="num">$'+String(r.rate.toFixed(2))+'</td></tr>';
+        thc+=r.hc; td+=r.d; ti+=r.i;
+      }
+      html += '<tr class="tot-row"><td>Total (9 families)</td>'+
+        '<td class="num">'+String(fmtInt(thc))+'</td>'+
+        '<td class="num">'+String(fmtInt(td))+'</td>'+
+        '<td class="num">'+String(fmtInt(ti))+'</td>'+
+        '<td class="num">'+String((td/(td+ti)*100).toFixed(2))+'%</td>'+
+        '<td class="num">&mdash;</td></tr>';
+      document.querySelector('#tblJobFam tbody').innerHTML = html;
+    }
+    function applyFilters(){
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      renderKPIs(state.year); renderMonthly(); renderJobFamily(); renderClearance(); renderTable();
+      document.getElementById('subtitle').textContent = 'Reporting Period: Jan-Dec ' + state.year + ' · Active employees only';
+      document.getElementById('monthlySub').textContent = state.year + ' · target band 80-88%';
+      fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

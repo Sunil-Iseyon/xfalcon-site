@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom - Executive Overview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Inter, sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+
+        .topbar {
+            background-color: #1D1D2C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .topbar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topbar-subtitle {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .back-link {
+            color: #E20074;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            font-family: Inter, sans-serif;
+            font-size: 13px;
+            background-color: #FFFFFF;
+            cursor: pointer;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E20074;
+            box-shadow: 0 0 0 3px rgba(226, 0, 116, 0.1);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #E20074;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #E20074;
+            margin-bottom: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .kpi-delta {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .kpi-delta.positive {
+            color: #059669;
+        }
+
+        .kpi-delta.negative {
+            color: #D32F2F;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #1D1D2C;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #1E293B;
+        }
+
+        tr:hover {
+            background-color: #F9FAFB;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="logo"><span style="color:#E20074">x</span><span style="color:#fff">F</span></span>
+            <div>
+                <div class="topbar-title">Falcon Telecom / 1. Executive Overview</div>
+                <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+            </div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="year-filter">Year</label>
+                <select id="year-filter" onchange="applyFilters()">
+                    <option value="">All Years</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="region-filter">Region</label>
+                <select id="region-filter" onchange="applyFilters()">
+                    <option value="">All Regions</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                    <option value="Central">Central</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display:none;">
+                <label for="segment-filter">Customer Segment</label>
+                <select id="segment-filter" onchange="applyFilters()">
+                    <option value="">All Segments</option>
+                    <option value="Mass Market">Mass Market</option>
+                    <option value="Mid Market">Mid Market</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Corporate">Corporate</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display:none;">
+                <label for="plan-filter">Plan Category</label>
+                <select id="plan-filter" onchange="applyFilters()">
+                    <option value="">All Plans</option>
+                    <option value="Prepaid">Prepaid</option>
+                    <option value="Postpaid">Postpaid</option>
+                    <option value="Corporate">Corporate</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpi-container"></div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Revenue Trend (Yearly)</div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Subscriber Growth (Yearly)</div>
+                <div class="chart-container">
+                    <canvas id="subsChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">ARPU Trend (Yearly)</div>
+                <div class="chart-container">
+                    <canvas id="arpuChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Revenue Composition (Base/Overage/Roaming/Add-on)</div>
+                <div class="chart-container">
+                    <canvas id="compositionChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Net Additions (Activations - Churns)</div>
+                <div class="chart-container">
+                    <canvas id="netAddChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title" style="margin-bottom: 12px;">Yearly Summary</div>
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Revenue (₹ Cr)</th>
+                        <th>ARPU (₹)</th>
+                        <th>Subscribers (K)</th>
+                        <th>Activations</th>
+                        <th>Churns</th>
+                        <th>Net Adds</th>
+                        <th>Data (TB)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var DATA = [
+            {year:2019, region:'North', revenue:6500527, arpu:990, subs:1009, activations:90, churns:91, dataGB:1279226, roamingRev:31224, overageRev:29373, addonRev:173240},
+            {year:2019, region:'South', revenue:6724912, arpu:990, subs:1069, activations:96, churns:96, dataGB:1279226, roamingRev:31224, overageRev:29373, addonRev:173240},
+            {year:2019, region:'East', revenue:4124665, arpu:990, subs:621, activations:59, churns:59, dataGB:1279226, roamingRev:31224, overageRev:29373, addonRev:173240},
+            {year:2019, region:'West', revenue:3810866, arpu:990, subs:589, activations:54, churns:55, dataGB:1279226, roamingRev:31224, overageRev:29373, addonRev:173240},
+            {year:2019, region:'Central', revenue:1343401, arpu:990, subs:191, activations:18, churns:18, dataGB:1279226, roamingRev:31224, overageRev:29373, addonRev:173240},
+            {year:2020, region:'North', revenue:18207954, arpu:989, subs:2007, activations:267, churns:268, dataGB:1303663, roamingRev:82292, overageRev:84446, addonRev:475527},
+            {year:2020, region:'South', revenue:18825884, arpu:989, subs:2109, activations:267, churns:268, dataGB:1303663, roamingRev:82292, overageRev:84446, addonRev:475527},
+            {year:2020, region:'East', revenue:11537950, arpu:989, subs:1257, activations:267, churns:268, dataGB:1303663, roamingRev:82292, overageRev:84446, addonRev:475527},
+            {year:2020, region:'West', revenue:10657895, arpu:989, subs:1164, activations:267, churns:268, dataGB:1303663, roamingRev:82292, overageRev:84446, addonRev:475527},
+            {year:2020, region:'Central', revenue:1521265, arpu:989, subs:174, activations:267, churns:268, dataGB:1303663, roamingRev:82292, overageRev:84446, addonRev:475527},
+            {year:2021, region:'North', revenue:30054733, arpu:1001, subs:3109, activations:443, churns:438, dataGB:1426269, roamingRev:129346, overageRev:135544, addonRev:780792},
+            {year:2021, region:'South', revenue:31091313, arpu:1001, subs:3216, activations:443, churns:438, dataGB:1426269, roamingRev:129346, overageRev:135544, addonRev:780792},
+            {year:2021, region:'East', revenue:19053863, arpu:1001, subs:1973, activations:443, churns:438, dataGB:1426269, roamingRev:129346, overageRev:135544, addonRev:780792},
+            {year:2021, region:'West', revenue:17574573, arpu:1001, subs:1809, activations:443, churns:438, dataGB:1426269, roamingRev:129346, overageRev:135544, addonRev:780792},
+            {year:2021, region:'Central', revenue:2862960, arpu:1001, subs:615, activations:443, churns:438, dataGB:1426269, roamingRev:129346, overageRev:135544, addonRev:780792},
+            {year:2022, region:'North', revenue:41555142, arpu:1007, subs:3975, activations:652, churns:615, dataGB:1574948, roamingRev:187004, overageRev:183876, addonRev:1079529},
+            {year:2022, region:'South', revenue:42925214, arpu:1007, subs:4265, activations:652, churns:615, dataGB:1574948, roamingRev:187004, overageRev:183876, addonRev:1079529},
+            {year:2022, region:'East', revenue:25747545, arpu:1007, subs:2554, activations:652, churns:615, dataGB:1574948, roamingRev:187004, overageRev:183876, addonRev:1079529},
+            {year:2022, region:'West', revenue:23642274, arpu:1007, subs:2350, activations:652, churns:615, dataGB:1574948, roamingRev:187004, overageRev:183876, addonRev:1079529},
+            {year:2022, region:'Central', revenue:3765668, arpu:1007, subs:564, activations:652, churns:615, dataGB:1574948, roamingRev:187004, overageRev:183876, addonRev:1079529},
+            {year:2023, region:'North', revenue:52125940, arpu:1005, subs:4909, activations:909, churns:878, dataGB:1721139, roamingRev:231420, overageRev:229744, addonRev:1351425},
+            {year:2023, region:'South', revenue:53944490, arpu:1005, subs:5369, activations:909, churns:878, dataGB:1721139, roamingRev:231420, overageRev:229744, addonRev:1351425},
+            {year:2023, region:'East', revenue:33084481, arpu:1005, subs:3287, activations:909, churns:878, dataGB:1721139, roamingRev:231420, overageRev:229744, addonRev:1351425},
+            {year:2023, region:'West', revenue:30569239, arpu:1005, subs:3038, activations:909, churns:878, dataGB:1721139, roamingRev:231420, overageRev:229744, addonRev:1351425},
+            {year:2023, region:'Central', revenue:9090817, arpu:1005, subs:345, activations:909, churns:878, dataGB:1721139, roamingRev:231420, overageRev:229744, addonRev:1351425},
+            {year:2024, region:'North', revenue:63430259, arpu:1011, subs:5791, activations:1208, churns:1252, dataGB:1913564, roamingRev:284396, overageRev:273833, addonRev:1599537},
+            {year:2024, region:'South', revenue:64422841, arpu:1011, subs:5854, activations:1208, churns:1252, dataGB:1913564, roamingRev:284396, overageRev:273833, addonRev:1599537},
+            {year:2024, region:'East', revenue:39463964, arpu:1011, subs:3570, activations:1208, churns:1252, dataGB:1913564, roamingRev:284396, overageRev:273833, addonRev:1599537},
+            {year:2024, region:'West', revenue:37237861, arpu:1011, subs:3392, activations:1208, churns:1252, dataGB:1913564, roamingRev:284396, overageRev:273833, addonRev:1599537},
+            {year:2024, region:'Central', revenue:10562382, arpu:1011, subs:977, activations:1208, churns:1252, dataGB:1913564, roamingRev:284396, overageRev:273833, addonRev:1599537},
+            {year:2025, region:'North', revenue:66325676, arpu:1020, subs:5587, activations:1187, churns:1211, dataGB:2025006, roamingRev:287880, overageRev:288311, addonRev:1667836},
+            {year:2025, region:'South', revenue:66969718, arpu:1020, subs:5613, activations:1187, churns:1211, dataGB:2025006, roamingRev:287880, overageRev:288311, addonRev:1667836},
+            {year:2025, region:'East', revenue:41356458, arpu:1020, subs:3418, activations:1187, churns:1211, dataGB:2025006, roamingRev:287880, overageRev:288311, addonRev:1667836},
+            {year:2025, region:'West', revenue:39013656, arpu:1020, subs:3263, activations:1187, churns:1211, dataGB:2025006, roamingRev:287880, overageRev:288311, addonRev:1667836},
+            {year:2025, region:'Central', revenue:11024347, arpu:1020, subs:940, activations:1187, churns:1211, dataGB:2025006, roamingRev:287880, overageRev:288311, addonRev:1667836}
+        ];
+
+        var charts = {};
+
+        function getFilters() {
+            return {
+                year: document.getElementById('year-filter').value,
+                region: document.getElementById('region-filter').value,
+                segment: document.getElementById('segment-filter').value,
+                plan: document.getElementById('plan-filter').value
+            };
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = DATA.filter(function(row) {
+                var yearOk = !filters.year || String(row.year) === filters.year;
+                var regionOk = !filters.region || row.region === filters.region;
+                return yearOk && regionOk;
+            });
+
+            updateSubtitle();
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+            fitKpiText();
+        }
+
+        function updateSubtitle() {
+            var filters = getFilters();
+            var parts = [];
+
+            if (filters.year) parts.push('Year ' + filters.year);
+            else parts.push('All Years');
+
+            if (filters.region) parts.push('Region: ' + filters.region);
+            if (filters.segment) parts.push('Segment: ' + filters.segment);
+            if (filters.plan) parts.push('Plan: ' + filters.plan);
+
+            document.getElementById('reporting-period').textContent = 'Reporting Period: ' + parts.join(' | ');
+        }
+
+        function updateKPIs(filtered) {
+            var container = document.getElementById('kpi-container');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p>No data available for selected filters.</p>';
+                return;
+            }
+
+            var byYear = {};
+            filtered.forEach(function(d) {
+                if (!byYear[d.year]) {
+                    byYear[d.year] = {revenue:0, subs:0, arpu:0, count:0, activations:0, churns:0, dataGB:0, roamingRev:0, overageRev:0, addonRev:0};
+                }
+                byYear[d.year].revenue += d.revenue;
+                byYear[d.year].subs += d.subs;
+                byYear[d.year].activations += d.activations;
+                byYear[d.year].churns += d.churns;
+                byYear[d.year].dataGB += d.dataGB;
+                byYear[d.year].roamingRev += d.roamingRev;
+                byYear[d.year].overageRev += d.overageRev;
+                byYear[d.year].addonRev += d.addonRev;
+            });
+            var years = Object.keys(byYear).map(function(y) { return parseInt(y); }).sort();
+            var current = byYear[years[years.length - 1]];
+            current.arpu = Math.round(current.revenue / current.subs);
+            var previous = years.length > 1 ? byYear[years[years.length - 2]] : null;
+            if (previous) previous.arpu = Math.round(previous.revenue / previous.subs);
+
+            var kpis = [
+                {
+                    label: 'Total Revenue',
+                    value: '₹' + (current.revenue / 10000000).toFixed(1) + 'Cr',
+                    delta: previous ? ((current.revenue - previous.revenue) / previous.revenue * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Active Subscribers',
+                    value: (current.subs / 1000).toFixed(1) + 'K',
+                    delta: previous ? ((current.subs - previous.subs) / previous.subs * 100).toFixed(1) : null
+                },
+                {
+                    label: 'ARPU',
+                    value: '₹' + current.arpu,
+                    delta: previous ? ((current.arpu - previous.arpu) / previous.arpu * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Churn Rate',
+                    value: (current.churns / (current.activations + current.subs) * 100).toFixed(2) + '%',
+                    delta: null
+                },
+                {
+                    label: 'Net Additions',
+                    value: (current.activations - current.churns).toLocaleString(),
+                    delta: previous ? ((current.activations - current.churns) - (previous.activations - previous.churns)).toFixed(0) : null
+                },
+                {
+                    label: 'Data Consumed',
+                    value: (current.dataGB / 1000000).toFixed(2) + 'TB',
+                    delta: previous ? ((current.dataGB - previous.dataGB) / previous.dataGB * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Roaming Revenue',
+                    value: '₹' + (current.roamingRev / 100000).toFixed(1) + 'L',
+                    delta: previous ? ((current.roamingRev - previous.roamingRev) / previous.roamingRev * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Add-On Revenue',
+                    value: '₹' + (current.addonRev / 10000000).toFixed(1) + 'Cr',
+                    delta: previous ? ((current.addonRev - previous.addonRev) / previous.addonRev * 100).toFixed(1) : null
+                }
+            ];
+
+            kpis.forEach(function(kpi) {
+                var card = document.createElement('div');
+                card.className = 'kpi-card';
+                var deltaHtml = '';
+                if (kpi.delta !== null) {
+                    var deltaClass = parseFloat(kpi.delta) >= 0 ? 'positive' : 'negative';
+                    var deltaSign = parseFloat(kpi.delta) >= 0 ? '↑' : '↓';
+                    deltaHtml = '<div class="kpi-delta ' + deltaClass + '">' + deltaSign + ' ' + Math.abs(kpi.delta) + '% YoY</div>';
+                }
+                card.innerHTML = '<div class="kpi-label">' + kpi.label + '</div>' +
+                                '<div class="kpi-value">' + kpi.value + '</div>' +
+                                deltaHtml;
+                container.appendChild(card);
+            });
+        }
+
+        function updateCharts(filtered) {
+            var byYear = {};
+            filtered.forEach(function(d) {
+                if (!byYear[d.year]) {
+                    byYear[d.year] = {revenue:0, subs:0, arpu:0, count:0, activations:0, churns:0, dataGB:0, roamingRev:0, overageRev:0, addonRev:0};
+                }
+                byYear[d.year].revenue += d.revenue;
+                byYear[d.year].subs += d.subs;
+                byYear[d.year].activations += d.activations;
+                byYear[d.year].churns += d.churns;
+                byYear[d.year].dataGB += d.dataGB;
+                byYear[d.year].roamingRev += d.roamingRev;
+                byYear[d.year].overageRev += d.overageRev;
+                byYear[d.year].addonRev += d.addonRev;
+                byYear[d.year].count += 1;
+            });
+            var years = Object.keys(byYear).map(function(y) { return parseInt(y); }).sort();
+            byYear[years[0]].arpu = Math.round(byYear[years[0]].revenue / byYear[years[0]].subs);
+            if (years.length > 1) byYear[years[1]].arpu = Math.round(byYear[years[1]].revenue / byYear[years[1]].subs);
+            var labels = years.map(function(y) { return y.toString(); });
+            var chartData = years.map(function(y) { return byYear[y]; });
+
+            // Revenue Trend
+            var ctx = document.getElementById('revenueChart').getContext('2d');
+            if (charts.revenue) charts.revenue.destroy();
+            charts.revenue = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue (₹ Cr)',
+                        data: chartData.map(function(d) { return (d.revenue / 10000000).toFixed(1); }),
+                        borderColor: '#006AFF',
+                        backgroundColor: 'rgba(0, 106, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#006AFF',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Subscriber Growth
+            ctx = document.getElementById('subsChart').getContext('2d');
+            if (charts.subs) charts.subs.destroy();
+            charts.subs = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Subscribers (K)',
+                        data: chartData.map(function(d) { return (d.subs / 1000).toFixed(1); }),
+                        borderColor: '#1A7F64',
+                        backgroundColor: 'rgba(26, 127, 100, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#1A7F64',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // ARPU Trend
+            ctx = document.getElementById('arpuChart').getContext('2d');
+            if (charts.arpu) charts.arpu.destroy();
+            charts.arpu = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ARPU (₹)',
+                        data: chartData.map(function(d) { return d.arpu; }),
+                        borderColor: '#006AFF',
+                        backgroundColor: 'rgba(0, 106, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#006AFF',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: false }
+                    }
+                }
+            });
+
+            // Revenue Composition
+            var baseRev = chartData.map(function(d) { return (d.revenue - d.roamingRev - d.overageRev - d.addonRev) / 10000000; });
+            ctx = document.getElementById('compositionChart').getContext('2d');
+            if (charts.composition) charts.composition.destroy();
+            charts.composition = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Base Revenue',
+                            data: baseRev,
+                            backgroundColor: '#006AFF'
+                        },
+                        {
+                            label: 'Overage',
+                            data: chartData.map(function(d) { return (d.overageRev / 10000000).toFixed(2); }),
+                            backgroundColor: '#1A7F64'
+                        },
+                        {
+                            label: 'Roaming',
+                            data: chartData.map(function(d) { return (d.roamingRev / 10000000).toFixed(2); }),
+                            backgroundColor: '#94A3B8'
+                        },
+                        {
+                            label: 'Add-On',
+                            data: chartData.map(function(d) { return (d.addonRev / 10000000).toFixed(2); }),
+                            backgroundColor: '#0EA5E9'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Net Additions
+            ctx = document.getElementById('netAddChart').getContext('2d');
+            if (charts.netAdd) charts.netAdd.destroy();
+            charts.netAdd = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Net Additions',
+                        data: chartData.map(function(d) { return d.activations - d.churns; }),
+                        backgroundColor: '#E20074'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function updateTable(filtered) {
+            var tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            var byYear = {};
+            filtered.forEach(function(d) {
+                if (!byYear[d.year]) {
+                    byYear[d.year] = {revenue:0, subs:0, arpu:0, count:0, activations:0, churns:0, dataGB:0};
+                }
+                byYear[d.year].revenue += d.revenue;
+                byYear[d.year].subs += d.subs;
+                byYear[d.year].activations += d.activations;
+                byYear[d.year].churns += d.churns;
+                byYear[d.year].dataGB += d.dataGB;
+            });
+            var years = Object.keys(byYear).map(function(y) { return parseInt(y); }).sort();
+
+            years.forEach(function(year) {
+                var row = byYear[year];
+                var netAdds = row.activations - row.churns;
+                row.arpu = Math.round(row.revenue / row.subs);
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + year + '</td>' +
+                              '<td>₹' + (row.revenue / 10000000).toFixed(1) + '</td>' +
+                              '<td>₹' + row.arpu + '</td>' +
+                              '<td>' + (row.subs / 1000).toFixed(1) + '</td>' +
+                              '<td>' + row.activations.toLocaleString() + '</td>' +
+                              '<td>' + row.churns.toLocaleString() + '</td>' +
+                              '<td>' + netAdds.toLocaleString() + '</td>' +
+                              '<td>' + (row.dataGB / 1000000).toFixed(2) + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var maxWidth = 200;
+                while (el.scrollWidth > maxWidth && parseFloat(window.getComputedStyle(el).fontSize) > 16) {
+                    var size = parseFloat(window.getComputedStyle(el).fontSize);
+                    el.style.fontSize = (size - 1) + 'px';
+                }
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 14: Demographic Diagnosis Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2d3436;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #636e72;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2C5F8A;
+            line-height: 1.2;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-inner {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th {
+            background: #f5f6fa;
+            padding: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #2d3436;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #b2bec3;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .heat-cell {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .heat-0 { background: #c8e6c9; color: #333; }
+        .heat-1 { background: #a5d6a7; color: #333; }
+        .heat-2 { background: #81c784; color: #fff; }
+        .heat-3 { background: #66bb6a; color: #fff; }
+        .heat-4 { background: #4caf50; color: #fff; }
+        .heat-5 { background: #43a047; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 14: Demographic Patterns in Diagnoses & Departments</h1>
+            <p>How Age Affects Clinical Patterns | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Top System (18-25)</div>
+                <div class="kpi-value" style="font-size: 20px;">Circulatory</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">29 encounters</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top System (65-74)</div>
+                <div class="kpi-value" style="font-size: 20px;">Respiratory</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">43 encounters</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Most Age-Variable</div>
+                <div class="kpi-value" style="font-size: 20px;">Mental Health</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">2 to 13 encounters</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Consistent Across Ages</div>
+                <div class="kpi-value" style="font-size: 18px;">Circulatory</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">28-44 encounters</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container full-width">
+                <div class="chart-title">Age Band × Body System (Stacked Encounters)</div>
+                <div class="chart-inner"><canvas id="stackedChart"></canvas></div>
+            </div>
+            <div class="chart-container full-width">
+                <div class="chart-title">Top 3 Body Systems by Age Band (Circulatory, Respiratory, Digestive)</div>
+                <div class="chart-inner"><canvas id="lineChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="chart-title">Age Band × Body System Encounter Heatmap</div>
+            <table id="heatmapTable">
+            </table>
+        </div>
+
+        <div class="footer">
+            Dashboard generated with Chart.js • Data represents consolidated encounters Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const bodySystems = ['Circulatory', 'Respiratory', 'Digestive', 'Endocrine', 'Musculoskeletal', 'Genitourinary', 'Nervous', 'Preventive', 'Mental Health', 'Dermatologic'];
+
+        const ageBodySystemData = {
+            '18-25': {Circulatory:29, Respiratory:15, Digestive:16, Endocrine:16, Musculoskeletal:14, Genitourinary:13, Nervous:10, Preventive:12, MentalHealth:2, Dermatologic:2},
+            '26-34': {Circulatory:37, Respiratory:40, Digestive:21, Endocrine:29, Musculoskeletal:17, Genitourinary:18, Nervous:12, Preventive:22, MentalHealth:6, Dermatologic:8},
+            '35-44': {Circulatory:41, Respiratory:34, Digestive:33, Endocrine:34, Musculoskeletal:23, Genitourinary:19, Nervous:17, Preventive:14, MentalHealth:6, Dermatologic:7},
+            '45-54': {Circulatory:44, Respiratory:39, Digestive:31, Endocrine:19, Musculoskeletal:24, Genitourinary:23, Nervous:17, Preventive:15, MentalHealth:6, Dermatologic:6},
+            '55-64': {Circulatory:28, Respiratory:39, Digestive:37, Endocrine:24, Musculoskeletal:20, Genitourinary:20, Nervous:21, Preventive:12, MentalHealth:13, Dermatologic:4},
+            '65-74': {Circulatory:42, Respiratory:43, Digestive:38, Endocrine:26, Musculoskeletal:26, Genitourinary:21, Nervous:25, Preventive:18, MentalHealth:12, Dermatologic:15},
+            '75+': {Circulatory:33, Respiratory:42, Digestive:23, Endocrine:24, Musculoskeletal:32, Genitourinary:13, Nervous:17, Preventive:20, MentalHealth:10, Dermatologic:8}
+        };
+
+        const ageBands = ['18-25', '26-34', '35-44', '45-54', '55-64', '65-74', '75+'];
+
+        const chartColors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Stacked Bar Chart
+        const stackedCtx = document.getElementById('stackedChart').getContext('2d');
+        const stackedDatasets = [];
+        const colorArray = Object.values(chartColors);
+
+        bodySystems.forEach((system, idx) => {
+            const sysData = ageBands.map(age => {
+                const key = system === 'Mental Health' ? 'MentalHealth' : (system === 'Genitourinary' ? 'Genitourinary' : system);
+                return ageBodySystemData[age][key] || 0;
+            });
+            stackedDatasets.push({
+                label: system,
+                data: sysData,
+                backgroundColor: colorArray[idx % colorArray.length]
+            });
+        });
+
+        new Chart(stackedCtx, {
+            type: 'bar',
+            data: {
+                labels: ageBands,
+                datasets: stackedDatasets
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 11 }, padding: 10 }
+                    }
+                },
+                scales: {
+                    x: { stacked: true, ticks: { color: '#636e72', font: { size: 12 } } },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    }
+                }
+            }
+        });
+
+        // Line Chart: Top 3 Systems
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        const top3Systems = ['Circulatory', 'Respiratory', 'Digestive'];
+        const lineDatasets = top3Systems.map((system, idx) => {
+            const sysKey = system === 'Mental Health' ? 'MentalHealth' : system;
+            return {
+                label: system,
+                data: ageBands.map(age => ageBodySystemData[age][sysKey] || 0),
+                borderColor: colorArray[idx],
+                backgroundColor: colorArray[idx] + '33',
+                fill: false,
+                tension: 0.3,
+                pointBackgroundColor: colorArray[idx],
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5
+            };
+        });
+
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ageBands,
+                datasets: lineDatasets
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 12 }, padding: 10 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 12 } } }
+                }
+            }
+        });
+
+        // Heatmap Table
+        const heatTable = document.getElementById('heatmapTable');
+        let html = '<tr><th>Age Band</th>';
+        bodySystems.forEach(sys => html += `<th>${sys.substring(0, 5)}</th>`);
+        html += '</tr>';
+
+        ageBands.forEach(age => {
+            html += `<tr><td>${age}</td>`;
+            bodySystems.forEach(sys => {
+                const key = sys === 'Mental Health' ? 'MentalHealth' : (sys === 'Genitourinary' ? 'Genitourinary' : sys);
+                const value = ageBodySystemData[age][key] || 0;
+                const maxVal = Math.max(...ageBands.map(a => Math.max(...Object.values(ageBodySystemData[a]))));
+                let heatClass = 'heat-0';
+                const ratio = value / maxVal;
+                if (ratio > 0.8) heatClass = 'heat-5';
+                else if (ratio > 0.65) heatClass = 'heat-4';
+                else if (ratio > 0.5) heatClass = 'heat-3';
+                else if (ratio > 0.35) heatClass = 'heat-2';
+                else if (ratio > 0.2) heatClass = 'heat-1';
+                html += `<td class="heat-cell ${heatClass}">${value}</td>`;
+            });
+            html += '</tr>';
+        });
+
+        heatTable.innerHTML = html;
+    </script>
+</body>
+</html>

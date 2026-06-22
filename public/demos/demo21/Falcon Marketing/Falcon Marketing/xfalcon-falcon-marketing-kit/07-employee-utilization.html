@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / 07. Employee Utilization</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.filter-bar{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px;display:flex;gap:18px;align-items:end;margin-bottom:24px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.filter-bar select{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--color-text);cursor:pointer;min-width:140px;font-family:inherit}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);margin-top:8px;line-height:1.1}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px}.kpi-delta.positive{color:var(--color-positive)}.kpi-delta.negative{color:var(--color-negative)}.kpi-delta.neutral{color:var(--color-tertiary)}
+.section-title{font-size:18px;font-weight:700;color:var(--color-primary);margin:32px 0 16px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:6px}
+.chart-sub{font-size:12px;color:var(--color-text-muted);margin-bottom:12px}
+.chart-container{position:relative;height:280px}
+.table-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-card .chart-title{padding:18px 20px 0}.table-card .chart-sub{padding:0 20px 12px}
+.detail-table{width:100%;border-collapse:collapse;font-size:13px}
+.detail-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:12px 16px;text-align:left;font-size:13px;font-weight:600}
+.detail-table th.num,.detail-table td.num{text-align:right}
+.detail-table tbody tr{border-top:1px solid var(--color-border)}.detail-table td{padding:10px 16px}
+.detail-table tbody tr:hover{background:#FAFAFE}
+.disclaimer{font-size:12px;color:var(--color-text-muted);margin-top:24px;padding:14px 18px;background:#FAFAFE;border-radius:var(--radius);border-left:3px solid var(--color-secondary)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row,.chart-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / 07. Employee Utilization</div>
+    <div class="topbar-sub" id="reporting-period">Reporting Period: Jan–Dec 2024</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-group"><label for="filterYear">Year</label>
+      <select id="filterYear" onchange="render()"><option value="2024" selected>2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select></div>
+    <div class="filter-group"><label for="filterDept">Department</label>
+      <select id="filterDept" onchange="render()"><option value="All">All</option><option value="Creative">Creative</option><option value="Strategy">Strategy</option><option value="Production">Production</option><option value="Media">Media</option><option value="Account">Account</option></select></div>
+    <div class="filter-group" style="flex:1"></div>
+    <div class="filter-group"><label>&nbsp;</label><button onclick="resetFilters()" style="padding:7px 14px;border:1px solid var(--color-border);background:white;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px">Reset</button></div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+  <div class="kpi-row" id="kpiRow2"></div>
+
+  <h2 class="section-title">Department Mix</h2>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Hours by Department</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cHours"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Billed Revenue by Department</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cBilled"></canvas></div></div>
+  </div>
+
+  <div class="chart-row-3">
+    <div class="chart-card"><div class="chart-title">Headcount Mix</div><div class="chart-sub">120 active employees</div><div class="chart-container"><canvas id="cHC"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Cost vs Bill Rate</div><div class="chart-sub">Avg by department</div><div class="chart-container"><canvas id="cRates"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Hours per FTE</div><div class="chart-sub">Total hours ÷ headcount, by dept</div><div class="chart-container"><canvas id="cFTE"></canvas></div></div>
+  </div>
+
+  <h2 class="section-title">Department Detail</h2>
+  <div class="table-card">
+    <div class="chart-title">Department Performance</div>
+    <div class="chart-sub">Filtered by department selection.</div>
+    <table class="detail-table"><thead><tr><th>#</th><th>Department</th><th class="num">Headcount</th><th class="num">Hours (M)</th><th class="num">Billed</th><th class="num">Avg Margin</th><th class="num">Cost Rate</th><th class="num">Bill Rate</th><th class="num">Bill/Hour</th></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
+
+  <div class="disclaimer">Source: FACT_PROJECTS × DIM_EMPLOYEE. Total headcount 120 (42 Creative · 24 Strategy · 24 Production · 18 Media · 12 Account). Hours/FTE estimate uses HOURS_ACTUAL ÷ headcount; no PTO/holiday adjustment in source. Reconciles to VALIDATION_BENCHMARKS.md.</div>
+</div>
+
+<script>
+var DEPTS_2024=[
+{n:'Creative',hc:42,hrs:27.92,billed:4405.7,margin:.429,costRate:85,billRate:175},
+{n:'Strategy',hc:24,hrs:16.19,billed:2552.1,margin:.429,costRate:120,billRate:250},
+{n:'Production',hc:24,hrs:15.96,billed:2516.5,margin:.430,costRate:75,billRate:155},
+{n:'Media',hc:18,hrs:12.21,billed:1923.1,margin:.431,costRate:95,billRate:200},
+{n:'Account',hc:12,hrs:8.31,billed:1309.1,margin:.430,costRate:110,billRate:225}
+];
+// Yearly totals (M hrs, $M billed)
+var YR={
+2018:{hrs:55.65,billed:8785.9},2019:{hrs:55.58,billed:9012.4},2020:{hrs:62.72,billed:10243.4},
+2021:{hrs:71.38,billed:11514.2},2022:{hrs:71.25,billed:11234.4},2023:{hrs:78.54,billed:12562.4},2024:{hrs:80.58,billed:12706.5}
+};
+var YEARS=[2018,2019,2020,2021,2022,2023,2024];
+
+var state={year:2024,dept:'All'};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var L=els[i].textContent.length;if(L>14)els[i].style.fontSize='18px';else if(L>10)els[i].style.fontSize='22px';else els[i].style.fontSize='28px'}}
+var YR_R={2018:0.691,2019:0.690,2020:0.778,2021:0.886,2022:0.884,2023:0.975,2024:1.000};function ys(){return YR_R[state.year]||1.0}
+function getDepts(){var f=state.dept==='All'?DEPTS_2024:DEPTS_2024.filter(function(d){return d.n===state.dept});var s=ys();return f.map(function(d){return {n:d.n,hc:d.hc,hrs:d.hrs*s,billed:d.billed*s,margin:d.margin,costRate:d.costRate,billRate:d.billRate}})}
+
+function renderKPIs(){
+  var depts=getDepts();
+  var totalHC=depts.reduce(function(s,d){return s+d.hc},0);
+  var totalHrs=depts.reduce(function(s,d){return s+d.hrs},0);
+  var totalBilled=depts.reduce(function(s,d){return s+d.billed},0);
+  var availHrs=totalHC*2.080;//K hours available (2080hrs/year)
+  var util=availHrs?totalHrs/availHrs*100:0;
+  var weightedCost=depts.reduce(function(s,d){return s+d.costRate*d.hrs},0)/Math.max(totalHrs,0.0001);
+  var weightedBill=depts.reduce(function(s,d){return s+d.billRate*d.hrs},0)/Math.max(totalHrs,0.0001);
+  var rateMargin=weightedBill?(weightedBill-weightedCost)/weightedBill*100:0;
+  var billPerHour=totalHrs?totalBilled/totalHrs:0;
+  function card(label,val,de){return '<div class="kpi-card"><div class="kpi-label">'+label+' '+state.year+'</div><div class="kpi-value">'+val+'</div>'+de+'</div>'}
+  document.getElementById('kpiRow').innerHTML=card('Headcount',String(totalHC),'<span class="kpi-delta neutral">active billable staff</span>')
+    +card('Total Hours',totalHrs.toFixed(1)+'M','<span class="kpi-delta neutral">logged on projects</span>')
+    +card('Billed Revenue','$'+(totalBilled/1000).toFixed(2)+'B','<span class="kpi-delta neutral">attributed to staff</span>')
+    +card('Utilization (est)',util.toFixed(1)+'%','<span class="kpi-delta neutral">target 65–80%</span>');
+  document.getElementById('kpiRow2').innerHTML=card('Avg Cost Rate','$'+weightedCost.toFixed(0)+'/hr','<span class="kpi-delta neutral">weighted by hours</span>')
+    +card('Avg Bill Rate','$'+weightedBill.toFixed(0)+'/hr','<span class="kpi-delta neutral">weighted by hours</span>')
+    +card('Rate Margin',rateMargin.toFixed(1)+'%','<span class="kpi-delta neutral">(Bill - Cost) / Bill</span>')
+    +card('Bill / Hour','$'+billPerHour.toFixed(0),'<span class="kpi-delta neutral">total billed / hours</span>');
+  fitKpiText();
+}
+
+function renderHours(){
+  mk('cHours',{type:'bar',data:{labels:DEPTS_2024.map(function(d){return d.n}),datasets:[{label:'Hours (M)',data:DEPTS_2024.map(function(d){return d.hrs}),backgroundColor:'#4A4E8F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+'M hours'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v+'M'}}}}}});
+}
+function renderBilled(){
+  mk('cBilled',{type:'bar',data:{labels:DEPTS_2024.map(function(d){return d.n}),datasets:[{label:'Billed ($M)',data:DEPTS_2024.map(function(d){return d.billed}),backgroundColor:'#A490C2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+function renderHC(){
+  mk('cHC',{type:'bar',data:{labels:DEPTS_2024.map(function(d){return d.n}),datasets:[{label:'Headcount',data:DEPTS_2024.map(function(d){return d.hc}),backgroundColor:['#4A4E8F','#A490C2','#94A3B8','#0EA5E9','#F59E0B']}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.x+' employees'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470'}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+function renderRates(){
+  mk('cRates',{type:'bar',data:{labels:DEPTS_2024.map(function(d){return d.n}),datasets:[
+    {label:'Cost Rate',data:DEPTS_2024.map(function(d){return d.costRate}),backgroundColor:'#A490C2'},
+    {label:'Bill Rate',data:DEPTS_2024.map(function(d){return d.billRate}),backgroundColor:'#4A4E8F'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y+'/hr'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v}}}}}});
+}
+function renderFTE(){
+  var data=DEPTS_2024.map(function(d){return d.hrs/d.hc*1000});
+  mk('cFTE',{type:'bar',data:{labels:DEPTS_2024.map(function(d){return d.n}),datasets:[{label:'Hours/FTE',data:data,backgroundColor:'#4A4E8F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(0)+' hrs/FTE'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(0)+'K'}}}}}});
+}
+function renderTable(){
+  var d=getDepts();
+  var tbody=document.getElementById('tbody');tbody.innerHTML='';
+  for(var i=0;i<d.length;i++){
+    var r=d[i];var billPerHour=r.hrs?r.billed/r.hrs:0;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+String(i+1)+'</td><td><strong>'+r.n+'</strong></td><td class="num">'+r.hc+'</td><td class="num">'+r.hrs.toFixed(2)+'M</td><td class="num">$'+r.billed.toFixed(1)+'M</td><td class="num">'+(r.margin*100).toFixed(1)+'%</td><td class="num">$'+r.costRate+'/hr</td><td class="num">$'+r.billRate+'/hr</td><td class="num">$'+billPerHour.toFixed(0)+'/hr</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function resetFilters(){state={year:2024,dept:'All'};document.getElementById('filterYear').value='2024';document.getElementById('filterDept').value='All';render()}
+function updateSubtitle(){var p=['Reporting Period: Jan–Dec '+state.year];if(state.dept!=='All')p.push(state.dept);document.getElementById('reporting-period').textContent=p.join(' · ')}
+function render(){state.year=parseInt(document.getElementById('filterYear').value,10);state.dept=document.getElementById('filterDept').value;renderKPIs();renderHours();renderBilled();renderHC();renderRates();renderFTE();renderTable();updateSubtitle();fitKpiText()}
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metrics & KPI Definitions - Falcon Consumer xFalcon AnalyticsPro</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'retailedge')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #F3F4F6;
+      color: #1E293B;
+    }
+    .topbar {
+      background-color: #1A1A2E;
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .logo {
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo-x {
+      color: #00AEFF;
+    }
+    .logo-f {
+      color: #1A7F64;
+    }
+    .topbar-right {
+      font-size: 14px;
+      color: #94A3B8;
+    }
+    .topbar-right a {
+      color: #00AEFF;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .topbar-right a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .header {
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 14px;
+      color: #64748B;
+    }
+    .controls-section {
+      background-color: #FFFFFF;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: Inter, sans-serif;
+      margin-bottom: 16px;
+    }
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      font-size: 13px;
+      background-color: #FFFFFF;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chip:hover {
+      border-color: #00AEFF;
+      background-color: #F0F9FF;
+    }
+    .chip.active {
+      background-color: #00AEFF;
+      color: white;
+      border-color: #00AEFF;
+    }
+    .chip-count {
+      font-size: 12px;
+      color: #94A3B8;
+      margin-left: 4px;
+    }
+    .chip.active .chip-count {
+      color: white;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 16px;
+    }
+    .metric-card {
+      background-color: #FFFFFF;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border-left: 4px solid #00AEFF;
+    }
+    .metric-card.cat-revenue {
+      border-left-color: #00AEFF;
+    }
+    .metric-card.cat-customer {
+      border-left-color: #0EA5E9;
+    }
+    .metric-card.cat-loyalty {
+      border-left-color: #1A7F64;
+    }
+    .metric-card.cat-channel {
+      border-left-color: #F59E0B;
+    }
+    .metric-card.cat-growth {
+      border-left-color: #06B6D4;
+    }
+    .metric-card.cat-household {
+      border-left-color: #8B5CF6;
+    }
+    .metric-card.hidden {
+      display: none;
+    }
+    .metric-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1E293B;
+      margin-bottom: 8px;
+    }
+    .metric-category {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      background-color: #F0F9FF;
+      color: #00AEFF;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .metric-card.cat-customer .metric-category {
+      background-color: #F0F9FF;
+      color: #0EA5E9;
+    }
+    .metric-card.cat-loyalty .metric-category {
+      background-color: #F0FDF4;
+      color: #1A7F64;
+    }
+    .metric-card.cat-channel .metric-category {
+      background-color: #FFFBEB;
+      color: #F59E0B;
+    }
+    .metric-card.cat-growth .metric-category {
+      background-color: #F0FDFA;
+      color: #06B6D4;
+    }
+    .metric-card.cat-household .metric-category {
+      background-color: #F5F3FF;
+      color: #8B5CF6;
+    }
+    .metric-definition {
+      font-size: 13px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .metric-formula {
+      background-color: #F8FAFC;
+      border-left: 2px solid #E2E8F0;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      color: #475569;
+      overflow-x: auto;
+    }
+    .metric-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #E2E8F0;
+    }
+    .meta-item {
+      font-size: 12px;
+    }
+    .meta-label {
+      font-weight: 600;
+      color: #64748B;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .meta-value {
+      color: #1E293B;
+    }
+    .dashboards-list {
+      font-size: 11px;
+      color: #00AEFF;
+      line-height: 1.5;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #94A3B8;
+    }
+    .empty-state p {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <span>Falcon Consumer / Metrics & Definitions</span>
+    </div>
+    <div class="topbar-right">
+      <a href="index.html">Back to Portal</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Metrics & KPI Definitions</h1>
+      <p>All currency values in USD. Fiscal year runs Feb–Jan (4-5-4 retail calendar).</p>
+    </div>
+
+    <div class="controls-section">
+      <input type="text" id="searchBox" class="search-box" placeholder="Search by metric name, definition, or formula...">
+      <div class="filter-chips" id="categoryFilters"></div>
+    </div>
+
+    <div class="metrics-grid" id="metricsGrid"></div>
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <p>No metrics match your search.</p>
+    </div>
+  </div>
+
+  <script>
+    var metrics = [
+      {
+        name: 'Total Revenue',
+        category: 'Revenue & Financial',
+        definition: 'Sum of all net sales from the fact table where goal type is standard monthly performance',
+        formula: 'SUM(NET_SALES) from FACT_CUSTOMER_PERFORMANCE WHERE GOAL_TYPE_KEY=1 AND PERIOD_TYPE=\'MTH\'',
+        unit: 'USD',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Sales', 'Brand']
+      },
+      {
+        name: 'Net Orders',
+        category: 'Revenue & Financial',
+        definition: 'Total count of net orders across all transactions and customers',
+        formula: 'SUM(NET_ORDERS)',
+        unit: 'Count',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Sales', 'Channel']
+      },
+      {
+        name: 'Avg Order Value (AOV)',
+        category: 'Revenue & Financial',
+        definition: 'Average value per order, calculated as total revenue divided by total orders',
+        formula: 'AVG(AVG_ORDER_VALUE) or SUM(NET_SALES)/SUM(NET_ORDERS)',
+        unit: 'USD',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Sales', 'Brand']
+      },
+      {
+        name: 'Avg Spend per Customer',
+        category: 'Revenue & Financial',
+        definition: 'Average spending per customer across all transactions',
+        formula: 'AVG(AVG_SPEND) or SUM(NET_SALES)/SUM(CUSTOMER_COUNT)',
+        unit: 'USD',
+        direction: 'Higher is better',
+        dashboards: ['Sales', 'Lifecycle']
+      },
+      {
+        name: 'Net Units',
+        category: 'Revenue & Financial',
+        definition: 'Total count of units sold across all transactions',
+        formula: 'SUM(NET_UNITS)',
+        unit: 'Count',
+        direction: 'Higher is better',
+        dashboards: ['Sales']
+      },
+      {
+        name: 'Units per Transaction',
+        category: 'Revenue & Financial',
+        definition: 'Average number of units per transaction, measure of basket size',
+        formula: 'AVG(UNITS_PER_TRANSACTION)',
+        unit: 'Ratio',
+        direction: 'Higher is better',
+        dashboards: ['Sales']
+      },
+      {
+        name: 'Avg Unit Retail (AUR)',
+        category: 'Revenue & Financial',
+        definition: 'Average retail price per unit',
+        formula: 'AVG(AVG_UNIT_RETAIL)',
+        unit: 'USD',
+        direction: 'Context dependent',
+        dashboards: ['Sales']
+      },
+      {
+        name: 'Revenue per Customer',
+        category: 'Revenue & Financial',
+        definition: 'Total revenue divided by total unique customers',
+        formula: 'SUM(NET_SALES)/SUM(CUSTOMER_COUNT)',
+        unit: 'USD',
+        direction: 'Higher is better',
+        dashboards: ['Sales', 'Lifecycle']
+      },
+      {
+        name: 'Total Customers',
+        category: 'Customer Metrics',
+        definition: 'Count of distinct active customers in the period',
+        formula: 'SUM(CUSTOMER_COUNT)',
+        unit: 'Count',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Lifecycle', 'Segmentation']
+      },
+      {
+        name: 'Customer Mix %',
+        category: 'Customer Metrics',
+        definition: 'Percentage of customers in each segment or type relative to total',
+        formula: 'CUSTOMER_COUNT per type / total CUSTOMER_COUNT × 100',
+        unit: '%',
+        direction: 'Segment specific',
+        dashboards: ['Lifecycle', 'Segmentation']
+      },
+      {
+        name: 'New Customer Rate',
+        category: 'Customer Metrics',
+        definition: 'Percentage of new customers relative to total customer base',
+        formula: 'NEW customers / total × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Lifecycle']
+      },
+      {
+        name: 'VIP Customer Rate',
+        category: 'Customer Metrics',
+        definition: 'Percentage of high-value VIP customers (score 80+) relative to total',
+        formula: 'VIP / total × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Lifecycle', 'Segmentation']
+      },
+      {
+        name: 'Reactivation Rate',
+        category: 'Customer Metrics',
+        definition: 'Percentage of reactivated customers (previously lapsed) relative to total',
+        formula: 'REACTIVATED / total × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Lifecycle']
+      },
+      {
+        name: 'Lapsed Rate',
+        category: 'Customer Metrics',
+        definition: 'Percentage of lapsed customers (181-365 days inactive) relative to total',
+        formula: 'LAPSED / total × 100',
+        unit: '%',
+        direction: 'Lower is better',
+        dashboards: ['Lifecycle']
+      },
+      {
+        name: 'Loyalty Rate',
+        category: 'Loyalty & Retention',
+        definition: 'Percentage of customers enrolled in loyalty program relative to total',
+        formula: 'COUNT(IS_LOYALTY_MEMBER=TRUE) / total customers × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Loyalty', 'Retention']
+      },
+      {
+        name: 'PLCC Penetration',
+        category: 'Loyalty & Retention',
+        definition: 'Percentage of customers with proprietary store credit card relative to total',
+        formula: 'COUNT(HAS_PLCC=TRUE) / total × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Loyalty']
+      },
+      {
+        name: 'Lifetime Value (LTV)',
+        category: 'Loyalty & Retention',
+        definition: 'Average lifetime net amount spent by a customer',
+        formula: 'AVG(LIFETIME_NET_AMOUNT) from V_CURRENT_CUSTOMER',
+        unit: 'USD',
+        direction: 'Higher is better',
+        dashboards: ['Loyalty', 'Segmentation', 'Retention']
+      },
+      {
+        name: 'Lifetime Quantity',
+        category: 'Loyalty & Retention',
+        definition: 'Average lifetime quantity of units purchased by a customer',
+        formula: 'AVG(LIFETIME_SALES_QTY)',
+        unit: 'Count',
+        direction: 'Higher is better',
+        dashboards: ['Loyalty']
+      },
+      {
+        name: 'Loyalty LTV Premium',
+        category: 'Loyalty & Retention',
+        definition: 'Difference in average LTV between loyalty and non-loyalty customers',
+        formula: 'AVG LTV(loyalty) - AVG LTV(non-loyalty)',
+        unit: 'USD',
+        direction: 'Higher is better',
+        dashboards: ['Loyalty']
+      },
+      {
+        name: 'Channel Share',
+        category: 'Channel & Marketing',
+        definition: 'Percentage of orders from each channel (Web, Store, Mobile, Omni) relative to total',
+        formula: 'Orders per SOURCE_TYPE / total orders × 100',
+        unit: '%',
+        direction: 'Context dependent',
+        dashboards: ['Channel', 'Segmentation']
+      },
+      {
+        name: 'Digital Penetration',
+        category: 'Channel & Marketing',
+        definition: 'Percentage of orders from digital channels (Web + Mobile + Tablet) relative to total',
+        formula: '(WEB + MOBILE_APP + TABLET) / total orders × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Channel']
+      },
+      {
+        name: 'Marketing Channel Share',
+        category: 'Channel & Marketing',
+        definition: 'Percentage of orders attributed to each marketing channel relative to total',
+        formula: 'Orders per MARKETING_CHANNEL / total × 100',
+        unit: '%',
+        direction: 'Context dependent',
+        dashboards: ['Marketing', 'Channel']
+      },
+      {
+        name: 'Marketing Reach',
+        category: 'Channel & Marketing',
+        definition: 'Count of distinct customers reached by each marketing channel',
+        formula: 'COUNT(DISTINCT CUSTOMER_KEY) per channel',
+        unit: 'Count',
+        direction: 'Higher is better',
+        dashboards: ['Marketing']
+      },
+      {
+        name: 'Avg Distance to Store',
+        category: 'Channel & Marketing',
+        definition: 'Average distance (in miles) from customer location to nearest store',
+        formula: 'AVG(DISTANCE_TO_STORE) from FACT_SALES_TRANSACTION',
+        unit: 'Miles',
+        direction: 'Context dependent',
+        dashboards: ['Geographic', 'Channel']
+      },
+      {
+        name: 'YoY Revenue Growth',
+        category: 'Growth & Comparison',
+        definition: 'Percentage change in total revenue from prior year to current year',
+        formula: '(CY revenue - PY revenue) / PY revenue × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Brand', 'Growth']
+      },
+      {
+        name: 'YoY Order Growth',
+        category: 'Growth & Comparison',
+        definition: 'Percentage change in total orders from prior year to current year',
+        formula: '(CY orders - PY orders) / PY orders × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Growth']
+      },
+      {
+        name: 'YoY Customer Growth',
+        category: 'Growth & Comparison',
+        definition: 'Percentage change in customer count from prior year to current year',
+        formula: '(CY customers - PY customers) / PY customers × 100',
+        unit: '%',
+        direction: 'Higher is better',
+        dashboards: ['Executive', 'Growth']
+      },
+      {
+        name: 'Avg Household Size',
+        category: 'Household',
+        definition: 'Average number of members per household',
+        formula: 'AVG(HOUSEHOLD_SIZE) from DIM_HOUSEHOLD WHERE IS_CURRENT',
+        unit: 'Number',
+        direction: 'Context dependent',
+        dashboards: ['Household']
+      },
+      {
+        name: 'Children Rate',
+        category: 'Household',
+        definition: 'Percentage of households with children relative to total households',
+        formula: 'COUNT(HAS_CHILDREN=TRUE) / total × 100',
+        unit: '%',
+        direction: 'Context dependent',
+        dashboards: ['Household']
+      },
+      {
+        name: 'High Income Rate',
+        category: 'Household',
+        definition: 'Percentage of households with $150K+ annual income relative to total households',
+        formula: 'HH with $150K+ / total × 100',
+        unit: '%',
+        direction: 'Context dependent',
+        dashboards: ['Household']
+      }
+    ];
+
+    var categoryMap = {};
+    metrics.forEach(function(m) {
+      if (!categoryMap[m.category]) {
+        categoryMap[m.category] = 0;
+      }
+      categoryMap[m.category]++;
+    });
+
+    function initializeFilters() {
+      var container = document.getElementById('categoryFilters');
+      Object.keys(categoryMap).sort().forEach(function(cat) {
+        var chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = cat + ' <span class="chip-count">(' + categoryMap[cat] + ')</span>';
+        chip.dataset.category = cat;
+        chip.addEventListener('click', function() {
+          chip.classList.toggle('active');
+          filterMetrics();
+        });
+        container.appendChild(chip);
+      });
+    }
+
+    function renderMetrics(metricsList) {
+      var grid = document.getElementById('metricsGrid');
+      var empty = document.getElementById('emptyState');
+      grid.innerHTML = '';
+
+      if (metricsList.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      metricsList.forEach(function(m) {
+        var catClass = 'cat-' + m.category.toLowerCase().replace(/[^a-z]/g, '');
+        var card = document.createElement('div');
+        card.className = 'metric-card ' + catClass;
+        card.innerHTML =
+          '<div class="metric-category">' + m.category + '</div>' +
+          '<div class="metric-name">' + m.name + '</div>' +
+          '<div class="metric-definition">' + m.definition + '</div>' +
+          '<div class="metric-formula">formula: ' + m.formula + '</div>' +
+          '<div class="metric-meta">' +
+          '<div class="meta-item"><span class="meta-label">Unit</span><span class="meta-value">' + m.unit + '</span></div>' +
+          '<div class="meta-item"><span class="meta-label">Direction</span><span class="meta-value">' + m.direction + '</span></div>' +
+          '</div>' +
+          '<div style="padding-top: 12px; border-top: 1px solid #E2E8F0;"><span class="meta-label">Used in Dashboards</span><div class="dashboards-list">' + m.dashboards.join(', ') + '</div></div>';
+        grid.appendChild(card);
+      });
+    }
+
+    function filterMetrics() {
+      var searchTerm = document.getElementById('searchBox').value.toLowerCase();
+      var activeCategories = Array.from(document.querySelectorAll('.chip.active')).map(function(c) {
+        return c.dataset.category;
+      });
+
+      var filtered = metrics.filter(function(m) {
+        var matchesSearch = !searchTerm ||
+          m.name.toLowerCase().includes(searchTerm) ||
+          m.definition.toLowerCase().includes(searchTerm) ||
+          m.formula.toLowerCase().includes(searchTerm);
+
+        var matchesCategory = activeCategories.length === 0 || activeCategories.includes(m.category);
+
+        return matchesSearch && matchesCategory;
+      });
+
+      renderMetrics(filtered);
+    }
+
+    document.getElementById('searchBox').addEventListener('keyup', filterMetrics);
+
+    initializeFilters();
+    renderMetrics(metrics);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

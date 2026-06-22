@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What-If Scenario Analysis - Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky; top: 0;
+            background-color: #1B2A4A; color: #FFFFFF;
+            padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #C8A951; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
+        .nav-links a {
+            color: #FFFFFF; text-decoration: none; font-size: 0.85rem;
+            padding-bottom: 0.5rem; border-bottom: 3px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        .nav-links a:hover { border-bottom-color: #C8A951; }
+        .nav-links a.active { border-bottom-color: #C8A951; color: #C8A951; }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #1B2A4A 0%, #2a3f6e 100%);
+            color: #FFFFFF; padding: 2rem;
+        }
+        .page-header h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+        .page-header p { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+
+        /* Main Layout */
+        .dashboard { padding: 1.5rem 2rem; max-width: 1600px; margin: 0 auto; }
+
+        /* Current Portfolio Strip */
+        .portfolio-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .portfolio-card {
+            background: #FFFFFF; border-radius: 10px; padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center;
+            border-top: 3px solid #1B2A4A;
+        }
+        .portfolio-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #636E72; margin-bottom: 0.3rem; }
+        .portfolio-card .value { font-size: 1.6rem; font-weight: 700; color: #1B2A4A; }
+        .portfolio-card .sub { font-size: 0.8rem; color: #636E72; margin-top: 0.2rem; }
+
+        /* Section Title */
+        .section-title {
+            font-size: 1.2rem; font-weight: 700; color: #1B2A4A;
+            margin: 1.5rem 0 1rem; padding-bottom: 0.5rem;
+            border-bottom: 2px solid #C8A951;
+        }
+
+        /* Scenario Controls */
+        .scenario-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .scenario-card {
+            background: #FFFFFF; border-radius: 10px; padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #C8A951;
+        }
+        .scenario-card h3 { font-size: 1rem; color: #1B2A4A; margin-bottom: 1rem; }
+        .scenario-card .scenario-icon { font-size: 1.3rem; margin-right: 0.5rem; }
+
+        .slider-group { margin-bottom: 1rem; }
+        .slider-group label {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; color: #2D3436; margin-bottom: 0.4rem; font-weight: 500;
+        }
+        .slider-group label .slider-value {
+            background: #1B2A4A; color: #FFFFFF; padding: 0.15rem 0.6rem;
+            border-radius: 12px; font-size: 0.8rem; font-weight: 700; min-width: 40px; text-align: center;
+        }
+        input[type="range"] {
+            width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+            background: #E0E0E0; border-radius: 3px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: #C8A951; cursor: pointer; border: 2px solid #1B2A4A;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px; height: 18px; border-radius: 50%;
+            background: #C8A951; cursor: pointer; border: 2px solid #1B2A4A;
+        }
+
+        /* Reset Button */
+        .reset-btn {
+            background: #1B2A4A; color: #FFFFFF; border: none;
+            padding: 0.6rem 1.5rem; border-radius: 6px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600; margin-bottom: 1.5rem;
+            transition: background 0.3s;
+        }
+        .reset-btn:hover { background: #2a3f6e; }
+
+        /* Impact KPI Strip */
+        .impact-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .impact-card {
+            background: #FFFFFF; border-radius: 10px; padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center;
+        }
+        .impact-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #636E72; margin-bottom: 0.3rem; }
+        .impact-card .projected { font-size: 1.5rem; font-weight: 700; color: #1B2A4A; }
+        .impact-card .delta { font-size: 0.85rem; margin-top: 0.3rem; font-weight: 600; }
+        .impact-card .delta.positive { color: #2E7D32; }
+        .impact-card .delta.negative { color: #C62828; }
+        .impact-card .delta.neutral { color: #636E72; }
+
+        /* Charts */
+        .chart-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .chart-card {
+            background: #FFFFFF; border-radius: 10px; padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .chart-card h3 { font-size: 0.95rem; color: #1B2A4A; margin-bottom: 1rem; }
+        .chart-card canvas { max-height: 350px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        /* P&L Table */
+        .pnl-table {
+            width: 100%; border-collapse: collapse; font-size: 0.85rem;
+        }
+        .pnl-table th {
+            text-align: left; padding: 0.8rem 1rem;
+            background: #1B2A4A; color: #FFFFFF; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .pnl-table th:not(:first-child) { text-align: right; }
+        .pnl-table td { padding: 0.7rem 1rem; border-bottom: 1px solid #E0E0E0; }
+        .pnl-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+        .pnl-table tr:hover { background: #F8F9FA; }
+        .pnl-table .total-row { font-weight: 700; background: #F0F0F0; }
+        .pnl-table .total-row td { border-top: 2px solid #1B2A4A; }
+        .pnl-table .section-header td {
+            font-weight: 700; color: #1B2A4A; background: #F8F9FA;
+            padding-top: 1rem; border-bottom: 1px solid #C8A951;
+        }
+        .positive-change { color: #2E7D32; }
+        .negative-change { color: #C62828; }
+
+        /* Assumptions */
+        .assumptions {
+            background: #FFFFFF; border-radius: 10px; padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 1.5rem;
+            font-size: 0.8rem; color: #636E72;
+        }
+        .assumptions h4 { color: #1B2A4A; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .assumptions ul { padding-left: 1.5rem; }
+        .assumptions li { margin-bottom: 0.3rem; }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 1.5rem; font-size: 0.75rem; color: #B2BEC3;
+            border-top: 1px solid #E0E0E0; margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .scenario-grid, .chart-grid { grid-template-columns: 1fr; }
+            .portfolio-strip, .impact-strip { grid-template-columns: repeat(2, 1fr); }
+            .dashboard { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="nav-brand">Falcon Hotels & Restaurants</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="db-01-executive-overview.html">Executive</a></li>
+            <li><a href="db-02-revenue-finance.html">Revenue</a></li>
+            <li><a href="db-03-hotel-operations.html">Hotels</a></li>
+            <li><a href="db-04-restaurant-fb.html">Restaurant</a></li>
+            <li><a href="db-05-guest-experience.html">Guest Exp</a></li>
+            <li><a href="db-06-labor-workforce.html">Labor</a></li>
+            <li><a href="db-07-inventory-supply.html">Inventory</a></li>
+            <li><a href="db-08-social-marketing.html">Social</a></li>
+            <li><a href="db-09-whatif-analysis.html" class="active">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>DB-09 | What-If Scenario Analysis</h1>
+        <p>Cross-functional impact modeling — Simulate expansion, menu changes, pricing adjustments & operational improvements</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Current Portfolio Baseline -->
+        <div class="section-title">Current Portfolio Baseline (All-Time Actuals)</div>
+        <div class="portfolio-strip">
+            <div class="portfolio-card">
+                <div class="label">Total Locations</div>
+                <div class="value">75</div>
+                <div class="sub">20 Hotels · 40 Restaurants · 15 Bakeries</div>
+            </div>
+            <div class="portfolio-card">
+                <div class="label">Total Gross Revenue</div>
+                <div class="value">$4.88M</div>
+                <div class="sub">All-time across all brands</div>
+            </div>
+            <div class="portfolio-card">
+                <div class="label">Total Net Revenue</div>
+                <div class="value">$3.79M</div>
+                <div class="sub">After discounts</div>
+            </div>
+            <div class="portfolio-card">
+                <div class="label">Total Gross Margin</div>
+                <div class="value">$2.78M</div>
+                <div class="sub">71.4% margin rate</div>
+            </div>
+            <div class="portfolio-card">
+                <div class="label">Total Labor Cost</div>
+                <div class="value">$60.4M</div>
+                <div class="sub">Across all locations</div>
+            </div>
+            <div class="portfolio-card">
+                <div class="label">Menu Items</div>
+                <div class="value">75</div>
+                <div class="sub">Active items across brands</div>
+            </div>
+        </div>
+
+        <!-- Scenario Controls -->
+        <div class="section-title">Scenario Controls</div>
+        <button class="reset-btn" onclick="resetAll()">Reset All to Baseline</button>
+
+        <div class="scenario-grid">
+            <!-- New Hotels -->
+            <div class="scenario-card">
+                <h3><span class="scenario-icon">🏨</span> Open New Hotels (Crestview)</h3>
+                <div class="slider-group">
+                    <label>New Hotels <span class="slider-value" id="val-newHotels">0</span></label>
+                    <input type="range" id="newHotels" min="0" max="20" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Avg Rooms per Hotel <span class="slider-value" id="val-hotelRooms">477</span></label>
+                    <input type="range" id="hotelRooms" min="100" max="800" value="477" step="10" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Expected Occupancy % <span class="slider-value" id="val-hotelOcc">69%</span></label>
+                    <input type="range" id="hotelOcc" min="30" max="95" value="69" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>ADR Override ($) <span class="slider-value" id="val-hotelADR">$134</span></label>
+                    <input type="range" id="hotelADR" min="80" max="350" value="134" step="5" oninput="updateScenario()">
+                </div>
+            </div>
+
+            <!-- New Restaurants - Ember & Oak -->
+            <div class="scenario-card">
+                <h3><span class="scenario-icon">🍽️</span> New Restaurants — Ember & Oak Grill</h3>
+                <div class="slider-group">
+                    <label>New Locations <span class="slider-value" id="val-newEmber">0</span></label>
+                    <input type="range" id="newEmber" min="0" max="20" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Seating Capacity <span class="slider-value" id="val-emberSeats">175</span></label>
+                    <input type="range" id="emberSeats" min="50" max="400" value="175" step="5" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Revenue Ramp-Up % (Year 1) <span class="slider-value" id="val-emberRamp">70%</span></label>
+                    <input type="range" id="emberRamp" min="30" max="100" value="70" oninput="updateScenario()">
+                </div>
+            </div>
+
+            <!-- New Restaurants - Grand Slice -->
+            <div class="scenario-card">
+                <h3><span class="scenario-icon">🍕</span> New Restaurants — The Grand Slice Kitchen</h3>
+                <div class="slider-group">
+                    <label>New Locations <span class="slider-value" id="val-newGrand">0</span></label>
+                    <input type="range" id="newGrand" min="0" max="20" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Seating Capacity <span class="slider-value" id="val-grandSeats">280</span></label>
+                    <input type="range" id="grandSeats" min="80" max="500" value="280" step="5" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Revenue Ramp-Up % (Year 1) <span class="slider-value" id="val-grandRamp">70%</span></label>
+                    <input type="range" id="grandRamp" min="30" max="100" value="70" oninput="updateScenario()">
+                </div>
+            </div>
+
+            <!-- New Bakery Franchises -->
+            <div class="scenario-card">
+                <h3><span class="scenario-icon">🧁</span> New Franchises — Whisk & Co. Bakery</h3>
+                <div class="slider-group">
+                    <label>New Franchise Locations <span class="slider-value" id="val-newWhisk">0</span></label>
+                    <input type="range" id="newWhisk" min="0" max="20" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Revenue Ramp-Up % (Year 1) <span class="slider-value" id="val-whiskRamp">70%</span></label>
+                    <input type="range" id="whiskRamp" min="30" max="100" value="70" oninput="updateScenario()">
+                </div>
+            </div>
+
+            <!-- Menu Expansion -->
+            <div class="scenario-card">
+                <h3><span class="scenario-icon">📋</span> Menu Expansion — New Items</h3>
+                <div class="slider-group">
+                    <label>New Food Items <span class="slider-value" id="val-newFoodItems">0</span></label>
+                    <input type="range" id="newFoodItems" min="0" max="30" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>New Beverage / Drink Items <span class="slider-value" id="val-newDrinkItems">0</span></label>
+                    <input type="range" id="newDrinkItems" min="0" max="20" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>New Dessert Items <span class="slider-value" id="val-newDessertItems">0</span></label>
+                    <input type="range" id="newDessertItems" min="0" max="15" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Avg Adoption Rate % <span class="slider-value" id="val-menuAdoption">15%</span></label>
+                    <input type="range" id="menuAdoption" min="5" max="40" value="15" oninput="updateScenario()">
+                </div>
+            </div>
+
+            <!-- Pricing & Efficiency -->
+            <div class="scenario-card">
+                <h3><span class="scenario-icon">⚙️</span> Pricing & Operational Efficiency</h3>
+                <div class="slider-group">
+                    <label>Price Adjustment % <span class="slider-value" id="val-priceAdj">0%</span></label>
+                    <input type="range" id="priceAdj" min="-20" max="20" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Labor Efficiency Gain % <span class="slider-value" id="val-laborEff">0%</span></label>
+                    <input type="range" id="laborEff" min="0" max="25" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Waste Reduction % <span class="slider-value" id="val-wasteReduction">0%</span></label>
+                    <input type="range" id="wasteReduction" min="0" max="50" value="0" oninput="updateScenario()">
+                </div>
+                <div class="slider-group">
+                    <label>Marketing Spend Increase % <span class="slider-value" id="val-mktgIncrease">0%</span></label>
+                    <input type="range" id="mktgIncrease" min="0" max="100" value="0" oninput="updateScenario()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Projected Impact KPIs -->
+        <div class="section-title">Projected Annual Impact</div>
+        <div class="impact-strip">
+            <div class="impact-card">
+                <div class="label">Projected Locations</div>
+                <div class="projected" id="kpi-locations">75</div>
+                <div class="delta neutral" id="kpi-locations-delta">No change</div>
+            </div>
+            <div class="impact-card">
+                <div class="label">Projected Gross Revenue</div>
+                <div class="projected" id="kpi-revenue">$4.88M</div>
+                <div class="delta neutral" id="kpi-revenue-delta">No change</div>
+            </div>
+            <div class="impact-card">
+                <div class="label">Projected Net Revenue</div>
+                <div class="projected" id="kpi-netrev">$3.79M</div>
+                <div class="delta neutral" id="kpi-netrev-delta">No change</div>
+            </div>
+            <div class="impact-card">
+                <div class="label">Projected Gross Margin</div>
+                <div class="projected" id="kpi-margin">$2.78M</div>
+                <div class="delta neutral" id="kpi-margin-delta">No change</div>
+            </div>
+            <div class="impact-card">
+                <div class="label">Projected Labor Cost</div>
+                <div class="projected" id="kpi-labor">$60.4M</div>
+                <div class="delta neutral" id="kpi-labor-delta">No change</div>
+            </div>
+            <div class="impact-card">
+                <div class="label">Projected EBITDA Impact</div>
+                <div class="projected" id="kpi-ebitda">$0</div>
+                <div class="delta neutral" id="kpi-ebitda-delta">Net incremental</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Revenue Impact by Source</h3>
+                <canvas id="revenueImpactChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Cost Impact Breakdown</h3>
+                <canvas id="costImpactChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Portfolio Composition — Current vs Projected</h3>
+                <canvas id="portfolioChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Margin Waterfall — Baseline to Projected</h3>
+                <canvas id="waterfallChart"></canvas>
+            </div>
+        </div>
+
+        <!-- P&L Impact Table -->
+        <div class="section-title">Projected P&L Impact Detail</div>
+        <div class="chart-card full-width" style="overflow-x:auto;">
+            <table class="pnl-table" id="pnlTable">
+                <thead>
+                    <tr>
+                        <th>Line Item</th>
+                        <th>Current Baseline</th>
+                        <th>Scenario Projection</th>
+                        <th>Incremental Impact</th>
+                        <th>% Change</th>
+                    </tr>
+                </thead>
+                <tbody id="pnlBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Assumptions -->
+        <div class="assumptions">
+            <h4>Model Assumptions & Methodology</h4>
+            <ul>
+                <li><strong>Per-unit economics</strong> derived from all-time actuals across 75 locations (20 hotels, 22 Ember & Oak, 18 Grand Slice, 15 Whisk & Co.)</li>
+                <li><strong>Hotel revenue model:</strong> Rooms x 365 days x Occupancy % x ADR, plus ancillary revenue at historical ratios (F&B 15.7%, Spa 5.4%, Ancillary 11.4%)</li>
+                <li><strong>Restaurant revenue:</strong> Based on per-location historical averages with seating capacity scaling and ramp-up factor</li>
+                <li><strong>Menu item impact:</strong> Estimated as adoption rate % x total existing transactions x average item price, spread across all restaurant/bakery locations</li>
+                <li><strong>Labor costs:</strong> Scaled proportionally per new location based on brand-level per-location historical costs</li>
+                <li><strong>COGS margins:</strong> Food 32%, Beverage 30%, Alcohol 22%, Room 20% (from actual data)</li>
+                <li><strong>Waste reduction savings</strong> applied to historical waste cost per location</li>
+                <li><strong>Price adjustment</strong> applied uniformly across all revenue streams for existing portfolio</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Falcon Hotels & Restaurants — What-If Scenario Analysis Dashboard | Data derived from all-time actuals | Generated March 2026
+    </div>
+
+    <script>
+        const colors = {
+            navy: '#1B2A4A', gold: '#C8A951', white: '#FFFFFF',
+            lightNavy: 'rgba(27,42,74,0.7)', lightGold: 'rgba(200,169,81,0.7)',
+            green: '#2E7D32', red: '#C62828',
+            blue: '#3A6B9F', paleGold: '#E8D5A3'
+        };
+
+        // ========== BASELINE DATA (from IDA queries - all-time actuals) ==========
+        const baseline = {
+            // Location counts
+            hotels: 20,
+            emberOak: 22,
+            grandSlice: 18,
+            whiskCo: 15,
+            totalLocations: 75,
+
+            // Revenue by brand (gross)
+            hotelGrossRev: 1718654.00,
+            emberGrossRev: 1171372.63,
+            grandGrossRev: 1502233.84,
+            whiskGrossRev: 489609.55,
+
+            // Revenue by brand (net)
+            hotelNetRev: 882653.05,
+            emberNetRev: 954231.02,
+            grandNetRev: 1467878.05,
+            whiskNetRev: 481436.15,
+
+            // Margin by brand
+            hotelMargin: 706122.44,
+            emberMargin: 687109.63,
+            grandMargin: 1056769.83,
+            whiskMargin: 327376.22,
+
+            // COGS by brand
+            hotelCOGS: 176530.61,
+            emberCOGS: 267134.28,
+            grandCOGS: 411115.99,
+            whiskCOGS: 154059.93,
+
+            // Labor by brand
+            hotelLabor: 16086647.25,
+            emberLabor: 17882067.50,
+            grandLabor: 14450682.00,
+            whiskLabor: 12028820.50,
+
+            // Inventory/waste by brand
+            hotelWaste: 268400.31,
+            emberWaste: 303007.63,
+            grandWaste: 251472.62,
+            whiskWaste: 205778.53,
+
+            hotelInventory: 24310374.31,
+            emberInventory: 23821046.93,
+            grandInventory: 20419446.02,
+            whiskInventory: 15663144.33,
+
+            // Hotel-specific
+            hotelADR: 133.94,
+            hotelOccupancy: 68.61,
+            hotelAvgRooms: 477,
+            hotelTotalRoomRev: 8924040.29,
+            hotelFBRev: 1400030.00,
+            hotelSpaRev: 480278.00,
+            hotelAncillaryRev: 1019822.00,
+            hotelTotalRev: 12364322.29,
+            hotelStays: 34572,
+
+            // Menu item economics
+            avgFoodPrice: 19.50,
+            avgFoodCost: 6.20,
+            avgFoodMarginPct: 68.2,
+            avgDrinkPrice: 8.50,
+            avgDrinkCost: 1.80,
+            avgDrinkMarginPct: 78.8,
+            avgDessertPrice: 8.90,
+            avgDessertCost: 2.60,
+            avgDessertMarginPct: 70.8,
+
+            // Total transactions (for menu impact calc)
+            totalFBTransactions: 78541,  // food + beverage + alcohol
+            menuItemCount: 75,
+
+            // Revenue streams
+            roomRevenue: 1718654.00,
+            foodRevenue: 1380000.66,
+            beverageRevenue: 893466.87,
+            alcoholRevenue: 889748.49
+        };
+
+        // Computed per-unit baselines
+        const perUnit = {
+            hotelGrossPerUnit: baseline.hotelGrossRev / baseline.hotels,
+            hotelNetPerUnit: baseline.hotelNetRev / baseline.hotels,
+            hotelMarginPerUnit: baseline.hotelMargin / baseline.hotels,
+            hotelLaborPerUnit: baseline.hotelLabor / baseline.hotels,
+            hotelWastePerUnit: baseline.hotelWaste / baseline.hotels,
+            hotelInventoryPerUnit: baseline.hotelInventory / baseline.hotels,
+            hotelRevPerUnit: baseline.hotelTotalRev / baseline.hotels,
+
+            emberGrossPerUnit: baseline.emberGrossRev / baseline.emberOak,
+            emberNetPerUnit: baseline.emberNetRev / baseline.emberOak,
+            emberMarginPerUnit: baseline.emberMargin / baseline.emberOak,
+            emberLaborPerUnit: baseline.emberLabor / baseline.emberOak,
+            emberWastePerUnit: baseline.emberWaste / baseline.emberOak,
+            emberInventoryPerUnit: baseline.emberInventory / baseline.emberOak,
+
+            grandGrossPerUnit: baseline.grandGrossRev / baseline.grandSlice,
+            grandNetPerUnit: baseline.grandNetRev / baseline.grandSlice,
+            grandMarginPerUnit: baseline.grandMargin / baseline.grandSlice,
+            grandLaborPerUnit: baseline.grandLabor / baseline.grandSlice,
+            grandWastePerUnit: baseline.grandWaste / baseline.grandSlice,
+            grandInventoryPerUnit: baseline.grandInventory / baseline.grandSlice,
+
+            whiskGrossPerUnit: baseline.whiskGrossRev / baseline.whiskCo,
+            whiskNetPerUnit: baseline.whiskNetRev / baseline.whiskCo,
+            whiskMarginPerUnit: baseline.whiskMargin / baseline.whiskCo,
+            whiskLaborPerUnit: baseline.whiskLabor / baseline.whiskCo,
+            whiskWastePerUnit: baseline.whiskWaste / baseline.whiskCo,
+            whiskInventoryPerUnit: baseline.whiskInventory / baseline.whiskCo,
+        };
+
+        // Hotel ancillary ratios (from hotel stays data)
+        const hotelRatios = {
+            fbPct: baseline.hotelFBRev / baseline.hotelTotalRoomRev,    // ~15.7%
+            spaPct: baseline.hotelSpaRev / baseline.hotelTotalRoomRev,  // ~5.4%
+            ancPct: baseline.hotelAncillaryRev / baseline.hotelTotalRoomRev // ~11.4%
+        };
+
+        // Chart instances
+        let revenueImpactChartInst, costImpactChartInst, portfolioChartInst, waterfallChartInst;
+
+        // ========== SCENARIO CALCULATION ==========
+        function calculateScenario() {
+            // Read all slider values
+            const s = {
+                newHotels: +document.getElementById('newHotels').value,
+                hotelRooms: +document.getElementById('hotelRooms').value,
+                hotelOcc: +document.getElementById('hotelOcc').value / 100,
+                hotelADR: +document.getElementById('hotelADR').value,
+                newEmber: +document.getElementById('newEmber').value,
+                emberSeats: +document.getElementById('emberSeats').value,
+                emberRamp: +document.getElementById('emberRamp').value / 100,
+                newGrand: +document.getElementById('newGrand').value,
+                grandSeats: +document.getElementById('grandSeats').value,
+                grandRamp: +document.getElementById('grandRamp').value / 100,
+                newWhisk: +document.getElementById('newWhisk').value,
+                whiskRamp: +document.getElementById('whiskRamp').value / 100,
+                newFoodItems: +document.getElementById('newFoodItems').value,
+                newDrinkItems: +document.getElementById('newDrinkItems').value,
+                newDessertItems: +document.getElementById('newDessertItems').value,
+                menuAdoption: +document.getElementById('menuAdoption').value / 100,
+                priceAdj: +document.getElementById('priceAdj').value / 100,
+                laborEff: +document.getElementById('laborEff').value / 100,
+                wasteReduction: +document.getElementById('wasteReduction').value / 100,
+                mktgIncrease: +document.getElementById('mktgIncrease').value / 100
+            };
+
+            // === HOTEL EXPANSION ===
+            const newHotelRoomRev = s.newHotels * s.hotelRooms * 365 * s.hotelOcc * s.hotelADR;
+            const newHotelFBRev = newHotelRoomRev * hotelRatios.fbPct;
+            const newHotelSpaRev = newHotelRoomRev * hotelRatios.spaPct;
+            const newHotelAncRev = newHotelRoomRev * hotelRatios.ancPct;
+            const newHotelTotalRev = newHotelRoomRev + newHotelFBRev + newHotelSpaRev + newHotelAncRev;
+            const newHotelCOGS = newHotelRoomRev * 0.20 + newHotelFBRev * 0.32 + newHotelSpaRev * 0.25 + newHotelAncRev * 0.15;
+            const newHotelMargin = newHotelTotalRev - newHotelCOGS;
+            const newHotelLabor = s.newHotels * perUnit.hotelLaborPerUnit;
+            const newHotelWaste = s.newHotels * perUnit.hotelWastePerUnit;
+            const newHotelInventory = s.newHotels * perUnit.hotelInventoryPerUnit;
+
+            // === EMBER & OAK EXPANSION ===
+            const seatScale_ember = s.emberSeats / 175;
+            const newEmberGross = s.newEmber * perUnit.emberGrossPerUnit * seatScale_ember * s.emberRamp;
+            const newEmberNet = s.newEmber * perUnit.emberNetPerUnit * seatScale_ember * s.emberRamp;
+            const newEmberMargin = s.newEmber * perUnit.emberMarginPerUnit * seatScale_ember * s.emberRamp;
+            const newEmberCOGS = newEmberNet - newEmberMargin;
+            const newEmberLabor = s.newEmber * perUnit.emberLaborPerUnit * Math.sqrt(seatScale_ember);
+            const newEmberWaste = s.newEmber * perUnit.emberWastePerUnit * seatScale_ember * s.emberRamp;
+
+            // === GRAND SLICE EXPANSION ===
+            const seatScale_grand = s.grandSeats / 280;
+            const newGrandGross = s.newGrand * perUnit.grandGrossPerUnit * seatScale_grand * s.grandRamp;
+            const newGrandNet = s.newGrand * perUnit.grandNetPerUnit * seatScale_grand * s.grandRamp;
+            const newGrandMargin = s.newGrand * perUnit.grandMarginPerUnit * seatScale_grand * s.grandRamp;
+            const newGrandCOGS = newGrandNet - newGrandMargin;
+            const newGrandLabor = s.newGrand * perUnit.grandLaborPerUnit * Math.sqrt(seatScale_grand);
+            const newGrandWaste = s.newGrand * perUnit.grandWastePerUnit * seatScale_grand * s.grandRamp;
+
+            // === WHISK & CO EXPANSION ===
+            const newWhiskGross = s.newWhisk * perUnit.whiskGrossPerUnit * s.whiskRamp;
+            const newWhiskNet = s.newWhisk * perUnit.whiskNetPerUnit * s.whiskRamp;
+            const newWhiskMargin = s.newWhisk * perUnit.whiskMarginPerUnit * s.whiskRamp;
+            const newWhiskCOGS = newWhiskNet - newWhiskMargin;
+            const newWhiskLabor = s.newWhisk * perUnit.whiskLaborPerUnit;
+            const newWhiskWaste = s.newWhisk * perUnit.whiskWastePerUnit * s.whiskRamp;
+
+            // === MENU EXPANSION IMPACT ===
+            const existingRestLocations = baseline.emberOak + baseline.grandSlice + baseline.whiskCo;
+            const totalFBLocations = existingRestLocations + s.newEmber + s.newGrand + s.newWhisk;
+            const avgTransPerLocation = baseline.totalFBTransactions / existingRestLocations;
+
+            const menuFoodRev = s.newFoodItems * s.menuAdoption * avgTransPerLocation * totalFBLocations * baseline.avgFoodPrice;
+            const menuFoodCOGS = s.newFoodItems * s.menuAdoption * avgTransPerLocation * totalFBLocations * baseline.avgFoodCost;
+            const menuDrinkRev = s.newDrinkItems * s.menuAdoption * avgTransPerLocation * totalFBLocations * baseline.avgDrinkPrice;
+            const menuDrinkCOGS = s.newDrinkItems * s.menuAdoption * avgTransPerLocation * totalFBLocations * baseline.avgDrinkCost;
+            const menuDessertRev = s.newDessertItems * s.menuAdoption * avgTransPerLocation * totalFBLocations * baseline.avgDessertPrice;
+            const menuDessertCOGS = s.newDessertItems * s.menuAdoption * avgTransPerLocation * totalFBLocations * baseline.avgDessertCost;
+            const menuTotalRev = menuFoodRev + menuDrinkRev + menuDessertRev;
+            const menuTotalCOGS = menuFoodCOGS + menuDrinkCOGS + menuDessertCOGS;
+            const menuTotalMargin = menuTotalRev - menuTotalCOGS;
+
+            // === PRICING IMPACT (on existing portfolio) ===
+            const totalBaseGross = baseline.hotelGrossRev + baseline.emberGrossRev + baseline.grandGrossRev + baseline.whiskGrossRev;
+            const totalBaseNet = baseline.hotelNetRev + baseline.emberNetRev + baseline.grandNetRev + baseline.whiskNetRev;
+            const totalBaseMargin = baseline.hotelMargin + baseline.emberMargin + baseline.grandMargin + baseline.whiskMargin;
+            const totalBaseCOGS = baseline.hotelCOGS + baseline.emberCOGS + baseline.grandCOGS + baseline.whiskCOGS;
+            const totalBaseLabor = baseline.hotelLabor + baseline.emberLabor + baseline.grandLabor + baseline.whiskLabor;
+            const totalBaseWaste = baseline.hotelWaste + baseline.emberWaste + baseline.grandWaste + baseline.whiskWaste;
+
+            const pricingRevImpact = totalBaseNet * s.priceAdj;
+            const pricingMarginImpact = pricingRevImpact; // COGS doesn't change with price
+
+            // === LABOR EFFICIENCY (on existing + new) ===
+            const newTotalLabor = newHotelLabor + newEmberLabor + newGrandLabor + newWhiskLabor;
+            const laborSavings = (totalBaseLabor + newTotalLabor) * s.laborEff;
+
+            // === WASTE REDUCTION ===
+            const newTotalWaste = newHotelWaste + newEmberWaste + newGrandWaste + newWhiskWaste;
+            const wasteSavings = (totalBaseWaste + newTotalWaste) * s.wasteReduction;
+
+            // === MARKETING ===
+            const baseMarketing = totalBaseGross * 0.03; // assume 3% rev as marketing
+            const mktgSpendIncrease = baseMarketing * s.mktgIncrease;
+            const mktgRevenueUplift = mktgSpendIncrease * 2.5; // 2.5x ROAS assumption
+            const mktgMarginUplift = mktgRevenueUplift * 0.70; // avg margin rate
+
+            // === TOTALS ===
+            const newExpansionRev = newHotelTotalRev + newEmberGross + newGrandGross + newWhiskGross;
+            const newExpansionNet = newHotelTotalRev * 0.95 + newEmberNet + newGrandNet + newWhiskNet; // 5% discount on hotels
+            const newExpansionMargin = newHotelMargin + newEmberMargin + newGrandMargin + newWhiskMargin;
+            const newExpansionCOGS = newHotelCOGS + (newEmberCOGS > 0 ? newEmberCOGS : 0) + (newGrandCOGS > 0 ? newGrandCOGS : 0) + (newWhiskCOGS > 0 ? newWhiskCOGS : 0);
+
+            const projGrossRev = totalBaseGross + newExpansionRev + menuTotalRev + pricingRevImpact + mktgRevenueUplift;
+            const projNetRev = totalBaseNet + newExpansionNet + menuTotalRev + pricingRevImpact + mktgRevenueUplift;
+            const projMargin = totalBaseMargin + newExpansionMargin + menuTotalMargin + pricingMarginImpact + mktgMarginUplift;
+            const projLabor = totalBaseLabor + newTotalLabor - laborSavings;
+            const projWaste = totalBaseWaste + newTotalWaste - wasteSavings;
+            const projLocations = baseline.totalLocations + s.newHotels + s.newEmber + s.newGrand + s.newWhisk;
+
+            // EBITDA proxy: Margin - Labor overhead allocated to margin (simplified)
+            const baseEBITDA = totalBaseMargin - totalBaseWaste;
+            const projEBITDA = projMargin - projWaste + laborSavings + wasteSavings - mktgSpendIncrease;
+            const ebitdaDelta = projEBITDA - baseEBITDA;
+
+            return {
+                s, projGrossRev, projNetRev, projMargin, projLabor, projWaste, projLocations,
+                totalBaseGross, totalBaseNet, totalBaseMargin, totalBaseCOGS, totalBaseLabor, totalBaseWaste,
+                newHotelTotalRev, newEmberGross, newGrandGross, newWhiskGross,
+                newHotelMargin, newEmberMargin, newGrandMargin, newWhiskMargin,
+                newHotelLabor, newEmberLabor, newGrandLabor, newWhiskLabor,
+                newHotelCOGS, newExpansionCOGS,
+                menuTotalRev, menuTotalCOGS, menuTotalMargin,
+                menuFoodRev, menuDrinkRev, menuDessertRev,
+                pricingRevImpact, pricingMarginImpact,
+                laborSavings, wasteSavings, mktgSpendIncrease, mktgRevenueUplift, mktgMarginUplift,
+                newExpansionRev, newExpansionNet, newExpansionMargin,
+                newTotalLabor, newTotalWaste,
+                baseEBITDA, projEBITDA, ebitdaDelta
+            };
+        }
+
+        // ========== FORMATTING ==========
+        function fmt(v) {
+            if (Math.abs(v) >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+            if (Math.abs(v) >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+            if (Math.abs(v) >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
+            return '$' + v.toFixed(0);
+        }
+        function fmtPct(v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+        function fmtDelta(v) { return (v >= 0 ? '+' : '') + fmt(v); }
+
+        // ========== UPDATE UI ==========
+        function updateScenario() {
+            // Update slider display values
+            document.getElementById('val-newHotels').textContent = document.getElementById('newHotels').value;
+            document.getElementById('val-hotelRooms').textContent = document.getElementById('hotelRooms').value;
+            document.getElementById('val-hotelOcc').textContent = document.getElementById('hotelOcc').value + '%';
+            document.getElementById('val-hotelADR').textContent = '$' + document.getElementById('hotelADR').value;
+            document.getElementById('val-newEmber').textContent = document.getElementById('newEmber').value;
+            document.getElementById('val-emberSeats').textContent = document.getElementById('emberSeats').value;
+            document.getElementById('val-emberRamp').textContent = document.getElementById('emberRamp').value + '%';
+            document.getElementById('val-newGrand').textContent = document.getElementById('newGrand').value;
+            document.getElementById('val-grandSeats').textContent = document.getElementById('grandSeats').value;
+            document.getElementById('val-grandRamp').textContent = document.getElementById('grandRamp').value + '%';
+            document.getElementById('val-newWhisk').textContent = document.getElementById('newWhisk').value;
+            document.getElementById('val-whiskRamp').textContent = document.getElementById('whiskRamp').value + '%';
+            document.getElementById('val-newFoodItems').textContent = document.getElementById('newFoodItems').value;
+            document.getElementById('val-newDrinkItems').textContent = document.getElementById('newDrinkItems').value;
+            document.getElementById('val-newDessertItems').textContent = document.getElementById('newDessertItems').value;
+            document.getElementById('val-menuAdoption').textContent = document.getElementById('menuAdoption').value + '%';
+            document.getElementById('val-priceAdj').textContent = (document.getElementById('priceAdj').value >= 0 ? '+' : '') + document.getElementById('priceAdj').value + '%';
+            document.getElementById('val-laborEff').textContent = document.getElementById('laborEff').value + '%';
+            document.getElementById('val-wasteReduction').textContent = document.getElementById('wasteReduction').value + '%';
+            document.getElementById('val-mktgIncrease').textContent = document.getElementById('mktgIncrease').value + '%';
+
+            const r = calculateScenario();
+            updateKPIs(r);
+            updateCharts(r);
+            updatePnLTable(r);
+        }
+
+        function updateKPIs(r) {
+            const setKPI = (id, value, base) => {
+                document.getElementById('kpi-' + id).textContent = fmt(value);
+                const delta = value - base;
+                const pct = base !== 0 ? (delta / base * 100) : 0;
+                const el = document.getElementById('kpi-' + id + '-delta');
+                if (Math.abs(delta) < 1) {
+                    el.textContent = 'No change';
+                    el.className = 'delta neutral';
+                } else {
+                    el.textContent = fmtDelta(delta) + ' (' + fmtPct(pct) + ')';
+                    el.className = 'delta ' + (delta >= 0 ? 'positive' : 'negative');
+                }
+            };
+
+            // For labor, negative is good (cost reduction)
+            const setLaborKPI = (id, value, base) => {
+                document.getElementById('kpi-' + id).textContent = fmt(value);
+                const delta = value - base;
+                const pct = base !== 0 ? (delta / base * 100) : 0;
+                const el = document.getElementById('kpi-' + id + '-delta');
+                if (Math.abs(delta) < 1) {
+                    el.textContent = 'No change';
+                    el.className = 'delta neutral';
+                } else {
+                    el.textContent = fmtDelta(delta) + ' (' + fmtPct(pct) + ')';
+                    el.className = 'delta ' + (delta <= 0 ? 'positive' : 'negative');
+                }
+            };
+
+            document.getElementById('kpi-locations').textContent = r.projLocations;
+            const locDelta = r.projLocations - baseline.totalLocations;
+            const locEl = document.getElementById('kpi-locations-delta');
+            if (locDelta === 0) { locEl.textContent = 'No change'; locEl.className = 'delta neutral'; }
+            else { locEl.textContent = '+' + locDelta + ' locations'; locEl.className = 'delta positive'; }
+
+            setKPI('revenue', r.projGrossRev, r.totalBaseGross);
+            setKPI('netrev', r.projNetRev, r.totalBaseNet);
+            setKPI('margin', r.projMargin, r.totalBaseMargin);
+            setLaborKPI('labor', r.projLabor, r.totalBaseLabor);
+
+            document.getElementById('kpi-ebitda').textContent = fmtDelta(r.ebitdaDelta);
+            const ebitdaEl = document.getElementById('kpi-ebitda-delta');
+            if (Math.abs(r.ebitdaDelta) < 1) { ebitdaEl.textContent = 'Net incremental'; ebitdaEl.className = 'delta neutral'; }
+            else { ebitdaEl.textContent = 'Net incremental impact'; ebitdaEl.className = 'delta ' + (r.ebitdaDelta >= 0 ? 'positive' : 'negative'); }
+        }
+
+        function updateCharts(r) {
+            // Revenue Impact Chart
+            if (revenueImpactChartInst) revenueImpactChartInst.destroy();
+            const revCtx = document.getElementById('revenueImpactChart').getContext('2d');
+            revenueImpactChartInst = new Chart(revCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['New Hotels', 'New Ember & Oak', 'New Grand Slice', 'New Whisk & Co', 'Menu Expansion', 'Price Adjustment', 'Marketing Uplift'],
+                    datasets: [{
+                        label: 'Revenue Impact',
+                        data: [
+                            r.newHotelTotalRev,
+                            r.newEmberGross,
+                            r.newGrandGross,
+                            r.newWhiskGross,
+                            r.menuTotalRev,
+                            r.pricingRevImpact,
+                            r.mktgRevenueUplift
+                        ],
+                        backgroundColor: [
+                            colors.navy, colors.gold, colors.blue, colors.paleGold,
+                            colors.lightNavy, r.pricingRevImpact >= 0 ? colors.navy : colors.red,
+                            colors.gold
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: v => fmt(v), color: '#636E72' },
+                            grid: { color: '#E0E0E0' }
+                        },
+                        x: { ticks: { color: '#636E72', font: { size: 10 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Cost Impact Chart
+            if (costImpactChartInst) costImpactChartInst.destroy();
+            const costCtx = document.getElementById('costImpactChart').getContext('2d');
+            costImpactChartInst = new Chart(costCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['New Labor Costs', 'New COGS', 'New Waste', 'Labor Savings', 'Waste Savings', 'Marketing Spend'],
+                    datasets: [{
+                        label: 'Cost Impact',
+                        data: [
+                            r.newTotalLabor,
+                            r.newExpansionCOGS + r.menuTotalCOGS,
+                            r.newTotalWaste,
+                            -r.laborSavings,
+                            -r.wasteSavings,
+                            r.mktgSpendIncrease
+                        ],
+                        backgroundColor: [
+                            colors.red, '#E57373', '#EF9A9A',
+                            colors.green, '#81C784',
+                            colors.gold
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => (ctx.raw < 0 ? '-' : '') + fmt(Math.abs(ctx.raw)) } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: v => fmt(Math.abs(v)), color: '#636E72' },
+                            grid: { color: '#E0E0E0' }
+                        },
+                        x: { ticks: { color: '#636E72', font: { size: 10 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Portfolio Composition
+            if (portfolioChartInst) portfolioChartInst.destroy();
+            const portCtx = document.getElementById('portfolioChart').getContext('2d');
+            portfolioChartInst = new Chart(portCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Crestview Hotels', 'Ember & Oak Grill', 'Grand Slice Kitchen', 'Whisk & Co. Bakery'],
+                    datasets: [
+                        {
+                            label: 'Current',
+                            data: [baseline.hotels, baseline.emberOak, baseline.grandSlice, baseline.whiskCo],
+                            backgroundColor: colors.navy, borderWidth: 0, borderRadius: 4
+                        },
+                        {
+                            label: 'Projected',
+                            data: [
+                                baseline.hotels + r.s.newHotels,
+                                baseline.emberOak + r.s.newEmber,
+                                baseline.grandSlice + r.s.newGrand,
+                                baseline.whiskCo + r.s.newWhisk
+                            ],
+                            backgroundColor: colors.gold, borderWidth: 0, borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: colors.navy, font: { weight: 'bold', size: 11 } } }
+                    },
+                    scales: {
+                        y: { ticks: { color: '#636E72', stepSize: 5 }, grid: { color: '#E0E0E0' }, title: { display: true, text: 'Locations', color: '#636E72' } },
+                        x: { ticks: { color: '#636E72', font: { size: 10 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Margin Waterfall
+            if (waterfallChartInst) waterfallChartInst.destroy();
+            const wfCtx = document.getElementById('waterfallChart').getContext('2d');
+            const waterfallLabels = ['Baseline Margin', 'Hotel Expansion', 'Ember & Oak', 'Grand Slice', 'Whisk & Co', 'Menu Items', 'Pricing', 'Marketing', 'Projected Margin'];
+            const waterfallValues = [
+                r.totalBaseMargin,
+                r.newHotelMargin,
+                r.newEmberMargin,
+                r.newGrandMargin,
+                r.newWhiskMargin,
+                r.menuTotalMargin,
+                r.pricingMarginImpact,
+                r.mktgMarginUplift,
+                r.projMargin
+            ];
+
+            // Build stacked waterfall: base (transparent) + positive + negative
+            let runningTotal = 0;
+            const baseData = [], posData = [], negData = [];
+            for (let i = 0; i < waterfallValues.length; i++) {
+                if (i === 0) {
+                    baseData.push(0);
+                    posData.push(waterfallValues[0]);
+                    negData.push(0);
+                    runningTotal = waterfallValues[0];
+                } else if (i === waterfallValues.length - 1) {
+                    baseData.push(0);
+                    posData.push(r.projMargin);
+                    negData.push(0);
+                } else {
+                    const val = waterfallValues[i];
+                    if (val >= 0) {
+                        baseData.push(runningTotal);
+                        posData.push(val);
+                        negData.push(0);
+                    } else {
+                        baseData.push(runningTotal + val);
+                        posData.push(0);
+                        negData.push(-val);
+                    }
+                    runningTotal += val;
+                }
+            }
+
+            waterfallChartInst = new Chart(wfCtx, {
+                type: 'bar',
+                data: {
+                    labels: waterfallLabels,
+                    datasets: [
+                        { label: 'Base', data: baseData, backgroundColor: 'transparent', borderWidth: 0, stack: 'stack' },
+                        { label: 'Increase', data: posData, backgroundColor: colors.navy, borderWidth: 0, borderRadius: 4, stack: 'stack' },
+                        { label: 'Decrease', data: negData, backgroundColor: colors.red, borderWidth: 0, borderRadius: 4, stack: 'stack' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    if (ctx.datasetIndex === 0) return '';
+                                    return ctx.dataset.label + ': ' + fmt(ctx.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            stacked: true,
+                            ticks: { callback: v => fmt(v), color: '#636E72' },
+                            grid: { color: '#E0E0E0' }
+                        },
+                        x: { stacked: true, ticks: { color: '#636E72', font: { size: 9 } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function updatePnLTable(r) {
+            const rows = [
+                { section: true, label: 'Revenue' },
+                { label: 'Existing Portfolio Gross Revenue', base: r.totalBaseGross, proj: r.totalBaseGross + r.pricingRevImpact },
+                { label: 'New Hotel Revenue', base: 0, proj: r.newHotelTotalRev },
+                { label: 'New Ember & Oak Revenue', base: 0, proj: r.newEmberGross },
+                { label: 'New Grand Slice Revenue', base: 0, proj: r.newGrandGross },
+                { label: 'New Whisk & Co Revenue', base: 0, proj: r.newWhiskGross },
+                { label: 'Menu Expansion Revenue', base: 0, proj: r.menuTotalRev },
+                { label: 'Marketing-Attributed Revenue', base: 0, proj: r.mktgRevenueUplift },
+                { total: true, label: 'Total Gross Revenue', base: r.totalBaseGross, proj: r.projGrossRev },
+
+                { section: true, label: 'Cost of Goods Sold' },
+                { label: 'Existing COGS', base: r.totalBaseCOGS, proj: r.totalBaseCOGS },
+                { label: 'New Location COGS', base: 0, proj: r.newExpansionCOGS },
+                { label: 'Menu Items COGS', base: 0, proj: r.menuTotalCOGS },
+                { total: true, label: 'Total COGS', base: r.totalBaseCOGS, proj: r.totalBaseCOGS + r.newExpansionCOGS + r.menuTotalCOGS },
+
+                { section: true, label: 'Gross Margin' },
+                { total: true, label: 'Gross Margin', base: r.totalBaseMargin, proj: r.projMargin },
+
+                { section: true, label: 'Operating Expenses' },
+                { label: 'Labor Costs (Existing)', base: r.totalBaseLabor, proj: r.totalBaseLabor - r.laborSavings },
+                { label: 'Labor Costs (New Locations)', base: 0, proj: r.newTotalLabor },
+                { label: 'Waste Costs', base: r.totalBaseWaste, proj: r.projWaste },
+                { label: 'Marketing Spend Increase', base: 0, proj: r.mktgSpendIncrease },
+                { total: true, label: 'Total OpEx', base: r.totalBaseLabor + r.totalBaseWaste, proj: r.projLabor + r.projWaste + r.mktgSpendIncrease },
+
+                { section: true, label: 'Bottom Line' },
+                { total: true, label: 'EBITDA Proxy (Margin - OpEx Waste)', base: r.baseEBITDA, proj: r.projEBITDA },
+            ];
+
+            const tbody = document.getElementById('pnlBody');
+            tbody.innerHTML = '';
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                if (row.section) {
+                    tr.className = 'section-header';
+                    tr.innerHTML = `<td colspan="5">${row.label}</td>`;
+                } else {
+                    const delta = row.proj - row.base;
+                    const pct = row.base !== 0 ? ((row.proj - row.base) / Math.abs(row.base) * 100) : (row.proj !== 0 ? 100 : 0);
+                    const cls = delta > 0.5 ? 'positive-change' : (delta < -0.5 ? 'negative-change' : '');
+                    tr.className = row.total ? 'total-row' : '';
+                    tr.innerHTML = `
+                        <td>${row.label}</td>
+                        <td>${fmt(row.base)}</td>
+                        <td>${fmt(row.proj)}</td>
+                        <td class="${cls}">${fmtDelta(delta)}</td>
+                        <td class="${cls}">${row.base !== 0 ? fmtPct(pct) : (row.proj !== 0 ? 'New' : '-')}</td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        function resetAll() {
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                if (slider.id === 'hotelRooms') slider.value = 477;
+                else if (slider.id === 'hotelOcc') slider.value = 69;
+                else if (slider.id === 'hotelADR') slider.value = 134;
+                else if (slider.id === 'emberSeats') slider.value = 175;
+                else if (slider.id === 'grandSeats') slider.value = 280;
+                else if (slider.id === 'emberRamp' || slider.id === 'grandRamp' || slider.id === 'whiskRamp') slider.value = 70;
+                else if (slider.id === 'menuAdoption') slider.value = 15;
+                else slider.value = 0;
+            });
+            updateScenario();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            updateScenario();
+        });
+    </script>
+</body>
+</html>

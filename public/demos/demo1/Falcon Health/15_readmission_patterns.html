@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 15: Readmission Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid #2C5F8A;
+        }
+
+        .kpi-card.secondary {
+            border-left-color: #E8913A;
+        }
+
+        .kpi-card.success {
+            border-left-color: #5BA67D;
+        }
+
+        .kpi-card.danger {
+            border-left-color: #C75B5B;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f5f6fa;
+            border-bottom: 2px solid #e8eaed;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2d3436;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .footer-note {
+            display: inline-block;
+            background: #f5f6fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Area 15: Readmission Patterns</h1>
+            <p>7-Day, 15-Day & 30-Day Readmission Analysis | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card danger">
+                <div class="kpi-label">30-Day Readmit Rate</div>
+                <div class="kpi-value">1.6%</div>
+                <div class="kpi-detail">24 of 1,497 encounters</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">15-Day Readmit Rate</div>
+                <div class="kpi-value">1.3%</div>
+                <div class="kpi-detail">19 of 1,497 encounters</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">7-Day Readmit Rate</div>
+                <div class="kpi-value">1.0%</div>
+                <div class="kpi-detail">15 of 1,497 encounters</div>
+            </div>
+            <div class="kpi-card secondary">
+                <div class="kpi-label">Readmit Avg Billed</div>
+                <div class="kpi-value">$58K</div>
+                <div class="kpi-detail">vs $7.2K non-readmit</div>
+            </div>
+            <div class="kpi-card secondary">
+                <div class="kpi-label">Readmit Avg LOS</div>
+                <div class="kpi-value">4.7 days</div>
+                <div class="kpi-detail">vs 0.33 non-readmit</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Readmission Funnel</div>
+                <div class="chart-wrap h300">
+            <canvas id="funnelChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Readmit vs Non-Readmit Comparison</div>
+                <div class="chart-wrap h300">
+            <canvas id="comparisonChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Readmissions by Department</div>
+                <div class="chart-wrap h300">
+            <canvas id="deptChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Cost Impact: Readmit vs Non-Readmit</div>
+                <div class="chart-wrap h300">
+            <canvas id="costChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Readmission Summary</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Encounters</th>
+                        <th>Average Billed</th>
+                        <th>Average LOS (days)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>No Readmission</td>
+                        <td>1,473</td>
+                        <td>$7,156</td>
+                        <td>0.33</td>
+                    </tr>
+                    <tr>
+                        <td>30-Day Only</td>
+                        <td>5</td>
+                        <td>$60,089</td>
+                        <td>3.6</td>
+                    </tr>
+                    <tr>
+                        <td>15-Day (not 7-day)</td>
+                        <td>4</td>
+                        <td>$60,410</td>
+                        <td>7.5</td>
+                    </tr>
+                    <tr>
+                        <td>7-Day Readmit</td>
+                        <td>15</td>
+                        <td>$56,492</td>
+                        <td>4.27</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Readmissions by Department (30-Day)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Readmit Encounters</th>
+                        <th>Average Billed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Internal Medicine</td>
+                        <td>5</td>
+                        <td>$72,151</td>
+                    </tr>
+                    <tr>
+                        <td>Gastroenterology</td>
+                        <td>4</td>
+                        <td>$32,390</td>
+                    </tr>
+                    <tr>
+                        <td>Nephrology</td>
+                        <td>3</td>
+                        <td>$81,939</td>
+                    </tr>
+                    <tr>
+                        <td>Oncology</td>
+                        <td>2</td>
+                        <td>$54,200</td>
+                    </tr>
+                    <tr>
+                        <td>Orthopedics</td>
+                        <td>2</td>
+                        <td>$65,271</td>
+                    </tr>
+                    <tr>
+                        <td>Cardiology</td>
+                        <td>2</td>
+                        <td>$33,356</td>
+                    </tr>
+                    <tr>
+                        <td>Pulmonology</td>
+                        <td>2</td>
+                        <td>$67,349</td>
+                    </tr>
+                    <tr>
+                        <td>General Surgery</td>
+                        <td>2</td>
+                        <td>$78,871</td>
+                    </tr>
+                    <tr>
+                        <td>ICU</td>
+                        <td>2</td>
+                        <td>$27,624</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="footer-note">Generated on March 11, 2026 | Data represents encounters from Jan 2023 – Dec 2025</div>
+        </div>
+    </div>
+
+    <script>
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Funnel Chart
+        new Chart(document.getElementById('funnelChart'), {
+            type: 'bar',
+            data: {
+                labels: ['30-Day', '15-Day', '7-Day'],
+                datasets: [{
+                    label: 'Readmitted Encounters',
+                    data: [24, 19, 15],
+                    backgroundColor: [colors.danger, colors.secondary, colors.warning],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 30 }
+                }
+            }
+        });
+
+        // Comparison Chart
+        new Chart(document.getElementById('comparisonChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Average Billed', 'Average LOS (days)'],
+                datasets: [
+                    {
+                        label: 'Readmitted',
+                        data: [58000, 4.7],
+                        backgroundColor: colors.danger
+                    },
+                    {
+                        label: 'Non-Readmitted',
+                        data: [7200, 0.33],
+                        backgroundColor: colors.success
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Department Chart
+        new Chart(document.getElementById('deptChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Internal Medicine', 'Gastroenterology', 'Nephrology', 'Oncology', 'Orthopedics', 'Cardiology', 'Pulmonology', 'General Surgery', 'ICU'],
+                datasets: [{
+                    label: 'Readmissions',
+                    data: [5, 4, 3, 2, 2, 2, 2, 2, 2],
+                    backgroundColor: colors.info,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 6 }
+                }
+            }
+        });
+
+        // Cost Impact Doughnut
+        new Chart(document.getElementById('costChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Readmitted', 'Non-Readmitted'],
+                datasets: [{
+                    data: [1392208, 10549392],
+                    backgroundColor: [colors.danger, colors.success],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + percentage + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

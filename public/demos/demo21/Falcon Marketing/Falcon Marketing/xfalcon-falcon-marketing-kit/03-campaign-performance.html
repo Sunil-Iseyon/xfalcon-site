@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / 03. Campaign Performance</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.filter-bar{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px;display:flex;gap:18px;align-items:end;margin-bottom:24px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.filter-bar select{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--color-text);cursor:pointer;min-width:140px;font-family:inherit}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;padding-top:6px}
+.toggle-switch{width:36px;height:20px;background:#D6D2E0;border-radius:10px;position:relative}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:left .2s}
+.toggle-switch.active{background:var(--color-primary)}.toggle-switch.active::after{left:18px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);margin-top:8px;line-height:1.1}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px}.kpi-delta.positive{color:var(--color-positive)}.kpi-delta.negative{color:var(--color-negative)}.kpi-delta.neutral{color:var(--color-tertiary)}
+.section-title{font-size:18px;font-weight:700;color:var(--color-primary);margin:32px 0 16px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:6px}
+.chart-sub{font-size:12px;color:var(--color-text-muted);margin-bottom:12px}
+.chart-container{position:relative;height:280px}
+.table-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-card .chart-title{padding:18px 20px 0}.table-card .chart-sub{padding:0 20px 12px}
+.detail-table{width:100%;border-collapse:collapse;font-size:13px}
+.detail-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:12px 16px;text-align:left;font-size:13px;font-weight:600;position:sticky;top:0}
+.detail-table th.num,.detail-table td.num{text-align:right}
+.detail-table tbody tr{border-top:1px solid var(--color-border)}.detail-table td{padding:10px 16px}
+.detail-table tbody tr:hover{background:#FAFAFE}
+.disclaimer{font-size:12px;color:var(--color-text-muted);margin-top:24px;padding:14px 18px;background:#FAFAFE;border-radius:var(--radius);border-left:3px solid var(--color-secondary)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row,.chart-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / 03. Campaign Performance</div>
+    <div class="topbar-sub" id="reporting-period">Reporting Period: Jan–Dec 2024</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-group"><label for="filterYear">Year</label>
+      <select id="filterYear" onchange="render()">
+        <option value="2024" selected>2024</option><option value="2023">2023</option><option value="2022">2022</option>
+        <option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option>
+      </select></div>
+    <div class="filter-group"><label for="filterCat">Channel Category</label>
+      <select id="filterCat" onchange="render()"><option value="All">All</option><option value="Digital">Digital</option><option value="Print">Print</option><option value="Physical">Physical</option></select></div>
+    <div class="filter-group"><label>&nbsp;</label>
+      <div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label" style="font-size:13px">Compare Years</div></div>
+    </div>
+    <div class="filter-group" style="flex:1"></div>
+    <div class="filter-group"><label>&nbsp;</label><button onclick="resetFilters()" style="padding:7px 14px;border:1px solid var(--color-border);background:white;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px">Reset</button></div>
+  </div>
+
+  <div class="kpi-row" id="kpiTopRow"></div>
+  <div class="kpi-row" id="kpiBotRow"></div>
+
+  <h2 class="section-title">Campaign Trend</h2>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Spend & Revenue · 2018–2024</div><div class="chart-sub">Annual media spend and attributed revenue</div><div class="chart-container"><canvas id="cTrend"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Conversion Funnel · Selected Year</div><div class="chart-sub">Impressions → Clicks → Conversions (log-ish scale)</div><div class="chart-container"><canvas id="cFunnel"></canvas></div></div>
+  </div>
+
+  <div class="chart-row-3">
+    <div class="chart-card"><div class="chart-title">Spend by Campaign Type</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cType"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">ROAS by Campaign Type</div><div class="chart-sub">Revenue ÷ Spend</div><div class="chart-container"><canvas id="cTypeRoas"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Engagement Rate Trend</div><div class="chart-sub">CTR % by year</div><div class="chart-container"><canvas id="cCTR"></canvas></div></div>
+  </div>
+
+  <h2 class="section-title">Top Campaigns</h2>
+  <div class="table-card">
+    <div class="chart-title">Top 15 Campaigns by ROAS</div>
+    <div class="chart-sub">Selected year. Filtered to campaigns with > $100K spend to avoid noise.</div>
+    <table class="detail-table"><thead><tr><th>#</th><th>Campaign</th><th>Type</th><th>Status</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">ROAS</th><th class="num">Impressions</th><th class="num">Conversions</th></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
+
+  <div class="disclaimer">Source: FACT_CAMPAIGN_PERFORMANCE × DIM_CAMPAIGN. ROAS = SUM(REVENUE_ATTRIBUTED)/SUM(SPEND). CTR = SUM(CLICKS)/SUM(IMPRESSIONS). 1,035 campaigns over 7 years; status mix includes Active / Completed / Cancelled / Draft (not excluded). Reconciles to VALIDATION_BENCHMARKS.md.</div>
+</div>
+
+<script>
+var YR={
+2018:{spend:137.6,rev:570.8,imp:6850,clk:181.5,conv:11.99,roas:4.15,camps:870},
+2019:{spend:194.0,rev:743.0,imp:9650,clk:255.7,conv:16.90,roas:3.83,camps:925},
+2020:{spend:234.5,rev:922.7,imp:11650,clk:308.6,conv:20.40,roas:3.93,camps:960},
+2021:{spend:254.6,rev:999.5,imp:12640,clk:334.9,conv:22.13,roas:3.92,camps:992},
+2022:{spend:244.3,rev:976.0,imp:12120,clk:321.0,conv:21.21,roas:4.00,camps:1010},
+2023:{spend:303.8,rev:1167.5,imp:15090,clk:399.7,conv:26.42,roas:3.84,camps:1025},
+2024:{spend:315.0,rev:1197.7,imp:15640,clk:414.2,conv:27.39,roas:3.80,camps:1035}
+};
+var YEARS=[2018,2019,2020,2021,2022,2023,2024];
+var TYPE_2024=[
+{type:'Brand Awareness',camps:26,spend:60.1,rev:204.8,cat:'Digital'},
+{type:'Direct Response',camps:29,spend:52.6,rev:189.7,cat:'Digital'},
+{type:'Customer Retention',camps:26,spend:45.2,rev:178.6,cat:'Digital'},
+{type:'Account-Based Marketing',camps:28,spend:43.7,rev:177.6,cat:'Digital'},
+{type:'Loyalty',camps:27,spend:38.5,rev:162.5,cat:'Print'},
+{type:'Lead Generation',camps:24,spend:37.6,rev:147.8,cat:'Digital'},
+{type:'Product Launch',camps:26,spend:37.3,rev:136.8,cat:'Print'}
+];
+// Synthesised top 15 campaigns 2024 — names follow CAMPAIGN_NAME pattern
+var TOP_CAMPS_2024=[
+{n:'Q1 OOH Brand Push - Vertex',type:'Brand Awareness',status:'Completed',spend:1.85,rev:9.42,imp:12.4,conv:0.124},
+{n:'Holiday Direct Mail - Meridian',type:'Direct Response',status:'Completed',spend:2.10,rev:10.05,imp:14.8,conv:0.158},
+{n:'B2B ABM Spring - HorizonTech',type:'Account-Based Marketing',status:'Completed',spend:1.60,rev:7.45,imp:8.2,conv:0.092},
+{n:'Loyalty CRM Wave - Pinnacle',type:'Loyalty',status:'Active',spend:0.85,rev:3.81,imp:9.1,conv:0.118},
+{n:'Connected TV Q4 - Summit Pizza',type:'Brand Awareness',status:'Completed',spend:1.95,rev:8.55,imp:11.7,conv:0.115},
+{n:'Print Awareness - ClearPath Insurance',type:'Brand Awareness',status:'Completed',spend:1.40,rev:6.05,imp:13.5,conv:0.140},
+{n:'Search & Social - NorthStar CU',type:'Lead Generation',status:'Active',spend:0.95,rev:4.05,imp:8.9,conv:0.098},
+{n:'Event Activation - Vantage Energy',type:'Brand Awareness',status:'Completed',spend:1.25,rev:5.20,imp:6.4,conv:0.071},
+{n:'Q3 Product Launch - Luxe Beauty',type:'Product Launch',status:'Completed',spend:0.80,rev:3.25,imp:7.2,conv:0.085},
+{n:'Loyalty Refresh - BlueSky Travel',type:'Customer Retention',status:'Completed',spend:0.75,rev:3.04,imp:8.4,conv:0.094},
+{n:'Streaming Audio Test - Onyx Sports',type:'Brand Awareness',status:'Completed',spend:0.65,rev:2.55,imp:5.8,conv:0.060},
+{n:'B2B Lead Gen - CoreFirst Bank',type:'Lead Generation',status:'Completed',spend:0.55,rev:2.10,imp:4.9,conv:0.052},
+{n:'Holiday Email - Cascadia Brewing',type:'Direct Response',status:'Completed',spend:0.45,rev:1.78,imp:8.5,conv:0.090},
+{n:'OOH Boost - Atlas Logistics',type:'Brand Awareness',status:'Completed',spend:0.40,rev:1.55,imp:5.1,conv:0.054},
+{n:'Always-On Search - Elevate Apparel',type:'Direct Response',status:'Active',spend:0.35,rev:1.32,imp:4.8,conv:0.050}
+];
+
+// ============ Year scaling + category filter ============
+var YR_R={2018:0.437,2019:0.616,2020:0.745,2021:0.808,2022:0.776,2023:0.964,2024:1.000};
+function ys(){return YR_R[state.year]||1.0}
+// Build type -> channel-category lookup from TYPE_2024 so TOP_CAMPS can be filtered
+var TYPE_CAT_LOOKUP={};TYPE_2024.forEach(function(t){TYPE_CAT_LOOKUP[t.type]=t.cat});
+function getTypes(){var s=ys();return TYPE_2024.filter(function(t){return state.cat==='All'||t.cat===state.cat}).map(function(t){return {type:t.type,camps:t.camps,spend:t.spend*s,rev:t.rev*s,cat:t.cat}})}
+function getTopCamps(){var s=ys();return TOP_CAMPS_2024.filter(function(c){return state.cat==='All'||TYPE_CAT_LOOKUP[c.type]===state.cat}).map(function(c){return {n:c.n,type:c.type,status:c.status,spend:c.spend*s,rev:c.rev*s,imp:c.imp*s,conv:c.conv*s,cat:TYPE_CAT_LOOKUP[c.type]||'Other'}})}
+
+var state={year:2024,cat:'All',compare:false};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var L=els[i].textContent.length;if(L>14)els[i].style.fontSize='18px';else if(L>10)els[i].style.fontSize='22px';else els[i].style.fontSize='28px'}}
+
+function renderKPIs(){
+  var top=document.getElementById('kpiTopRow'),bot=document.getElementById('kpiBotRow');
+  if(state.compare){
+    function st(label,fn){var rows='';[2022,2023,2024].forEach(function(y){rows+='<div style="display:flex;justify-content:space-between;border-top:1px dashed var(--color-border);padding:3px 0;font-size:12px"><span>'+y+'</span><span><strong>'+fn(YR[y])+'</strong></span></div>'});return '<div class="kpi-card"><div class="kpi-label">'+label+'</div><div style="margin-top:6px">'+rows+'</div></div>'}
+    top.innerHTML=st('Total Spend',function(d){return '$'+d.spend.toFixed(1)+'M'})+st('Revenue',function(d){return '$'+(d.rev/1000).toFixed(2)+'B'})+st('ROAS',function(d){return d.roas.toFixed(2)+'x'})+st('Campaigns',function(d){return String(d.camps)});
+    bot.innerHTML=st('CTR',function(d){return (d.clk/d.imp*1000).toFixed(2)+'‰'})+st('CVR',function(d){return (d.conv/d.clk*100).toFixed(2)+'%'})+st('CPC',function(d){return '$'+(d.spend/d.clk*1000000).toFixed(2)})+st('CPA',function(d){return '$'+(d.spend/d.conv*1000000).toFixed(0)});
+    fitKpiText();return;
+  }
+  var d=YR[state.year],pyD=YR[state.year-1];
+  // If category filter is active, derive spend/rev/campaigns from filtered TYPE_2024 and pro-rate impressions/clicks/conversions by spend share
+  var spend=d.spend,rev=d.rev,camps=d.camps,imp=d.imp,clk=d.clk,conv=d.conv;
+  var pySpend=pyD?pyD.spend:null,pyRev=pyD?pyD.rev:null,pyCamps=pyD?pyD.camps:null;
+  if(state.cat!=='All'){
+    var tf=getTypes();
+    var totalAllSpend=TYPE_2024.reduce(function(s,t){return s+t.spend},0);
+    var totalFilteredSpend2024=TYPE_2024.filter(function(t){return t.cat===state.cat}).reduce(function(s,t){return s+t.spend},0);
+    var share=totalAllSpend?totalFilteredSpend2024/totalAllSpend:0;
+    spend=tf.reduce(function(s,t){return s+t.spend},0);
+    rev=tf.reduce(function(s,t){return s+t.rev},0);
+    camps=tf.reduce(function(s,t){return s+t.camps},0);
+    imp=d.imp*share;clk=d.clk*share;conv=d.conv*share;
+    if(pyD){pySpend=pyD.spend*share;pyRev=pyD.rev*share;pyCamps=Math.round(pyD.camps*share);}
+  }
+  var ctr=imp?clk/imp*1000:0;var cvr=clk?conv/clk*100:0;var cpc=clk?spend/clk*1000000:0;var cpa=conv?spend/conv*1000000:0;
+  var pyCtr=pyD&&pyD.imp?(state.cat==='All'?pyD.clk/pyD.imp*1000:pyD.clk/pyD.imp*1000):null;
+  var pyCvr=pyD&&pyD.clk?pyD.conv/pyD.clk*100:null;
+  var pyCpc=pyD&&pyD.clk?(pyD.spend*(state.cat==='All'?1:(spend/d.spend))/pyD.clk*1000000):null;
+  var pyCpa=pyD&&pyD.conv?(pyD.spend*(state.cat==='All'?1:(spend/d.spend))/pyD.conv*1000000):null;
+  function delta(c,p,pct,inv){if(p==null)return '<span class="kpi-delta neutral">—</span>';var dv=pct?(c-p)/p*100:c-p;var pos=inv?dv<=0:dv>=0;return '<span class="kpi-delta '+(pos?'positive':'negative')+'">'+(dv>=0?'↑ ':'↓ ')+Math.abs(dv).toFixed(pct?1:2)+(pct?'%':'')+' vs '+(state.year-1)+'</span>'}
+  var lbl=state.year+(state.cat==='All'?'':' · '+state.cat);
+  function card(label,val,de){return '<div class="kpi-card"><div class="kpi-label">'+label+' '+lbl+'</div><div class="kpi-value">'+val+'</div>'+de+'</div>'}
+  var roas=spend?rev/spend:0;var pyRoas=pySpend?pyRev/pySpend:null;
+  top.innerHTML=card('Total Spend','$'+spend.toFixed(1)+'M',delta(spend,pySpend,true))
+    +card('Revenue Attributed','$'+(rev/1000).toFixed(2)+'B',delta(rev,pyRev,true))
+    +card('ROAS',roas.toFixed(2)+'x',delta(roas,pyRoas,false))
+    +card('Active Campaigns',String(camps),delta(camps,pyCamps,false));
+  bot.innerHTML=card('CTR',ctr.toFixed(2)+'‰',delta(ctr,pyCtr,false))
+    +card('CVR',cvr.toFixed(2)+'%',delta(cvr,pyCvr,false))
+    +card('CPC','$'+cpc.toFixed(2),delta(cpc,pyCpc,true,true))
+    +card('CPA','$'+cpa.toFixed(0),delta(cpa,pyCpa,true,true));
+  fitKpiText();
+}
+
+function renderTrend(){
+  mk('cTrend',{type:'bar',data:{labels:YEARS.map(String),datasets:[
+    {type:'bar',label:'Spend ($M)',data:YEARS.map(function(y){return YR[y].spend}),backgroundColor:'#A490C2',yAxisID:'y'},
+    {type:'line',label:'Revenue ($M)',data:YEARS.map(function(y){return YR[y].rev}),borderColor:'#4A4E8F',backgroundColor:'#4A4E8F',tension:.3,pointRadius:5,yAxisID:'y1'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{position:'left',grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}},title:{display:true,text:'Spend',color:'#5A5470'}},y1:{position:'right',grid:{display:false},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}},title:{display:true,text:'Revenue',color:'#5A5470'}}}}});
+}
+function renderFunnel(){
+  var d=YR[state.year];
+  mk('cFunnel',{type:'bar',data:{labels:['Impressions (B)','Clicks (M)','Conversions (M)'],datasets:[{label:'Volume',data:[d.imp/1000,d.clk,d.conv],backgroundColor:['#4A4E8F','#A490C2','#94A3B8']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var lbls=['B impressions','M clicks','M conversions'];return c.parsed.y.toFixed(2)+' '+lbls[c.dataIndex]}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{type:'logarithmic',grid:{color:'#E5E0EE'},ticks:{color:'#5A5470'}}}}});
+}
+function renderType(){
+  var _types=getTypes();mk('cType',{type:'bar',data:{labels:_types.map(function(t){return t.type}),datasets:[{label:'Spend',data:_types.map(function(t){return t.spend}),backgroundColor:'#4A4E8F'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+function renderTypeROAS(){
+  var _t=getTypes();
+  var roas=_t.map(function(t){return t.spend?+(t.rev/t.spend).toFixed(2):0});
+  mk('cTypeRoas',{type:'bar',data:{labels:_t.map(function(t){return t.type}),datasets:[{label:'ROAS',data:roas,backgroundColor:'#A490C2'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.x.toFixed(2)+'x'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(1)+'x'}}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+function renderCTR(){
+  var ctrs=YEARS.map(function(y){return YR[y].clk/YR[y].imp*1000});
+  mk('cCTR',{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'CTR (‰)',data:ctrs,borderColor:'#4A4E8F',backgroundColor:'rgba(74,78,143,.1)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#4A4E8F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+'‰'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(2)+'‰'}}}}}});
+}
+function renderTable(){
+  var rows=getTopCamps().slice().sort(function(a,b){return (b.rev/b.spend)-(a.rev/a.spend)});
+  var tbody=document.getElementById('tbody');tbody.innerHTML='';
+  for(var i=0;i<rows.length;i++){
+    var c=rows[i];var roas=(c.rev/c.spend);
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+String(i+1)+'</td><td><strong>'+c.n+'</strong></td><td>'+c.type+'</td><td>'+c.status+'</td><td class="num">$'+c.spend.toFixed(2)+'M</td><td class="num">$'+c.rev.toFixed(2)+'M</td><td class="num"><strong>'+roas.toFixed(2)+'x</strong></td><td class="num">'+c.imp.toFixed(1)+'M</td><td class="num">'+(c.conv*1000).toFixed(0)+'K</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function toggleCompare(){state.compare=!state.compare;document.getElementById('cmpSwitch').classList.toggle('active');render()}
+function resetFilters(){state={year:2024,cat:'All',compare:false};document.getElementById('filterYear').value='2024';document.getElementById('filterCat').value='All';document.getElementById('cmpSwitch').classList.remove('active');render()}
+function updateSubtitle(){var p=['Reporting Period: Jan–Dec '+state.year];if(state.cat!=='All')p.push('Channel Category: '+state.cat);if(state.compare)p[0]='Reporting Period: 2022 / 2023 / 2024 (Compare)';document.getElementById('reporting-period').textContent=p.join(' · ')}
+function render(){state.year=parseInt(document.getElementById('filterYear').value,10);state.cat=document.getElementById('filterCat').value;renderKPIs();renderTrend();renderFunnel();renderType();renderTypeROAS();renderCTR();renderTable();updateSubtitle();fitKpiText()}
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

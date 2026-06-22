@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / AutoExplore — Channel × ROAS Findings</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.intro{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:var(--radius);padding:20px 24px;margin-bottom:24px;box-shadow:var(--shadow-sm)}
+.intro h2{margin:0 0 8px;font-size:18px;color:var(--color-primary)}
+.intro p{margin:6px 0;color:var(--color-text);line-height:1.6}
+.intro .meta{font-size:12px;color:var(--color-text-muted);margin-top:10px;padding-top:10px;border-top:1px dashed var(--color-border)}
+.finding{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:var(--radius);padding:20px 24px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.finding-num{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:var(--color-primary);color:white;padding:3px 10px;border-radius:4px;margin-right:8px}
+.finding-confidence{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:2px 8px;border-radius:999px;background:#D1FAE5;color:#065F46}
+.finding-confidence.null{background:#FEF3C7;color:#92400E}
+.finding-headline{font-size:18px;font-weight:700;color:var(--color-primary);margin:8px 0 6px}
+.finding-shows{font-size:13px;color:var(--color-text);margin-bottom:8px;line-height:1.55}
+.finding-sowhat{font-size:13px;color:var(--color-text);background:#FAFAFE;border-left:3px solid var(--color-secondary);padding:10px 14px;margin-top:10px;border-radius:0 6px 6px 0}
+.finding-sowhat strong{color:var(--color-primary)}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.chart-cell{position:relative;height:240px}
+.chart-cell.tall{height:300px}
+.full{grid-column:1/-1}
+.evidence-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.evidence-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:8px 10px;text-align:left;font-weight:600}
+.evidence-table th.num,.evidence-table td.num{text-align:right}
+.evidence-table tbody tr{border-top:1px solid var(--color-border)}
+.evidence-table td{padding:6px 10px}
+.section-divider{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--color-text-muted);margin:32px 0 12px;border-bottom:1px solid var(--color-border);padding-bottom:6px}
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500;background:#F0EDF7;color:var(--color-primary);margin-left:4px}
+@media(max-width:1100px){.chart-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / AutoExplore — Channel × ROAS Efficiency</div>
+    <div class="topbar-sub">Evidence dashboard · 22 hypotheses tested · 7 confirmed findings · generated 2026-04-26</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+
+<div class="container">
+
+  <div class="intro">
+    <h2>Bottom line</h2>
+    <p><strong>Channel choice dominates everything.</strong> Within-channel variation by industry, tier, geography, campaign type, and quarter is &lt; 0.5x. Between-channel ROAS spans <strong>1.58x to 15.64x</strong> — a <strong>10× gap</strong> that has held for 7 straight years.</p>
+    <p>The agency is allocating <strong>against</strong> ROAS: from 2018 to 2024, share moved <em>toward</em> Direct Mail (1.58x) and <em>away</em> from Display/Programmatic (15.64x).</p>
+    <p>If 10% of Direct Mail's 2024 spend ($7.5M) had been redirected to Display/Programmatic, attributed revenue would have grown by an estimated <strong>$105M</strong> (15.64x − 1.58x = 14.06x ROAS lift on $7.5M).</p>
+    <div class="meta">Source: FACT_CAMPAIGN_PERFORMANCE × DIM_CHANNEL × DIM_CAMPAIGN × DIM_CLIENT × DIM_GEOGRAPHY · 2018–2024 · 2,759,860 daily rows · 1,035 campaigns · 19 active clients · 15 channels · 40 markets. AutoExplore directed run, 22 hypotheses tested.</div>
+  </div>
+
+  <div class="section-divider">Confirmed findings</div>
+
+  <!-- Finding 1 -->
+  <div class="finding">
+    <span class="finding-num">Finding 1</span><span class="finding-confidence">Confirmed · High evidence</span>
+    <div class="finding-headline">Display/Programmatic delivers 15.64x ROAS but only gets 2.4% of media spend</div>
+    <div class="finding-shows">In 2024, Display/Programmatic returned $116.0M of attributed revenue on $7.4M of spend. That ROAS is <strong>4.1× higher than the next-best channel</strong> (Paid Social, 8.50x) and <strong>9.9× higher than the highest-spend channel</strong> (Direct Mail, 1.58x at $75.3M). 12 of the top 15 highest-ROAS campaigns of 2024 are Display/Programmatic.</div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF1"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> The agency is leaving an estimated $105M+ in attributed revenue on the table by under-allocating to Display. Even a 10% reallocation from Direct Mail would dwarf any tactical optimization elsewhere in the kit.</div>
+  </div>
+
+  <!-- Finding 2 -->
+  <div class="finding">
+    <span class="finding-num">Finding 2</span><span class="finding-confidence">Confirmed · High evidence</span>
+    <div class="finding-headline">From 2018 to 2024, allocation moved AWAY from high-ROAS channels</div>
+    <div class="finding-shows">Direct Mail's share of media spend grew from 15.22% in 2018 to <strong>23.89%</strong> in 2024 — a +8.7pp shift toward the worst-ROAS channel. Display/Programmatic's share dropped from 3.29% to <strong>2.35%</strong>. Paid Search dropped from 7.18% to 5.48%. Streaming Audio dropped from 6.09% to 4.24%. The agency systematically increased its bet on low-ROAS print and reduced its bet on high-ROAS digital.</div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF2"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> This is a directional, multi-year drift — not a one-off tactical decision. It deserves a portfolio review: who's making the channel-mix call, and is anyone tracking spend share against ROAS rank? Recommended action: build a quarterly "spend share vs ROAS rank" delta chart so the drift is visible and contestable in planning meetings.</div>
+  </div>
+
+  <!-- Finding 3 -->
+  <div class="finding">
+    <span class="finding-num">Finding 3</span><span class="finding-confidence">Confirmed · High evidence</span>
+    <div class="finding-headline">Channel choice is destiny — sub-segments don't move the needle</div>
+    <div class="finding-shows">Within-channel ROAS variation across industry, account tier, geography, campaign type, and quarter is <strong>under 0.5x for every channel</strong>. Display/Programmatic ranges 14.6x (Manufacturing) to 16.9x (Hospitality) — a 2.3x band, but still ~5× higher than any other channel's max. Direct Mail's <em>best</em> sub-segment (Manufacturing × ABM) is 1.67x — still 9× lower than Display's worst.</div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF3"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> Stop trying to "fix" Direct Mail with better targeting or different campaign types — there is no rescue path in the data. The lever is the channel itself, not the segmentation. Conversely, Display works almost regardless of who you point it at.</div>
+  </div>
+
+  <!-- Finding 4 -->
+  <div class="finding">
+    <span class="finding-num">Finding 4</span><span class="finding-confidence">Confirmed · High evidence</span>
+    <div class="finding-headline">ROAS rankings have been frozen for 7 years — the gap is structural</div>
+    <div class="finding-shows">Display/Programmatic ROAS over 2018–2024: 15.51, 15.63, 15.50, 15.71, 15.51, 15.87, 15.64. Direct Mail: 1.58, 1.56, 1.55, 1.56, 1.54, 1.58, 1.58. Best/worst-channel ROAS ratio every year: 9.79 to 10.07. <strong>Channel ROAS behaves like a constant, not a variable.</strong></div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF4"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> No need for "year of test learning" or experimentation budgets within an established channel. The data has been making its case for 7 years. Decisions can be made on the existing dataset without further tactical optimization. The lever is allocation, not within-channel tuning.</div>
+  </div>
+
+  <!-- Finding 5 -->
+  <div class="finding">
+    <span class="finding-num">Finding 5</span><span class="finding-confidence">Confirmed · Medium evidence</span>
+    <div class="finding-headline">Channel diversification follows an inverted-U — peak at 4 channels</div>
+    <div class="finding-shows">Among 186 campaigns in 2024 with multi-channel footprints: 2-channel = 3.59x ROAS ($2.3M spend, 16 campaigns), 3-channel = 3.68x ($32.9M, 56), <strong>4-channel = 4.17x ($78.0M, 60)</strong>, 5-channel = 3.68x ($201.9M, 54). Going from 4 to 5 channels destroys ~12% of ROAS even though 5-channel campaigns command <strong>64% of total media spend</strong>.</div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF5"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> The 5th channel added to a campaign is almost always Direct Mail or Connected TV (the two highest-spend, lowest-ROAS channels). Planning teams are reflexively layering on those channels for "coverage" — at the cost of the campaign's blended ROAS. Caveat: this finding is partly a composition artifact (5-channel campaigns over-weight DM/CTV); but the operational implication holds.</div>
+  </div>
+
+  <!-- Finding 6 -->
+  <div class="finding">
+    <span class="finding-num">Finding 6</span><span class="finding-confidence">Confirmed · High evidence</span>
+    <div class="finding-headline">Within-channel ROAS scales positively with campaign size — no saturation in the data</div>
+    <div class="finding-shows">Every channel improves as campaign size grows. Direct Mail: 1.35x (&lt;$500K) → 1.54x ($500K–$1.5M) → 1.60x ($1.5M+). Out-of-Home: 4.48x → 4.67x. Streaming Audio: 6.58x → 7.51x. Paid Social: 8.28x → 8.78x. Display/Programmatic: 15.28x → 15.72x — but the dataset has <strong>zero Display campaigns above $500K</strong>. The biggest Display campaign of 2024 was $410K (Meridian Health × Customer Retention). Pure untapped runway.</div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF6"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> The agency could double-down on existing channels — particularly Display — without expecting saturation. Test a single $1M Display campaign against the existing $300–$400K cohort to validate the scaling curve, but the historical data argues for scaling.</div>
+  </div>
+
+  <!-- Finding 7 -->
+  <div class="finding">
+    <span class="finding-num">Finding 7</span><span class="finding-confidence">Confirmed · High evidence</span>
+    <div class="finding-headline">Display/Programmatic is concentrated in 7 of 19 clients — 12 don't use it</div>
+    <div class="finding-shows">Of the top 20 Display campaigns by spend in 2024, all are run by 7 clients: Meridian Health Systems, HorizonTech Corp, Vertex Financial Group, Pinnacle Tire Co, Vantage Energy Solutions, NorthStar Credit Union, ClearPath Insurance. The other 12 active clients have Display spend below $100K — or none at all. Adoption is a binary: clients either commit to Display or skip it.</div>
+    <div class="chart-row">
+      <div class="chart-cell tall full"><canvas id="cF7"></canvas></div>
+    </div>
+    <div class="finding-sowhat"><strong>So what:</strong> The Display upside is not just "spend more" — it's "convert the other 12 clients." A single 30-minute account-management conversation introducing Display to (e.g.) Onyx Sports, Elevate Apparel, BlueSky Travel could 3-5× their attributed revenue, holding spend constant. This is the highest-ROI sales motion the agency could run with its existing book.</div>
+  </div>
+
+  <!-- Null findings -->
+  <div class="section-divider">Null findings (what the data did NOT support)</div>
+
+  <div class="finding" style="border-left-color:var(--color-tertiary)">
+    <span class="finding-num" style="background:var(--color-tertiary)">Null A</span>
+    <span class="finding-confidence null">Hypothesis disproven</span>
+    <div class="finding-headline">Owned channels (Email, SMS, Loyalty) do NOT lift Paid ROAS</div>
+    <div class="finding-shows">We tested whether clients with high Owned-channel adoption (Email, SMS, Loyalty/CRM) saw better Paid ROAS — the "halo effect" hypothesis. The correlation is weak: clients with 33% owned share (Cornerstone Education) had 5.55x paid ROAS, but clients with 5–7% owned share (CoreFirst Bank, Atlas Logistics) hit 4.81–4.84x. There's no monotonic relationship.</div>
+  </div>
+
+  <div class="finding" style="border-left-color:var(--color-tertiary)">
+    <span class="finding-num" style="background:var(--color-tertiary)">Null B</span>
+    <span class="finding-confidence null">Hypothesis disproven</span>
+    <div class="finding-headline">Quarterly seasonality is essentially zero for channel ROAS</div>
+    <div class="finding-shows">Q1–Q4 ROAS variation per channel is &lt;0.1x for most channels. Connected TV: 2.47–2.53x. Direct Mail: 1.57–1.59x. There's no calendar-driven channel-shifting opportunity.</div>
+  </div>
+
+  <div class="finding" style="border-left-color:var(--color-tertiary)">
+    <span class="finding-num" style="background:var(--color-tertiary)">Null C</span>
+    <span class="finding-confidence null">Hypothesis disproven</span>
+    <div class="finding-headline">Frequency optimization is not a lever</div>
+    <div class="finding-shows">Average frequency is 1.45 across all 15 channels — flat. The agency runs every channel with the same frequency strategy, so this isn't a tactical lever to differentiate ROAS within the existing playbook.</div>
+  </div>
+
+  <div class="finding" style="border-left-color:var(--color-tertiary)">
+    <span class="finding-num" style="background:var(--color-tertiary)">Null D</span>
+    <span class="finding-confidence null">Methodology note</span>
+    <div class="finding-headline">CTR / CVR / engagement rates are uniform across channels</div>
+    <div class="finding-shows">Every channel converts at ~26.4‰ CTR and ~6.6% CVR. The differentiator between channels is purely cost-per-impression, not conversion behavior. This is consistent with the campaign performance data being attribution-modeled rather than measured per-channel — interpret per-channel ROAS as relative cost efficiency, not absolute audience quality.</div>
+  </div>
+
+  <div style="font-size:12px;color:var(--color-text-muted);margin-top:32px;padding-top:16px;border-top:1px solid var(--color-border)">
+    Methodology: directed AutoExplore over FACT_CAMPAIGN_PERFORMANCE (2.76M daily rows, 2018–2024) × DIM_CHANNEL × DIM_CAMPAIGN × DIM_CLIENT × DIM_GEOGRAPHY. 22 hypotheses tested across channel × dimension intersections. All headline numbers reconcile to VALIDATION_BENCHMARKS.md. Display/Programmatic ROAS appears unrealistically high (15.6x); a portion of this may reflect attribution-modeling artifacts rather than incremental lift — but the relative ranking holds across every cut.
+  </div>
+</div>
+
+<script>
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+
+// ===== Finding 1: Channels by spend AND ROAS - asymmetric =====
+var F1_DATA=[
+  {n:'Direct Mail',spend:75.3,roas:1.58},{n:'Connected TV',spend:53.7,roas:2.51},{n:'Print Advertising',spend:38.5,roas:3.04},
+  {n:'Out-of-Home',spend:31.7,roas:4.63},{n:'Event/Experiential',spend:27.4,roas:3.68},{n:'Paid Search',spend:17.3,roas:6.84},
+  {n:'Paid Social',spend:16.0,roas:8.50},{n:'In-Store Signage',spend:13.4,roas:3.25},{n:'Streaming Audio',spend:13.3,roas:7.35},
+  {n:'Email',spend:10.1,roas:3.24},{n:'Display / Programmatic',spend:7.4,roas:15.64},{n:'Loyalty / CRM',spend:4.8,roas:3.25},
+  {n:'SMS / Push',spend:4.0,roas:3.25},{n:'Organic Social',spend:1.1,roas:3.26},{n:'Augmented Reality',spend:1.0,roas:3.24}
+];
+mk('cF1',{type:'bar',data:{labels:F1_DATA.map(function(d){return d.n}),datasets:[
+  {type:'bar',label:'2024 Spend ($M)',data:F1_DATA.map(function(d){return d.spend}),backgroundColor:'#A490C2',yAxisID:'y'},
+  {type:'line',label:'ROAS (x)',data:F1_DATA.map(function(d){return d.roas}),borderColor:'#4A4E8F',backgroundColor:'#4A4E8F',pointRadius:6,pointBackgroundColor:F1_DATA.map(function(d){return d.n==='Display / Programmatic'?'#F59E0B':'#4A4E8F'}),pointBorderColor:F1_DATA.map(function(d){return d.n==='Display / Programmatic'?'#F59E0B':'#4A4E8F'}),pointRadius:F1_DATA.map(function(d){return d.n==='Display / Programmatic'?10:5}),tension:0,yAxisID:'y1'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+(c.dataset.label.indexOf('ROAS')>=0?c.parsed.y.toFixed(2)+'x':'$'+c.parsed.y.toFixed(1)+'M')}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}},y:{position:'left',grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}},title:{display:true,text:'2024 Spend ($M)',color:'#5A5470'}},y1:{position:'right',min:0,max:18,grid:{display:false},ticks:{color:'#5A5470',callback:function(v){return v+'x'}},title:{display:true,text:'ROAS (x)',color:'#5A5470'}}}}});
+
+// ===== Finding 2: Mix shift 2018 vs 2024 =====
+var F2_DATA=[
+  {n:'Direct Mail',y2018:15.22,y2024:23.89,roas:1.58},
+  {n:'Connected TV',y2018:18.35,y2024:17.05,roas:2.51},
+  {n:'Print Advertising',y2018:14.80,y2024:12.23,roas:3.04},
+  {n:'Out-of-Home',y2018:9.06,y2024:10.06,roas:4.63},
+  {n:'Event/Experiential',y2018:10.10,y2024:8.71,roas:3.68},
+  {n:'Paid Search',y2018:7.18,y2024:5.48,roas:6.84},
+  {n:'Paid Social',y2018:5.15,y2024:5.08,roas:8.50},
+  {n:'Streaming Audio',y2018:6.09,y2024:4.24,roas:7.35},
+  {n:'Display / Programmatic',y2018:3.29,y2024:2.35,roas:15.64}
+];
+mk('cF2',{type:'bar',data:{labels:F2_DATA.map(function(d){return d.n+' ('+d.roas+'x)'}),datasets:[
+  {label:'2018 share %',data:F2_DATA.map(function(d){return d.y2018}),backgroundColor:'#94A3B8'},
+  {label:'2024 share %',data:F2_DATA.map(function(d){return d.y2024}),backgroundColor:'#4A4E8F'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v+'%'}},title:{display:true,text:'Share of total media spend',color:'#5A5470'}}}}});
+
+// ===== Finding 3: ROAS by industry within Display vs DM =====
+var F3_DISPLAY=[16.92,16.00,15.96,15.79,15.73,15.73,15.68,15.64,15.63,15.33,15.18,15.17,15.03,14.57,14.37,14.09];
+var F3_DM_BEST=[1.67,1.64,1.64,1.63,1.63,1.63,1.61,1.61,1.61,1.60,1.60,1.60,1.59,1.59,1.59,1.58];
+mk('cF3',{type:'bar',data:{labels:F3_DISPLAY.map(function(_,i){return '#'+(i+1)}),datasets:[
+  {label:'Display/Programmatic ROAS by industry-tier (top 16)',data:F3_DISPLAY,backgroundColor:'#4A4E8F'},
+  {label:'Direct Mail ROAS by industry × campaign-type (top 16)',data:F3_DM_BEST,backgroundColor:'#A490C2'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(2)+'x'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v+'x'}},title:{display:true,text:'ROAS — Display worst still 9× DM best',color:'#5A5470'}}}}});
+
+// ===== Finding 4: 7-year ROAS stability =====
+var YEARS=[2018,2019,2020,2021,2022,2023,2024];
+mk('cF4',{type:'line',data:{labels:YEARS.map(String),datasets:[
+  {label:'Display / Programmatic',data:[15.51,15.63,15.50,15.71,15.51,15.87,15.64],borderColor:'#4A4E8F',backgroundColor:'rgba(74,78,143,.1)',tension:.3,pointRadius:5,pointBackgroundColor:'#4A4E8F'},
+  {label:'Paid Social',data:[8.30,8.45,8.45,8.51,8.49,8.51,8.50],borderColor:'#A490C2',backgroundColor:'rgba(164,144,194,.1)',tension:.3,pointRadius:4},
+  {label:'Streaming Audio',data:[7.20,7.22,7.21,7.20,7.36,7.27,7.35],borderColor:'#0EA5E9',backgroundColor:'rgba(14,165,233,.1)',tension:.3,pointRadius:4},
+  {label:'Paid Search',data:[6.83,6.78,6.85,6.84,6.92,6.87,6.84],borderColor:'#F59E0B',backgroundColor:'rgba(245,158,11,.1)',tension:.3,pointRadius:4},
+  {label:'Out-of-Home',data:[4.55,4.58,4.51,4.57,4.56,4.53,4.63],borderColor:'#94A3B8',backgroundColor:'rgba(148,163,184,.1)',tension:.3,pointRadius:4},
+  {label:'Direct Mail',data:[1.58,1.56,1.55,1.56,1.54,1.58,1.58],borderColor:'#5A5470',backgroundColor:'rgba(90,84,112,.1)',tension:.3,pointRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:11},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(2)+'x'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{type:'logarithmic',min:1,max:20,grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v+'x'}},title:{display:true,text:'ROAS (log scale) — channels never cross over',color:'#5A5470'}}}}});
+
+// ===== Finding 5: Channel diversification curve (line on top) =====
+mk('cF5',{type:'bar',data:{labels:['2 channels (16 camp)','3 channels (56 camp)','4 channels (60 camp)','5 channels (54 camp)'],datasets:[
+  {type:'bar',label:'Spend ($M)',data:[2.3,32.9,78.0,201.9],backgroundColor:'rgba(164,144,194,0.55)',borderColor:'#A490C2',borderWidth:1,yAxisID:'y',order:2},
+  {type:'line',label:'Blended ROAS',data:[3.59,3.68,4.17,3.68],borderColor:'#2B1E3E',backgroundColor:'rgba(74,78,143,0.08)',pointBackgroundColor:['#4A4E8F','#4A4E8F','#F59E0B','#4A4E8F'],pointBorderColor:'#FFFFFF',pointBorderWidth:2,pointRadius:[8,8,14,8],pointHoverRadius:[10,10,16,10],borderWidth:4,tension:0.2,fill:false,yAxisID:'y1',order:0}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+(c.dataset.label.indexOf('ROAS')>=0?c.parsed.y.toFixed(2)+'x':'$'+c.parsed.y.toFixed(1)+'M')}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{position:'left',grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}},title:{display:true,text:'Total spend',color:'#5A5470'}},y1:{position:'right',min:3,max:5,grid:{display:false},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(1)+'x'}},title:{display:true,text:'Blended ROAS',color:'#5A5470'}}}}});
+
+// ===== Finding 6: Within-channel ROAS scaling =====
+mk('cF6',{type:'bar',data:{labels:['Direct Mail','Out-of-Home','Streaming Audio','Paid Social','Paid Search','Display / Programmatic'],datasets:[
+  {label:'<$100K',data:[null,null,6.58,null,null,15.28],backgroundColor:'#94A3B8'},
+  {label:'$100-500K',data:[1.35,4.48,7.26,8.28,6.81,15.72],backgroundColor:'#A490C2'},
+  {label:'$500K-1.5M',data:[1.54,4.67,7.51,8.78,6.93,null],backgroundColor:'#4A4E8F'},
+  {label:'$1.5M+',data:[1.60,null,null,null,null,null],backgroundColor:'#0EA5E9'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:11},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2)+'x':'no data')}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470',font:{size:11}}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v+'x'}},title:{display:true,text:'ROAS — Display has no campaigns above $500K',color:'#5A5470'}}}}});
+
+// ===== Finding 7: Display adoption per client =====
+var F7_USERS=['Meridian Health Systems','Vertex Financial Group','HorizonTech Corp','NorthStar Credit Union','Pinnacle Tire Co','ClearPath Insurance','Vantage Energy Solutions'];
+var F7_USER_SPEND=[1825937,1304033+170057,895178+30622,170057,321830,377605,530373];
+var F7_NONUSERS=['CoreFirst Bank','Elevate Apparel','Luxe Beauty Co','Cascadia Brewing','BlueSky Travel','Onyx Sports','Atlas Logistics','Brightwave Media','Pacific Realty','Cornerstone Education','Redwood Analytics','Summit Pizza Group'];
+mk('cF7',{type:'bar',data:{labels:F7_USERS.concat(F7_NONUSERS),datasets:[
+  {label:'2024 Display spend ($K)',data:F7_USER_SPEND.map(function(s){return s/1000}).concat(F7_NONUSERS.map(function(){return 0})),backgroundColor:F7_USERS.map(function(){return '#4A4E8F'}).concat(F7_NONUSERS.map(function(){return '#D32F2F'}))}
+]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(0)+'K Display spend'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'K'}},title:{display:true,text:'12 of 19 clients have $0 Display spend (red)',color:'#5A5470'}},y:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}}}}});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

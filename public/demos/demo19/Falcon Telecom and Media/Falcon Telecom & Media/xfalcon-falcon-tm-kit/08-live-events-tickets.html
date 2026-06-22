@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 8. Live Events & Tickets</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.filter-bar{background:#FFF;border-bottom:1px solid var(--color-border);padding:14px 24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.filter-group select{border:1px solid var(--color-border);background:#FFF;color:var(--color-text);padding:7px 10px;border-radius:4px;font-family:inherit;font-size:13px;min-width:130px;}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:7px 10px;border:1px solid var(--color-border);border-radius:4px;background:#FFF;}
+.toggle-switch{width:32px;height:18px;border-radius:10px;background:#CBD5E1;position:relative;transition:background 0.18s ease;}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#FFF;transition:left 0.18s ease;}
+.toggle-switch.active{background:var(--color-primary);}.toggle-switch.active::after{left:16px;}.toggle-label{font-size:13px;font-weight:500;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:32px 0 14px 0;display:flex;align-items:center;gap:10px;}
+.section-title:first-of-type{margin-top:8px;}.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;margin-bottom:6px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);line-height:1.1;letter-spacing:-0.5px;}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px;}
+.kpi-delta.positive{color:var(--color-positive);}.kpi-delta.negative{color:var(--color-negative);}.kpi-delta.neutral{color:var(--color-neutral);}
+.kpi-stack-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:var(--color-text-muted);}
+.kpi-stack-row .v{color:var(--color-text);font-weight:600;font-variant-numeric:tabular-nums;}
+.charts-row{display:grid;gap:16px;margin-top:8px;}.charts-row.two{grid-template-columns:1fr 1fr;}.charts-row.split{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.charts-row.two,.charts-row.split{grid-template-columns:1fr;}}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin:0 0 14px 0;}.chart-wrap{position:relative;height:300px;}
+.detail-table{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;width:100%;border-collapse:collapse;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.detail-table th{background:var(--color-secondary);color:var(--color-text-on-dark);text-align:left;padding:12px 14px;font-size:13px;font-weight:600;}
+.detail-table td{padding:10px 14px;font-size:13px;border-top:1px solid var(--color-border);}
+.detail-table tr:hover td{background:#F8FAFC;}.detail-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);line-height:1.5;}.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media / 8. Live Events &amp; Tickets</div><div class="topbar-subtitle" id="subtitle">Reporting Period: FY 2025</div></div></div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+<div class="filter-bar">
+  <div class="filter-group"><label for="yearSel">Year</label><select id="yearSel" onchange="applyFilters()"><option value="2025" selected>2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select></div>
+  <div class="filter-group"><label>&nbsp;</label><div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div></div>
+</div>
+<div class="container">
+  <div class="section-title">Live Events KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Annual &amp; Event-Type Trends</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Ticket Revenue by Year ($M) — Note: COVID 2020 dip</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">2025 Revenue by Event Type</div><div class="chart-wrap"><canvas id="evTypeChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Tier Mix &amp; Pricing</div>
+  <div class="charts-row two">
+    <div class="chart-card"><div class="chart-title">Lifetime Revenue by Ticket Tier</div><div class="chart-wrap" style="height:340px;"><canvas id="tierChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Avg Face Value &amp; Markup by Tier</div><div class="chart-wrap" style="height:340px;"><canvas id="priceChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Event Type — 2025 Detail</div>
+  <table class="detail-table">
+    <thead><tr><th>Event Type</th><th class="num">Transactions</th><th class="num">Tickets Sold</th><th class="num">Revenue</th><th class="num">Avg Face Value</th><th class="num">Resale Revenue</th></tr></thead>
+    <tbody id="evTable"></tbody>
+  </table>
+
+  <div class="disclaimer"><strong>Data:</strong> FACT_TICKET_SALES · 350K transactions · 1,200 events · 8 tier levels · <strong>Notes:</strong> COVID drove near-total collapse Mar–Aug 2020 (only 8% of normal volume) · VIP tiers (3 of 8) drove 65% of revenue from 25% of ticket count · Dynamic markup avg 5%, std dev 12% · Resale carries premium</div>
+</div>
+
+<script>
+// [year, total_rev_M, txns, tickets, avg_face]
+var ANNUAL = [
+  [2018, 40.22, 36647,  90728, 358],
+  [2019, 44.84, 38745,  96304, 374],
+  [2020, 19.53, 16480,  41280, 384],
+  [2021, 49.85, 41924, 105464, 405],
+  [2022, 58.81, 45920, 115724, 419],
+  [2023, 65.25, 47023, 117416, 437],
+  [2024, 74.27, 49452, 124413, 455],
+  [2025, 80.04, 51481, 129218, 469]
+];
+// 2025 by event type [event, txns, tickets, rev_M, avg_face, resale_rev_M]
+var EVENTS_2025 = [
+  ['Concert', 10159, 25403, 14.83, 476, 1.74],
+  ['UFC Fight Night', 6993, 17428, 9.89, 464, 1.11],
+  ['WWE SmackDown', 6413, 16078, 9.19, 465, 1.10],
+  ['WWE Raw', 5420, 13545, 7.97, 476, 0.99],
+  ['Festival', 5530, 13983, 7.81, 458, 0.95],
+  ['NBA Game', 4876, 12216, 7.15, 477, 0.93],
+  ['NFL Game', 3081, 7785, 4.59, 480, 0.63],
+  ['Boxing Match', 3028, 7549, 4.49, 485, 0.57],
+  ['UFC PPV', 2863, 7200, 4.25, 477, 0.52],
+  ['MLB Game', 2669, 6597, 3.73, 467, 0.45],
+  ['WWE PLE', 2246, 5633, 3.06, 446, 0.38],
+  ['MLS Match', 2133, 5351, 2.97, 458, 0.34]
+];
+// Tier mix [tier, is_vip, txns, rev_M, avg_face, avg_markup]
+var TIERS = [
+  ['Meet & Greet', true, 43827, 190.86, 1417.50, 109.13],
+  ['Floor/Ringside', true, 43985, 119.65,  885.14,  68.39],
+  ['VIP Suite', true, 43963,  71.79,  531.68,  41.11],
+  ['Premium Seat', false, 43989, 29.51, 218.60, 16.94],
+  ['Standard Seat', false, 43659, 14.97, 112.21,  8.60],
+  ['Early Entry', false, 43445, 10.24,  76.79,   5.89],
+  ['Pay-Per-View', false, 43263,  9.40,  70.90,   5.46],
+  ['General Admission', false, 43869,  7.18,  53.17,   4.13]
+];
+
+var state={year:2025,compare:false};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();var ctx=document.getElementById(id).getContext('2d');chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+function fmt(n,d){d=(d===undefined)?1:d;return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtInt(n){return Math.round(n).toLocaleString('en-US');}
+function getPalette(){var t=document.documentElement.getAttribute('data-theme')||'spectrum';if(t==='tech')return{primary:'#00D4FF',secondary:'#7C3AED',tertiary:'#94A3B8',ext1:'#7CFF01',ext2:'#FF00C8',grid:'rgba(255,255,255,0.06)',text:'#F1F5F9',textMuted:'#94A3B8'};return{primary:'#0099D8',secondary:'#003057',tertiary:'#77787B',ext1:'#0EA5E9',ext2:'#F59E0B',grid:'rgba(15,23,42,0.05)',text:'#0F172A',textMuted:'#64748B'};}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var l=els[i].textContent.length;els[i].style.fontSize=l>12?'18px':(l>8?'22px':'28px');}}
+function deltaPct(c,p){if(!p)return null;return (c-p)/p*100;}
+function deltaText(d){if(d===null||isNaN(d))return '<div class="kpi-delta neutral">—</div>';var cls=d>0?'positive':(d<0?'negative':'neutral');var arr=d>0?'↑ ':(d<0?'↓ ':'');return '<div class="kpi-delta '+cls+'">'+arr+fmt(Math.abs(d),1)+'% vs LY</div>';}
+function rowFor(yr){for(var i=0;i<ANNUAL.length;i++)if(ANNUAL[i][0]===yr)return ANNUAL[i];return null;}
+
+function vipShare(){var v=0,t=0;for(var i=0;i<TIERS.length;i++){t+=TIERS[i][3];if(TIERS[i][1])v+=TIERS[i][3];}return v/t*100;}
+
+function renderKpis(){
+  var grid=document.getElementById('kpiGrid');
+  if(state.compare){
+    var rows=ANNUAL.filter(function(r){return r[0]>=2023;});
+    grid.innerHTML =
+      kpiCompare('Total Revenue',rows,function(r){return r[1];},function(v){return '$'+fmt(v,2)+'M';}) +
+      kpiCompare('Transactions',rows,function(r){return r[2];},function(v){return fmtInt(v);}) +
+      kpiCompare('Tickets Sold',rows,function(r){return r[3];},function(v){return fmtInt(v);}) +
+      kpiCompare('Avg Face Value',rows,function(r){return r[4];},function(v){return '$'+fmt(v,0);}) +
+      kpiCompare('Avg Tickets/Txn',rows,function(r){return r[3]/r[2];},function(v){return fmt(v,2);}) +
+      kpiCompare('Rev per Ticket',rows,function(r){return r[1]*1e6/r[3];},function(v){return '$'+fmt(v,2);}) +
+      kpiCompare('VIP Rev Share',rows,function(){return vipShare();},function(v){return fmt(v,1)+'%';}) +
+      kpiCompare('Top Event Type',rows,function(){return 14.83;},function(){return 'Concerts';});
+  } else {
+    var r=rowFor(state.year),p=rowFor(state.year-1);
+    grid.innerHTML =
+      kpiSingle('Total Rev '+state.year,'$'+fmt(r[1],2)+'M',p?deltaPct(r[1],p[1]):null) +
+      kpiSingle('Transactions '+state.year,fmtInt(r[2]),p?deltaPct(r[2],p[2]):null) +
+      kpiSingle('Tickets Sold '+state.year,fmtInt(r[3]),p?deltaPct(r[3],p[3]):null) +
+      kpiSingle('Avg Face Value '+state.year,'$'+fmt(r[4],0),p?deltaPct(r[4],p[4]):null) +
+      kpiSingle('Tickets/Txn '+state.year,fmt(r[3]/r[2],2),p?deltaPct(r[3]/r[2],p[3]/p[2]):null) +
+      kpiSingle('Rev/Ticket '+state.year,'$'+fmt(r[1]*1e6/r[3],2),p?deltaPct(r[1]*1e6/r[3],p[1]*1e6/p[3]):null) +
+      kpiSingle('VIP Rev Share','65.0%',null) +
+      kpiSingle('Top Event '+state.year,'Concerts',null);
+  }
+  fitKpiText();
+}
+function kpiSingle(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div>'+deltaText(d)+'</div>';}
+function kpiCompare(label,rows,deriveFn,fmtFn){var html='<div class="kpi-card"><div class="kpi-label">'+label+'</div>';var first=null,last=null;for(var i=0;i<rows.length;i++){var r=rows[i];var v=deriveFn(r);if(first===null)first=v;last=v;html+='<div class="kpi-stack-row"><span>'+r[0]+'</span><span class="v">'+fmtFn(v)+'</span></div>';}var n=rows.length-1;if(n>0&&first>0){var c=(Math.pow(last/first,1/n)-1)*100;var cls=c>0?'positive':(c<0?'negative':'neutral');html+='<div class="kpi-delta '+cls+'" style="margin-top:8px;">CAGR: '+(c>0?'+':'')+fmt(c,1)+'%</div>';}return html+'</div>';}
+
+function renderTrend(){
+  var p=getPalette();var labels=ANNUAL.map(function(r){return String(r[0]);});
+  mk('trendChart',{type:'bar',
+    data:{labels:labels,datasets:[{label:'Total Revenue ($M)',data:ANNUAL.map(function(r){return r[1];}),backgroundColor:p.primary,borderColor:p.primary,borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.y,2)+'M';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}}}}
+  });
+}
+
+function renderEvType(){
+  var p=getPalette();
+  mk('evTypeChart',{type:'bar',
+    data:{labels:EVENTS_2025.map(function(e){return e[0];}),datasets:[{label:'Revenue ($M)',data:EVENTS_2025.map(function(e){return e[3];}),backgroundColor:p.primary,borderColor:p.primary,borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.x,2)+'M';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:10}}}}}
+  });
+}
+
+function renderTier(){
+  var p=getPalette();
+  mk('tierChart',{type:'bar',
+    data:{labels:TIERS.map(function(t){return t[0];}),datasets:[{label:'Lifetime Revenue ($M)',data:TIERS.map(function(t){return t[3];}),backgroundColor:TIERS.map(function(t){return t[1]?p.primary:p.tertiary;}),borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.x,2)+'M ('+(TIERS[c.dataIndex][1]?'VIP':'standard')+')';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderPrice(){
+  var p=getPalette();
+  mk('priceChart',{type:'bar',
+    data:{labels:TIERS.map(function(t){return t[0];}),datasets:[
+      {label:'Avg Face Value',data:TIERS.map(function(t){return t[4];}),backgroundColor:p.primary,borderWidth:1},
+      {label:'Avg Markup',data:TIERS.map(function(t){return t[5];}),backgroundColor:p.secondary,borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fmt(c.parsed.y,2);}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text,font:{size:10},maxRotation:30,minRotation:30}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v;}}}}}
+  });
+}
+
+function renderTable(){
+  var tbody=document.getElementById('evTable');tbody.innerHTML='';
+  for(var i=0;i<EVENTS_2025.length;i++){
+    var e=EVENTS_2025[i];var tr=document.createElement('tr');
+    var cells=[e[0],fmtInt(e[1]),fmtInt(e[2]),'$'+fmt(e[3],2)+'M','$'+fmt(e[4],0),'$'+fmt(e[5],2)+'M'];
+    var cls=['','num','num','num','num','num'];
+    for(var j=0;j<cells.length;j++){var td=document.createElement('td');td.textContent=cells[j];if(cls[j])td.className=cls[j];tr.appendChild(td);}
+    tbody.appendChild(tr);
+  }
+}
+
+function applyFilters(){state.year=parseInt(document.getElementById('yearSel').value,10);document.getElementById('subtitle').textContent=state.compare?'Reporting Period: All Years (Compare)':'Reporting Period: FY '+state.year;renderKpis();renderTrend();renderEvType();renderTier();renderPrice();renderTable();}
+function toggleCompare(){state.compare=!state.compare;var s=document.getElementById('cmpSwitch');if(state.compare)s.classList.add('active');else s.classList.remove('active');document.getElementById('yearSel').disabled=state.compare;applyFilters();}
+document.addEventListener('DOMContentLoaded',applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

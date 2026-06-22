@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Performance - Falcon Finance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #1A1A2E; min-height: 100vh; }
+        .topbar { background: #1D3557; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .topbar-left { display: flex; align-items: center; }
+        .logo { font-weight: 800; font-size: 22px; }
+        .logo .x { color: #A8DADC; }
+        .logo .f { color: #E63946; }
+        .topbar .title { color: #F1FAEE; font-weight: 600; font-size: 16px; margin-left: 14px; }
+        .back-link { color: #A8DADC; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 32px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #5F6B7A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1D3557; margin-bottom: 8px; }
+        .kpi-change { font-size: 13px; font-weight: 500; }
+        .kpi-positive { color: #2E7D32; }
+        .kpi-negative { color: #D32F2F; }
+        .chart-section { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 24px; margin-bottom: 32px; }
+        .chart-title { font-size: 16px; font-weight: 700; color: #1D3557; margin-bottom: 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: 32px; margin-bottom: 32px; }
+        .chart-container { position: relative; height: 400px; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+        .table-section { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 24px; margin-bottom: 32px; }
+        .table-title { font-size: 16px; font-weight: 700; color: #1D3557; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1D3557; padding: 12px; text-align: left; font-weight: 600; font-size: 12px; color: #F1FAEE; }
+        td { padding: 12px; border-bottom: 1px solid #ECEEF1; font-size: 13px; color: #1A1A2E; }
+        tr:hover { background: #F8FAFC; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-tier1 { background: #DBEAFE; color: #0C63E4; }
+        .badge-tier2 { background: #D1FAE5; color: #059669; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="x">x</span><span class="f">F</span></div>
+            <div class="title">Falcon Finance / 7. Partner Performance</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Credit Sales (2025)</div>
+                <div class="kpi-value">$70.5M</div>
+                <div class="kpi-change kpi-negative">↓ 14.8% YoY vs $82.8M (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">New Accounts Opened (2025)</div>
+                <div class="kpi-value">50.1K</div>
+                <div class="kpi-change kpi-negative">↓ 17.9% YoY vs 61.1K (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Credit Applications (2025)</div>
+                <div class="kpi-value">81.2K</div>
+                <div class="kpi-change kpi-negative">↓ 16.3% YoY vs 97.0K (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Approval Rate (2025)</div>
+                <div class="kpi-value">61.9%</div>
+                <div class="kpi-change kpi-negative">↓ 0.9pp YoY vs 62.8% (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Interchange Revenue (2025)</div>
+                <div class="kpi-value">$1.27M</div>
+                <div class="kpi-change kpi-negative">↓ 15.1% YoY vs $1.50M (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Net Interest Income (2025)</div>
+                <div class="kpi-value">$497.1K</div>
+                <div class="kpi-change kpi-negative">↓ 19.5% YoY vs $617.6K (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Partner Revenue Share (2025)</div>
+                <div class="kpi-value">$84.8K</div>
+                <div class="kpi-change kpi-negative">↓ 18.2% YoY vs $103.7K (2024)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Partner</div>
+                <div class="kpi-value">Harrington</div>
+                <div class="kpi-change">$24.5M in sales (2025)</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-section">
+                <div class="chart-title">Monthly Total Credit Sales Trend</div>
+                <div class="chart-container">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Partner Tier Comparison (2025)</div>
+                <div class="chart-container">
+                    <canvas id="tierComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="chart-section">
+                <div class="chart-title">Sales by Partner Category (2025)</div>
+                <div class="chart-container">
+                    <canvas id="categorySalesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">New Accounts by Partner Category (2025)</div>
+                <div class="chart-container">
+                    <canvas id="categoryAccountsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Top 10 Partners by Interchange Revenue (2025)</div>
+            <div class="chart-container" style="height: 300px;">
+                <canvas id="interchangeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-title">All Partners Scorecard (2025)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Partner Name</th>
+                        <th>Category</th>
+                        <th>Tier</th>
+                        <th class="text-right">Sales</th>
+                        <th class="text-right">New Accounts</th>
+                        <th class="text-right">Applications</th>
+                        <th class="text-right">Approval Rate</th>
+                        <th class="text-right">Interchange</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Harrington & Co.</td>
+                        <td>Specialty Apparel</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$24.5M</td>
+                        <td class="text-right">17,078</td>
+                        <td class="text-right">27,792</td>
+                        <td class="text-right">61.4%</td>
+                        <td class="text-right">$441.3K</td>
+                    </tr>
+                    <tr>
+                        <td>Brackenridge</td>
+                        <td>Specialty Apparel</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$10.6M</td>
+                        <td class="text-right">7,551</td>
+                        <td class="text-right">12,234</td>
+                        <td class="text-right">61.8%</td>
+                        <td class="text-right">$192.7K</td>
+                    </tr>
+                    <tr>
+                        <td>Silhouette Boutique</td>
+                        <td>Specialty Apparel</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$6.7M</td>
+                        <td class="text-right">4,871</td>
+                        <td class="text-right">7,775</td>
+                        <td class="text-right">62.8%</td>
+                        <td class="text-right">$119.0K</td>
+                    </tr>
+                    <tr>
+                        <td>Calloway & Finch</td>
+                        <td>Specialty Apparel</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$4.7M</td>
+                        <td class="text-right">3,306</td>
+                        <td class="text-right">5,521</td>
+                        <td class="text-right">60.1%</td>
+                        <td class="text-right">$86.2K</td>
+                    </tr>
+                    <tr>
+                        <td>Elara Studio</td>
+                        <td>Specialty Apparel</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$3.6M</td>
+                        <td class="text-right">2,643</td>
+                        <td class="text-right">4,150</td>
+                        <td class="text-right">64.0%</td>
+                        <td class="text-right">$64.5K</td>
+                    </tr>
+                    <tr>
+                        <td>Hearthstone Home</td>
+                        <td>Home Furnishings</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$2.9M</td>
+                        <td class="text-right">2,070</td>
+                        <td class="text-right">3,305</td>
+                        <td class="text-right">62.9%</td>
+                        <td class="text-right">$52.3K</td>
+                    </tr>
+                    <tr>
+                        <td>Morrow & Reed</td>
+                        <td>Home Furnishings</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$2.4M</td>
+                        <td class="text-right">1,709</td>
+                        <td class="text-right">2,831</td>
+                        <td class="text-right">60.6%</td>
+                        <td class="text-right">$43.9K</td>
+                    </tr>
+                    <tr>
+                        <td>Canopy Interiors</td>
+                        <td>Home Furnishings</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$2.0M</td>
+                        <td class="text-right">1,471</td>
+                        <td class="text-right">2,326</td>
+                        <td class="text-right">63.0%</td>
+                        <td class="text-right">$35.8K</td>
+                    </tr>
+                    <tr>
+                        <td>Ashford & Vale</td>
+                        <td>Luxury</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$1.8M</td>
+                        <td class="text-right">1,277</td>
+                        <td class="text-right">2,078</td>
+                        <td class="text-right">62.0%</td>
+                        <td class="text-right">$31.8K</td>
+                    </tr>
+                    <tr>
+                        <td>Celeste Maison</td>
+                        <td>Luxury</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$1.6M</td>
+                        <td class="text-right">1,136</td>
+                        <td class="text-right">1,834</td>
+                        <td class="text-right">62.7%</td>
+                        <td class="text-right">$28.5K</td>
+                    </tr>
+                    <tr>
+                        <td>Stellara Jewels</td>
+                        <td>Jewelry</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$1.4M</td>
+                        <td class="text-right">1,035</td>
+                        <td class="text-right">1,676</td>
+                        <td class="text-right">61.7%</td>
+                        <td class="text-right">$25.3K</td>
+                    </tr>
+                    <tr>
+                        <td>Huxley & Stone</td>
+                        <td>Jewelry</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$1.3M</td>
+                        <td class="text-right">916</td>
+                        <td class="text-right">1,466</td>
+                        <td class="text-right">63.2%</td>
+                        <td class="text-right">$22.7K</td>
+                    </tr>
+                    <tr>
+                        <td>Crestgem</td>
+                        <td>Jewelry</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$1.2M</td>
+                        <td class="text-right">846</td>
+                        <td class="text-right">1,354</td>
+                        <td class="text-right">63.0%</td>
+                        <td class="text-right">$20.8K</td>
+                    </tr>
+                    <tr>
+                        <td>Pawsworth</td>
+                        <td>Pet Supplies</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$1.0M</td>
+                        <td class="text-right">736</td>
+                        <td class="text-right">1,210</td>
+                        <td class="text-right">60.6%</td>
+                        <td class="text-right">$18.6K</td>
+                    </tr>
+                    <tr>
+                        <td>Summit Sports</td>
+                        <td>Sporting Goods</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$972K</td>
+                        <td class="text-right">672</td>
+                        <td class="text-right">1,115</td>
+                        <td class="text-right">60.8%</td>
+                        <td class="text-right">$17.9K</td>
+                    </tr>
+                    <tr>
+                        <td>Ridgeline Outfitters</td>
+                        <td>Sporting Goods</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$902K</td>
+                        <td class="text-right">614</td>
+                        <td class="text-right">1,054</td>
+                        <td class="text-right">59.6%</td>
+                        <td class="text-right">$16.0K</td>
+                    </tr>
+                    <tr>
+                        <td>Lumière Beauty</td>
+                        <td>Health and Beauty</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$832K</td>
+                        <td class="text-right">619</td>
+                        <td class="text-right">988</td>
+                        <td class="text-right">63.2%</td>
+                        <td class="text-right">$15.0K</td>
+                    </tr>
+                    <tr>
+                        <td>Vivace Beauty</td>
+                        <td>Health and Beauty</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$769K</td>
+                        <td class="text-right">566</td>
+                        <td class="text-right">899</td>
+                        <td class="text-right">63.1%</td>
+                        <td class="text-right">$13.7K</td>
+                    </tr>
+                    <tr>
+                        <td>Harborview Club</td>
+                        <td>Wholesale</td>
+                        <td><span class="badge badge-tier2">Tier 2</span></td>
+                        <td class="text-right">$738K</td>
+                        <td class="text-right">501</td>
+                        <td class="text-right">845</td>
+                        <td class="text-right">59.9%</td>
+                        <td class="text-right">$13.2K</td>
+                    </tr>
+                    <tr>
+                        <td>Meridian Airways</td>
+                        <td>Travel</td>
+                        <td><span class="badge badge-tier1">Tier 1</span></td>
+                        <td class="text-right">$680K</td>
+                        <td class="text-right">485</td>
+                        <td class="text-right">787</td>
+                        <td class="text-right">62.4%</td>
+                        <td class="text-right">$12.3K</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function mk(type, labels, datasets, options) {
+            var opts = Object.assign({
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'bottom' } }
+            }, options || {});
+            return { type: type, data: { labels: labels, datasets: datasets }, options: opts };
+        }
+
+        // Monthly Sales Trend
+        var monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+        var monthlySalesChart = new Chart(monthlySalesCtx, mk('line',
+            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            [
+                { label: '2024', data: [5.71, 5.41, 6.15, 6.49, 6.48, 6.72, 6.59, 6.76, 6.44, 7.14, 8.24, 10.63], borderColor: '#006AFF', backgroundColor: 'rgba(0, 106, 255, 0.1)', borderWidth: 2, fill: true, tension: 0.4 },
+                { label: '2025', data: [4.90, 4.56, 5.14, 5.40, 5.72, 5.77, 5.87, 5.79, 5.50, 5.76, 6.99, 9.09], borderColor: '#1A7F64', backgroundColor: 'rgba(26, 127, 100, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }
+            ],
+            { scales: { y: { beginAtZero: true, title: { display: true, text: 'Sales ($M)' } } } }
+        ));
+
+        // Tier Comparison
+        var tierCtx = document.getElementById('tierComparisonChart').getContext('2d');
+        var tierChart = new Chart(tierCtx, mk('bar',
+            ['Total Sales', 'New Accounts', 'Interchange'],
+            [
+                { label: 'Tier 1', data: [47.19, 33.41, 0.85], backgroundColor: '#006AFF' },
+                { label: 'Tier 2', data: [23.30, 16.70, 0.42], backgroundColor: '#0EA5E9' }
+            ],
+            { scales: { y: { beginAtZero: true } } }
+        ));
+
+        // Category Sales
+        var catSalesCtx = document.getElementById('categorySalesChart').getContext('2d');
+        var catSalesChart = new Chart(catSalesCtx, mk('bar',
+            ['Specialty Apparel', 'Home Furnishings', 'Jewelry', 'Luxury', 'Sporting Goods', 'Health & Beauty', 'Pet Supplies', 'Wholesale', 'Travel'],
+            [{ label: 'Sales ($M)', data: [50.12, 7.30, 3.82, 3.32, 1.87, 1.60, 1.04, 0.74, 0.68], backgroundColor: '#006AFF' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+
+        // Category Accounts
+        var catAcctCtx = document.getElementById('categoryAccountsChart').getContext('2d');
+        var catAcctChart = new Chart(catAcctCtx, mk('bar',
+            ['Specialty Apparel', 'Home Furnishings', 'Jewelry', 'Luxury', 'Sporting Goods', 'Health & Beauty', 'Pet Supplies', 'Wholesale', 'Travel'],
+            [{ label: 'New Accounts', data: [35449, 5250, 2797, 2413, 1286, 1185, 736, 501, 485], backgroundColor: '#1A7F64' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+
+        // Top Interchange
+        var intCtx = document.getElementById('interchangeChart').getContext('2d');
+        var intChart = new Chart(intCtx, mk('bar',
+            ['Harrington & Co.', 'Brackenridge', 'Silhouette Boutique', 'Calloway & Finch', 'Elara Studio', 'Hearthstone Home', 'Morrow & Reed', 'Canopy Interiors', 'Ashford & Vale', 'Celeste Maison'],
+            [{ label: 'Interchange Revenue ($K)', data: [441.30, 192.66, 118.98, 86.18, 64.52, 52.29, 43.95, 35.80, 31.75, 28.50], backgroundColor: '#F59E0B' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+    </script>
+</body>
+</html>

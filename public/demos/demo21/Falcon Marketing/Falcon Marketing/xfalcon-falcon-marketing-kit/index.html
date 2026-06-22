@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing — Portal</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+  :root {
+    --color-topbar: #2B1E3E;
+    --color-bg: #F5F3FA;
+    --color-card: #FFFFFF;
+    --color-border: #E5E0EE;
+    --color-primary: #4A4E8F;
+    --color-secondary: #A490C2;
+    --color-tertiary: #94A3B8;
+    --color-text: #1A1530;
+    --color-text-muted: #5A5470;
+    --color-text-on-dark: #F5F3FA;
+    --color-positive: #059669;
+    --color-negative: #D32F2F;
+    --shadow-sm: 0 1px 2px rgba(43, 30, 62, 0.06);
+    --shadow-md: 0 4px 12px rgba(43, 30, 62, 0.08);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--color-bg); color: var(--color-text); font-size: 14px; line-height: 1.5; }
+
+  /* Topbar */
+  .topbar { background: var(--color-topbar); color: var(--color-text-on-dark); display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; box-shadow: var(--shadow-md); }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-x { color: var(--color-primary); }
+  .logo-f { color: var(--color-secondary); }
+  .topbar-title { font-size: 16px; font-weight: 600; color: var(--color-text-on-dark); }
+  .topbar-sub { font-size: 12px; font-weight: 400; color: #C7BFD9; margin-top: 2px; }
+  .back-link { color: var(--color-secondary); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* Container */
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px 60px; }
+
+  /* Filter bar */
+  .filter-bar { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 14px 18px; display: flex; gap: 18px; align-items: end; margin-bottom: 24px; box-shadow: var(--shadow-sm); flex-wrap: wrap; }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
+  .filter-bar select { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 6px; padding: 7px 10px; font-family: inherit; font-size: 13px; color: var(--color-text); cursor: pointer; min-width: 140px; }
+  .filter-bar select:focus { outline: 2px solid var(--color-primary); outline-offset: -1px; }
+
+  /* Hero KPIs */
+  .hero-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+  .kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
+  .kpi-value { font-size: 28px; font-weight: 700; color: var(--color-primary); margin-top: 8px; line-height: 1.1; }
+  .kpi-delta { font-size: 13px; font-weight: 500; margin-top: 4px; }
+  .kpi-delta.positive { color: var(--color-positive); }
+  .kpi-delta.negative { color: var(--color-negative); }
+  .kpi-delta.neutral { color: var(--color-tertiary); }
+
+  /* Sections */
+  .section-title { font-size: 18px; font-weight: 700; color: var(--color-primary); margin: 32px 0 16px; }
+
+  /* Chart row */
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+  .chart-title { font-size: 16px; font-weight: 700; color: var(--color-primary); margin-bottom: 6px; }
+  .chart-sub { font-size: 12px; color: var(--color-text-muted); margin-bottom: 12px; }
+  .chart-container { position: relative; height: 280px; }
+
+  /* Dashboard directory */
+  .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .dashboard-card { display: block; background: var(--color-card); border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); border-radius: var(--radius); padding: 18px 20px; text-decoration: none; color: var(--color-text); box-shadow: var(--shadow-sm); transition: transform 0.1s, box-shadow 0.1s; }
+  .dashboard-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .dashboard-card-number { font-size: 24px; font-weight: 800; color: var(--color-primary); }
+  .dashboard-card-title { font-size: 15px; font-weight: 700; margin: 6px 0 4px; }
+  .dashboard-card-desc { font-size: 12px; color: var(--color-text-muted); line-height: 1.45; }
+  .status-badge { display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 8px; border-radius: 999px; background: var(--color-tertiary); color: var(--color-text-on-dark); margin-left: 6px; vertical-align: middle; }
+  .status-badge.ready { background: var(--color-positive); color: white; }
+
+  /* Summary table */
+  .table-card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0; overflow: hidden; box-shadow: var(--shadow-sm); margin-top: 16px; }
+  .table-card .chart-title { padding: 18px 20px 0; }
+  .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .detail-table th { background: var(--color-topbar); color: var(--color-text-on-dark); padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; }
+  .detail-table th.num, .detail-table td.num { text-align: right; }
+  .detail-table tbody tr { border-top: 1px solid var(--color-border); }
+  .detail-table td { padding: 10px 16px; }
+  .detail-table tbody tr:hover { background: #FAFAFE; }
+
+  /* Footer */
+  .footer { font-size: 12px; color: var(--color-text-muted); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--color-border); }
+
+  @media (max-width: 1100px) {
+    .hero-row { grid-template-columns: repeat(2, 1fr); }
+    .chart-row { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .hero-row { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div>
+      <div class="topbar-title">Falcon Marketing — Agency Analytics Portal</div>
+      <div class="topbar-sub">Reporting period: 2018–2024 · Data through 2024-12-27</div>
+    </div>
+  </div>
+  <span class="back-link" style="color: #C7BFD9; cursor: default;">v1.0 · Demo</span>
+</div>
+
+<div class="container">
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="themeSel">Theme</label>
+      <select id="themeSel">
+        <option value="midnight">Midnight Galaxy (default)</option>
+        <option value="sunset">Sunset Boulevard</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="yrSel">Headline year</label>
+      <select id="yrSel" onchange="updateHero()">
+        <option value="2024" selected>2024</option>
+        <option value="2023">2023</option>
+        <option value="2022">2022</option>
+        <option value="2021">2021</option>
+        <option value="2020">2020</option>
+        <option value="2019">2019</option>
+        <option value="2018">2018</option>
+      </select>
+    </div>
+    <div class="filter-group" style="flex:1; min-width: 280px;">
+      <label>About</label>
+      <div style="font-size: 12px; color: var(--color-text-muted); padding-top: 8px;">
+        Live demo of agency-wide analytics for client billings, campaign performance, media management, and production operations across 7 years and 19 active clients.
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero KPI row -->
+  <div class="hero-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Agency Revenue</div>
+      <div class="kpi-value" id="kpi-revenue">$25.55B</div>
+      <div class="kpi-delta positive" id="kpi-revenue-delta">↑ 1.7% vs 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Clients</div>
+      <div class="kpi-value" id="kpi-clients">19</div>
+      <div class="kpi-delta neutral" id="kpi-clients-delta">3 Platinum · 5 Gold · 7 Silver · 4 Bronze</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Campaign ROAS</div>
+      <div class="kpi-value" id="kpi-roas">3.80x</div>
+      <div class="kpi-delta negative" id="kpi-roas-delta">↓ 0.04x vs 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Project Margin</div>
+      <div class="kpi-value" id="kpi-margin">42.9%</div>
+      <div class="kpi-delta neutral" id="kpi-margin-delta">stable across 2022–2024</div>
+    </div>
+  </div>
+
+  <div class="hero-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Media Spend Managed</div>
+      <div class="kpi-value" id="kpi-media">$108.5M</div>
+      <div class="kpi-delta negative" id="kpi-media-delta">↓ 1.3% vs 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Production Jobs Delivered</div>
+      <div class="kpi-value" id="kpi-jobs">204.5K</div>
+      <div class="kpi-delta positive" id="kpi-jobs-delta">↑ 2.7% vs 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">On-Spec Delivery Rate</div>
+      <div class="kpi-value" id="kpi-onspec">92.0%</div>
+      <div class="kpi-delta positive" id="kpi-onspec-delta">↑ 0.0pp vs 2023 (steady)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Headcount</div>
+      <div class="kpi-value" id="kpi-hc">120</div>
+      <div class="kpi-delta neutral" id="kpi-hc-delta">42 Creative · 24 Strategy · 24 Production · 18 Media · 12 Account</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <h2 class="section-title">7-Year Performance Snapshot</h2>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Total Agency Revenue · 2018–2024</div>
+      <div class="chart-sub">Combined project (SOW) and production billings, in USD</div>
+      <div class="chart-container"><canvas id="revTrend"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Channel Mix · 2024 Media Spend</div>
+      <div class="chart-sub">Top 7 channels by spend; remaining grouped as Other</div>
+      <div class="chart-container"><canvas id="channelMix"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">ROAS by Year</div>
+      <div class="chart-sub">Revenue attributed ÷ media spend, all channels</div>
+      <div class="chart-container"><canvas id="roasTrend"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top 5 Clients · 2024 Billings</div>
+      <div class="chart-sub">Combined project + production billings</div>
+      <div class="chart-container"><canvas id="topClients"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top clients table -->
+  <h2 class="section-title">Top Clients · 2024 Snapshot</h2>
+  <div class="table-card">
+    <table class="detail-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Industry</th>
+          <th>Tier</th>
+          <th class="num">Project Billed</th>
+          <th class="num">Production Billed</th>
+          <th class="num">Combined</th>
+          <th class="num">Projects</th>
+        </tr>
+      </thead>
+      <tbody id="clientsTbody"></tbody>
+      <tfoot>
+        <tr style="background: #FAFAFE; font-weight: 600;">
+          <td colspan="3">Top 8 clients</td>
+          <td class="num" id="ftProj"></td>
+          <td class="num" id="ftProd"></td>
+          <td class="num" id="ftComb"></td>
+          <td class="num" id="ftProjects"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Dashboard directory -->
+  <h2 class="section-title">Dashboard Directory</h2>
+  <div class="dashboard-grid">
+    <a href="01-executive-overview.html" class="dashboard-card">
+      <div class="dashboard-card-number">01</div>
+      <div class="dashboard-card-title">Executive Overview <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Hero KPIs, agency revenue trend, channel mix, top clients, monthly pacing.</div>
+    </a>
+    <a href="02-client-portfolio.html" class="dashboard-card">
+      <div class="dashboard-card-number">02</div>
+      <div class="dashboard-card-title">Client Portfolio <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Per-client view, account tiers, segments, longevity, project counts.</div>
+    </a>
+    <a href="03-campaign-performance.html" class="dashboard-card">
+      <div class="dashboard-card-number">03</div>
+      <div class="dashboard-card-title">Campaign Performance <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">ROAS, CTR, CVR, top campaigns by type, conversion funnel.</div>
+    </a>
+    <a href="04-media-spend.html" class="dashboard-card">
+      <div class="dashboard-card-number">04</div>
+      <div class="dashboard-card-title">Media Spend Management <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Planned vs actual pacing, CPM benchmarking, agency fee revenue.</div>
+    </a>
+    <a href="05-production-operations.html" class="dashboard-card">
+      <div class="dashboard-card-number">05</div>
+      <div class="dashboard-card-title">Production Operations <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Throughput, turnaround, rush %, on-spec %, revisions, complexity mix.</div>
+    </a>
+    <a href="06-project-margin.html" class="dashboard-card">
+      <div class="dashboard-card-number">06</div>
+      <div class="dashboard-card-title">Project Margin & Profitability <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">SOW vs billed, hours variance, margin %, on-time %, on-budget %.</div>
+    </a>
+    <a href="07-employee-utilization.html" class="dashboard-card">
+      <div class="dashboard-card-number">07</div>
+      <div class="dashboard-card-title">Employee Utilization <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Hours by department, billable utilization, cost vs bill rate margin.</div>
+    </a>
+    <a href="08-geographic-performance.html" class="dashboard-card">
+      <div class="dashboard-card-number">08</div>
+      <div class="dashboard-card-title">Geographic Performance <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Region / DMA / market-tier breakdown of spend and ROAS.</div>
+    </a>
+    <a href="09-channel-mix.html" class="dashboard-card">
+      <div class="dashboard-card-number">09</div>
+      <div class="dashboard-card-title">Channel Mix & ROAS <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Paid/Owned/Earned, Digital/Print/Physical, channel ranking.</div>
+    </a>
+    <a href="10-service-line-mix.html" class="dashboard-card">
+      <div class="dashboard-card-number">10</div>
+      <div class="dashboard-card-title">Service Line Mix <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Creative / Strategy / Production / Media revenue mix and rate analysis.</div>
+    </a>
+    <a href="11-qbr-q4-2024.html" class="dashboard-card">
+      <div class="dashboard-card-number">11</div>
+      <div class="dashboard-card-title">Q4 2024 QBR <span class="status-badge ready">Ready</span></div>
+      <div class="dashboard-card-desc">Quarterly executive summary: top headlines, channel ROI, production health.</div>
+    </a>
+  </div>
+
+  <!-- Insight Reports -->
+  <h2 class="section-title">Insight Reports</h2>
+  <div style="font-size:13px; color: var(--color-text-muted); margin-bottom: 14px; max-width: 820px;">AutoExplore output — directed exploration runs on the 7-year warehouse. Two themes shipped so far: Channel × ROAS efficiency and Client concentration & retention.</div>
+  <div class="dashboard-grid">
+    <a href="autoexplore-dashboard.html" class="dashboard-card" style="border-left-color: var(--color-primary);">
+      <div class="dashboard-card-number" style="color: var(--color-primary);">🔍</div>
+      <div class="dashboard-card-title">Channel × ROAS — Evidence Dashboard</div>
+      <div class="dashboard-card-desc">7 findings · chart per finding · headline + so-what for each. Display is underspent 5×; allocation has drifted away from ROAS for 6 years.</div>
+    </a>
+    <a href="autoexplore-memo.html" class="dashboard-card" style="border-left-color: var(--color-secondary);">
+      <div class="dashboard-card-number" style="color: var(--color-secondary);">📄</div>
+      <div class="dashboard-card-title">Channel × ROAS — Long-form Memo</div>
+      <div class="dashboard-card-desc">Executive narrative · methodology · null findings · 5 prioritized recommended actions.</div>
+    </a>
+    <a href="Falcon-Marketing-Client-Concentration.pptx" class="dashboard-card" style="border-left-color: #F59E0B;">
+      <div class="dashboard-card-number" style="color: #F59E0B;">📊</div>
+      <div class="dashboard-card-title">Client Concentration & Retention — Deck</div>
+      <div class="dashboard-card-desc">12-slide PowerPoint. Top-3 = 62%, zero tier mobility, 95× Bronze/Platinum gap. 7 confirmed findings, 5 null findings, 5 prioritized actions.</div>
+    </a>
+  </div>
+
+  <!-- Reference -->
+  <h2 class="section-title">Reference</h2>
+  <div class="dashboard-grid">
+    <a href="metrics-definitions.html" class="dashboard-card" style="border-left-color: var(--color-secondary);">
+      <div class="dashboard-card-number" style="color: var(--color-secondary);">📖</div>
+      <div class="dashboard-card-title">Metrics & KPI Definitions</div>
+      <div class="dashboard-card-desc">Searchable, categorized definitions, formulas, and source tables for every KPI.</div>
+    </a>
+  </div>
+
+  <div class="footer">
+    Falcon Marketing demo kit · generated 2026-04-26 · data scope 2018–2024 · 19 active clients · 1,035 campaigns · 2.76M campaign-day rows · No global exclusions applied. Numbers reconcile to VALIDATION_BENCHMARKS.md.
+  </div>
+</div>
+
+<script>
+// ----- Embedded data (validated against discovery queries 2026-04-26) -----
+var YEARS = [2018,2019,2020,2021,2022,2023,2024];
+// Combined billings (project + production) in $B
+var REVENUE_BY_YEAR = {
+  2018: { proj: 8.79,  prod: 9.68,  combined: 18.47, media: 0.080, attrRev: 0.571, roas: 4.15, jobs: 154541, onspec: 0.920, rush: 0.152, clients: 20, margin: 0.430 },
+  2019: { proj: 9.01,  prod: 10.34, combined: 19.35, media: 0.094, attrRev: 0.743, roas: 3.83, jobs: 163712, onspec: 0.920, rush: 0.154, clients: 20, margin: 0.430 },
+  2020: { proj: 10.24, prod: 11.50, combined: 21.74, media: 0.104, attrRev: 0.923, roas: 3.93, jobs: 182364, onspec: 0.920, rush: 0.153, clients: 20, margin: 0.430 },
+  2021: { proj: 11.51, prod: 11.90, combined: 23.41, media: 0.108, attrRev: 0.999, roas: 3.92, jobs: 188921, onspec: 0.921, rush: 0.152, clients: 20, margin: 0.430 },
+  2022: { proj: 11.23, prod: 11.89, combined: 23.12, media: 0.100, attrRev: 0.976, roas: 4.00, jobs: 189142, onspec: 0.920, rush: 0.152, clients: 19, margin: 0.430 },
+  2023: { proj: 12.56, prod: 12.56, combined: 25.12, media: 0.110, attrRev: 1.168, roas: 3.84, jobs: 199088, onspec: 0.920, rush: 0.153, clients: 19, margin: 0.430 },
+  2024: { proj: 12.71, prod: 12.85, combined: 25.55, media: 0.108, attrRev: 1.198, roas: 3.80, jobs: 204504, onspec: 0.920, rush: 0.153, clients: 19, margin: 0.429 }
+};
+
+var CHANNEL_2024 = [
+  { name: 'Direct Mail',        spend: 75.3, share: 24.0 },
+  { name: 'Connected TV',       spend: 53.7, share: 17.1 },
+  { name: 'Print Advertising',  spend: 38.5, share: 12.2 },
+  { name: 'Out-of-Home',        spend: 31.7, share: 10.1 },
+  { name: 'Event/Experiential', spend: 27.4, share:  8.7 },
+  { name: 'Paid Search',        spend: 17.3, share:  5.5 },
+  { name: 'Paid Social',        spend: 16.0, share:  5.1 },
+  { name: 'Other (8 channels)', spend: 55.1, share: 17.5 }
+];
+
+var TOP_CLIENTS_2024 = [
+  { name: 'Vertex Financial Group',  industry: 'Financial Services', tier: 'Platinum', proj: 2.83, prod: 1.54, projects: 15295 },
+  { name: 'Meridian Health Systems', industry: 'Healthcare',         tier: 'Platinum', proj: 2.62, prod: 1.48, projects: 14188 },
+  { name: 'HorizonTech Corp',        industry: 'Technology',         tier: 'Platinum', proj: 2.40, prod: 1.25, projects: 12949 },
+  { name: 'NorthStar Credit Union',  industry: 'Financial Services', tier: 'Gold',     proj: 0.78, prod: 0.81, projects: 10687 },
+  { name: 'ClearPath Insurance',     industry: 'Insurance',          tier: 'Gold',     proj: 0.75, prod: 0.88, projects: 10191 },
+  { name: 'Summit Pizza Group',      industry: 'QSR',                tier: 'Gold',     proj: 0.70, prod: 0.97, projects:  9651 },
+  { name: 'Vantage Energy Solutions',industry: 'Energy',             tier: 'Gold',     proj: 0.64, prod: 1.04, projects:  8718 },
+  { name: 'Pinnacle Tire Co',        industry: 'Automotive',         tier: 'Gold',     proj: 0.63, prod: 0.91, projects:  8664 }
+];
+
+// ----- Formatting helpers -----
+function fmtB(v) { return '$' + v.toFixed(2) + 'B'; }
+function fmtM(v) { return '$' + (v*1000).toFixed(1) + 'M'; }
+function fmtPct(v) { return (v*100).toFixed(1) + '%'; }
+function fmtRoas(v) { return v.toFixed(2) + 'x'; }
+function fmtN(n) { return n.toLocaleString('en-US'); }
+
+// ----- Chart instance manager -----
+var chartInstances = {};
+function mk(id, cfg) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  var ctx = document.getElementById(id).getContext('2d');
+  chartInstances[id] = new Chart(ctx, cfg);
+  return chartInstances[id];
+}
+
+// ----- KPI font auto-fit -----
+function fitKpiText() {
+  var els = document.querySelectorAll('.kpi-value');
+  for (var i = 0; i < els.length; i++) {
+    var len = els[i].textContent.length;
+    if (len > 14) els[i].style.fontSize = '18px';
+    else if (len > 10) els[i].style.fontSize = '22px';
+    else els[i].style.fontSize = '28px';
+  }
+}
+
+// ----- Populate KPIs based on selected year -----
+function updateHero() {
+  var yr = parseInt(document.getElementById('yrSel').value, 10);
+  var py = yr - 1;
+  var d = REVENUE_BY_YEAR[yr];
+  var pyD = REVENUE_BY_YEAR[py];
+
+  document.getElementById('kpi-revenue').textContent = '$' + d.combined.toFixed(2) + 'B';
+  if (pyD) {
+    var rev_d = (d.combined - pyD.combined) / pyD.combined * 100;
+    var el = document.getElementById('kpi-revenue-delta');
+    el.textContent = (rev_d >= 0 ? '↑ ' : '↓ ') + Math.abs(rev_d).toFixed(1) + '% vs ' + py;
+    el.className = 'kpi-delta ' + (rev_d >= 0 ? 'positive' : 'negative');
+  } else {
+    document.getElementById('kpi-revenue-delta').textContent = 'no prior year';
+    document.getElementById('kpi-revenue-delta').className = 'kpi-delta neutral';
+  }
+
+  document.getElementById('kpi-clients').textContent = String(d.clients);
+  document.getElementById('kpi-roas').textContent = d.roas.toFixed(2) + 'x';
+  if (pyD) {
+    var roas_d = d.roas - pyD.roas;
+    var elR = document.getElementById('kpi-roas-delta');
+    elR.textContent = (roas_d >= 0 ? '↑ ' : '↓ ') + Math.abs(roas_d).toFixed(2) + 'x vs ' + py;
+    elR.className = 'kpi-delta ' + (roas_d >= 0 ? 'positive' : 'negative');
+  }
+
+  document.getElementById('kpi-margin').textContent = (d.margin * 100).toFixed(1) + '%';
+  document.getElementById('kpi-media').textContent = '$' + (d.media * 1000).toFixed(1) + 'M';
+  if (pyD) {
+    var med_d = (d.media - pyD.media) / pyD.media * 100;
+    var elM = document.getElementById('kpi-media-delta');
+    elM.textContent = (med_d >= 0 ? '↑ ' : '↓ ') + Math.abs(med_d).toFixed(1) + '% vs ' + py;
+    elM.className = 'kpi-delta ' + (med_d >= 0 ? 'positive' : 'negative');
+  }
+
+  document.getElementById('kpi-jobs').textContent = (d.jobs / 1000).toFixed(1) + 'K';
+  if (pyD) {
+    var jobs_d = (d.jobs - pyD.jobs) / pyD.jobs * 100;
+    var elJ = document.getElementById('kpi-jobs-delta');
+    elJ.textContent = (jobs_d >= 0 ? '↑ ' : '↓ ') + Math.abs(jobs_d).toFixed(1) + '% vs ' + py;
+    elJ.className = 'kpi-delta ' + (jobs_d >= 0 ? 'positive' : 'negative');
+  }
+
+  document.getElementById('kpi-onspec').textContent = (d.onspec * 100).toFixed(1) + '%';
+  fitKpiText();
+}
+
+// ----- Charts -----
+function buildCharts() {
+  // Revenue trend (stacked: project + production)
+  mk('revTrend', {
+    type: 'bar',
+    data: {
+      labels: YEARS.map(String),
+      datasets: [
+        { label: 'Project (SOW)',    data: YEARS.map(function(y){ return REVENUE_BY_YEAR[y].proj; }), backgroundColor: '#4A4E8F' },
+        { label: 'Production',       data: YEARS.map(function(y){ return REVENUE_BY_YEAR[y].prod; }), backgroundColor: '#A490C2' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, color: '#5A5470' } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(2) + 'B'; } } }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 } } },
+        y: { stacked: true, grid: { color: '#E5E0EE' }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 }, callback: function(v) { return '$' + v + 'B'; } } }
+      }
+    }
+  });
+
+  // Channel mix (horizontal bar)
+  mk('channelMix', {
+    type: 'bar',
+    data: {
+      labels: CHANNEL_2024.map(function(c){ return c.name; }),
+      datasets: [{
+        label: 'Spend ($M)',
+        data: CHANNEL_2024.map(function(c){ return c.spend; }),
+        backgroundColor: '#4A4E8F'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx) { return '$' + ctx.parsed.x.toFixed(1) + 'M (' + CHANNEL_2024[ctx.dataIndex].share.toFixed(1) + '%)'; } } }
+      },
+      scales: {
+        x: { grid: { color: '#E5E0EE' }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 }, callback: function(v) { return '$' + v + 'M'; } } },
+        y: { grid: { display: false }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 } } }
+      }
+    }
+  });
+
+  // ROAS trend (line)
+  mk('roasTrend', {
+    type: 'line',
+    data: {
+      labels: YEARS.map(String),
+      datasets: [{
+        label: 'ROAS',
+        data: YEARS.map(function(y){ return REVENUE_BY_YEAR[y].roas; }),
+        borderColor: '#4A4E8F',
+        backgroundColor: 'rgba(74, 78, 143, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5,
+        pointBackgroundColor: '#4A4E8F'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx) { return 'ROAS: ' + ctx.parsed.y.toFixed(2) + 'x'; } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 } } },
+        y: { min: 3.5, max: 4.3, grid: { color: '#E5E0EE' }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 }, callback: function(v) { return v.toFixed(2) + 'x'; } } }
+      }
+    }
+  });
+
+  // Top clients
+  mk('topClients', {
+    type: 'bar',
+    data: {
+      labels: TOP_CLIENTS_2024.slice(0, 5).map(function(c){ return c.name; }),
+      datasets: [
+        { label: 'Project',    data: TOP_CLIENTS_2024.slice(0, 5).map(function(c){ return c.proj; }), backgroundColor: '#4A4E8F' },
+        { label: 'Production', data: TOP_CLIENTS_2024.slice(0, 5).map(function(c){ return c.prod; }), backgroundColor: '#A490C2' }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, color: '#5A5470' } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.parsed.x.toFixed(2) + 'B'; } } }
+      },
+      scales: {
+        x: { stacked: true, grid: { color: '#E5E0EE' }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 }, callback: function(v) { return '$' + v + 'B'; } } },
+        y: { stacked: true, grid: { display: false }, ticks: { color: '#5A5470', font: { family: 'Inter', size: 11 } } }
+      }
+    }
+  });
+}
+
+// ----- Top clients table -----
+function buildClientsTable() {
+  var tbody = document.getElementById('clientsTbody');
+  tbody.innerHTML = '';
+  var sumProj = 0, sumProd = 0, sumProjects = 0;
+  for (var i = 0; i < TOP_CLIENTS_2024.length; i++) {
+    var c = TOP_CLIENTS_2024[i];
+    var combined = c.proj + c.prod;
+    sumProj += c.proj; sumProd += c.prod; sumProjects += c.projects;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><strong>' + c.name + '</strong></td>' +
+      '<td>' + c.industry + '</td>' +
+      '<td>' + c.tier + '</td>' +
+      '<td class="num">$' + c.proj.toFixed(2) + 'B</td>' +
+      '<td class="num">$' + c.prod.toFixed(2) + 'B</td>' +
+      '<td class="num"><strong>$' + combined.toFixed(2) + 'B</strong></td>' +
+      '<td class="num">' + fmtN(c.projects) + '</td>';
+    tbody.appendChild(tr);
+  }
+  document.getElementById('ftProj').textContent = '$' + sumProj.toFixed(2) + 'B';
+  document.getElementById('ftProd').textContent = '$' + sumProd.toFixed(2) + 'B';
+  document.getElementById('ftComb').textContent = '$' + (sumProj + sumProd).toFixed(2) + 'B';
+  document.getElementById('ftProjects').textContent = fmtN(sumProjects);
+}
+
+// ----- Bootstrap -----
+updateHero();
+buildCharts();
+buildClientsTable();
+fitKpiText();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

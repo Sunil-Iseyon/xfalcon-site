@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Experience Dashboard | Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #1B2A4A;
+            padding: 1rem 2rem;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav h1 {
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        nav a {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #C8A951;
+            color: #1B2A4A;
+        }
+
+        nav a.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            color: #1B2A4A;
+            font-weight: 600;
+        }
+
+        /* Time Filter */
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background-color: #F4F5F7;
+            color: #2D3436;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background-color: #1B2A4A;
+            color: #FFFFFF;
+        }
+
+        .filter-btn:hover {
+            background-color: #C8A951;
+            color: #1B2A4A;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #1B2A4A;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #636E72;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            color: #1B2A4A;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .kpi-comparison.positive {
+            color: #2E7D32;
+        }
+
+        .kpi-comparison.negative {
+            color: #C62828;
+        }
+
+        .kpi-subtext {
+            font-size: 0.8rem;
+            color: #636E72;
+            margin-top: 0.5rem;
+        }
+
+        /* Charts Grid */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-wrapper {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            color: #1B2A4A;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #C8A951;
+            padding-bottom: 0.5rem;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-wrapper.full-width .chart-canvas {
+            height: 350px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Table */
+        .table-wrapper {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            color: #1B2A4A;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #C8A951;
+            padding-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background-color: #1B2A4A;
+            color: white;
+        }
+
+        th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        tbody tr:hover {
+            background-color: #F4F5F7;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #FAFBFC;
+        }
+
+        .metric-positive {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .metric-negative {
+            color: #C62828;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1B2A4A;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav a {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.8rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-value {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <h1>Falcon Hotels & Restaurants</h1>
+        <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="db-01-executive-overview.html">Executive Overview</a></li>
+            <li><a href="db-02-revenue-finance.html">Revenue & Finance</a></li>
+            <li><a href="db-03-hotel-operations.html">Hotel Operations</a></li>
+            <li><a href="db-04-restaurant-fb.html">Restaurant F&B</a></li>
+            <li><a href="db-05-guest-experience.html" class="active">Guest Experience</a></li>
+            <li><a href="db-06-labor-workforce.html">Labor & Workforce</a></li>
+            <li><a href="db-07-inventory-supply.html">Inventory & Supply</a></li>
+            <li><a href="db-08-social-marketing.html">Social & Marketing</a></li>
+            <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h2>Guest Experience Dashboard</h2>
+                <p style="color: #636E72; margin-top: 0.5rem;">Deep-dive analysis of guest satisfaction, ratings, and feedback trends</p>
+            </div>
+            <div class="time-filter">
+                <button class="filter-btn active" onclick="filterData('monthly')">Monthly</button>
+                <button class="filter-btn" onclick="filterData('quarterly')">Quarterly</button>
+                <button class="filter-btn" onclick="filterData('yearly')">Yearly</button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Avg NPS</div>
+                <div class="kpi-value">8.81</div>
+                <div class="kpi-comparison negative">↓ 0.9% vs 2024</div>
+                <div class="kpi-subtext">2024: 8.89</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Avg CSAT</div>
+                <div class="kpi-value">4.28</div>
+                <div class="kpi-comparison negative">↓ 2.9% vs 2024</div>
+                <div class="kpi-subtext">2024: 4.41</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Food Rating</div>
+                <div class="kpi-value">4.21</div>
+                <div class="kpi-comparison negative">↓ 4.3% vs 2024</div>
+                <div class="kpi-subtext">2024: 4.40</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Value Rating</div>
+                <div class="kpi-value">3.61</div>
+                <div class="kpi-comparison negative">↓ 14.0% vs 2024</div>
+                <div class="kpi-subtext">2024: 4.20</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Complaint Rate</div>
+                <div class="kpi-value">6.0%</div>
+                <div class="kpi-comparison negative">↑ 17.6% vs 2024</div>
+                <div class="kpi-subtext">2024: 5.1%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total Responses</div>
+                <div class="kpi-value">1,537</div>
+                <div class="kpi-comparison negative">↓ 43.0% vs 2024</div>
+                <div class="kpi-subtext">2024: 2,698</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <!-- NPS Trend YoY -->
+            <div class="chart-wrapper full-width">
+                <div class="chart-title">NPS Trend Year-over-Year</div>
+                <div class="chart-canvas">
+                    <canvas id="npsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- CSAT & Category Ratings + NPS Distribution -->
+            <div class="two-column">
+                <div class="chart-wrapper">
+                    <div class="chart-title">CSAT & Category Ratings YoY</div>
+                    <div class="chart-canvas">
+                        <canvas id="csatChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-title">NPS Category Distribution (2025)</div>
+                    <div class="chart-canvas">
+                        <canvas id="npsDistChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Ratings Monthly Trend -->
+            <div class="chart-wrapper full-width">
+                <div class="chart-title">Category Ratings Monthly Trend (2025)</div>
+                <div class="chart-canvas">
+                    <canvas id="categoryTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Complaint & Response Volume -->
+            <div class="two-column">
+                <div class="chart-wrapper">
+                    <div class="chart-title">Complaint Rate Trend</div>
+                    <div class="chart-canvas">
+                        <canvas id="complaintChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-title">Response Volume Trend</div>
+                    <div class="chart-canvas">
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Detail Table -->
+        <div class="table-wrapper">
+            <div class="table-title">Monthly Performance Detail (2025)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>NPS</th>
+                        <th>CSAT</th>
+                        <th>Food</th>
+                        <th>Service</th>
+                        <th>Clean</th>
+                        <th>Value</th>
+                        <th>Complaint %</th>
+                        <th>Responses</th>
+                        <th>Promoters</th>
+                        <th>Detractors</th>
+                        <th>vs PY NPS</th>
+                        <th>% Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>January</strong></td>
+                        <td>8.92</td>
+                        <td>4.28</td>
+                        <td>4.22</td>
+                        <td>4.22</td>
+                        <td>4.22</td>
+                        <td>3.62</td>
+                        <td>7.8%</td>
+                        <td>129</td>
+                        <td>92</td>
+                        <td>5</td>
+                        <td>8.66</td>
+                        <td class="metric-positive">+3.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>February</strong></td>
+                        <td>8.82</td>
+                        <td>4.28</td>
+                        <td>4.18</td>
+                        <td>4.18</td>
+                        <td>4.18</td>
+                        <td>3.58</td>
+                        <td>3.5%</td>
+                        <td>114</td>
+                        <td>70</td>
+                        <td>2</td>
+                        <td>8.71</td>
+                        <td class="metric-positive">+1.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>March</strong></td>
+                        <td>9.02</td>
+                        <td>4.28</td>
+                        <td>4.18</td>
+                        <td>4.18</td>
+                        <td>4.18</td>
+                        <td>3.58</td>
+                        <td>4.6%</td>
+                        <td>130</td>
+                        <td>95</td>
+                        <td>2</td>
+                        <td>8.83</td>
+                        <td class="metric-positive">+2.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>April</strong></td>
+                        <td>8.97</td>
+                        <td>4.28</td>
+                        <td>4.19</td>
+                        <td>4.19</td>
+                        <td>4.19</td>
+                        <td>3.59</td>
+                        <td>10.6%</td>
+                        <td>123</td>
+                        <td>89</td>
+                        <td>4</td>
+                        <td>8.80</td>
+                        <td class="metric-positive">+1.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>May</strong></td>
+                        <td>9.09</td>
+                        <td>4.28</td>
+                        <td>4.24</td>
+                        <td>4.24</td>
+                        <td>4.24</td>
+                        <td>3.66</td>
+                        <td>3.8%</td>
+                        <td>132</td>
+                        <td>99</td>
+                        <td>2</td>
+                        <td>8.79</td>
+                        <td class="metric-positive">+3.4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>June</strong></td>
+                        <td>8.88</td>
+                        <td>4.28</td>
+                        <td>4.20</td>
+                        <td>4.20</td>
+                        <td>4.20</td>
+                        <td>3.58</td>
+                        <td>8.9%</td>
+                        <td>123</td>
+                        <td>83</td>
+                        <td>10</td>
+                        <td>8.89</td>
+                        <td class="metric-negative">-0.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>July</strong></td>
+                        <td>8.69</td>
+                        <td>4.28</td>
+                        <td>4.30</td>
+                        <td>4.30</td>
+                        <td>4.30</td>
+                        <td>3.74</td>
+                        <td>5.6%</td>
+                        <td>125</td>
+                        <td>75</td>
+                        <td>10</td>
+                        <td>8.99</td>
+                        <td class="metric-negative">-3.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>August</strong></td>
+                        <td>8.72</td>
+                        <td>4.28</td>
+                        <td>4.03</td>
+                        <td>4.03</td>
+                        <td>4.03</td>
+                        <td>3.40</td>
+                        <td>3.7%</td>
+                        <td>134</td>
+                        <td>83</td>
+                        <td>4</td>
+                        <td>8.87</td>
+                        <td class="metric-negative">-1.7%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>September</strong></td>
+                        <td>8.74</td>
+                        <td>4.28</td>
+                        <td>4.25</td>
+                        <td>4.25</td>
+                        <td>4.25</td>
+                        <td>3.60</td>
+                        <td>1.6%</td>
+                        <td>124</td>
+                        <td>82</td>
+                        <td>7</td>
+                        <td>9.07</td>
+                        <td class="metric-negative">-3.6%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>October</strong></td>
+                        <td>8.56</td>
+                        <td>4.28</td>
+                        <td>4.17</td>
+                        <td>4.17</td>
+                        <td>4.17</td>
+                        <td>3.60</td>
+                        <td>9.5%</td>
+                        <td>126</td>
+                        <td>74</td>
+                        <td>8</td>
+                        <td>8.91</td>
+                        <td class="metric-negative">-3.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>November</strong></td>
+                        <td>8.68</td>
+                        <td>4.28</td>
+                        <td>4.24</td>
+                        <td>4.24</td>
+                        <td>4.24</td>
+                        <td>3.65</td>
+                        <td>6.2%</td>
+                        <td>130</td>
+                        <td>78</td>
+                        <td>6</td>
+                        <td>9.05</td>
+                        <td class="metric-negative">-4.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>December</strong></td>
+                        <td>8.61</td>
+                        <td>4.28</td>
+                        <td>4.28</td>
+                        <td>4.28</td>
+                        <td>4.28</td>
+                        <td>3.72</td>
+                        <td>6.3%</td>
+                        <td>127</td>
+                        <td>71</td>
+                        <td>8</td>
+                        <td>9.10</td>
+                        <td class="metric-negative">-5.4%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Falcon Hotels & Restaurants | Guest Experience | Generated March 2026</p>
+    </footer>
+
+    <script>
+        // Data
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const nps2024 = [8.66, 8.71, 8.83, 8.80, 8.79, 8.89, 8.99, 8.87, 9.07, 8.91, 9.05, 9.10];
+        const nps2025 = [8.92, 8.82, 9.02, 8.97, 9.09, 8.88, 8.69, 8.72, 8.74, 8.56, 8.68, 8.61];
+        const food2025 = [4.22, 4.18, 4.18, 4.19, 4.24, 4.20, 4.30, 4.03, 4.25, 4.17, 4.24, 4.28];
+        const service2025 = [4.22, 4.18, 4.18, 4.19, 4.24, 4.20, 4.30, 4.03, 4.25, 4.17, 4.24, 4.28];
+        const clean2025 = [4.22, 4.18, 4.18, 4.19, 4.24, 4.20, 4.30, 4.03, 4.25, 4.17, 4.24, 4.28];
+        const value2025 = [3.62, 3.58, 3.58, 3.59, 3.66, 3.58, 3.74, 3.40, 3.60, 3.60, 3.65, 3.72];
+        const complaint2025 = [7.8, 3.5, 4.6, 10.6, 3.8, 8.9, 5.6, 3.7, 1.6, 9.5, 6.2, 6.3];
+        const complaint2024 = [5.2, 3.4, 6.6, 6.3, 5.6, 5.4, 2.2, 4.4, 6.5, 4.5, 5.9, 4.8];
+        const responses2025 = [129, 114, 130, 123, 132, 123, 125, 134, 124, 126, 130, 127];
+        const responses2024 = [230, 207, 241, 223, 234, 223, 223, 228, 217, 220, 222, 230];
+
+        // Monthly detail data
+        const monthlyDetail = [
+            { month: 'January', nps: 8.92, csat: 4.28, food: 4.22, service: 4.22, clean: 4.22, value: 3.62, complaint: 7.8, responses: 129, promoters: 92, detractors: 5, pyNps: 8.66, change: 3.0 },
+            { month: 'February', nps: 8.82, csat: 4.28, food: 4.18, service: 4.18, clean: 4.18, value: 3.58, complaint: 3.5, responses: 114, promoters: 70, detractors: 2, pyNps: 8.71, change: 1.3 },
+            { month: 'March', nps: 9.02, csat: 4.28, food: 4.18, service: 4.18, clean: 4.18, value: 3.58, complaint: 4.6, responses: 130, promoters: 95, detractors: 2, pyNps: 8.83, change: 2.3 },
+            { month: 'April', nps: 8.97, csat: 4.28, food: 4.19, service: 4.19, clean: 4.19, value: 3.59, complaint: 10.6, responses: 123, promoters: 89, detractors: 4, pyNps: 8.80, change: 1.9 },
+            { month: 'May', nps: 9.09, csat: 4.28, food: 4.24, service: 4.24, clean: 4.24, value: 3.66, complaint: 3.8, responses: 132, promoters: 99, detractors: 2, pyNps: 8.79, change: 3.4 },
+            { month: 'June', nps: 8.88, csat: 4.28, food: 4.20, service: 4.20, clean: 4.20, value: 3.58, complaint: 8.9, responses: 123, promoters: 83, detractors: 10, pyNps: 8.89, change: -0.1 },
+            { month: 'July', nps: 8.69, csat: 4.28, food: 4.30, service: 4.30, clean: 4.30, value: 3.74, complaint: 5.6, responses: 125, promoters: 75, detractors: 10, pyNps: 8.99, change: -3.3 },
+            { month: 'August', nps: 8.72, csat: 4.28, food: 4.03, service: 4.03, clean: 4.03, value: 3.40, complaint: 3.7, responses: 134, promoters: 83, detractors: 4, pyNps: 8.87, change: -1.7 },
+            { month: 'September', nps: 8.74, csat: 4.28, food: 4.25, service: 4.25, clean: 4.25, value: 3.60, complaint: 1.6, responses: 124, promoters: 82, detractors: 7, pyNps: 9.07, change: -3.6 },
+            { month: 'October', nps: 8.56, csat: 4.28, food: 4.17, service: 4.17, clean: 4.17, value: 3.60, complaint: 9.5, responses: 126, promoters: 74, detractors: 8, pyNps: 8.91, change: -3.9 },
+            { month: 'November', nps: 8.68, csat: 4.28, food: 4.24, service: 4.24, clean: 4.24, value: 3.65, complaint: 6.2, responses: 130, promoters: 78, detractors: 6, pyNps: 9.05, change: -4.1 },
+            { month: 'December', nps: 8.61, csat: 4.28, food: 4.28, service: 4.28, clean: 4.28, value: 3.72, complaint: 6.3, responses: 127, promoters: 71, detractors: 8, pyNps: 9.10, change: -5.4 }
+        ];
+
+        const chartColors = {
+            primary: '#1B2A4A',
+            gold: '#C8A951',
+            secondary: '#3A6B8A',
+            goldLight: '#D4B96A',
+            tertiary: '#6C8EBF',
+            goldLighter: '#E8D5A0'
+        };
+
+        // Chart configurations
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", size: 12 },
+                        color: '#2D3436',
+                        padding: 15
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#E0E0E0', drawBorder: false },
+                    ticks: { color: '#636E72', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#E0E0E0', drawBorder: false },
+                    ticks: { color: '#636E72', font: { size: 11 } }
+                }
+            }
+        };
+
+        // Helper function: average values (for rates/scores)
+        function averageArray(arr) {
+            return arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+        }
+
+        // Helper function: sum values (for counts)
+        function sumArray(arr) {
+            return arr.reduce((a, b) => a + b, 0);
+        }
+
+        // Helper function: get quarterly aggregates
+        function getQuarterlyData(data2024, data2025, isCount = false) {
+            const q1_2024 = data2024.slice(0, 3);
+            const q2_2024 = data2024.slice(3, 6);
+            const q3_2024 = data2024.slice(6, 9);
+            const q4_2024 = data2024.slice(9, 12);
+
+            const q1_2025 = data2025.slice(0, 3);
+            const q2_2025 = data2025.slice(3, 6);
+            const q3_2025 = data2025.slice(6, 9);
+            const q4_2025 = data2025.slice(9, 12);
+
+            const aggFunc = isCount ? sumArray : averageArray;
+            return {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                data2024: [aggFunc(q1_2024), aggFunc(q2_2024), aggFunc(q3_2024), aggFunc(q4_2024)],
+                data2025: [aggFunc(q1_2025), aggFunc(q2_2025), aggFunc(q3_2025), aggFunc(q4_2025)]
+            };
+        }
+
+        // Helper function: get yearly aggregates
+        function getYearlyData(data2024, data2025, isCount = false) {
+            const aggFunc = isCount ? sumArray : averageArray;
+            return {
+                labels: ['2024', '2025'],
+                data: [aggFunc(data2024), aggFunc(data2025)]
+            };
+        }
+
+        // Helper function: update table based on granularity
+        function updateDetailTable(granularity) {
+            const tbody = document.querySelector('.table-wrapper tbody');
+            const tableTitle = document.querySelector('.table-title');
+            let html = '';
+
+            if (granularity === 'monthly') {
+                tableTitle.textContent = 'Monthly Performance Detail (2025)';
+                monthlyDetail.forEach(row => {
+                    const changeClass = row.change >= 0 ? 'metric-positive' : 'metric-negative';
+                    const changeSymbol = row.change >= 0 ? '+' : '';
+                    html += `
+                        <tr>
+                            <td><strong>${row.month}</strong></td>
+                            <td>${row.nps.toFixed(2)}</td>
+                            <td>${row.csat.toFixed(2)}</td>
+                            <td>${row.food.toFixed(2)}</td>
+                            <td>${row.service.toFixed(2)}</td>
+                            <td>${row.clean.toFixed(2)}</td>
+                            <td>${row.value.toFixed(2)}</td>
+                            <td>${row.complaint.toFixed(1)}%</td>
+                            <td>${row.responses}</td>
+                            <td>${row.promoters}</td>
+                            <td>${row.detractors}</td>
+                            <td>${row.pyNps.toFixed(2)}</td>
+                            <td class="${changeClass}">${changeSymbol}${row.change.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                });
+            } else if (granularity === 'quarterly') {
+                tableTitle.textContent = 'Quarterly Performance Detail (2025)';
+                const quartersData = [
+                    { quarter: 'Q1', npsAvg: averageArray([8.92, 8.82, 9.02]), csatAvg: 4.28, foodAvg: averageArray([4.22, 4.18, 4.18]), serviceAvg: averageArray([4.22, 4.18, 4.18]), cleanAvg: averageArray([4.22, 4.18, 4.18]), valueAvg: averageArray([3.62, 3.58, 3.58]), complaintAvg: averageArray([7.8, 3.5, 4.6]), responsesSum: sumArray([129, 114, 130]), promotersSum: sumArray([92, 70, 95]), detractorsSum: sumArray([5, 2, 2]), pyNpsAvg: averageArray([8.66, 8.71, 8.83]) },
+                    { quarter: 'Q2', npsAvg: averageArray([8.97, 9.09, 8.88]), csatAvg: 4.28, foodAvg: averageArray([4.19, 4.24, 4.20]), serviceAvg: averageArray([4.19, 4.24, 4.20]), cleanAvg: averageArray([4.19, 4.24, 4.20]), valueAvg: averageArray([3.59, 3.66, 3.58]), complaintAvg: averageArray([10.6, 3.8, 8.9]), responsesSum: sumArray([123, 132, 123]), promotersSum: sumArray([89, 99, 83]), detractorsSum: sumArray([4, 2, 10]), pyNpsAvg: averageArray([8.80, 8.79, 8.89]) },
+                    { quarter: 'Q3', npsAvg: averageArray([8.69, 8.72, 8.74]), csatAvg: 4.28, foodAvg: averageArray([4.30, 4.03, 4.25]), serviceAvg: averageArray([4.30, 4.03, 4.25]), cleanAvg: averageArray([4.30, 4.03, 4.25]), valueAvg: averageArray([3.74, 3.40, 3.60]), complaintAvg: averageArray([5.6, 3.7, 1.6]), responsesSum: sumArray([125, 134, 124]), promotersSum: sumArray([75, 83, 82]), detractorsSum: sumArray([10, 4, 7]), pyNpsAvg: averageArray([8.99, 8.87, 9.07]) },
+                    { quarter: 'Q4', npsAvg: averageArray([8.56, 8.68, 8.61]), csatAvg: 4.28, foodAvg: averageArray([4.17, 4.24, 4.28]), serviceAvg: averageArray([4.17, 4.24, 4.28]), cleanAvg: averageArray([4.17, 4.24, 4.28]), valueAvg: averageArray([3.60, 3.65, 3.72]), complaintAvg: averageArray([9.5, 6.2, 6.3]), responsesSum: sumArray([126, 130, 127]), promotersSum: sumArray([74, 78, 71]), detractorsSum: sumArray([8, 6, 8]), pyNpsAvg: averageArray([8.91, 9.05, 9.10]) }
+                ];
+
+                quartersData.forEach(q => {
+                    const changeCalc = ((q.npsAvg - q.pyNpsAvg) / q.pyNpsAvg) * 100;
+                    const changeClass = changeCalc >= 0 ? 'metric-positive' : 'metric-negative';
+                    const changeSymbol = changeCalc >= 0 ? '+' : '';
+                    html += `
+                        <tr>
+                            <td><strong>${q.quarter}</strong></td>
+                            <td>${q.npsAvg.toFixed(2)}</td>
+                            <td>${q.csatAvg.toFixed(2)}</td>
+                            <td>${q.foodAvg.toFixed(2)}</td>
+                            <td>${q.serviceAvg.toFixed(2)}</td>
+                            <td>${q.cleanAvg.toFixed(2)}</td>
+                            <td>${q.valueAvg.toFixed(2)}</td>
+                            <td>${q.complaintAvg.toFixed(1)}%</td>
+                            <td>${q.responsesSum}</td>
+                            <td>${q.promotersSum}</td>
+                            <td>${q.detractorsSum}</td>
+                            <td>${q.pyNpsAvg.toFixed(2)}</td>
+                            <td class="${changeClass}">${changeSymbol}${changeCalc.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                });
+            } else if (granularity === 'yearly') {
+                tableTitle.textContent = 'Yearly Performance Detail (2025)';
+                const npsAvg2025 = averageArray(nps2025);
+                const npsAvg2024 = averageArray(nps2024);
+                const changeCalc = ((npsAvg2025 - npsAvg2024) / npsAvg2024) * 100;
+                const changeClass = changeCalc >= 0 ? 'metric-positive' : 'metric-negative';
+                const changeSymbol = changeCalc >= 0 ? '+' : '';
+
+                html += `
+                    <tr>
+                        <td><strong>2025</strong></td>
+                        <td>${npsAvg2025.toFixed(2)}</td>
+                        <td>${averageArray(Array(12).fill(4.28)).toFixed(2)}</td>
+                        <td>${averageArray(food2025).toFixed(2)}</td>
+                        <td>${averageArray(service2025).toFixed(2)}</td>
+                        <td>${averageArray(clean2025).toFixed(2)}</td>
+                        <td>${averageArray(value2025).toFixed(2)}</td>
+                        <td>${averageArray(complaint2025).toFixed(1)}%</td>
+                        <td>${sumArray(responses2025)}</td>
+                        <td>${sumArray([92, 70, 95, 89, 99, 83, 75, 83, 82, 74, 78, 71])}</td>
+                        <td>${sumArray([5, 2, 2, 4, 2, 10, 10, 4, 7, 8, 6, 8])}</td>
+                        <td>${npsAvg2024.toFixed(2)}</td>
+                        <td class="${changeClass}">${changeSymbol}${changeCalc.toFixed(1)}%</td>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        // 1. NPS Trend YoY
+        let npsChartInstance;
+        function initNpsChart(granularity) {
+            const ctx = document.getElementById('npsChart').getContext('2d');
+            if (npsChartInstance) npsChartInstance.destroy();
+
+            let labels, data2025Data, data2024Data;
+            if (granularity === 'monthly') {
+                labels = months;
+                data2025Data = nps2025;
+                data2024Data = nps2024;
+            } else if (granularity === 'quarterly') {
+                const qData = getQuarterlyData(nps2024, nps2025);
+                labels = qData.labels;
+                data2025Data = qData.data2025;
+                data2024Data = qData.data2024;
+            } else {
+                const yData = getYearlyData(nps2024, nps2025);
+                labels = yData.labels;
+                data2025Data = [yData.data[1]];
+                data2024Data = [yData.data[0]];
+            }
+
+            npsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025 NPS',
+                            data: data2025Data,
+                            borderColor: chartColors.primary,
+                            backgroundColor: 'rgba(27, 42, 74, 0.05)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: chartColors.primary,
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: '2024 NPS',
+                            data: data2024Data,
+                            borderColor: chartColors.gold,
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: chartColors.gold
+                        },
+                        {
+                            label: 'Benchmark (8.5)',
+                            data: Array(labels.length).fill(8.5),
+                            borderColor: '#C62828',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [3, 3],
+                            fill: false,
+                            tension: 0,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        ...chartOptions.scales,
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 8,
+                            max: 9.5
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. CSAT & Category Ratings YoY
+        let csatChartInstance;
+        function initCsatChart(granularity) {
+            const ctx = document.getElementById('csatChart').getContext('2d');
+            if (csatChartInstance) csatChartInstance.destroy();
+
+            let data2025, data2024;
+            if (granularity === 'monthly') {
+                data2025 = [4.28, averageArray(food2025), averageArray(service2025), averageArray(clean2025), averageArray(value2025)];
+                data2024 = [4.41, 4.40, 4.40, 4.40, 4.20];
+            } else if (granularity === 'quarterly') {
+                data2025 = [4.28, averageArray(food2025), averageArray(service2025), averageArray(clean2025), averageArray(value2025)];
+                data2024 = [4.41, 4.40, 4.40, 4.40, 4.20];
+            } else {
+                data2025 = [4.28, averageArray(food2025), averageArray(service2025), averageArray(clean2025), averageArray(value2025)];
+                data2024 = [4.41, 4.40, 4.40, 4.40, 4.20];
+            }
+
+            csatChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['CSAT', 'Food', 'Service', 'Clean', 'Value'],
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: data2025,
+                            backgroundColor: chartColors.primary,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2024',
+                            data: data2024,
+                            backgroundColor: chartColors.gold,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 0,
+                            max: 5
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. NPS Category Distribution
+        let npsDistChartInstance;
+        function initNpsDistChart(granularity) {
+            const ctx = document.getElementById('npsDistChart').getContext('2d');
+            if (npsDistChartInstance) npsDistChartInstance.destroy();
+
+            let promoters, passives, detractors, total;
+            if (granularity === 'monthly') {
+                promoters = 991;
+                passives = 478;
+                detractors = 68;
+                total = 1537;
+            } else if (granularity === 'quarterly') {
+                promoters = sumArray([92, 70, 95, 89, 99, 83, 75, 83, 82, 74, 78, 71]);
+                passives = 0;
+                detractors = sumArray([5, 2, 2, 4, 2, 10, 10, 4, 7, 8, 6, 8]);
+                total = sumArray(responses2025);
+                passives = total - promoters - detractors;
+            } else {
+                promoters = sumArray([92, 70, 95, 89, 99, 83, 75, 83, 82, 74, 78, 71]);
+                detractors = sumArray([5, 2, 2, 4, 2, 10, 10, 4, 7, 8, 6, 8]);
+                total = sumArray(responses2025);
+                passives = total - promoters - detractors;
+            }
+
+            npsDistChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Promoters (9-10)', 'Passives (7-8)', 'Detractors (0-6)'],
+                    datasets: [{
+                        data: [promoters, passives, detractors],
+                        backgroundColor: [
+                            chartColors.primary,
+                            chartColors.goldLight,
+                            '#C62828'
+                        ],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", size: 12 },
+                                color: '#2D3436',
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Category Ratings Trend
+        let categoryTrendChartInstance;
+        function initCategoryTrendChart(granularity) {
+            const ctx = document.getElementById('categoryTrendChart').getContext('2d');
+            if (categoryTrendChartInstance) categoryTrendChartInstance.destroy();
+
+            let labels, foodData, serviceData, cleanData, valueData;
+            if (granularity === 'monthly') {
+                labels = months;
+                foodData = food2025;
+                serviceData = service2025;
+                cleanData = clean2025;
+                valueData = value2025;
+            } else if (granularity === 'quarterly') {
+                const qData = getQuarterlyData([4.22, 4.18, 4.18, 4.19, 4.24, 4.20, 4.30, 4.03, 4.25, 4.17, 4.24, 4.28], food2025);
+                labels = qData.labels;
+                foodData = qData.data2025;
+                serviceData = qData.data2025;
+                cleanData = qData.data2025;
+                valueData = getQuarterlyData([3.62, 3.58, 3.58, 3.59, 3.66, 3.58, 3.74, 3.40, 3.60, 3.60, 3.65, 3.72], value2025).data2025;
+            } else {
+                labels = ['2025'];
+                foodData = [averageArray(food2025)];
+                serviceData = [averageArray(service2025)];
+                cleanData = [averageArray(clean2025)];
+                valueData = [averageArray(value2025)];
+            }
+
+            categoryTrendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Food',
+                            data: foodData,
+                            borderColor: chartColors.primary,
+                            backgroundColor: 'rgba(27, 42, 74, 0.05)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: chartColors.primary
+                        },
+                        {
+                            label: 'Service',
+                            data: serviceData,
+                            borderColor: chartColors.gold,
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: chartColors.gold
+                        },
+                        {
+                            label: 'Cleanliness',
+                            data: cleanData,
+                            borderColor: chartColors.secondary,
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: chartColors.secondary
+                        },
+                        {
+                            label: 'Value',
+                            data: valueData,
+                            borderColor: chartColors.tertiary,
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: chartColors.tertiary
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 3,
+                            max: 4.5
+                        }
+                    }
+                }
+            });
+        }
+
+        // 5. Complaint Rate Trend
+        let complaintChartInstance;
+        function initComplaintChart(granularity) {
+            const ctx = document.getElementById('complaintChart').getContext('2d');
+            if (complaintChartInstance) complaintChartInstance.destroy();
+
+            let labels, complaint2025Data, complaint2024Data;
+            if (granularity === 'monthly') {
+                labels = months;
+                complaint2025Data = complaint2025;
+                complaint2024Data = complaint2024;
+            } else if (granularity === 'quarterly') {
+                const qData = getQuarterlyData(complaint2024, complaint2025);
+                labels = qData.labels;
+                complaint2025Data = qData.data2025;
+                complaint2024Data = qData.data2024;
+            } else {
+                const yData = getYearlyData(complaint2024, complaint2025);
+                labels = yData.labels;
+                complaint2025Data = [yData.data[1]];
+                complaint2024Data = [yData.data[0]];
+            }
+
+            complaintChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: complaint2025Data,
+                            backgroundColor: chartColors.primary,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2024',
+                            data: complaint2024Data,
+                            backgroundColor: chartColors.gold,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 0,
+                            max: 12
+                        }
+                    }
+                }
+            });
+        }
+
+        // 6. Response Volume Trend
+        let volumeChartInstance;
+        function initVolumeChart(granularity) {
+            const ctx = document.getElementById('volumeChart').getContext('2d');
+            if (volumeChartInstance) volumeChartInstance.destroy();
+
+            let labels, responses2025Data, responses2024Data;
+            if (granularity === 'monthly') {
+                labels = months;
+                responses2025Data = responses2025;
+                responses2024Data = responses2024;
+            } else if (granularity === 'quarterly') {
+                const qData = getQuarterlyData(responses2024, responses2025, true);
+                labels = qData.labels;
+                responses2025Data = qData.data2025;
+                responses2024Data = qData.data2024;
+            } else {
+                const yData = getYearlyData(responses2024, responses2025, true);
+                labels = yData.labels;
+                responses2025Data = [yData.data[1]];
+                responses2024Data = [yData.data[0]];
+            }
+
+            volumeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: responses2025Data,
+                            backgroundColor: chartColors.primary,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2024',
+                            data: responses2024Data,
+                            backgroundColor: chartColors.gold,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 0,
+                            max: 260
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize all charts on page load
+        initNpsChart('monthly');
+        initCsatChart('monthly');
+        initNpsDistChart('monthly');
+        initCategoryTrendChart('monthly');
+        initComplaintChart('monthly');
+        initVolumeChart('monthly');
+
+        // Time Filter Function
+        function filterData(period) {
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update all charts
+            initNpsChart(period);
+            initCsatChart(period);
+            initNpsDistChart(period);
+            initCategoryTrendChart(period);
+            initComplaintChart(period);
+            initVolumeChart(period);
+
+            // Update detail table
+            updateDetailTable(period);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom / 11. Device Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+        .topbar {
+            background-color: #1D1D2C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+        .logo-x {
+            color: #E20074;
+        }
+        .logo-f {
+            color: white;
+        }
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar-title-main {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .topbar-title-sub {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .topbar-right {
+            font-size: 12px;
+        }
+        .topbar-right a {
+            color: #E20074;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #E20074;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+        }
+        .kpi-delta {
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        .delta.positive {
+            color: #059669;
+        }
+        .delta.negative {
+            color: #D32F2F;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 16px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .table-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-card thead {
+            background-color: #1D1D2C;
+            color: white;
+        }
+        .table-card th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .table-card td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 13px;
+        }
+        .table-card tbody tr:hover {
+            background-color: #F8FAFC;
+        }
+        .table-card tbody td {
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">
+                <span class="logo-x">x</span><span class="logo-f">F</span>
+            </div>
+            <div class="topbar-title">
+                <div class="topbar-title-main">Falcon Telecom / 11. Device Analytics</div>
+                <div class="topbar-title-sub" id="reporting-period">All Data</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html">← Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label>Brand</label>
+                <select id="brandFilter" onchange="applyFilters()">
+                    <option value="">All Brands</option>
+                    <option value="Samsung">Samsung</option>
+                    <option value="Xiaomi">Xiaomi</option>
+                    <option value="Vivo">Vivo</option>
+                    <option value="OPPO">OPPO</option>
+                    <option value="Realme">Realme</option>
+                    <option value="Apple">Apple</option>
+                    <option value="OnePlus">OnePlus</option>
+                    <option value="Motorola">Motorola</option>
+                    <option value="Nokia">Nokia</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Device Tier</label>
+                <select id="tierFilter" onchange="applyFilters()">
+                    <option value="">All Tiers</option>
+                    <option value="Budget">Budget</option>
+                    <option value="Mid-range">Mid-range</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Flagship">Flagship</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>5G Capability</label>
+                <select id="fgFilter" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="true">5G Capable</option>
+                    <option value="false">Non-5G</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpis" id="kpis"></div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Market Share by Brand</div>
+                <div class="chart-container">
+                    <canvas id="marketShareChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Subscribers by Device Tier</div>
+                <div class="chart-container">
+                    <canvas id="tierChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">5G vs Non-5G by Brand</div>
+                <div class="chart-container">
+                    <canvas id="fg5Chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Churn Rate by Brand</div>
+                <div class="chart-container">
+                    <canvas id="churnChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Avg LTV by Device Tier</div>
+                <div class="chart-container">
+                    <canvas id="ltvChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">RAM Distribution by Tier</div>
+                <div class="chart-container">
+                    <canvas id="ramChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Brand</th>
+                        <th>Tier</th>
+                        <th>5G</th>
+                        <th>Subscribers</th>
+                        <th>Churned</th>
+                        <th>Churn %</th>
+                        <th>Avg LTV (₹)</th>
+                        <th>NPS</th>
+                        <th>Avg RAM (GB)</th>
+                        <th>Screen (in)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var DEVICES = [
+            {brand:'Samsung', tier:'Mid-range', is5G:false, subs:8065, churned:1796, avgLtv:23842, avgNps:5.0, avgRam:8.0, avgScreen:6.1},
+            {brand:'Samsung', tier:'Premium', is5G:true, subs:8055, churned:1737, avgLtv:23859, avgNps:5.0, avgRam:6.0, avgScreen:6.3},
+            {brand:'Samsung', tier:'Flagship', is5G:true, subs:7937, churned:1764, avgLtv:24101, avgNps:5.0, avgRam:7.3, avgScreen:6.1},
+            {brand:'Samsung', tier:'Budget', is5G:false, subs:7924, churned:1770, avgLtv:23355, avgNps:5.0, avgRam:5.7, avgScreen:6.6},
+            {brand:'Xiaomi', tier:'Budget', is5G:false, subs:5703, churned:1256, avgLtv:23967, avgNps:5.0, avgRam:8.6, avgScreen:6.1},
+            {brand:'Xiaomi', tier:'Premium', is5G:true, subs:5613, churned:1262, avgLtv:23937, avgNps:4.9, avgRam:4.4, avgScreen:6.2},
+            {brand:'Xiaomi', tier:'Mid-range', is5G:false, subs:5544, churned:1240, avgLtv:24037, avgNps:5.0, avgRam:8.0, avgScreen:5.9},
+            {brand:'Vivo', tier:'Budget', is5G:false, subs:3492, churned:810, avgLtv:23642, avgNps:5.0, avgRam:6.0, avgScreen:6.2},
+            {brand:'Vivo', tier:'Mid-range', is5G:false, subs:3365, churned:728, avgLtv:23411, avgNps:5.1, avgRam:6.0, avgScreen:6.4},
+            {brand:'OPPO', tier:'Mid-range', is5G:false, subs:2892, churned:605, avgLtv:23150, avgNps:5.0, avgRam:6.0, avgScreen:6.2},
+            {brand:'OPPO', tier:'Budget', is5G:false, subs:2881, churned:615, avgLtv:23489, avgNps:4.9, avgRam:5.0, avgScreen:5.7},
+            {brand:'OPPO', tier:'Premium', is5G:true, subs:2866, churned:606, avgLtv:25070, avgNps:5.0, avgRam:5.7, avgScreen:5.7},
+            {brand:'Realme', tier:'Mid-range', is5G:false, subs:2563, churned:606, avgLtv:25001, avgNps:5.0, avgRam:10.7, avgScreen:6.4},
+            {brand:'Realme', tier:'Budget', is5G:false, subs:2525, churned:560, avgLtv:23342, avgNps:5.0, avgRam:6.0, avgScreen:6.0},
+            {brand:'Apple', tier:'Flagship', is5G:true, subs:2060, churned:449, avgLtv:23931, avgNps:4.9, avgRam:6.0, avgScreen:6.3},
+            {brand:'Apple', tier:'Premium', is5G:true, subs:1899, churned:453, avgLtv:22779, avgNps:5.0, avgRam:7.3, avgScreen:6.0},
+            {brand:'OnePlus', tier:'Flagship', is5G:true, subs:1429, churned:287, avgLtv:22641, avgNps:4.9, avgRam:7.8, avgScreen:5.8},
+            {brand:'OnePlus', tier:'Premium', is5G:true, subs:1422, churned:320, avgLtv:24209, avgNps:5.0, avgRam:4.4, avgScreen:6.1},
+            {brand:'Motorola', tier:'Mid-range', is5G:false, subs:1149, churned:247, avgLtv:24170, avgNps:4.9, avgRam:4.3, avgScreen:6.0},
+            {brand:'Motorola', tier:'Budget', is5G:false, subs:1137, churned:248, avgLtv:24100, avgNps:5.1, avgRam:8.4, avgScreen:6.0},
+            {brand:'Nokia', tier:'Budget', is5G:false, subs:879, churned:193, avgLtv:24567, avgNps:5.1, avgRam:6.7, avgScreen:6.4},
+            {brand:'Others', tier:'Budget', is5G:false, subs:600, churned:130, avgLtv:23638, avgNps:5.2, avgRam:8.6, avgScreen:5.9}
+        ];
+
+        var charts = {};
+
+        function mk(type, text) {
+            var el = document.createElement(type);
+            el.textContent = text;
+            return el;
+        }
+
+        function getFilters() {
+            return {
+                brand: document.getElementById('brandFilter').value,
+                tier: document.getElementById('tierFilter').value,
+                is5G: document.getElementById('fgFilter').value
+            };
+        }
+
+        function filterData(filters) {
+            return DEVICES.filter(function(row) {
+                var is5GMatch = filters.is5G === '' || String(row.is5G) === filters.is5G;
+                return (filters.brand === '' || row.brand === filters.brand) &&
+                       (filters.tier === '' || row.tier === filters.tier) &&
+                       is5GMatch;
+            });
+        }
+
+        function getBrandStats(filtered) {
+            var stats = {};
+            filtered.forEach(function(row) {
+                if (!stats[row.brand]) {
+                    stats[row.brand] = {brand: row.brand, subs: 0, churned: 0, totalLtv: 0, totalNps: 0, count: 0, is5G: 0, notIs5G: 0};
+                }
+                stats[row.brand].subs += row.subs;
+                stats[row.brand].churned += row.churned;
+                stats[row.brand].totalLtv += row.avgLtv * row.subs;
+                stats[row.brand].totalNps += row.avgNps;
+                stats[row.brand].count++;
+                if (row.is5G) {
+                    stats[row.brand].is5G += row.subs;
+                } else {
+                    stats[row.brand].notIs5G += row.subs;
+                }
+            });
+            var result = [];
+            for (var key in stats) {
+                var s = stats[key];
+                result.push({
+                    brand: s.brand,
+                    subs: s.subs,
+                    churned: s.churned,
+                    churnRate: s.subs > 0 ? (s.churned / s.subs * 100).toFixed(1) : 0,
+                    avgLtv: s.subs > 0 ? Math.round(s.totalLtv / s.subs) : 0,
+                    avgNps: (s.totalNps / s.count).toFixed(2),
+                    is5G: s.is5G,
+                    notIs5G: s.notIs5G
+                });
+            }
+            return result.sort(function(a, b) { return b.subs - a.subs; });
+        }
+
+        function getTierStats(filtered) {
+            var stats = {};
+            filtered.forEach(function(row) {
+                if (!stats[row.tier]) {
+                    stats[row.tier] = {tier: row.tier, subs: 0, churned: 0, totalLtv: 0, totalRam: 0, count: 0};
+                }
+                stats[row.tier].subs += row.subs;
+                stats[row.tier].churned += row.churned;
+                stats[row.tier].totalLtv += row.avgLtv * row.subs;
+                stats[row.tier].totalRam += row.avgRam;
+                stats[row.tier].count++;
+            });
+            var result = [];
+            for (var key in stats) {
+                var s = stats[key];
+                result.push({
+                    tier: s.tier,
+                    subs: s.subs,
+                    churned: s.churned,
+                    churnRate: s.subs > 0 ? (s.churned / s.subs * 100).toFixed(1) : 0,
+                    avgLtv: s.subs > 0 ? Math.round(s.totalLtv / s.subs) : 0,
+                    avgRam: (s.totalRam / s.count).toFixed(1)
+                });
+            }
+            var order = ['Budget', 'Mid-range', 'Premium', 'Flagship'];
+            return result.sort(function(a, b) { return order.indexOf(a.tier) - order.indexOf(b.tier); });
+        }
+
+        function updateKPIs(filtered) {
+            var totalDevices = filtered.length;
+            var totalSubs = 0, totalChurned = 0;
+            var fgCapable = 0, budget = 0, premiumFlagship = 0;
+            var totalRam = 0, totalScreen = 0;
+            var brandStats = getBrandStats(filtered);
+
+            var topBrand = brandStats[0];
+            var topBrandShare = 0;
+
+            filtered.forEach(function(row) {
+                totalSubs += row.subs;
+                totalChurned += row.churned;
+                totalRam += row.avgRam;
+                totalScreen += row.avgScreen;
+                if (row.is5G) fgCapable += row.subs;
+                if (row.tier === 'Budget') budget += row.subs;
+                if (row.tier === 'Premium' || row.tier === 'Flagship') premiumFlagship += row.subs;
+            });
+
+            if (brandStats.length > 0) {
+                topBrandShare = (topBrand.subs / totalSubs * 100).toFixed(1);
+            }
+
+            var fgCapablePct = totalSubs > 0 ? (fgCapable / totalSubs * 100).toFixed(1) : 0;
+            var budgetPct = totalSubs > 0 ? (budget / totalSubs * 100).toFixed(1) : 0;
+            var premiumFlagshipPct = totalSubs > 0 ? (premiumFlagship / totalSubs * 100).toFixed(1) : 0;
+            var avgRam = (totalRam / filtered.length).toFixed(1);
+            var avgScreen = (totalScreen / filtered.length).toFixed(1);
+
+            var lowestChurnBrand = brandStats.reduce(function(min, b) {
+                return parseFloat(b.churnRate) < parseFloat(min.churnRate) ? b : min;
+            });
+
+            var kpiData = [
+                {label: 'Total Device Models', value: String(totalDevices)},
+                {label: 'Top Brand', value: topBrand.brand + ' ' + topBrandShare + '%'},
+                {label: '5G Capable', value: fgCapablePct + '%'},
+                {label: 'Budget Devices', value: budgetPct + '%'},
+                {label: 'Premium + Flagship', value: premiumFlagshipPct + '%'},
+                {label: 'Avg Screen Size', value: avgScreen + '"'},
+                {label: 'Avg RAM', value: avgRam + ' GB'},
+                {label: 'Lowest Churn Brand', value: lowestChurnBrand.brand + ' ' + lowestChurnBrand.churnRate + '%'}
+            ];
+
+            var container = document.getElementById('kpis');
+            container.innerHTML = '';
+            kpiData.forEach(function(kpi) {
+                var card = mk('div', '');
+                card.className = 'kpi-card';
+                var value = mk('div', kpi.value);
+                value.className = 'kpi-value';
+                var label = mk('div', kpi.label);
+                label.className = 'kpi-label';
+                card.appendChild(value);
+                card.appendChild(label);
+                container.appendChild(card);
+            });
+
+            fitKpiText();
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var size = 28;
+                while (el.scrollWidth > el.clientWidth && size > 18) {
+                    size -= 2;
+                    el.style.fontSize = size + 'px';
+                }
+            });
+        }
+
+        function updateSubtitle() {
+            var filters = getFilters();
+            var parts = [];
+            if (filters.brand) parts.push(filters.brand);
+            if (filters.tier) parts.push(filters.tier);
+            if (filters.is5G === 'true') parts.push('5G');
+            if (filters.is5G === 'false') parts.push('Non-5G');
+            document.getElementById('reporting-period').textContent = parts.length > 0 ? parts.join(' / ') : 'All Data';
+        }
+
+        function updateCharts(filtered) {
+            var brandStats = getBrandStats(filtered);
+            var tierStats = getTierStats(filtered);
+
+            var brandLabels = brandStats.map(function(b) { return b.brand; });
+            var brandData = brandStats.map(function(b) { return b.subs; });
+
+            if (charts.marketShare) charts.marketShare.destroy();
+            charts.marketShare = new Chart(document.getElementById('marketShareChart'), {
+                type: 'bar',
+                data: {
+                    labels: brandLabels,
+                    datasets: [{
+                        label: 'Subscribers',
+                        data: brandData,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var tierLabels = tierStats.map(function(t) { return t.tier; });
+            var tierData = tierStats.map(function(t) { return t.subs; });
+
+            if (charts.tier) charts.tier.destroy();
+            charts.tier = new Chart(document.getElementById('tierChart'), {
+                type: 'bar',
+                data: {
+                    labels: tierLabels,
+                    datasets: [{
+                        label: 'Subscribers',
+                        data: tierData,
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var fg5GLabels = brandStats.map(function(b) { return b.brand; });
+            var fg5GData = brandStats.map(function(b) { return b.is5G; });
+            var fgNon5GData = brandStats.map(function(b) { return b.notIs5G; });
+
+            if (charts.fg5g) charts.fg5g.destroy();
+            charts.fg5g = new Chart(document.getElementById('fg5Chart'), {
+                type: 'bar',
+                data: {
+                    labels: fg5GLabels,
+                    datasets: [
+                        {label: '5G', data: fg5GData, backgroundColor: '#006AFF', borderRadius: 4},
+                        {label: 'Non-5G', data: fgNon5GData, backgroundColor: '#94A3B8', borderRadius: 4}
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}},
+                    scales: {x: {stacked: true, beginAtZero: true}}
+                }
+            });
+
+            var churnLabels = brandStats.map(function(b) { return b.brand; });
+            var churnData = brandStats.map(function(b) { return parseFloat(b.churnRate); });
+
+            if (charts.churn) charts.churn.destroy();
+            charts.churn = new Chart(document.getElementById('churnChart'), {
+                type: 'bar',
+                data: {
+                    labels: churnLabels,
+                    datasets: [{
+                        label: 'Churn Rate %',
+                        data: churnData,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var ltvLabels = tierStats.map(function(t) { return t.tier; });
+            var ltvData = tierStats.map(function(t) { return t.avgLtv; });
+
+            if (charts.ltv) charts.ltv.destroy();
+            charts.ltv = new Chart(document.getElementById('ltvChart'), {
+                type: 'bar',
+                data: {
+                    labels: ltvLabels,
+                    datasets: [{
+                        label: 'Avg LTV (₹)',
+                        data: ltvData,
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var tierLabelsForRam = tierStats.map(function(t) { return t.tier; });
+            var ramDataByTier = {};
+            tierStats.forEach(function(t) { ramDataByTier[t.tier] = []; });
+
+            var brands = brandStats.map(function(b) { return b.brand; }).slice(0, 4);
+            brands.forEach(function(brand) {
+                var ramData = [];
+                tierStats.forEach(function(tier) {
+                    var avg = filtered.filter(function(d) { return d.brand === brand && d.tier === tier.tier; }).reduce(function(acc, d) { return acc + d.avgRam; }, 0);
+                    var count = filtered.filter(function(d) { return d.brand === brand && d.tier === tier.tier; }).length;
+                    ramData.push(count > 0 ? (avg / count).toFixed(1) : 0);
+                });
+                ramDataByTier[brand] = ramData;
+            });
+
+            var colors = ['#006AFF', '#1A7F64', '#94A3B8', '#0EA5E9'];
+            var ramDsets = [];
+            brands.forEach(function(brand, idx) {
+                ramDsets.push({
+                    label: brand,
+                    data: ramDataByTier[brand],
+                    backgroundColor: colors[idx],
+                    borderRadius: 4
+                });
+            });
+
+            if (charts.ram) charts.ram.destroy();
+            charts.ram = new Chart(document.getElementById('ramChart'), {
+                type: 'bar',
+                data: {
+                    labels: tierLabelsForRam,
+                    datasets: ramDsets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}},
+                    scales: {x: {}, y: {beginAtZero: true}}
+                }
+            });
+        }
+
+        function updateTable(filtered) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            filtered.forEach(function(row) {
+                var churnPct = row.subs > 0 ? (row.churned / row.subs * 100).toFixed(1) : 0;
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.brand + '</td><td>' + row.tier + '</td><td>' + (row.is5G ? 'Yes' : 'No') + '</td><td>' + row.subs.toLocaleString() + '</td><td>' + row.churned.toLocaleString() + '</td><td>' + churnPct + '%</td><td>₹' + row.avgLtv.toLocaleString() + '</td><td>' + row.avgNps.toFixed(1) + '</td><td>' + row.avgRam.toFixed(1) + '</td><td>' + row.avgScreen.toFixed(1) + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = filterData(filters);
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+            updateSubtitle();
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

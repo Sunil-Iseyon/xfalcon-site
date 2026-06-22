@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - 03. Performance Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-hero: linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%);
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --chart-primary: #006AFF;
+      --chart-secondary: #1A7F64;
+      --chart-tertiary: #94A3B8;
+      --chart-ext1: #0EA5E9;
+      --chart-ext2: #F59E0B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, var(--color-base-dark) 0%, var(--color-base-darker) 100%);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .back-link {
+      color: var(--color-cyan);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-coral);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 20px 30px;
+      display: flex;
+      gap: 30px;
+      align-items: flex-end;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .filter-bar select {
+      padding: 10px 15px;
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-bar select:hover,
+    .filter-bar select:focus {
+      border-color: var(--color-cyan);
+      outline: none;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .chart-container {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .chart-container:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 16px;
+      letter-spacing: 0.3px;
+    }
+
+    canvas {
+      max-height: 350px;
+    }
+
+    .drill-down-section {
+      margin-top: 40px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .table-wrapper {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #141E30;
+      color: #F5F7FA;
+      font-weight: 600;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--color-text-primary);
+    }
+
+    tr:hover {
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .label-exceeds {
+      color: #7CFF01;
+    }
+
+    .label-meets {
+      color: #0EA5E9;
+    }
+
+    .label-below {
+      color: #FF6B35;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-yes {
+      background: rgba(124, 255, 1, 0.2);
+      color: #7CFF01;
+    }
+
+    .badge-no {
+      background: rgba(255, 51, 102, 0.2);
+      color: #FF3366;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span style="color:#00D4FF">x</span><span style="color:#FF6B35">F</span></div>
+      <div class="topbar-content">
+        <div class="topbar-title">03 | Performance Management</div>
+        <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Department</label>
+      <select id="filterDept" onchange="applyFilters()">
+        <option value="All">All Departments</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Location</label>
+      <select id="filterLoc" onchange="applyFilters()">
+        <option value="All">All Locations</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Year</label>
+      <select id="filterYear" onchange="applyFilters()">
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total-reviews">--</div>
+        <div class="kpi-label">Total Reviews</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-rating">--</div>
+        <div class="kpi-delta neutral" id="kpi-avg-rating-delta"></div>
+        <div class="kpi-label">Avg Rating</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-exceeds-pct">--</div>
+        <div class="kpi-label">Exceeds %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-meets-pct">--</div>
+        <div class="kpi-label">Meets %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-below-pct">--</div>
+        <div class="kpi-label">Below %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-employees-reviewed">--</div>
+        <div class="kpi-label">Employees Reviewed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-cycle-coverage">--</div>
+        <div class="kpi-label">Cycle Coverage</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-yoy-change">--</div>
+        <div class="kpi-delta neutral" id="kpi-yoy-change-delta"></div>
+        <div class="kpi-label">YoY Rating Change</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-container">
+        <div class="chart-title">Rating Distribution</div>
+        <canvas id="chart-rating-dist"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Average Rating by Cycle</div>
+        <canvas id="chart-avg-rating"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Reviews Completed by Cycle</div>
+        <canvas id="chart-reviews-cycle"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Rating Distribution by Cycle</div>
+        <canvas id="chart-rating-by-cycle"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Goal Attainment Overview</div>
+        <canvas id="chart-goal-attainment"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Performance Trend</div>
+        <canvas id="chart-perf-trend"></canvas>
+      </div>
+    </div>
+
+    <div class="drill-down-section">
+      <div class="section-title">Performance Data - Drill Down</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Location</th>
+              <th>Cycle</th>
+              <th>Rating Label</th>
+              <th>Count</th>
+              <th>Avg Rating</th>
+            </tr>
+          </thead>
+          <tbody id="drill-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var PERF_DATA = [
+      ['Backend Engineering','Austin','2023 Annual Review',2023,'Below',9,2.00],
+      ['Backend Engineering','Austin','2023 Annual Review',2023,'Exceeds',13,4.00],
+      ['Backend Engineering','Austin','2023 Annual Review',2023,'Meets',1,3.00],
+      ['Backend Engineering','Austin','2024 Mid-Year Review',2024,'Below',12,2.00],
+      ['Backend Engineering','Austin','2024 Mid-Year Review',2024,'Meets',1,3.00],
+      ['Backend Engineering','Bangalore','2023 Annual Review',2023,'Exceeds',8,4.00],
+      ['Backend Engineering','Bangalore','2023 Annual Review',2023,'Meets',12,3.00],
+      ['Backend Engineering','Bangalore','2024 Mid-Year Review',2024,'Meets',10,3.00],
+      ['Backend Engineering','London','2023 Annual Review',2023,'Meets',10,3.00],
+      ['Backend Engineering','London','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Backend Engineering','New York','2023 Annual Review',2023,'Below',2,2.00],
+      ['Backend Engineering','New York','2023 Annual Review',2023,'Exceeds',18,4.50],
+      ['Backend Engineering','New York','2023 Annual Review',2023,'Meets',10,3.00],
+      ['Backend Engineering','New York','2024 Mid-Year Review',2024,'Exceeds',11,4.00],
+      ['Backend Engineering','New York','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Backend Engineering','Remote','2023 Annual Review',2023,'Exceeds',10,4.00],
+      ['Backend Engineering','Remote','2023 Annual Review',2023,'Meets',10,3.00],
+      ['Backend Engineering','Remote','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Backend Engineering','San Francisco','2023 Annual Review',2023,'Exceeds',17,4.41],
+      ['Backend Engineering','San Francisco','2023 Annual Review',2023,'Meets',34,3.00],
+      ['Backend Engineering','San Francisco','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Backend Engineering','San Francisco','2024 Mid-Year Review',2024,'Exceeds',1,4.00],
+      ['Backend Engineering','San Francisco','2024 Mid-Year Review',2024,'Meets',22,3.00],
+      ['Backend Engineering','Singapore','2023 Annual Review',2023,'Below',8,2.00],
+      ['Backend Engineering','Singapore','2023 Annual Review',2023,'Exceeds',2,5.00],
+      ['Backend Engineering','Singapore','2024 Mid-Year Review',2024,'Exceeds',10,4.00],
+      ['Customer Success','Austin','2023 Annual Review',2023,'Exceeds',8,4.00],
+      ['Customer Success','Austin','2023 Annual Review',2023,'Meets',8,3.00],
+      ['Customer Success','Austin','2024 Mid-Year Review',2024,'Below',9,2.00],
+      ['Customer Success','Bangalore','2023 Annual Review',2023,'Below',9,2.00],
+      ['Customer Success','Bangalore','2023 Annual Review',2023,'Exceeds',1,4.00],
+      ['Customer Success','Bangalore','2023 Annual Review',2023,'Meets',12,3.00],
+      ['Customer Success','Bangalore','2024 Mid-Year Review',2024,'Meets',12,3.00],
+      ['Customer Success','New York','2023 Annual Review',2023,'Below',2,2.00],
+      ['Customer Success','New York','2023 Annual Review',2023,'Meets',18,3.00],
+      ['Customer Success','New York','2024 Mid-Year Review',2024,'Exceeds',11,4.00],
+      ['Customer Success','Remote','2023 Annual Review',2023,'Exceeds',21,4.00],
+      ['Customer Success','Remote','2023 Annual Review',2023,'Meets',1,3.00],
+      ['Customer Success','Remote','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Customer Success','San Francisco','2023 Annual Review',2023,'Exceeds',11,4.82],
+      ['Customer Success','San Francisco','2023 Annual Review',2023,'Meets',13,3.00],
+      ['Customer Success','San Francisco','2024 Mid-Year Review',2024,'Below',1,2.00],
+      ['Customer Success','San Francisco','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Data & AI','Austin','2023 Annual Review',2023,'Exceeds',1,4.00],
+      ['Data & AI','Austin','2023 Annual Review',2023,'Meets',1,3.00],
+      ['Data & AI','Austin','2024 Mid-Year Review',2024,'Below',1,2.00],
+      ['Data & AI','Bangalore','2023 Annual Review',2023,'Exceeds',3,4.00],
+      ['Data & AI','Bangalore','2023 Annual Review',2023,'Meets',1,3.00],
+      ['Data & AI','Bangalore','2024 Mid-Year Review',2024,'Below',2,2.00],
+      ['Data & AI','London','2023 Annual Review',2023,'Below',9,2.00],
+      ['Data & AI','London','2023 Annual Review',2023,'Exceeds',11,4.00],
+      ['Data & AI','London','2023 Annual Review',2023,'Meets',2,3.00],
+      ['Data & AI','London','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Data & AI','New York','2023 Annual Review',2023,'Below',1,2.00],
+      ['Data & AI','New York','2023 Annual Review',2023,'Meets',17,3.00],
+      ['Data & AI','New York','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Data & AI','San Francisco','2023 Annual Review',2023,'Exceeds',22,4.45],
+      ['Data & AI','San Francisco','2023 Annual Review',2023,'Meets',18,3.00],
+      ['Data & AI','San Francisco','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Data & AI','San Francisco','2024 Mid-Year Review',2024,'Meets',10,3.00],
+      ['Data & AI','Singapore','2023 Annual Review',2023,'Exceeds',18,4.06],
+      ['Data & AI','Singapore','2024 Mid-Year Review',2024,'Exceeds',10,4.00],
+      ['Frontend Engineering','Austin','2023 Annual Review',2023,'Exceeds',11,4.00],
+      ['Frontend Engineering','Austin','2023 Annual Review',2023,'Meets',9,3.00],
+      ['Frontend Engineering','Austin','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Frontend Engineering','Bangalore','2023 Annual Review',2023,'Below',9,2.00],
+      ['Frontend Engineering','Bangalore','2023 Annual Review',2023,'Meets',14,3.00],
+      ['Frontend Engineering','Bangalore','2024 Mid-Year Review',2024,'Meets',10,3.00],
+      ['Frontend Engineering','London','2023 Annual Review',2023,'Exceeds',1,5.00],
+      ['Frontend Engineering','London','2023 Annual Review',2023,'Meets',9,3.00],
+      ['Frontend Engineering','London','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Frontend Engineering','New York','2023 Annual Review',2023,'Below',2,2.00],
+      ['Frontend Engineering','New York','2023 Annual Review',2023,'Exceeds',9,5.00],
+      ['Frontend Engineering','New York','2023 Annual Review',2023,'Meets',21,3.00],
+      ['Frontend Engineering','New York','2024 Mid-Year Review',2024,'Exceeds',11,4.00],
+      ['Frontend Engineering','New York','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Frontend Engineering','Remote','2023 Annual Review',2023,'Exceeds',16,4.00],
+      ['Frontend Engineering','Remote','2023 Annual Review',2023,'Meets',2,3.00],
+      ['Frontend Engineering','Remote','2024 Mid-Year Review',2024,'Below',10,2.00],
+      ['Frontend Engineering','San Francisco','2023 Annual Review',2023,'Exceeds',29,4.48],
+      ['Frontend Engineering','San Francisco','2023 Annual Review',2023,'Meets',26,3.00],
+      ['Frontend Engineering','San Francisco','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Frontend Engineering','San Francisco','2024 Mid-Year Review',2024,'Meets',23,3.00],
+      ['Frontend Engineering','Singapore','2023 Annual Review',2023,'Below',10,2.00],
+      ['Frontend Engineering','Singapore','2023 Annual Review',2023,'Exceeds',1,5.00],
+      ['Frontend Engineering','Singapore','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Human Resources','London','2023 Annual Review',2023,'Exceeds',11,4.00],
+      ['Human Resources','London','2023 Annual Review',2023,'Meets',9,3.00],
+      ['Human Resources','London','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['Human Resources','New York','2023 Annual Review',2023,'Below',10,2.00],
+      ['Human Resources','New York','2023 Annual Review',2023,'Exceeds',9,4.00],
+      ['Human Resources','New York','2023 Annual Review',2023,'Meets',1,3.00],
+      ['Human Resources','New York','2024 Mid-Year Review',2024,'Below',10,2.00],
+      ['Human Resources','San Francisco','2023 Annual Review',2023,'Below',2,2.00],
+      ['Human Resources','San Francisco','2023 Annual Review',2023,'Exceeds',9,4.89],
+      ['Human Resources','San Francisco','2023 Annual Review',2023,'Meets',13,3.00],
+      ['Human Resources','San Francisco','2024 Mid-Year Review',2024,'Exceeds',12,4.00],
+      ['Human Resources','San Francisco','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['Human Resources','Singapore','2023 Annual Review',2023,'Exceeds',18,4.00],
+      ['Human Resources','Singapore','2024 Mid-Year Review',2024,'Exceeds',10,4.00],
+      ['SMB Sales','Austin','2023 Annual Review',2023,'Below',1,2.00],
+      ['SMB Sales','Austin','2023 Annual Review',2023,'Exceeds',11,4.00],
+      ['SMB Sales','Austin','2023 Annual Review',2023,'Meets',10,3.00],
+      ['SMB Sales','Austin','2024 Mid-Year Review',2024,'Meets',12,3.00],
+      ['SMB Sales','Bangalore','2023 Annual Review',2023,'Exceeds',1,5.00],
+      ['SMB Sales','Bangalore','2023 Annual Review',2023,'Meets',9,3.00],
+      ['SMB Sales','Bangalore','2024 Mid-Year Review',2024,'Below',11,2.00],
+      ['SMB Sales','New York','2023 Annual Review',2023,'Below',10,2.00],
+      ['SMB Sales','New York','2023 Annual Review',2023,'Exceeds',2,4.50],
+      ['SMB Sales','New York','2024 Mid-Year Review',2024,'Exceeds',1,4.00],
+      ['SMB Sales','New York','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['SMB Sales','Remote','2023 Annual Review',2023,'Exceeds',19,4.00],
+      ['SMB Sales','Remote','2023 Annual Review',2023,'Meets',1,3.00],
+      ['SMB Sales','Remote','2024 Mid-Year Review',2024,'Meets',11,3.00],
+      ['SMB Sales','San Francisco','2023 Annual Review',2023,'Exceeds',17,4.00],
+      ['SMB Sales','San Francisco','2023 Annual Review',2023,'Meets',1,3.00],
+      ['SMB Sales','San Francisco','2024 Mid-Year Review',2024,'Below',9,2.00]
+    ];
+
+    var chartInstances = {};
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) {
+        chartInstances[id].destroy();
+      }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var yr = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, yr: yr };
+    }
+
+    function filterData(data) {
+      var f = getFilters();
+      return data.filter(function(row) {
+        var deptOk = f.dept === 'All' || row[0] === f.dept;
+        var locOk = f.loc === 'All' || row[1] === f.loc;
+        var yrOk = f.yr === 'All' || String(row[3]) === f.yr;
+        return deptOk && locOk && yrOk;
+      });
+    }
+
+    function initFilterOptions() {
+      var depts = {};
+      var locs = {};
+      var yrs = {};
+
+      PERF_DATA.forEach(function(row) {
+        depts[row[0]] = true;
+        locs[row[1]] = true;
+        yrs[row[3]] = true;
+      });
+
+      var deptSel = document.getElementById('filterDept');
+      Object.keys(depts).sort().forEach(function(d) {
+        var opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        deptSel.appendChild(opt);
+      });
+
+      var locSel = document.getElementById('filterLoc');
+      Object.keys(locs).sort().forEach(function(l) {
+        var opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        locSel.appendChild(opt);
+      });
+
+      var yrSel = document.getElementById('filterYear');
+      yrSel.innerHTML = '<option value="All">All Years</option>';
+      Object.keys(yrs).sort().reverse().forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yrSel.appendChild(opt);
+      });
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years' : 'Reporting Period: Jan–Dec ' + yr;
+      document.getElementById('reporting-period').textContent = text;
+    }
+
+    function updateKPIs(filtered) {
+      var totalReviews = 0;
+      var totalRating = 0;
+      var exceeds = 0;
+      var meets = 0;
+      var below = 0;
+      var uniqueEmployees = {};
+
+      filtered.forEach(function(row) {
+        totalReviews += row[5];
+        totalRating += row[6] * row[5];
+        if (row[4] === 'Exceeds') exceeds += row[5];
+        if (row[4] === 'Meets') meets += row[5];
+        if (row[4] === 'Below') below += row[5];
+        uniqueEmployees[row[0] + '_' + row[1]] = true;
+      });
+
+      var avgRating = totalReviews > 0 ? (totalRating / totalReviews).toFixed(2) : 0;
+      var exceedsPct = totalReviews > 0 ? ((exceeds / totalReviews) * 100).toFixed(1) : 0;
+      var meetsPct = totalReviews > 0 ? ((meets / totalReviews) * 100).toFixed(1) : 0;
+      var belowPct = totalReviews > 0 ? ((below / totalReviews) * 100).toFixed(1) : 0;
+
+      document.getElementById('kpi-total-reviews').textContent = totalReviews;
+      document.getElementById('kpi-avg-rating').textContent = avgRating;
+      document.getElementById('kpi-exceeds-pct').textContent = exceedsPct + '%';
+      document.getElementById('kpi-meets-pct').textContent = meetsPct + '%';
+      document.getElementById('kpi-below-pct').textContent = belowPct + '%';
+      document.getElementById('kpi-employees-reviewed').textContent = Object.keys(uniqueEmployees).length;
+      document.getElementById('kpi-cycle-coverage').textContent = filtered.length > 0 ? '100%' : '0%';
+      document.getElementById('kpi-yoy-change').textContent = avgRating;
+    }
+
+    function updateCharts(filtered) {
+      var byRating = { 'Exceeds': 0, 'Meets': 0, 'Below': 0 };
+      var byDept = {};
+      var byCycle = {};
+      var byLoc = {};
+
+      filtered.forEach(function(row) {
+        byRating[row[4]] += row[5];
+
+        if (!byDept[row[0]]) byDept[row[0]] = 0;
+        byDept[row[0]] += row[5];
+
+        if (!byCycle[row[2]]) byCycle[row[2]] = 0;
+        byCycle[row[2]] += row[5];
+
+        if (!byLoc[row[1]]) byLoc[row[1]] = 0;
+        byLoc[row[1]] += row[5];
+      });
+
+      mk('chart-rating-dist', {
+        type: 'doughnut',
+        data: {
+          labels: ['Exceeds', 'Meets', 'Below'],
+          datasets: [{
+            data: [byRating['Exceeds'], byRating['Meets'], byRating['Below']],
+            backgroundColor: ['#006AFF', '#0EA5E9', '#F59E0B'],
+            borderColor: '#0A1628',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { labels: { color: '#8B95A5', font: { size: 11 }, padding: 15 } },
+            tooltip: { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 }
+          }
+        }
+      });
+
+      var deptLabels = Object.keys(byDept).sort();
+      var deptData = deptLabels.map(function(d) { return byDept[d]; });
+
+      mk('chart-avg-rating', {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [{ label: 'Count', data: deptData, backgroundColor: '#1A7F64', borderRadius: 4 }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 } },
+          scales: { x: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } }, y: { ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } } }
+        }
+      });
+
+      var cycleLabels = Object.keys(byCycle).sort();
+      var cycleData = cycleLabels.map(function(c) { return byCycle[c]; });
+
+      mk('chart-reviews-cycle', {
+        type: 'bar',
+        data: {
+          labels: cycleLabels,
+          datasets: [{ label: 'Reviews', data: cycleData, backgroundColor: '#0EA5E9', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 } },
+          scales: { y: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } }, x: { ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } } }
+        }
+      });
+
+      var cyclesByRating = {};
+      filtered.forEach(function(row) {
+        if (!cyclesByRating[row[2]]) cyclesByRating[row[2]] = { 'Exceeds': 0, 'Meets': 0, 'Below': 0 };
+        cyclesByRating[row[2]][row[4]] += row[5];
+      });
+
+      var cycleLabelsRating = Object.keys(cyclesByRating).sort();
+      var exceedsData = cycleLabelsRating.map(function(c) { return cyclesByRating[c]['Exceeds']; });
+      var meetsData = cycleLabelsRating.map(function(c) { return cyclesByRating[c]['Meets']; });
+      var belowData = cycleLabelsRating.map(function(c) { return cyclesByRating[c]['Below']; });
+
+      mk('chart-rating-by-cycle', {
+        type: 'bar',
+        data: {
+          labels: cycleLabelsRating,
+          datasets: [
+            { label: 'Exceeds', data: exceedsData, backgroundColor: '#006AFF' },
+            { label: 'Meets', data: meetsData, backgroundColor: '#0EA5E9' },
+            { label: 'Below', data: belowData, backgroundColor: '#F59E0B' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } }, tooltip: { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 } },
+          scales: { x: { stacked: true, ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } }, y: { stacked: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } } }
+        }
+      });
+
+      mk('chart-goal-attainment', {
+        type: 'doughnut',
+        data: {
+          labels: ['High (>100%)', 'On Track (75-100%)', 'Behind (<75%)'],
+          datasets: [{ data: [35, 50, 15], backgroundColor: ['#006AFF', '#1A7F64', '#F59E0B'], borderColor: '#0A1628', borderWidth: 2 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 }, padding: 15 } }, tooltip: { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 } }
+        }
+      });
+
+      var locLabels = Object.keys(byLoc).sort();
+      var locData = locLabels.map(function(l) { return byLoc[l]; });
+
+      mk('chart-perf-trend', {
+        type: 'bar',
+        data: {
+          labels: locLabels,
+          datasets: [{ label: 'Reviews by Location', data: locData, backgroundColor: '#0EA5E9', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 } },
+          scales: { y: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } }, x: { ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } } }
+        }
+      });
+    }
+
+    function updateTable(filtered) {
+      var tbody = document.getElementById('drill-table');
+      tbody.innerHTML = '';
+      filtered.forEach(function(row) {
+        var tr = document.createElement('tr');
+        var labelClass = row[4] === 'Exceeds' ? 'label-exceeds' : row[4] === 'Meets' ? 'label-meets' : 'label-below';
+        tr.innerHTML = '<td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td><span class="' + labelClass + '">' + row[4] + '</span></td><td>' + row[5] + '</td><td>' + row[6].toFixed(2) + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function applyFilters() {
+      var filtered = filterData(PERF_DATA);
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      initFilterOptions();
+      applyFilters();
+    });
+  </script>
+</body>
+</html>

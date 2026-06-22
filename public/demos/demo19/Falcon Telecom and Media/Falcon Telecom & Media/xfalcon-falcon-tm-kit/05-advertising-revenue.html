@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 5. Advertising Revenue</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.filter-bar{background:#FFF;border-bottom:1px solid var(--color-border);padding:14px 24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.filter-group select{border:1px solid var(--color-border);background:#FFF;color:var(--color-text);padding:7px 10px;border-radius:4px;font-family:inherit;font-size:13px;min-width:130px;}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:7px 10px;border:1px solid var(--color-border);border-radius:4px;background:#FFF;}
+.toggle-switch{width:32px;height:18px;border-radius:10px;background:#CBD5E1;position:relative;transition:background 0.18s ease;}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#FFF;transition:left 0.18s ease;}
+.toggle-switch.active{background:var(--color-primary);}.toggle-switch.active::after{left:16px;}.toggle-label{font-size:13px;font-weight:500;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:32px 0 14px 0;display:flex;align-items:center;gap:10px;}
+.section-title:first-of-type{margin-top:8px;}.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;margin-bottom:6px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);line-height:1.1;letter-spacing:-0.5px;}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px;}
+.kpi-delta.positive{color:var(--color-positive);}.kpi-delta.negative{color:var(--color-negative);}.kpi-delta.neutral{color:var(--color-neutral);}
+.kpi-stack-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:var(--color-text-muted);}
+.kpi-stack-row .v{color:var(--color-text);font-weight:600;font-variant-numeric:tabular-nums;}
+.charts-row{display:grid;gap:16px;margin-top:8px;}.charts-row.two{grid-template-columns:1fr 1fr;}.charts-row.split{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.charts-row.two,.charts-row.split{grid-template-columns:1fr;}}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin:0 0 14px 0;}.chart-wrap{position:relative;height:300px;}
+.detail-table{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;width:100%;border-collapse:collapse;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.detail-table th{background:var(--color-secondary);color:var(--color-text-on-dark);text-align:left;padding:12px 14px;font-size:13px;font-weight:600;}
+.detail-table td{padding:10px 14px;font-size:13px;border-top:1px solid var(--color-border);}
+.detail-table tr:hover td{background:#F8FAFC;}.detail-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);line-height:1.5;}.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media / 5. Advertising Revenue</div><div class="topbar-subtitle" id="subtitle">Reporting Period: FY 2025</div></div></div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+<div class="filter-bar">
+  <div class="filter-group"><label for="yearSel">Year</label>
+    <select id="yearSel" onchange="applyFilters()"><option value="2025" selected>2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select>
+  </div>
+  <div class="filter-group"><label>&nbsp;</label><div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div></div>
+  <div class="filter-group"><label for="tierSel">Spend Tier</label>
+    <select id="tierSel" onchange="applyFilters()"><option value="All" selected>All tiers</option><option value="Platinum">Platinum</option><option value="Gold">Gold</option><option value="Silver">Silver</option></select>
+  </div>
+</div>
+<div class="container">
+  <div class="section-title">Advertising KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Annual Trends</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Gross vs Net Revenue — 2018–2025 ($B)</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Monthly Trend ($M)</div><div class="chart-wrap"><canvas id="monthChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Top Advertisers &amp; Format Mix</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Top 12 Advertisers — Lifetime Gross ($M)</div><div class="chart-wrap" style="height:380px;"><canvas id="advChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Format Channel Mix (Lifetime)</div><div class="chart-wrap" style="height:380px;"><canvas id="fmtChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Format-Level Detail (Lifetime)</div>
+  <table class="detail-table">
+    <thead><tr><th>Format</th><th>Channel</th><th class="num">Gross Rev ($M)</th><th class="num">Impressions (B)</th><th class="num">Avg CPM</th><th class="num">Completion</th><th class="num">Viewability</th></tr></thead>
+    <tbody id="fmtTable"></tbody>
+  </table>
+
+  <div class="disclaimer"><strong>Data:</strong> FACT_AD_REVENUE · 600K placements · 35 advertisers · 12 formats · <strong>Notes:</strong> Sponsorship Integration commands 2.3× the next-highest CPM ($45 vs $32 Sports Live) · Avg viewability holds 75% across all years</div>
+</div>
+
+<script>
+// [year, gross_M, net_M, impressions_B, avg_cpm, avg_compl, avg_view]
+var ANNUAL = [
+  [2018, 1167.72,  992.56, 59.81, 19.53, 69.95, 74.94],
+  [2019, 1231.65, 1046.90, 63.21, 19.49, 70.02, 74.93],
+  [2020, 1109.57,  943.14, 56.86, 19.53, 69.84, 74.94],
+  [2021, 1364.00, 1159.40, 69.99, 19.49, 70.02, 74.97],
+  [2022, 1456.63, 1238.14, 74.87, 19.46, 69.97, 75.00],
+  [2023, 1549.77, 1317.31, 79.42, 19.48, 70.02, 74.94],
+  [2024, 1647.32, 1400.23, 84.56, 19.48, 69.98, 74.96],
+  [2025, 1722.59, 1464.20, 88.70, 19.45, 69.97, 74.93]
+];
+var MONTH_24 = [108.27,109.30,135.92,129.16,139.27,130.65,124.48,132.36,148.48,148.13,165.24,176.07];
+var MONTH_25 = [108.18,107.06,140.84,137.78,147.40,140.66,132.65,142.01,149.20,160.68,169.94,186.19];
+// Top advertisers [name, industry, tier, gross_M, impressions_B]
+var ADVERTISERS = [
+  ['Amazon','E-Commerce','Platinum',775.80,39.84],['Apple','Technology','Platinum',766.51,39.33],
+  ['Procter & Gamble','CPG','Platinum',485.64,24.81],['Geico','Insurance','Platinum',479.63,24.66],
+  ['Chase','Financial','Platinum',479.18,24.47],['Ford Motor','Automotive','Platinum',478.69,24.85],
+  ['Coca-Cola','Beverage','Platinum',477.33,24.53],['General Motors','Automotive','Platinum',476.89,24.41],
+  ['T-Mobile','Telecom','Gold',390.83,19.90],['Bank of America','Financial','Gold',388.30,19.78],
+  ['PepsiCo','Beverage','Gold',386.09,19.75],['American Express','Financial','Gold',385.96,19.63]
+];
+// Formats [name, channel, gross_M, impressions_B, avg_cpm, avg_compl, avg_view]
+var FORMATS = [
+  ['Sponsorship Integration','Streaming',2241.40,49.74,45.03,70.09,74.98],
+  ['Sports Live Ad Package','Sports Broadcast',1605.80,50.18,31.99,69.92,74.97],
+  ['Podcast Spot 60s','Audio',1399.93,49.99,28.01,69.96,74.86],
+  ['Sponsorship Billboard','Broadcast TV',1253.59,50.12,25.00,69.94,74.97],
+  ['Streaming Pre-Roll 30s','Streaming',1099.09,49.94,22.01,69.92,74.99],
+  ['Streaming Mid-Roll 15s','Streaming',973.31,49.90,19.50,70.06,74.98],
+  ['Linear TV Spot 30s','Broadcast TV',928.91,50.16,18.52,70.09,74.98],
+  ['Connected TV Pause Ad','CTV',703.47,50.28,13.99,69.92,74.96],
+  ['Linear TV Spot 15s','Broadcast TV',604.00,50.26,12.02,69.96,74.84],
+  ['Digital Video 15s','Digital',428.69,50.44,8.50,69.99,74.94],
+  ['Social Video 6s','Social',300.53,50.06,6.00,69.93,74.96],
+  ['Digital Display 300x250','Digital',176.38,50.37,3.50,69.89,74.98]
+];
+
+var state = { year: 2025, compare: false, tier: 'All' };
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();var ctx=document.getElementById(id).getContext('2d');chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+function fmt(n,d){d=(d===undefined)?1:d;return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function getPalette(){var t=document.documentElement.getAttribute('data-theme')||'spectrum';if(t==='tech')return{primary:'#00D4FF',secondary:'#7C3AED',tertiary:'#94A3B8',ext1:'#7CFF01',ext2:'#FF00C8',grid:'rgba(255,255,255,0.06)',text:'#F1F5F9',textMuted:'#94A3B8'};return{primary:'#0099D8',secondary:'#003057',tertiary:'#77787B',ext1:'#0EA5E9',ext2:'#F59E0B',grid:'rgba(15,23,42,0.05)',text:'#0F172A',textMuted:'#64748B'};}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var l=els[i].textContent.length;els[i].style.fontSize=l>12?'18px':(l>8?'22px':'28px');}}
+function deltaPct(c,p){if(!p)return null;return (c-p)/p*100;}
+function deltaText(d){if(d===null||isNaN(d))return '<div class="kpi-delta neutral">—</div>';var cls=d>0?'positive':(d<0?'negative':'neutral');var arr=d>0?'↑ ':(d<0?'↓ ':'');return '<div class="kpi-delta '+cls+'">'+arr+fmt(Math.abs(d),1)+'% vs LY</div>';}
+function rowFor(yr){for(var i=0;i<ANNUAL.length;i++)if(ANNUAL[i][0]===yr)return ANNUAL[i];return null;}
+
+function renderKpis(){
+  var grid=document.getElementById('kpiGrid');
+  if(state.compare){
+    var rows=ANNUAL.filter(function(r){return r[0]>=2023;});
+    grid.innerHTML =
+      kpiCompare('Gross Revenue', rows, function(r){return r[1];}, function(v){return '$'+fmt(v/1000,2)+'B';}) +
+      kpiCompare('Net Revenue', rows, function(r){return r[2];}, function(v){return '$'+fmt(v/1000,2)+'B';}) +
+      kpiCompare('Impressions (B)', rows, function(r){return r[3];}, function(v){return fmt(v,1)+'B';}) +
+      kpiCompare('Avg CPM', rows, function(r){return r[4];}, function(v){return '$'+fmt(v,2);}) +
+      kpiCompare('Completion %', rows, function(r){return r[5];}, function(v){return fmt(v,2)+'%';}) +
+      kpiCompare('Viewability %', rows, function(r){return r[6];}, function(v){return fmt(v,2)+'%';}) +
+      kpiCompare('Agency Fee', rows, function(r){return r[1]-r[2];}, function(v){return '$'+fmt(v,2)+'M';}) +
+      kpiCompare('Net/Gross %', rows, function(r){return r[2]/r[1]*100;}, function(v){return fmt(v,1)+'%';});
+  } else {
+    var r=rowFor(state.year),p=rowFor(state.year-1);
+    grid.innerHTML =
+      kpiSingle('Gross Revenue '+state.year, '$'+fmt(r[1]/1000,2)+'B', p?deltaPct(r[1],p[1]):null) +
+      kpiSingle('Net Revenue '+state.year, '$'+fmt(r[2]/1000,2)+'B', p?deltaPct(r[2],p[2]):null) +
+      kpiSingle('Impressions '+state.year, fmt(r[3],1)+'B', p?deltaPct(r[3],p[3]):null) +
+      kpiSingle('Avg CPM '+state.year, '$'+fmt(r[4],2), p?deltaPct(r[4],p[4]):null) +
+      kpiSingle('Completion % '+state.year, fmt(r[5],2)+'%', p?deltaPct(r[5],p[5]):null) +
+      kpiSingle('Viewability % '+state.year, fmt(r[6],2)+'%', p?deltaPct(r[6],p[6]):null) +
+      kpiSingle('Agency Fee '+state.year, '$'+fmt(r[1]-r[2],1)+'M', p?deltaPct(r[1]-r[2],p[1]-p[2]):null) +
+      kpiSingle('Net/Gross % '+state.year, fmt(r[2]/r[1]*100,1)+'%', null);
+  }
+  fitKpiText();
+}
+function kpiSingle(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div>'+deltaText(d)+'</div>';}
+function kpiCompare(label,rows,deriveFn,fmtFn){var html='<div class="kpi-card"><div class="kpi-label">'+label+'</div>';var first=null,last=null;for(var i=0;i<rows.length;i++){var r=rows[i];var v=deriveFn(r);if(first===null)first=v;last=v;html+='<div class="kpi-stack-row"><span>'+r[0]+'</span><span class="v">'+fmtFn(v)+'</span></div>';}var n=rows.length-1;if(n>0&&first>0){var c=(Math.pow(last/first,1/n)-1)*100;var cls=c>0?'positive':(c<0?'negative':'neutral');html+='<div class="kpi-delta '+cls+'" style="margin-top:8px;">CAGR: '+(c>0?'+':'')+fmt(c,1)+'%</div>';}return html+'</div>';}
+
+function renderTrend(){
+  var p=getPalette();var labels=ANNUAL.map(function(r){return String(r[0]);});
+  mk('trendChart',{type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Gross ($M)',data:ANNUAL.map(function(r){return r[1];}),backgroundColor:p.primary,borderColor:p.primary,borderWidth:1},
+      {label:'Net ($M)',data:ANNUAL.map(function(r){return r[2];}),backgroundColor:p.secondary,borderColor:p.secondary,borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fmt(c.parsed.y/1000,2)+'B';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+(v/1000).toFixed(1)+'B';}}}}}
+  });
+}
+
+function renderMonth(){
+  var p=getPalette();var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var cur=state.year>=2025?MONTH_25:MONTH_24;var prev=state.year>=2025?MONTH_24:null;
+  var datasets=[{label:String(state.year),data:cur,borderColor:p.primary,backgroundColor:p.primary,borderWidth:2.5,tension:0.3,fill:false}];
+  if(prev)datasets.push({label:String(state.year-1),data:prev,borderColor:p.tertiary,backgroundColor:p.tertiary,borderWidth:2,tension:0.3,fill:false,borderDash:[5,5]});
+  mk('monthChart',{type:'line',data:{labels:months,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fmt(c.parsed.y,1)+'M';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}}}}
+  });
+}
+
+function renderAdv(){
+  var p=getPalette();
+  var data=state.tier==='All'?ADVERTISERS:ADVERTISERS.filter(function(a){return a[2]===state.tier;});
+  mk('advChart',{type:'bar',
+    data:{labels:data.map(function(a){return a[0];}),datasets:[{label:'Gross ($M)',data:data.map(function(a){return a[3];}),backgroundColor:data.map(function(a){return a[2]==='Platinum'?p.primary:p.secondary;}),borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.x,1)+'M ('+data[c.dataIndex][2]+', '+data[c.dataIndex][1]+')';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderFmt(){
+  var p=getPalette();
+  // Group by channel
+  var byCh={};for(var i=0;i<FORMATS.length;i++){var f=FORMATS[i];byCh[f[1]]=(byCh[f[1]]||0)+f[2];}
+  var labels=Object.keys(byCh);var data=labels.map(function(l){return byCh[l];});
+  mk('fmtChart',{type:'bar',
+    data:{labels:labels,datasets:[{label:'Gross ($M)',data:data,backgroundColor:p.primary,borderColor:p.primary,borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.x,1)+'M';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderTable(){
+  var tbody=document.getElementById('fmtTable');tbody.innerHTML='';
+  for(var i=0;i<FORMATS.length;i++){
+    var f=FORMATS[i];var tr=document.createElement('tr');
+    var cells=[f[0],f[1],'$'+fmt(f[2],1)+'M',fmt(f[3],1)+'B','$'+fmt(f[4],2),fmt(f[5],1)+'%',fmt(f[6],1)+'%'];
+    var cls=['','','num','num','num','num','num'];
+    for(var j=0;j<cells.length;j++){var td=document.createElement('td');td.textContent=cells[j];if(cls[j])td.className=cls[j];tr.appendChild(td);}
+    tbody.appendChild(tr);
+  }
+}
+
+function applyFilters(){state.year=parseInt(document.getElementById('yearSel').value,10);state.tier=document.getElementById('tierSel').value;document.getElementById('subtitle').textContent=state.compare?'Reporting Period: All Years (Compare)':'Reporting Period: FY '+state.year;renderKpis();renderTrend();renderMonth();renderAdv();renderFmt();renderTable();}
+function toggleCompare(){state.compare=!state.compare;var s=document.getElementById('cmpSwitch');if(state.compare)s.classList.add('active');else s.classList.remove('active');document.getElementById('yearSel').disabled=state.compare;applyFilters();}
+document.addEventListener('DOMContentLoaded',applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

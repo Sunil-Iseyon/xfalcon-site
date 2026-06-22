@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - DEI & Diversity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-hero: linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%);
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --chart-primary: #006AFF;
+      --chart-secondary: #1A7F64;
+      --chart-tertiary: #94A3B8;
+      --chart-ext1: #0EA5E9;
+      --chart-ext2: #F59E0B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, var(--color-base-dark) 0%, var(--color-base-darker) 100%);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    .back-link {
+      color: var(--color-cyan);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-coral);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 20px 30px;
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.3px;
+    }
+
+    .filter-bar select {
+      padding: 10px 15px;
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-bar select:hover,
+    .filter-bar select:focus {
+      border-color: var(--color-cyan);
+      outline: none;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .chart-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .chart-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .chart-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-canvas-wrapper {
+      position: relative;
+      height: 320px;
+      margin-bottom: 10px;
+    }
+
+    .table-section {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .table-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-size: 11px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--color-text-primary);
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .gap-indicator {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .gap-high {
+      background: rgba(255, 51, 102, 0.15);
+      color: #FF3366;
+    }
+
+    .gap-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: #F59E0B;
+    }
+
+    .gap-low {
+      background: rgba(124, 255, 1, 0.15);
+      color: #7CFF01;
+    }
+
+    .diversity-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      background: rgba(0, 212, 255, 0.15);
+      color: #00D4FF;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">Falcon</div>
+      <div class="topbar-text">
+        <div class="topbar-title">08 | DEI & Diversity</div>
+        <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Dashboards</a>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Department</label>
+      <select id="filterDept" onchange="applyFilters()">
+        <option value="All">All Departments</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Location</label>
+      <select id="filterLoc" onchange="applyFilters()">
+        <option value="All">All Locations</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Year</label>
+      <select id="filterYear" onchange="applyFilters()">
+        <option value="All">All Years</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-gender-ratio">--</div>
+        <div class="kpi-delta neutral" id="kpi-gender-delta"></div>
+        <div class="kpi-label">Gender Ratio (F%/M%)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-headcount">--</div>
+        <div class="kpi-delta neutral" id="kpi-headcount-delta"></div>
+        <div class="kpi-label">Active Workforce</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-ethnic-groups">--</div>
+        <div class="kpi-delta neutral" id="kpi-ethnic-delta"></div>
+        <div class="kpi-label">Ethnic Groups</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-female-pct">--</div>
+        <div class="kpi-delta neutral" id="kpi-female-delta"></div>
+        <div class="kpi-label">Female %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-diversity-index">--</div>
+        <div class="kpi-delta neutral" id="kpi-diversity-delta"></div>
+        <div class="kpi-label">Diversity Index</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-parity-gap">--</div>
+        <div class="kpi-delta neutral" id="kpi-parity-delta"></div>
+        <div class="kpi-label">Gender Parity Gap</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-underrep">--</div>
+        <div class="kpi-delta neutral" id="kpi-underrep-delta"></div>
+        <div class="kpi-label">Underrepresented %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-age">--</div>
+        <div class="kpi-delta neutral" id="kpi-age-delta"></div>
+        <div class="kpi-label">Avg Age</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>Gender Distribution</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-gender"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Ethnicity Breakdown</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-ethnicity"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>Gender by Department</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-gender-dept"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Gender by Location</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-gender-loc"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>Department Composition (M/F)</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-dept-comp"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Workforce Age Profile</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-age"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <h3>Diversity Metrics by Department & Location</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>City</th>
+            <th>Headcount</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Female %</th>
+            <th>Avg Age</th>
+          </tr>
+        </thead>
+        <tbody id="drill-table">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var DEI_DATA = [
+      ['Backend Engineering','Austin',13,7,6,36.2,4.5],
+      ['Backend Engineering','Bangalore',10,10,0,37.5,4.5],
+      ['Backend Engineering','London',11,0,11,34.5,5.1],
+      ['Backend Engineering','New York',22,11,11,38.4,4.5],
+      ['Backend Engineering','Remote',16,13,3,37.2,4],
+      ['Backend Engineering','San Francisco',55,19,36,36.2,4.5],
+      ['Backend Engineering','Singapore',11,2,9,35.8,4.4],
+      ['Customer Success','Austin',9,9,0,38.9,4.7],
+      ['Customer Success','Bangalore',12,12,0,41.3,4.6],
+      ['Customer Success','New York',11,10,1,34.8,4.4],
+      ['Customer Success','Remote',11,10,1,35.6,5],
+      ['Customer Success','San Francisco',12,12,0,37.3,4.8],
+      ['Data & AI','Austin',1,0,1,43,7],
+      ['Data & AI','Bangalore',2,2,0,40.5,4.5],
+      ['Data & AI','London',11,1,10,35.8,4.6],
+      ['Data & AI','New York',11,0,11,32.8,4.3],
+      ['Data & AI','San Francisco',21,1,20,38.6,4.8],
+      ['Data & AI','Singapore',10,0,10,37.5,4.6],
+      ['Frontend Engineering','Austin',11,10,1,34.9,4.5],
+      ['Frontend Engineering','Bangalore',15,10,5,34,4.7],
+      ['Frontend Engineering','London',11,1,10,38.6,4.6],
+      ['Frontend Engineering','New York',22,11,11,37.7,4.6],
+      ['Frontend Engineering','Remote',10,9,1,37.1,4.5],
+      ['Frontend Engineering','San Francisco',58,27,31,35.3,4.6],
+      ['Frontend Engineering','Singapore',11,0,11,39.6,4.8],
+      ['Human Resources','London',11,1,10,40.6,4.5],
+      ['Human Resources','New York',10,0,10,38.2,4.8],
+      ['Human Resources','Remote',1,0,1,45,6],
+      ['Human Resources','San Francisco',23,1,22,35.7,4.6],
+      ['Human Resources','Singapore',10,0,10,36.4,4.6],
+      ['SMB Sales','Austin',12,10,2,38.5,4.9],
+      ['SMB Sales','Bangalore',11,11,0,34.7,4.7],
+      ['SMB Sales','London',1,1,0,43,6],
+      ['SMB Sales','New York',14,13,1,35.9,4.1],
+      ['SMB Sales','Remote',11,11,0,36.5,4.1],
+      ['SMB Sales','San Francisco',9,9,0,39.4,4.7],
+      ['Enterprise Sales','New York',6,5,1,38.8,5.3],
+      ['Product','London',1,0,1,46,6],
+      ['Product','San Francisco',2,1,1,49,7],
+      ['DevOps & Infra','Remote',2,0,2,32.5,4.5],
+      ['Operations','New York',1,1,0,39,5],
+      ['Sales Operations','Bangalore',1,1,0,49,6],
+      ['Sales Operations','Singapore',1,1,0,41,6],
+      ['Finance','San Francisco',1,0,1,34,5],
+      ['Engineering','San Francisco',1,1,0,52,8]
+    ];
+
+    var ETHNICITY_DATA = {
+      'White': 122,
+      'East Asian': 84,
+      'South Asian': 81,
+      'Black': 70,
+      'Hispanic': 52,
+      'Middle Eastern': 43,
+      'Mixed': 38,
+      'Asian': 24
+    };
+
+    var chartInstances = {};
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) { chartInstances[id].destroy(); }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function initFilterOptions() {
+      var depts = {};
+      var locs = {};
+      DEI_DATA.forEach(function(row) {
+        depts[row[0]] = true;
+        locs[row[1]] = true;
+      });
+
+      var deptSel = document.getElementById('filterDept');
+      Object.keys(depts).sort().forEach(function(d) {
+        var opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        deptSel.appendChild(opt);
+      });
+
+      var locSel = document.getElementById('filterLoc');
+      Object.keys(locs).sort().forEach(function(l) {
+        var opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        locSel.appendChild(opt);
+      });
+
+      var yearSel = document.getElementById('filterYear');
+      yearSel.innerHTML = '<option value="All">All Years</option>';
+      var availableYears = [2024, 2023, 2022];
+      availableYears.forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = String(y);
+        opt.textContent = String(y);
+        yearSel.appendChild(opt);
+      });
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var year = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, year: year };
+    }
+
+    function filterData(data) {
+      var f = getFilters();
+      return data.filter(function(row) {
+        var deptOk = f.dept === 'All' || row[0] === f.dept;
+        var locOk = f.loc === 'All' || row[1] === f.loc;
+        return deptOk && locOk;
+      });
+    }
+
+    function calcDiversityIndex(data) {
+      var total = data.reduce(function(a, b) { return a + b[2]; }, 0);
+      if (total === 0) return 0;
+      var sum = 0;
+      data.forEach(function(row) {
+        var p = row[2] / total;
+        sum += p * p;
+      });
+      return (1 - sum).toFixed(3);
+    }
+
+    function updateKPIs(data) {
+      var totalHeadcount = 0;
+      var totalFemale = 0;
+      var totalMale = 0;
+      var totalAge = 0;
+      var ageCount = 0;
+
+      data.forEach(function(row) {
+        totalHeadcount += row[2];
+        totalMale += row[3];
+        totalFemale += row[4];
+        totalAge += row[5] * row[2];
+        ageCount += row[2];
+      });
+
+      var femaleRatio = totalHeadcount > 0 ? ((totalFemale / totalHeadcount) * 100).toFixed(1) : 0;
+      var maleRatio = totalHeadcount > 0 ? ((totalMale / totalHeadcount) * 100).toFixed(1) : 0;
+      var parityGap = Math.abs(femaleRatio - maleRatio).toFixed(1);
+      var avgAge = ageCount > 0 ? (totalAge / ageCount).toFixed(1) : 0;
+      var diversityIndex = calcDiversityIndex(data);
+
+      var ethnicThreshold = totalHeadcount > 0 ? (totalHeadcount * 0.15) : 0;
+      var underrep = 0;
+      ['Black', 'Hispanic', 'Mixed'].forEach(function(eth) {
+        if (ETHNICITY_DATA[eth] < ethnicThreshold) {
+          underrep += ETHNICITY_DATA[eth];
+        }
+      });
+      var underrepPct = totalHeadcount > 0 ? ((underrep / totalHeadcount) * 100).toFixed(1) : 0;
+
+      document.getElementById('kpi-gender-ratio').textContent = femaleRatio + '% F / ' + maleRatio + '% M';
+      document.getElementById('kpi-headcount').textContent = totalHeadcount;
+      document.getElementById('kpi-ethnic-groups').textContent = Object.keys(ETHNICITY_DATA).length;
+      document.getElementById('kpi-female-pct').textContent = femaleRatio + '%';
+      document.getElementById('kpi-diversity-index').textContent = diversityIndex;
+      document.getElementById('kpi-parity-gap').textContent = parityGap + '%';
+      document.getElementById('kpi-underrep').textContent = underrepPct + '%';
+      document.getElementById('kpi-avg-age').textContent = avgAge;
+    }
+
+    function updateCharts(data) {
+      var totalFemale = 0;
+      var totalMale = 0;
+      var byDept = {};
+      var byLoc = {};
+
+      data.forEach(function(row) {
+        totalFemale += row[4];
+        totalMale += row[3];
+
+        var dept = row[0];
+        var loc = row[1];
+        if (!byDept[dept]) byDept[dept] = [0, 0];
+        byDept[dept][0] += row[4];
+        byDept[dept][1] += row[3];
+
+        if (!byLoc[loc]) byLoc[loc] = [0, 0];
+        byLoc[loc][0] += row[4];
+        byLoc[loc][1] += row[3];
+      });
+
+      mk('chart-gender', {
+        type: 'doughnut',
+        data: {
+          labels: ['Female (' + totalFemale + ')', 'Male (' + totalMale + ')'],
+          datasets: [{ data: [totalFemale, totalMale], backgroundColor: ['#F59E0B', '#006AFF'] }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } }, position: 'bottom' } }
+        }
+      });
+
+      var ethLabels = Object.keys(ETHNICITY_DATA).sort(function(a, b) { return ETHNICITY_DATA[b] - ETHNICITY_DATA[a]; });
+      var ethValues = ethLabels.map(function(e) { return ETHNICITY_DATA[e]; });
+
+      mk('chart-ethnicity', {
+        type: 'bar',
+        data: {
+          labels: ethLabels,
+          datasets: [{ data: ethValues, backgroundColor: '#0EA5E9', borderRadius: 4 }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            y: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 10 } } }
+          }
+        }
+      });
+
+      var deptLabels = Object.keys(byDept).sort();
+      var deptFemales = deptLabels.map(function(d) { return byDept[d][0]; });
+      var deptMales = deptLabels.map(function(d) { return byDept[d][1]; });
+
+      mk('chart-gender-dept', {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [
+            { label: 'Female', data: deptFemales, backgroundColor: '#F59E0B' },
+            { label: 'Male', data: deptMales, backgroundColor: '#006AFF' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } } },
+          scales: {
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 9 } } }
+          }
+        }
+      });
+
+      var locLabels = Object.keys(byLoc).sort();
+      var locFemales = locLabels.map(function(l) { return byLoc[l][0]; });
+      var locMales = locLabels.map(function(l) { return byLoc[l][1]; });
+
+      mk('chart-gender-loc', {
+        type: 'bar',
+        data: {
+          labels: locLabels,
+          datasets: [
+            { label: 'Female', data: locFemales, backgroundColor: '#F59E0B' },
+            { label: 'Male', data: locMales, backgroundColor: '#006AFF' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } } },
+          scales: {
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 9 } } }
+          }
+        }
+      });
+
+      var deptLabels2 = Object.keys(byDept).sort();
+      var deptFemales2 = deptLabels2.map(function(d) { return byDept[d][0]; });
+      var deptMales2 = deptLabels2.map(function(d) { return byDept[d][1]; });
+
+      mk('chart-dept-comp', {
+        type: 'bar',
+        data: {
+          labels: deptLabels2,
+          datasets: [
+            { label: 'Female', data: deptFemales2, backgroundColor: '#F59E0B' },
+            { label: 'Male', data: deptMales2, backgroundColor: '#006AFF' }
+          ]
+        },
+        options: {
+          stacked: true,
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } } },
+          scales: {
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 9 } } }
+          }
+        }
+      });
+
+      var ageGroups = ['<30', '30-35', '35-40', '40-45', '45-50', '>50'];
+      var ageCount = [0, 0, 0, 0, 0, 0];
+      data.forEach(function(row) {
+        var age = row[5];
+        if (age < 30) ageCount[0]++;
+        else if (age < 35) ageCount[1]++;
+        else if (age < 40) ageCount[2]++;
+        else if (age < 45) ageCount[3]++;
+        else if (age < 50) ageCount[4]++;
+        else ageCount[5]++;
+      });
+
+      mk('chart-age', {
+        type: 'bar',
+        data: {
+          labels: ageGroups,
+          datasets: [{ data: ageCount, backgroundColor: '#F59E0B', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5' } }
+          }
+        }
+      });
+    }
+
+    function updateTable(data) {
+      var tbody = document.getElementById('drill-table');
+      tbody.innerHTML = '';
+      data.forEach(function(row) {
+        var femalePct = row[2] > 0 ? ((row[4] / row[2]) * 100).toFixed(1) : 0;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td><td>' + row[4] + '</td><td>' + femalePct + '%</td><td>' + row[5] + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years (Snapshot)' : 'Reporting Period: Jan–Dec ' + yr + ' (Snapshot)';
+      document.getElementById('reporting-period').textContent = text;
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function applyFilters() {
+      var filtered = filterData(DEI_DATA);
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    initFilterOptions();
+    applyFilters();
+  </script>
+</body>
+</html>

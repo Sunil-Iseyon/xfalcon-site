@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collections Performance - Falcon Finance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #1A1A2E; min-height: 100vh; }
+        .topbar { background: #1D3557; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .topbar-left { display: flex; align-items: center; }
+        .logo { font-weight: 800; font-size: 22px; color: #FFFFFF; margin: 0; }
+        .logo .x { color: #A8DADC; }
+        .logo .f { color: #E63946; }
+        .topbar .title { color: #F1FAEE; font-weight: 600; font-size: 16px; margin-left: 14px; }
+        .back-link { color: #A8DADC; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+        .section-title { font-size: 18px; font-weight: 700; color: #1D3557; margin-top: 28px; margin-bottom: 16px; }
+        .section-title:first-child { margin-top: 0; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 16px; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #5F6B7A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1D3557; margin-bottom: 8px; }
+        .kpi-secondary { font-size: 13px; color: #5F6B7A; margin-bottom: 4px; }
+        .kpi-positive { color: #2E7D32; font-weight: 600; }
+        .kpi-negative { color: #D32F2F; font-weight: 600; }
+
+        .chart-container { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .chart-title { font-size: 16px; font-weight: 700; color: #1D3557; margin-bottom: 16px; }
+        .chart-wrapper { position: relative; height: 300px; margin-bottom: 20px; }
+
+        .table-container { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; overflow-x: auto; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #1D3557; color: #F1FAEE; font-weight: 600; text-align: left; padding: 12px; border-bottom: 1px solid #ECEEF1; }
+        td { padding: 12px; border-bottom: 1px solid #ECEEF1; color: #1A1A2E; }
+        tr:hover { background: #FFFFFF; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="x">x</span><span class="f">F</span></div>
+            <div class="title">Falcon Finance / 6. Collections Performance</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <!-- Annual Summary KPIs -->
+        <div class="section-title">Collections Summary (2024-2025)</div>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Total Recovery</div>
+                <div class="kpi-value">$5.8M</div>
+                <div class="kpi-secondary">2024: $6.1M <span class="kpi-negative">-4.6%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Promise-to-Pay</div>
+                <div class="kpi-value">$60.4M</div>
+                <div class="kpi-secondary">2024: $63.7M <span class="kpi-negative">-5.2%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Promise Fulfillment Rate</div>
+                <div class="kpi-value">9.65%</div>
+                <div class="kpi-secondary">2024: 9.57% <span class="kpi-positive">+0.08%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Active Collections 2025</div>
+                <div class="kpi-value">69,351</div>
+                <div class="kpi-secondary">Accounts: 2024 (69K)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Calls per Account</div>
+                <div class="kpi-value">7.5</div>
+                <div class="kpi-secondary">Consistent across 2024-2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Recovery by Chargeoff Status</div>
+                <div class="kpi-value">$25.6M</div>
+                <div class="kpi-secondary">Charged Off (Internal + Sold)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Recovered Accounts 2025</div>
+                <div class="kpi-value">2,944</div>
+                <div class="kpi-secondary">$1.8M recovered</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Collections Events</div>
+                <div class="kpi-value">152,000</div>
+                <div class="kpi-secondary">2024-2025 combined accounts</div>
+            </div>
+        </div>
+
+        <!-- Recovery vs Chargeoff Trend -->
+        <div class="section-title">Monthly Recovery vs Charge-off Amounts (2024-2025)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="recoveryVsChargeoffChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Promise to Pay vs Recovery -->
+        <div class="section-title">Promise-to-Pay vs Actual Recovery by Year</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="promiseVsRecoveryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Collection Status Distribution -->
+        <div class="section-title">Collections Events by Status (2024-2025 Combined)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recovery Rate by Status -->
+        <div class="section-title">Recovery Rate by Collection Status</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="recoveryRateChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Collection Efficiency -->
+        <div class="section-title">Collection Calls Efficiency (Calls vs Recovery Amount)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="callEfficiencyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Recovery Trend -->
+        <div class="section-title">Monthly Collection Metrics Trend (2024-2025)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="monthlyRecoveryTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="section-title">Collection Status Breakdown Detail (2024-2025 Combined)</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Collection Status</th>
+                        <th>Events</th>
+                        <th>Total Balance</th>
+                        <th>Recovery Amount</th>
+                        <th>Promise Amount</th>
+                        <th>Avg Calls</th>
+                        <th>Recovery Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Active Collection</td>
+                        <td class="text-right">69,351</td>
+                        <td class="text-right">$214,717,155</td>
+                        <td class="text-right">$0</td>
+                        <td class="text-right">$64,508,940</td>
+                        <td class="text-right">7.48</td>
+                        <td class="text-right">0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Arrangement</td>
+                        <td class="text-right">34,470</td>
+                        <td class="text-right">$106,808,425</td>
+                        <td class="text-right">$0</td>
+                        <td class="text-right">$31,975,959</td>
+                        <td class="text-right">7.52</td>
+                        <td class="text-right">0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>Charged Off Internal</td>
+                        <td class="text-right">17,190</td>
+                        <td class="text-right">$52,425,552</td>
+                        <td class="text-right">$6,039,627</td>
+                        <td class="text-right">$6,716,425</td>
+                        <td class="text-right">7.50</td>
+                        <td class="text-right">11.53%</td>
+                    </tr>
+                    <tr>
+                        <td>Settlement Offer</td>
+                        <td class="text-right">11,166</td>
+                        <td class="text-right">$35,229,087</td>
+                        <td class="text-right">$0</td>
+                        <td class="text-right">$10,590,235</td>
+                        <td class="text-right">7.52</td>
+                        <td class="text-right">0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>Legal Action</td>
+                        <td class="text-right">10,976</td>
+                        <td class="text-right">$33,917,158</td>
+                        <td class="text-right">$0</td>
+                        <td class="text-right">$10,260,479</td>
+                        <td class="text-right">7.50</td>
+                        <td class="text-right">0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>Charged Off Sold</td>
+                        <td class="text-right">6,903</td>
+                        <td class="text-right">$20,285,779</td>
+                        <td class="text-right">$4,095,117</td>
+                        <td class="text-right">$0</td>
+                        <td class="text-right">7.51</td>
+                        <td class="text-right">20.17%</td>
+                    </tr>
+                    <tr>
+                        <td>Recovered</td>
+                        <td class="text-right">2,944</td>
+                        <td class="text-right">$9,217,798</td>
+                        <td class="text-right">$1,787,183</td>
+                        <td class="text-right">$0</td>
+                        <td class="text-right">7.58</td>
+                        <td class="text-right">19.40%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Extended Collection Metrics Table -->
+        <div class="section-title">Monthly Active Collection Events (2024-2025 Sample)</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Active Collection Events</th>
+                        <th>Payment Arrangement Events</th>
+                        <th>Charged Off Internal Events</th>
+                        <th>Recovered Events</th>
+                        <th>Total Recovery</th>
+                        <th>Total Chargeoffs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2024</td><td>January</td><td class="text-right">2,708</td><td class="text-right">1,370</td><td class="text-right">625</td><td class="text-right">115</td><td class="text-right">$456,123</td><td class="text-right">$2,404,250</td></tr>
+                    <tr><td>2024</td><td>February</td><td class="text-right">2,898</td><td class="text-right">1,398</td><td class="text-right">711</td><td class="text-right">144</td><td class="text-right">$513,829</td><td class="text-right">$2,486,813</td></tr>
+                    <tr><td>2024</td><td>March</td><td class="text-right">2,606</td><td class="text-right">1,374</td><td class="text-right">645</td><td class="text-right">138</td><td class="text-right">$470,084</td><td class="text-right">$2,290,591</td></tr>
+                    <tr><td>2024</td><td>April</td><td class="text-right">2,942</td><td class="text-right">1,479</td><td class="text-right">762</td><td class="text-right">124</td><td class="text-right">$526,691</td><td class="text-right">$2,650,077</td></tr>
+                    <tr><td>2024</td><td>May</td><td class="text-right">3,284</td><td class="text-right">1,723</td><td class="text-right">828</td><td class="text-right">133</td><td class="text-right">$571,684</td><td class="text-right">$2,865,003</td></tr>
+                    <tr><td>2024</td><td>June</td><td class="text-right">2,532</td><td class="text-right">1,256</td><td class="text-right">571</td><td class="text-right">105</td><td class="text-right">$471,677</td><td class="text-right">$2,282,543</td></tr>
+                    <tr><td>2024</td><td>July</td><td class="text-right">2,807</td><td class="text-right">1,367</td><td class="text-right">649</td><td class="text-right">114</td><td class="text-right">$513,417</td><td class="text-right">$2,584,334</td></tr>
+                    <tr><td>2024</td><td>August</td><td class="text-right">3,345</td><td class="text-right">1,642</td><td class="text-right">747</td><td class="text-right">130</td><td class="text-right">$542,922</td><td class="text-right">$2,789,208</td></tr>
+                    <tr><td>2024</td><td>September</td><td class="text-right">3,025</td><td class="text-right">1,485</td><td class="text-right">682</td><td class="text-right">119</td><td class="text-right">$541,486</td><td class="text-right">$2,735,636</td></tr>
+                    <tr><td>2024</td><td>October</td><td class="text-right">3,163</td><td class="text-right">1,549</td><td class="text-right">704</td><td class="text-right">123</td><td class="text-right">$514,991</td><td class="text-right">$2,613,711</td></tr>
+                    <tr><td>2024</td><td>November</td><td class="text-right">3,298</td><td class="text-right">1,620</td><td class="text-right">733</td><td class="text-right">128</td><td class="text-right">$546,208</td><td class="text-right">$2,702,777</td></tr>
+                    <tr><td>2024</td><td>December</td><td class="text-right">2,743</td><td class="text-right">1,351</td><td class="text-right">622</td><td class="text-right">109</td><td class="text-right">$432,581</td><td class="text-right">$2,242,105</td></tr>
+                    <tr><td>2025</td><td>January</td><td class="text-right">2,627</td><td class="text-right">1,293</td><td class="text-right">583</td><td class="text-right">102</td><td class="text-right">$433,444</td><td class="text-right">$2,231,552</td></tr>
+                    <tr><td>2025</td><td>February</td><td class="text-right">2,488</td><td class="text-right">1,220</td><td class="text-right">550</td><td class="text-right">96</td><td class="text-right">$402,855</td><td class="text-right">$2,050,186</td></tr>
+                    <tr><td>2025</td><td>March</td><td class="text-right">2,730</td><td class="text-right">1,340</td><td class="text-right">605</td><td class="text-right">105</td><td class="text-right">$484,544</td><td class="text-right">$2,440,790</td></tr>
+                    <tr><td>2025</td><td>April</td><td class="text-right">2,868</td><td class="text-right">1,407</td><td class="text-right">636</td><td class="text-right">111</td><td class="text-right">$489,052</td><td class="text-right">$2,454,710</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function mk(ctx, cfg) { return new Chart(ctx, cfg); }
+
+        // Recovery vs Chargeoff Monthly
+        var m2024_rec = [456122.69,513828.75,470084.38,526691.45,571683.83,471676.58,513417.28,542921.78,541486.35,514991.35,546207.76,432581.45];
+        var m2024_co = [2404249.53,2486813.11,2290590.63,2650076.67,2865003.45,2282543.02,2584333.69,2789207.86,2735635.51,2613711.30,2702777.38,2242104.63];
+        var m2025_rec = [433444.01,402854.90,484543.72,489051.61,494357.20,394247.93,545958.20,569822.35,432805.33,527427.14,515039.57,530681.82];
+        var m2025_co = [2231551.74,2050185.90,2440790.44,2454709.79,2436309.69,2021444.03,2688855.20,2809423.28,2188535.43,2578332.14,2522617.84,2637968.53];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        mk(document.getElementById('recoveryVsChargeoffChart'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: '2024 Recovery',
+                    data: m2024_rec,
+                    borderColor: '#1A7F64',
+                    backgroundColor: 'rgba(26,127,100,0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                }, {
+                    label: '2024 Chargeoffs',
+                    data: m2024_co,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245,158,11,0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                }, {
+                    label: '2025 Recovery',
+                    data: m2025_rec,
+                    borderColor: '#0EA5E9',
+                    borderDash: [5,5],
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y'
+                }, {
+                    label: '2025 Chargeoffs',
+                    data: m2025_co,
+                    borderColor: '#F59E0B',
+                    borderDash: [5,5],
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + (value/1000000).toFixed(1) + 'M'; } } } }
+            }
+        });
+
+        // Promise vs Recovery
+        var promiseYears = ['2019','2020','2021','2022','2023','2024','2025'];
+        var promiseAmt = [60126181.27,73428301.02,43997443.86,51235018.45,68441254.86,63686020.77,60366016.95];
+        var recoveryAmt = [5933776.16,7351209.77,4560125.33,5062452.58,6917058.27,6101693.65,5820233.78];
+        mk(document.getElementById('promiseVsRecoveryChart'), {
+            type: 'bar',
+            data: {
+                labels: promiseYears,
+                datasets: [{
+                    label: 'Promise-to-Pay Amount',
+                    data: promiseAmt.map(function(v) { return v/1000000; }),
+                    backgroundColor: '#006AFF'
+                }, {
+                    label: 'Actual Recovery Amount',
+                    data: recoveryAmt.map(function(v) { return v/1000000; }),
+                    backgroundColor: '#1A7F64'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value.toFixed(0) + 'M'; } } } }
+            }
+        });
+
+        // Collection Status
+        var statuses = ['Active Collection','Payment Arrangement','Charged Off Internal','Settlement Offer','Legal Action','Charged Off Sold','Recovered'];
+        var statusEvents = [69351,34470,17190,11166,10976,6903,2944];
+        mk(document.getElementById('statusChart'), {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: statuses,
+                datasets: [{
+                    label: 'Events',
+                    data: statusEvents,
+                    backgroundColor: '#006AFF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Recovery Rate by Status
+        var rateStatuses = ['Charged Off Sold','Recovered','Charged Off Internal','Settlement Offer','Legal Action','Payment Arrangement','Active Collection'];
+        var recoveryRates = [20.17,19.40,11.53,0,0,0,0];
+        mk(document.getElementById('recoveryRateChart'), {
+            type: 'bar',
+            data: {
+                labels: rateStatuses,
+                datasets: [{
+                    label: 'Recovery Rate (%)',
+                    data: recoveryRates,
+                    backgroundColor: function(context) {
+                        if (context.dataIndex < 3) return '#1A7F64';
+                        return '#94A3B8';
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 25 } }
+            }
+        });
+
+        // Collection Calls Efficiency
+        var effStatuses = ['Active Collection','Payment Arrangement','Charged Off Internal','Settlement Offer','Legal Action','Charged Off Sold','Recovered'];
+        var avgCalls = [7.48,7.52,7.50,7.52,7.50,7.51,7.58];
+        var effRecovery = [0,0,6039627,0,0,4095117,1787183];
+        mk(document.getElementById('callEfficiencyChart'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Recovery Efficiency',
+                    data: effStatuses.map(function(s, i) {
+                        return { x: avgCalls[i], y: effRecovery[i]/1000000 };
+                    }),
+                    backgroundColor: function(context) {
+                        if (effRecovery[context.dataIndex] > 0) return '#1A7F64';
+                        return '#F59E0B';
+                    },
+                    pointRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var idx = context.dataIndex;
+                                return effStatuses[idx] + ' - Calls: ' + avgCalls[idx] + ', Recovery: $' + (effRecovery[idx]/1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Average Calls per Account' } },
+                    y: { title: { display: true, text: 'Recovery Amount ($M)' } }
+                }
+            }
+        });
+
+        // Monthly Recovery Trend
+        var m2024_recovery_total = m2024_rec;
+        var m2025_recovery_total = m2025_rec;
+        mk(document.getElementById('monthlyRecoveryTrendChart'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: '2024 Monthly Recovery',
+                    data: m2024_recovery_total,
+                    borderColor: '#006AFF',
+                    backgroundColor: 'rgba(0,106,255,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '2025 Monthly Recovery',
+                    data: m2025_recovery_total,
+                    borderColor: '#1A7F64',
+                    backgroundColor: 'rgba(26,127,100,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { ticks: { callback: function(value) { return '$' + (value/1000).toFixed(0) + 'K'; } } } }
+            }
+        });
+    </script>
+</body>
+</html>

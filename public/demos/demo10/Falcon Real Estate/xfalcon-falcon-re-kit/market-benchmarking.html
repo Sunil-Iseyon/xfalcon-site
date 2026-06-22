@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Benchmarking Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    .topbar {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+      color: #006aff;
+    }
+    .topbar-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: #334155;
+    }
+    .back-link {
+      margin-left: auto;
+      color: #006aff;
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 24px auto;
+      padding: 0 24px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .kpi-subtext {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .kpi-positive {
+      color: #2e7d32;
+    }
+    .kpi-negative {
+      color: #d32f2f;
+    }
+    .kpi-neutral {
+      color: #006aff;
+    }
+    .section {
+      margin-bottom: 32px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .chart-container {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      position: relative;
+      height: 400px;
+      margin-bottom: 24px;
+    }
+    .chart-wrapper {
+      position: relative;
+      height: 100%;
+    }
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .table-container {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f1f5f9;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tr:hover {
+      background-color: #f8fafc;
+    }
+    tr.critical-red {
+      background-color: #fef2f2;
+    }
+    tr.critical-red td {
+      color: #d32f2f;
+      font-weight: 500;
+    }
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: #94a3b8;
+      font-size: 12px;
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">xF</div>
+    <div class="topbar-title">Falcon Real Estate / Market Benchmarking</div>
+    <a href="index.html" class="back-link">← Back</a>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Occ Delta vs LY</div>
+        <div class="kpi-value kpi-negative" id="kpiOccDelta">-0.95%</div>
+        <div class="kpi-subtext">2025 vs 2024: +0.11 pp improvement</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Rent Delta vs LY</div>
+        <div class="kpi-value kpi-negative" id="kpiRentDelta">-$62.21</div>
+        <div class="kpi-subtext">2025 vs 2024: +$0.15 improvement</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Market Cap Rate</div>
+        <div class="kpi-value kpi-neutral" id="kpiCapRate">5.55%</div>
+        <div class="kpi-subtext">Stable YoY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Market Vacancy</div>
+        <div class="kpi-value kpi-neutral" id="kpiVacancy">12.02%</div>
+        <div class="kpi-subtext">Marginally elevated</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Markets Tracked</div>
+        <div class="kpi-value kpi-neutral" id="kpiMarkets">11</div>
+        <div class="kpi-subtext">Tier 1 & 2</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Sun Belt Markets</div>
+        <div class="kpi-value kpi-neutral" id="kpiSunbelt">5</div>
+        <div class="kpi-subtext">of 11 total</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Occupancy Delta by Market (2025) — Sorted Worst to Best</h3>
+      <div class="chart-container">
+        <div class="chart-wrapper">
+          <canvas id="occDeltaChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-column">
+      <div>
+        <h3 class="section-title">Cap Rate Trend (Quarterly)</h3>
+        <div class="chart-container">
+          <div class="chart-wrapper">
+            <canvas id="capRateTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="section-title">Supply vs Absorption (2025)</h3>
+        <div class="chart-container">
+          <div class="chart-wrapper">
+            <canvas id="supplyAbsorptionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-column">
+      <div>
+        <h3 class="section-title">Occupancy Delta by Asset Class (2025)</h3>
+        <div class="chart-container">
+          <div class="chart-wrapper">
+            <canvas id="occDeltaAssetChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="section-title">Rent Delta by Asset Class (2025)</h3>
+        <div class="chart-container">
+          <div class="chart-wrapper">
+            <canvas id="rentDeltaAssetChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Market Detail (2025)</h3>
+      <div class="table-container">
+        <table id="marketDetailTable">
+          <thead>
+            <tr>
+              <th>Market</th>
+              <th>Region</th>
+              <th>Tier</th>
+              <th>Sun Belt</th>
+              <th>Portfolio Occ</th>
+              <th>Market Occ</th>
+              <th>Occ Delta</th>
+              <th>Portfolio Rent</th>
+              <th>Market Rent</th>
+              <th>Rent Delta</th>
+            </tr>
+          </thead>
+          <tbody id="marketDetailBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated by xFalcon RetailEdge | Data as of 2025-12-31
+  </div>
+
+  <script>
+    var COLORS = {
+      blue: '#006AFF',
+      teal: '#1A7F64',
+      gray: '#94A3B8',
+      red: '#D32F2F',
+      green: '#2E7D32'
+    };
+
+    function mk(tag, attrs, children) {
+      var el = document.createElement(tag);
+      if (attrs) {
+        for (var key in attrs) {
+          el[key] = attrs[key];
+        }
+      }
+      if (children) {
+        if (Array.isArray(children)) {
+          children.forEach(function(child) {
+            if (typeof child === 'string') {
+              el.appendChild(document.createTextNode(child));
+            } else if (child) {
+              el.appendChild(child);
+            }
+          });
+        } else if (typeof children === 'string') {
+          el.appendChild(document.createTextNode(children));
+        } else {
+          el.appendChild(children);
+        }
+      }
+      return el;
+    }
+
+    var q1Data = [
+      { market: 'Denver Metro', region: 'Southwest', tier: 1, sunbelt: true, portfolioOcc: 85.21, marketOcc: 95.10, occDelta: -9.89, portfolioRent: 5040.76, marketRent: 5122.83, rentDelta: -82.08 },
+      { market: 'Atlanta Metro', region: 'Southeast', tier: 1, sunbelt: true, portfolioOcc: 91.95, marketOcc: 96.29, occDelta: -4.34, portfolioRent: 2533.93, marketRent: 2637.68, rentDelta: -103.75 },
+      { market: 'Phoenix Metro', region: 'Southwest', tier: 1, sunbelt: true, portfolioOcc: 88.53, marketOcc: 92.49, occDelta: -3.96, portfolioRent: 2566.33, marketRent: 2610.15, rentDelta: -43.82 },
+      { market: 'Dallas-Fort Worth', region: 'Southwest', tier: 1, sunbelt: true, portfolioOcc: 93.52, marketOcc: 94.32, occDelta: -0.80, portfolioRent: 59.50, marketRent: 61.98, rentDelta: -2.48 },
+      { market: 'Greater Boston', region: 'Northeast', tier: 1, sunbelt: false, portfolioOcc: 82.29, marketOcc: 83.06, occDelta: -0.77, portfolioRent: 2553.53, marketRent: 2653.63, rentDelta: -100.10 },
+      { market: 'Washington DC Metro', region: 'Southeast', tier: 1, sunbelt: false, portfolioOcc: 71.12, marketOcc: 71.67, occDelta: -0.54, portfolioRent: 66.30, marketRent: 67.50, rentDelta: -1.19 },
+      { market: 'New York City Metro', region: 'Northeast', tier: 1, sunbelt: false, portfolioOcc: 84.40, marketOcc: 84.38, occDelta: 0.03, portfolioRent: 1683.28, marketRent: 1745.85, rentDelta: -62.56 },
+      { market: 'Seattle Metro', region: 'West', tier: 1, sunbelt: false, portfolioOcc: 96.43, marketOcc: 96.18, occDelta: 0.25, portfolioRent: 2533.93, marketRent: 2635.56, rentDelta: -101.64 },
+      { market: 'Greater Los Angeles', region: 'West', tier: 1, sunbelt: false, portfolioOcc: 87.06, marketOcc: 86.57, occDelta: 0.50, portfolioRent: 2752.74, marketRent: 2807.56, rentDelta: -54.82 },
+      { market: 'Chicago Metro', region: 'Midwest', tier: 1, sunbelt: false, portfolioOcc: 85.21, marketOcc: 84.66, occDelta: 0.55, portfolioRent: 1683.28, marketRent: 1747.61, rentDelta: -64.33 },
+      { market: 'Ashburn/NoVA Data Corridor', region: 'Northeast', tier: 2, sunbelt: false, portfolioOcc: 91.92, marketOcc: 91.19, occDelta: 0.73, portfolioRent: 1861.54, marketRent: 1893.32, rentDelta: -31.78 }
+    ];
+
+    var q2Data = [
+      { year: 2023, quarter: 1, capRate: 5.856, vacancy: 11.70, newSupply: 4621100, netAbsorption: 52390 },
+      { year: 2023, quarter: 2, capRate: 5.843, vacancy: 11.69, newSupply: 5316635, netAbsorption: -155255 },
+      { year: 2023, quarter: 3, capRate: 5.845, vacancy: 11.71, newSupply: 4178716, netAbsorption: 1942362 },
+      { year: 2023, quarter: 4, capRate: 5.854, vacancy: 11.75, newSupply: 3252528, netAbsorption: -1925111 },
+      { year: 2024, quarter: 1, capRate: 5.556, vacancy: 12.01, newSupply: 4667500, netAbsorption: 1454332 },
+      { year: 2024, quarter: 2, capRate: 5.543, vacancy: 11.996, newSupply: 4780338, netAbsorption: 1060072 },
+      { year: 2024, quarter: 3, capRate: 5.545, vacancy: 12.018, newSupply: 3770959, netAbsorption: -652429 },
+      { year: 2024, quarter: 4, capRate: 5.554, vacancy: 12.054, newSupply: 4302497, netAbsorption: 236759 },
+      { year: 2025, quarter: 1, capRate: 5.556, vacancy: 12.01, newSupply: 5006876, netAbsorption: -1211641 },
+      { year: 2025, quarter: 2, capRate: 5.543, vacancy: 11.996, newSupply: 4074727, netAbsorption: -511351 },
+      { year: 2025, quarter: 3, capRate: 5.545, vacancy: 12.018, newSupply: 4306135, netAbsorption: 590135 },
+      { year: 2025, quarter: 4, capRate: 5.554, vacancy: 12.054, newSupply: 4147010, netAbsorption: 1787419 }
+    ];
+
+    var q3Data = { '2024': { occDelta: -1.054, rentDelta: -62.362, capRate: 5.550, vacancy: 12.019, markets: 11 }, '2025': { occDelta: -0.946, rentDelta: -62.212, capRate: 5.550, vacancy: 12.019, markets: 11 } };
+
+    var q4Data = [
+      { asset: 'Residential', portfolioOcc: 91.41, marketOcc: 94.75, occDelta: -3.35, portfolioRent: 5040.76, marketRent: 5197.60, rentDelta: -156.84, capRate: 5.09 },
+      { asset: 'Office', portfolioOcc: 72.17, marketOcc: 72.34, occDelta: -0.16, portfolioRent: 66.30, marketRent: 68.50, rentDelta: -2.20, capRate: 6.50 },
+      { asset: 'Industrial', portfolioOcc: 97.73, marketOcc: 97.58, occDelta: 0.15, portfolioRent: 27.09, marketRent: 28.08, rentDelta: -0.98, capRate: 5.29 },
+      { asset: 'Retail', portfolioOcc: 90.93, marketOcc: 90.76, occDelta: 0.16, portfolioRent: 91.90, marketRent: 94.98, rentDelta: -3.08, capRate: 5.75 },
+      { asset: 'Telecom Tower', portfolioOcc: 66.98, marketOcc: 66.81, occDelta: 0.17, portfolioRent: 3190.36, marketRent: 3291.70, rentDelta: -101.34, capRate: 5.79 },
+      { asset: 'Data Center', portfolioOcc: 91.92, marketOcc: 91.19, occDelta: 0.73, portfolioRent: 1861.54, marketRent: 1893.32, rentDelta: -31.78, capRate: 5.48 }
+    ];
+
+    var q5Data = [
+      { quarter: 1, asset: 'Data Center', newSupply: 0, netAbsorption: 0 },
+      { quarter: 1, asset: 'Industrial', newSupply: 1393628, netAbsorption: -431167 },
+      { quarter: 1, asset: 'Office', newSupply: 0, netAbsorption: 0 },
+      { quarter: 1, asset: 'Residential', newSupply: 2840793, netAbsorption: -874531 },
+      { quarter: 1, asset: 'Retail', newSupply: 772455, netAbsorption: 94057 },
+      { quarter: 1, asset: 'Telecom Tower', newSupply: 0, netAbsorption: 0 },
+      { quarter: 2, asset: 'Data Center', newSupply: 0, netAbsorption: 0 },
+      { quarter: 2, asset: 'Industrial', newSupply: 1378356, netAbsorption: -549826 },
+      { quarter: 2, asset: 'Office', newSupply: 0, netAbsorption: 0 },
+      { quarter: 2, asset: 'Residential', newSupply: 1604701, netAbsorption: -298248 },
+      { quarter: 2, asset: 'Retail', newSupply: 1091670, netAbsorption: 336723 },
+      { quarter: 2, asset: 'Telecom Tower', newSupply: 0, netAbsorption: 0 },
+      { quarter: 3, asset: 'Data Center', newSupply: 0, netAbsorption: 0 },
+      { quarter: 3, asset: 'Industrial', newSupply: 936789, netAbsorption: 23240 },
+      { quarter: 3, asset: 'Office', newSupply: 0, netAbsorption: 0 },
+      { quarter: 3, asset: 'Residential', newSupply: 2446604, netAbsorption: 1029497 },
+      { quarter: 3, asset: 'Retail', newSupply: 922742, netAbsorption: -462602 },
+      { quarter: 3, asset: 'Telecom Tower', newSupply: 0, netAbsorption: 0 },
+      { quarter: 4, asset: 'Data Center', newSupply: 0, netAbsorption: 0 },
+      { quarter: 4, asset: 'Industrial', newSupply: 1242448, netAbsorption: 1252084 },
+      { quarter: 4, asset: 'Office', newSupply: 0, netAbsorption: 0 },
+      { quarter: 4, asset: 'Residential', newSupply: 2009408, netAbsorption: 290771 },
+      { quarter: 4, asset: 'Retail', newSupply: 895154, netAbsorption: 244564 },
+      { quarter: 4, asset: 'Telecom Tower', newSupply: 0, netAbsorption: 0 }
+    ];
+
+    document.getElementById('kpiOccDelta').textContent = q3Data['2025'].occDelta.toFixed(2) + '%';
+    document.getElementById('kpiRentDelta').textContent = '-$' + q3Data['2025'].rentDelta.toFixed(2);
+    document.getElementById('kpiCapRate').textContent = q3Data['2025'].capRate.toFixed(2) + '%';
+    document.getElementById('kpiVacancy').textContent = q3Data['2025'].vacancy.toFixed(2) + '%';
+    document.getElementById('kpiMarkets').textContent = q3Data['2025'].markets;
+    var sunbeltCount = q1Data.filter(function(d) { return d.sunbelt; }).length;
+    document.getElementById('kpiSunbelt').textContent = sunbeltCount;
+
+    var occCtx = document.getElementById('occDeltaChart').getContext('2d');
+    new Chart(occCtx, {
+      type: 'bar',
+      data: {
+        labels: q1Data.map(function(d) { return d.market; }),
+        datasets: [{
+          label: 'Occupancy Delta (%)',
+          data: q1Data.map(function(d) { return d.occDelta; }),
+          backgroundColor: q1Data.map(function(d) { return d.occDelta < 0 ? COLORS.red : COLORS.green; }),
+          borderColor: 'transparent'
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+          y: { ticks: { color: '#64748b', font: { size: 12 } } }
+        }
+      }
+    });
+
+    var capCtx = document.getElementById('capRateTrendChart').getContext('2d');
+    var capLabels = q2Data.map(function(d) { return "'" + d.year + " Q" + d.quarter; });
+    new Chart(capCtx, {
+      type: 'line',
+      data: {
+        labels: capLabels,
+        datasets: [{
+          label: 'Cap Rate (%)',
+          data: q2Data.map(function(d) { return d.capRate; }),
+          borderColor: COLORS.blue,
+          backgroundColor: 'rgba(0, 106, 255, 0.05)',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 4,
+          pointBackgroundColor: COLORS.blue,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#64748b', font: { size: 12 } } } },
+        scales: {
+          y: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+          x: { ticks: { color: '#64748b', font: { size: 11 } } }
+        }
+      }
+    });
+
+    var q52025 = {};
+    q5Data.forEach(function(d) {
+      if (d.quarter >= 1 && d.quarter <= 4) {
+        if (!q52025[d.quarter]) q52025[d.quarter] = { supply: 0, absorption: 0 };
+        q52025[d.quarter].supply += d.newSupply;
+        q52025[d.quarter].absorption += d.netAbsorption;
+      }
+    });
+
+    var supCtx = document.getElementById('supplyAbsorptionChart').getContext('2d');
+    new Chart(supCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+        datasets: [
+          {
+            label: 'New Supply (sqft)',
+            data: [q52025[1].supply, q52025[2].supply, q52025[3].supply, q52025[4].supply],
+            backgroundColor: COLORS.teal,
+            borderColor: 'transparent'
+          },
+          {
+            label: 'Net Absorption (sqft)',
+            data: [q52025[1].absorption, q52025[2].absorption, q52025[3].absorption, q52025[4].absorption],
+            backgroundColor: COLORS.blue,
+            borderColor: 'transparent'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#64748b', font: { size: 12 } } } },
+        scales: {
+          y: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+          x: { ticks: { color: '#64748b' } }
+        }
+      }
+    });
+
+    var occAssetCtx = document.getElementById('occDeltaAssetChart').getContext('2d');
+    new Chart(occAssetCtx, {
+      type: 'bar',
+      data: {
+        labels: q4Data.map(function(d) { return d.asset; }),
+        datasets: [{
+          label: 'Occupancy Delta (%)',
+          data: q4Data.map(function(d) { return d.occDelta; }),
+          backgroundColor: q4Data.map(function(d) { return d.occDelta < 0 ? COLORS.red : COLORS.green; }),
+          borderColor: 'transparent'
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+          y: { ticks: { color: '#64748b', font: { size: 12 } } }
+        }
+      }
+    });
+
+    var rentAssetCtx = document.getElementById('rentDeltaAssetChart').getContext('2d');
+    new Chart(rentAssetCtx, {
+      type: 'bar',
+      data: {
+        labels: q4Data.map(function(d) { return d.asset; }),
+        datasets: [{
+          label: 'Rent Delta ($/sqft)',
+          data: q4Data.map(function(d) { return d.rentDelta; }),
+          backgroundColor: q4Data.map(function(d) { return d.rentDelta < 0 ? COLORS.red : COLORS.green; }),
+          borderColor: 'transparent'
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+          y: { ticks: { color: '#64748b', font: { size: 12 } } }
+        }
+      }
+    });
+
+    var tbody = document.getElementById('marketDetailBody');
+    q1Data.forEach(function(d) {
+      var row = mk('tr', { className: d.occDelta < -5 ? 'critical-red' : '' }, [
+        mk('td', {}, [d.market]),
+        mk('td', {}, [d.region]),
+        mk('td', {}, [String(d.tier)]),
+        mk('td', {}, [d.sunbelt ? 'Yes' : 'No']),
+        mk('td', {}, [d.portfolioOcc.toFixed(2) + '%']),
+        mk('td', {}, [d.marketOcc.toFixed(2) + '%']),
+        mk('td', {}, [d.occDelta.toFixed(2) + '%']),
+        mk('td', {}, ['$' + d.portfolioRent.toFixed(2)]),
+        mk('td', {}, ['$' + d.marketRent.toFixed(2)]),
+        mk('td', {}, ['$' + d.rentDelta.toFixed(2)])
+      ]);
+      tbody.appendChild(row);
+    });
+  </script>
+</body>
+</html>

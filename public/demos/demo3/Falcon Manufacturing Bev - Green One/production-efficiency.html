@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Efficiency Dashboard - FizzCo Manufacturing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #7CB701;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(124, 183, 1, 0.3);
+        }
+
+        .header p {
+            color: #9B999B;
+            font-size: 1.1em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #7CB701;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border: 1px solid #7CB701;
+            border-radius: 4px;
+        }
+
+        .back-link:hover {
+            background-color: #7CB701;
+            color: #0D0D0D;
+        }
+
+        .filters {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #7CB701;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #95D600;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .filter-group select {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            border: 2px solid #7CB701;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:hover {
+            border-color: #95D600;
+            box-shadow: 0 0 10px rgba(149, 214, 0, 0.2);
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #95D600;
+            box-shadow: 0 0 15px rgba(149, 214, 0, 0.3);
+        }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 4px solid #7CB701;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(124, 183, 1, 0.2);
+        }
+
+        .kpi-label {
+            color: #9B999B;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kpi-value {
+            color: #95D600;
+            font-size: 2em;
+            font-weight: 700;
+            font-family: 'Monaco', monospace;
+        }
+
+        .chart-container {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #2A2A2A;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .chart-title {
+            color: #95D600;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-full {
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #2A2A2A;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #0D0D0D;
+        }
+
+        table th {
+            color: #95D600;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #2A2A2A;
+            color: #FFFFFF;
+        }
+
+        table tbody tr:hover {
+            background-color: #252525;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #141414;
+        }
+
+        .status-good {
+            color: #7CB701;
+            font-weight: 600;
+        }
+
+        .status-warning {
+            color: #FFB800;
+            font-weight: 600;
+        }
+
+        .status-danger {
+            color: #FF4444;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            color: #9B999B;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2A2A2A;
+            font-size: 0.85em;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #9B999B;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-row {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+
+        <div class="header">
+            <h1>⚡ PRODUCTION EFFICIENCY DASHBOARD</h1>
+            <p>FizzCo Manufacturing Network Performance Analytics</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="yearFilter">Year</label>
+                    <select id="yearFilter">
+                        <option value="">All Years</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="quarterFilter">Quarter</label>
+                    <select id="quarterFilter">
+                        <option value="">All Quarters</option>
+                        <option value="1">Q1</option>
+                        <option value="2">Q2</option>
+                        <option value="3">Q3</option>
+                        <option value="4">Q4</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="plantFilter">Plant</label>
+                    <select id="plantFilter">
+                        <option value="">All Plants</option>
+                        <option value="FizzCo Atlanta Plant">FizzCo Atlanta Plant</option>
+                        <option value="FizzCo Austin Plant">FizzCo Austin Plant</option>
+                        <option value="FizzCo Chicago Plant">FizzCo Chicago Plant</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Capacity Utilization</div>
+                <div class="kpi-value" id="kpiCapacity">--</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Yield %</div>
+                <div class="kpi-value" id="kpiYield">--</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Defect Rate</div>
+                <div class="kpi-value" id="kpiDefect">--</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Units Produced</div>
+                <div class="kpi-value" id="kpiUnits">--</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Downtime Hours</div>
+                <div class="kpi-value" id="kpiDowntime">--</div>
+            </div>
+        </div>
+
+        <!-- Units Produced Trend -->
+        <div class="chart-container grid-full">
+            <div class="chart-title">Units Produced Trend by Quarter</div>
+            <div class="chart-wrapper">
+                <canvas id="unitsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Capacity and Yield -->
+        <div class="grid-row">
+            <div class="chart-container">
+                <div class="chart-title">Capacity Utilization by Plant</div>
+                <div class="chart-wrapper">
+                    <canvas id="capacityChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Yield % by Plant</div>
+                <div class="chart-wrapper">
+                    <canvas id="yieldChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Defect and Cost -->
+        <div class="grid-row">
+            <div class="chart-container">
+                <div class="chart-title">Defect Rate Trend</div>
+                <div class="chart-wrapper">
+                    <canvas id="defectChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Cost Per Unit by Plant</div>
+                <div class="chart-wrapper">
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Downtime and Delayed Batches -->
+        <div class="grid-row">
+            <div class="chart-container">
+                <div class="chart-title">Downtime Hours by Plant</div>
+                <div class="chart-wrapper">
+                    <canvas id="downtimeChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Delayed Batches Trend</div>
+                <div class="chart-wrapper">
+                    <canvas id="delayedChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plant Comparison Table -->
+        <div class="table-container">
+            <div class="chart-title" style="margin-bottom: 20px;">Plant Comparison Summary</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Quarter</th>
+                        <th>Plant</th>
+                        <th>Capacity Util %</th>
+                        <th>Yield %</th>
+                        <th>Defect Rate %</th>
+                        <th>Units Produced</th>
+                        <th>Downtime Hrs</th>
+                        <th>Cost/Unit</th>
+                        <th>Delayed Batches</th>
+                        <th>Recalled Batches</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Key Insights & Analysis -->
+        <div class="insights-section" style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+            <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+            <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+            <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+            <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+        </div>
+
+        <footer>
+            Generated by IDA Analytics
+        </footer>
+    </div>
+
+    <script>
+        // Production Data
+        const prodData = [
+            {year:2020,quarter:1,plant:"FizzCo Atlanta Plant",capacity_util:45.84,yield_pct:94.34,defect_rate:1.70,units_produced:627830,downtime_hrs:23.3,prod_cost:221049.55,cost_per_unit:0.358,delayed_batches:2,recalled_batches:0},
+            {year:2020,quarter:1,plant:"FizzCo Austin Plant",capacity_util:50.03,yield_pct:95.67,defect_rate:1.19,units_produced:380956,downtime_hrs:5.7,prod_cost:117366.12,cost_per_unit:0.309,delayed_batches:0,recalled_batches:0},
+            {year:2020,quarter:1,plant:"FizzCo Chicago Plant",capacity_util:47.03,yield_pct:95.93,defect_rate:1.36,units_produced:578833,downtime_hrs:35.3,prod_cost:247149.90,cost_per_unit:0.464,delayed_batches:3,recalled_batches:1},
+            {year:2020,quarter:2,plant:"FizzCo Atlanta Plant",capacity_util:47.06,yield_pct:95.30,defect_rate:3.02,units_produced:235293,downtime_hrs:7.3,prod_cost:86015.94,cost_per_unit:0.344,delayed_batches:1,recalled_batches:0},
+            {year:2020,quarter:2,plant:"FizzCo Austin Plant",capacity_util:53.80,yield_pct:91.90,defect_rate:2.63,units_produced:64592,downtime_hrs:0.6,prod_cost:21149.43,cost_per_unit:0.327,delayed_batches:0,recalled_batches:0},
+            {year:2020,quarter:2,plant:"FizzCo Chicago Plant",capacity_util:67.20,yield_pct:94.97,defect_rate:2.92,units_produced:852160,downtime_hrs:36.1,prod_cost:361420.77,cost_per_unit:0.404,delayed_batches:6,recalled_batches:0},
+            {year:2020,quarter:3,plant:"FizzCo Atlanta Plant",capacity_util:51.49,yield_pct:96.04,defect_rate:2.83,units_produced:851198,downtime_hrs:43.0,prod_cost:271924.28,cost_per_unit:0.333,delayed_batches:6,recalled_batches:0},
+            {year:2020,quarter:3,plant:"FizzCo Austin Plant",capacity_util:76.83,yield_pct:94.17,defect_rate:3.01,units_produced:633756,downtime_hrs:9.2,prod_cost:205064.35,cost_per_unit:0.323,delayed_batches:1,recalled_batches:0},
+            {year:2020,quarter:3,plant:"FizzCo Chicago Plant",capacity_util:61.15,yield_pct:93.53,defect_rate:3.05,units_produced:771499,downtime_hrs:31.4,prod_cost:328790.45,cost_per_unit:0.448,delayed_batches:4,recalled_batches:0},
+            {year:2020,quarter:4,plant:"FizzCo Atlanta Plant",capacity_util:54.56,yield_pct:94.73,defect_rate:1.17,units_produced:1192762,downtime_hrs:30.9,prod_cost:391501.47,cost_per_unit:0.360,delayed_batches:2,recalled_batches:0},
+            {year:2020,quarter:4,plant:"FizzCo Austin Plant",capacity_util:60.87,yield_pct:97.70,defect_rate:0.75,units_produced:219130,downtime_hrs:3.2,prod_cost:72711.55,cost_per_unit:0.331,delayed_batches:0,recalled_batches:0},
+            {year:2020,quarter:4,plant:"FizzCo Chicago Plant",capacity_util:45.37,yield_pct:94.15,defect_rate:1.02,units_produced:816634,downtime_hrs:16.9,prod_cost:381110.02,cost_per_unit:0.479,delayed_batches:0,recalled_batches:0},
+            {year:2021,quarter:1,plant:"FizzCo Atlanta Plant",capacity_util:52.63,yield_pct:94.50,defect_rate:1.09,units_produced:663291,downtime_hrs:18.6,prod_cost:334064.47,cost_per_unit:0.498,delayed_batches:1,recalled_batches:0},
+            {year:2021,quarter:1,plant:"FizzCo Austin Plant",capacity_util:44.15,yield_pct:93.98,defect_rate:0.98,units_produced:1311677,downtime_hrs:25.1,prod_cost:548606.26,cost_per_unit:0.452,delayed_batches:1,recalled_batches:0},
+            {year:2021,quarter:1,plant:"FizzCo Chicago Plant",capacity_util:66.99,yield_pct:95.17,defect_rate:1.02,units_produced:667058,downtime_hrs:14.0,prod_cost:160621.10,cost_per_unit:0.260,delayed_batches:0,recalled_batches:0},
+            {year:2021,quarter:2,plant:"FizzCo Atlanta Plant",capacity_util:50.05,yield_pct:94.38,defect_rate:0.86,units_produced:679868,downtime_hrs:22.5,prod_cost:329956.61,cost_per_unit:0.460,delayed_batches:3,recalled_batches:0},
+            {year:2021,quarter:2,plant:"FizzCo Austin Plant",capacity_util:51.22,yield_pct:94.87,defect_rate:0.89,units_produced:1163099,downtime_hrs:24.0,prod_cost:563936.26,cost_per_unit:0.434,delayed_batches:2,recalled_batches:0},
+            {year:2021,quarter:2,plant:"FizzCo Chicago Plant",capacity_util:39.30,yield_pct:94.96,defect_rate:0.98,units_produced:566365,downtime_hrs:19.8,prod_cost:141078.69,cost_per_unit:0.258,delayed_batches:1,recalled_batches:0},
+            {year:2021,quarter:3,plant:"FizzCo Atlanta Plant",capacity_util:64.03,yield_pct:94.54,defect_rate:1.14,units_produced:649482,downtime_hrs:22.3,prod_cost:210516.36,cost_per_unit:0.348,delayed_batches:1,recalled_batches:0},
+            {year:2021,quarter:3,plant:"FizzCo Austin Plant",capacity_util:54.51,yield_pct:94.96,defect_rate:0.97,units_produced:762181,downtime_hrs:18.6,prod_cost:319372.36,cost_per_unit:0.430,delayed_batches:2,recalled_batches:0},
+            {year:2021,quarter:3,plant:"FizzCo Chicago Plant",capacity_util:49.41,yield_pct:93.93,defect_rate:1.00,units_produced:646681,downtime_hrs:35.3,prod_cost:136130.98,cost_per_unit:0.248,delayed_batches:4,recalled_batches:0},
+            {year:2021,quarter:4,plant:"FizzCo Atlanta Plant",capacity_util:43.77,yield_pct:96.07,defect_rate:0.97,units_produced:744050,downtime_hrs:30.8,prod_cost:294441.14,cost_per_unit:0.411,delayed_batches:3,recalled_batches:0},
+            {year:2021,quarter:4,plant:"FizzCo Austin Plant",capacity_util:51.32,yield_pct:93.31,defect_rate:1.05,units_produced:833749,downtime_hrs:13.1,prod_cost:432865.44,cost_per_unit:0.471,delayed_batches:1,recalled_batches:0},
+            {year:2021,quarter:4,plant:"FizzCo Chicago Plant",capacity_util:51.34,yield_pct:95.10,defect_rate:0.95,units_produced:726374,downtime_hrs:15.5,prod_cost:187849.52,cost_per_unit:0.272,delayed_batches:0,recalled_batches:0},
+            {year:2022,quarter:1,plant:"FizzCo Atlanta Plant",capacity_util:45.96,yield_pct:95.43,defect_rate:1.06,units_produced:916654,downtime_hrs:27.4,prod_cost:398393.05,cost_per_unit:0.449,delayed_batches:1,recalled_batches:0},
+            {year:2022,quarter:1,plant:"FizzCo Austin Plant",capacity_util:47.57,yield_pct:95.85,defect_rate:0.91,units_produced:1072875,downtime_hrs:20.2,prod_cost:395933.35,cost_per_unit:0.350,delayed_batches:2,recalled_batches:0},
+            {year:2022,quarter:1,plant:"FizzCo Chicago Plant",capacity_util:45.82,yield_pct:94.65,defect_rate:1.16,units_produced:606446,downtime_hrs:13.8,prod_cost:167681.54,cost_per_unit:0.293,delayed_batches:0,recalled_batches:0},
+            {year:2022,quarter:2,plant:"FizzCo Atlanta Plant",capacity_util:43.82,yield_pct:96.62,defect_rate:1.02,units_produced:1062975,downtime_hrs:54.9,prod_cost:426236.54,cost_per_unit:0.430,delayed_batches:6,recalled_batches:0},
+            {year:2022,quarter:2,plant:"FizzCo Austin Plant",capacity_util:46.91,yield_pct:94.86,defect_rate:0.95,units_produced:1237471,downtime_hrs:31.9,prod_cost:398352.22,cost_per_unit:0.325,delayed_batches:2,recalled_batches:0},
+            {year:2022,quarter:2,plant:"FizzCo Chicago Plant",capacity_util:52.04,yield_pct:94.64,defect_rate:0.91,units_produced:762732,downtime_hrs:16.9,prod_cost:221467.75,cost_per_unit:0.299,delayed_batches:1,recalled_batches:0},
+            {year:2022,quarter:3,plant:"FizzCo Atlanta Plant",capacity_util:45.02,yield_pct:94.38,defect_rate:0.99,units_produced:1224010,downtime_hrs:45.8,prod_cost:570441.90,cost_per_unit:0.456,delayed_batches:6,recalled_batches:0},
+            {year:2022,quarter:3,plant:"FizzCo Austin Plant",capacity_util:60.34,yield_pct:95.63,defect_rate:0.94,units_produced:1993818,downtime_hrs:40.9,prod_cost:778836.11,cost_per_unit:0.384,delayed_batches:3,recalled_batches:0},
+            {year:2022,quarter:3,plant:"FizzCo Chicago Plant",capacity_util:61.74,yield_pct:94.62,defect_rate:1.22,units_produced:277763,downtime_hrs:4.7,prod_cost:108809.66,cost_per_unit:0.368,delayed_batches:0,recalled_batches:0},
+            {year:2022,quarter:4,plant:"FizzCo Atlanta Plant",capacity_util:51.99,yield_pct:94.40,defect_rate:1.02,units_produced:871884,downtime_hrs:36.6,prod_cost:435777.00,cost_per_unit:0.481,delayed_batches:5,recalled_batches:0},
+            {year:2022,quarter:4,plant:"FizzCo Austin Plant",capacity_util:56.36,yield_pct:94.99,defect_rate:1.00,units_produced:1663154,downtime_hrs:57.0,prod_cost:633951.92,cost_per_unit:0.363,delayed_batches:6,recalled_batches:0},
+            {year:2022,quarter:4,plant:"FizzCo Chicago Plant",capacity_util:42.13,yield_pct:94.83,defect_rate:0.98,units_produced:549546,downtime_hrs:13.0,prod_cost:164130.57,cost_per_unit:0.310,delayed_batches:0,recalled_batches:0},
+            {year:2023,quarter:1,plant:"FizzCo Atlanta Plant",capacity_util:53.38,yield_pct:95.40,defect_rate:0.94,units_produced:299292,downtime_hrs:6.5,prod_cost:101381.21,cost_per_unit:0.326,delayed_batches:0,recalled_batches:0},
+            {year:2023,quarter:1,plant:"FizzCo Austin Plant",capacity_util:53.23,yield_pct:95.05,defect_rate:0.94,units_produced:1992943,downtime_hrs:62.4,prod_cost:820971.05,cost_per_unit:0.425,delayed_batches:5,recalled_batches:0},
+            {year:2023,quarter:1,plant:"FizzCo Chicago Plant",capacity_util:33.30,yield_pct:95.02,defect_rate:1.04,units_produced:537193,downtime_hrs:16.3,prod_cost:170440.67,cost_per_unit:0.300,delayed_batches:0,recalled_batches:0},
+            {year:2023,quarter:2,plant:"FizzCo Atlanta Plant",capacity_util:47.89,yield_pct:96.13,defect_rate:0.96,units_produced:850638,downtime_hrs:20.2,prod_cost:260775.40,cost_per_unit:0.321,delayed_batches:1,recalled_batches:0},
+            {year:2023,quarter:2,plant:"FizzCo Austin Plant",capacity_util:56.61,yield_pct:94.94,defect_rate:0.98,units_produced:1414675,downtime_hrs:33.7,prod_cost:636056.50,cost_per_unit:0.449,delayed_batches:4,recalled_batches:0},
+            {year:2023,quarter:2,plant:"FizzCo Chicago Plant",capacity_util:45.87,yield_pct:95.65,defect_rate:0.99,units_produced:883258,downtime_hrs:17.8,prod_cost:362678.30,cost_per_unit:0.351,delayed_batches:0,recalled_batches:0},
+            {year:2023,quarter:3,plant:"FizzCo Atlanta Plant",capacity_util:44.52,yield_pct:94.32,defect_rate:0.89,units_produced:808123,downtime_hrs:30.1,prod_cost:311058.28,cost_per_unit:0.357,delayed_batches:2,recalled_batches:0},
+            {year:2023,quarter:3,plant:"FizzCo Austin Plant",capacity_util:52.11,yield_pct:94.76,defect_rate:1.05,units_produced:1706568,downtime_hrs:49.1,prod_cost:757911.02,cost_per_unit:0.436,delayed_batches:4,recalled_batches:0},
+            {year:2023,quarter:3,plant:"FizzCo Chicago Plant",capacity_util:47.84,yield_pct:94.25,defect_rate:1.01,units_produced:709613,downtime_hrs:21.8,prod_cost:301983.53,cost_per_unit:0.324,delayed_batches:1,recalled_batches:0},
+            {year:2023,quarter:4,plant:"FizzCo Atlanta Plant",capacity_util:50.16,yield_pct:96.19,defect_rate:0.96,units_produced:460930,downtime_hrs:7.5,prod_cost:139816.60,cost_per_unit:0.307,delayed_batches:0,recalled_batches:0},
+            {year:2023,quarter:4,plant:"FizzCo Austin Plant",capacity_util:50.03,yield_pct:94.21,defect_rate:1.11,units_produced:1731506,downtime_hrs:40.3,prod_cost:726229.74,cost_per_unit:0.421,delayed_batches:3,recalled_batches:0},
+            {year:2023,quarter:4,plant:"FizzCo Chicago Plant",capacity_util:62.83,yield_pct:95.43,defect_rate:0.91,units_produced:1475228,downtime_hrs:37.5,prod_cost:609979.25,cost_per_unit:0.440,delayed_batches:2,recalled_batches:0},
+            {year:2024,quarter:1,plant:"FizzCo Atlanta Plant",capacity_util:42.60,yield_pct:95.60,defect_rate:1.26,units_produced:85268,downtime_hrs:2.4,prod_cost:38856.03,cost_per_unit:0.453,delayed_batches:0,recalled_batches:0},
+            {year:2024,quarter:1,plant:"FizzCo Austin Plant",capacity_util:55.29,yield_pct:95.88,defect_rate:0.90,units_produced:3289898,downtime_hrs:62.1,prod_cost:1122277.63,cost_per_unit:0.330,delayed_batches:5,recalled_batches:0},
+            {year:2024,quarter:1,plant:"FizzCo Chicago Plant",capacity_util:54.49,yield_pct:94.39,defect_rate:0.87,units_produced:593345,downtime_hrs:16.1,prod_cost:350720.04,cost_per_unit:0.586,delayed_batches:1,recalled_batches:0},
+            {year:2024,quarter:2,plant:"FizzCo Atlanta Plant",capacity_util:46.37,yield_pct:93.33,defect_rate:1.05,units_produced:220135,downtime_hrs:5.4,prod_cost:100633.00,cost_per_unit:0.456,delayed_batches:0,recalled_batches:0},
+            {year:2024,quarter:2,plant:"FizzCo Austin Plant",capacity_util:51.13,yield_pct:94.17,defect_rate:0.96,units_produced:2034768,downtime_hrs:31.2,prod_cost:693450.64,cost_per_unit:0.353,delayed_batches:2,recalled_batches:0},
+            {year:2024,quarter:2,plant:"FizzCo Chicago Plant",capacity_util:58.55,yield_pct:95.63,defect_rate:1.01,units_produced:1046064,downtime_hrs:30.0,prod_cost:577535.21,cost_per_unit:0.558,delayed_batches:2,recalled_batches:0},
+            {year:2024,quarter:3,plant:"FizzCo Atlanta Plant",capacity_util:48.10,yield_pct:94.17,defect_rate:0.76,units_produced:393677,downtime_hrs:6.1,prod_cost:186534.37,cost_per_unit:0.478,delayed_batches:0,recalled_batches:0},
+            {year:2024,quarter:3,plant:"FizzCo Austin Plant",capacity_util:52.19,yield_pct:94.87,defect_rate:1.02,units_produced:3742509,downtime_hrs:81.1,prod_cost:1281700.75,cost_per_unit:0.345,delayed_batches:2,recalled_batches:0},
+            {year:2024,quarter:3,plant:"FizzCo Chicago Plant",capacity_util:52.08,yield_pct:95.52,defect_rate:1.04,units_produced:968584,downtime_hrs:21.5,prod_cost:546514.13,cost_per_unit:0.563,delayed_batches:1,recalled_batches:0},
+            {year:2024,quarter:4,plant:"FizzCo Atlanta Plant",capacity_util:14.35,yield_pct:93.10,defect_rate:0.82,units_produced:28744,downtime_hrs:1.9,prod_cost:13617.57,cost_per_unit:0.472,delayed_batches:0,recalled_batches:0},
+            {year:2024,quarter:4,plant:"FizzCo Austin Plant",capacity_util:54.75,yield_pct:94.67,defect_rate:1.02,units_produced:2728188,downtime_hrs:47.8,prod_cost:1046291.72,cost_per_unit:0.363,delayed_batches:3,recalled_batches:0},
+            {year:2024,quarter:4,plant:"FizzCo Chicago Plant",capacity_util:35.04,yield_pct:94.96,defect_rate:0.93,units_produced:261928,downtime_hrs:8.7,prod_cost:148904.80,cost_per_unit:0.592,delayed_batches:0,recalled_batches:0},
+            {year:2025,quarter:1,plant:"FizzCo Atlanta Plant",capacity_util:62.60,yield_pct:93.97,defect_rate:1.39,units_produced:254652,downtime_hrs:5.1,prod_cost:78696.27,cost_per_unit:0.312,delayed_batches:0,recalled_batches:0},
+            {year:2025,quarter:1,plant:"FizzCo Austin Plant",capacity_util:55.18,yield_pct:96.06,defect_rate:1.05,units_produced:1579609,downtime_hrs:30.6,prod_cost:585662.88,cost_per_unit:0.383,delayed_batches:2,recalled_batches:0},
+            {year:2025,quarter:1,plant:"FizzCo Chicago Plant",capacity_util:48.68,yield_pct:96.16,defect_rate:1.05,units_produced:1701341,downtime_hrs:48.1,prod_cost:783623.77,cost_per_unit:0.434,delayed_batches:3,recalled_batches:0},
+            {year:2025,quarter:2,plant:"FizzCo Atlanta Plant",capacity_util:42.40,yield_pct:92.73,defect_rate:0.87,units_produced:206907,downtime_hrs:4.8,prod_cost:65446.37,cost_per_unit:0.317,delayed_batches:0,recalled_batches:0},
+            {year:2025,quarter:2,plant:"FizzCo Austin Plant",capacity_util:52.64,yield_pct:95.73,defect_rate:1.06,units_produced:1774828,downtime_hrs:40.8,prod_cost:704950.76,cost_per_unit:0.399,delayed_batches:5,recalled_batches:0},
+            {year:2025,quarter:2,plant:"FizzCo Chicago Plant",capacity_util:40.88,yield_pct:94.62,defect_rate:0.98,units_produced:1203212,downtime_hrs:49.0,prod_cost:512092.80,cost_per_unit:0.432,delayed_batches:2,recalled_batches:0},
+            {year:2025,quarter:3,plant:"FizzCo Atlanta Plant",capacity_util:54.97,yield_pct:94.07,defect_rate:1.21,units_produced:193923,downtime_hrs:4.4,prod_cost:61486.43,cost_per_unit:0.315,delayed_batches:0,recalled_batches:0},
+            {year:2025,quarter:3,plant:"FizzCo Austin Plant",capacity_util:51.12,yield_pct:95.44,defect_rate:0.90,units_produced:2224080,downtime_hrs:49.5,prod_cost:763000.55,cost_per_unit:0.369,delayed_batches:2,recalled_batches:0},
+            {year:2025,quarter:3,plant:"FizzCo Chicago Plant",capacity_util:50.84,yield_pct:94.74,defect_rate:1.02,units_produced:1623760,downtime_hrs:33.5,prod_cost:650654.42,cost_per_unit:0.375,delayed_batches:0,recalled_batches:0},
+            {year:2025,quarter:4,plant:"FizzCo Atlanta Plant",capacity_util:43.60,yield_pct:94.40,defect_rate:1.14,units_produced:270532,downtime_hrs:5.0,prod_cost:88001.52,cost_per_unit:0.328,delayed_batches:0,recalled_batches:0},
+            {year:2025,quarter:4,plant:"FizzCo Austin Plant",capacity_util:54.81,yield_pct:95.48,defect_rate:1.10,units_produced:2360669,downtime_hrs:43.2,prod_cost:966766.39,cost_per_unit:0.397,delayed_batches:3,recalled_batches:0},
+            {year:2025,quarter:4,plant:"FizzCo Chicago Plant",capacity_util:47.87,yield_pct:94.86,defect_rate:0.95,units_produced:1439086,downtime_hrs:48.6,prod_cost:571318.59,cost_per_unit:0.395,delayed_batches:3,recalled_batches:0}
+        ];
+
+        // Chart instances
+        let charts = {};
+
+        // Color scheme
+        const colors = {
+            primary: '#7CB701',
+            secondary: '#95D600',
+            atlanta: '#FF6B6B',
+            austin: '#4ECDC4',
+            chicago: '#FFE66D',
+            danger: '#FF4444',
+            warning: '#FFB800',
+            success: '#7CB701',
+            textLight: '#9B999B',
+            cardBg: '#1A1A1A'
+        };
+
+        // Filter data
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const quarter = document.getElementById('quarterFilter').value;
+            const plant = document.getElementById('plantFilter').value;
+
+            return prodData.filter(row => {
+                const yearMatch = !year || row.year == year;
+                const quarterMatch = !quarter || row.quarter == quarter;
+                const plantMatch = !plant || row.plant === plant;
+                return yearMatch && quarterMatch && plantMatch;
+            });
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                document.getElementById('kpiCapacity').textContent = '--';
+                document.getElementById('kpiYield').textContent = '--';
+                document.getElementById('kpiDefect').textContent = '--';
+                document.getElementById('kpiUnits').textContent = '--';
+                document.getElementById('kpiDowntime').textContent = '--';
+                return;
+            }
+
+            const avgCapacity = (filtered.reduce((sum, r) => sum + r.capacity_util, 0) / filtered.length).toFixed(2);
+            const avgYield = (filtered.reduce((sum, r) => sum + r.yield_pct, 0) / filtered.length).toFixed(2);
+            const avgDefect = (filtered.reduce((sum, r) => sum + r.defect_rate, 0) / filtered.length).toFixed(2);
+            const totalUnits = filtered.reduce((sum, r) => sum + r.units_produced, 0);
+            const totalDowntime = (filtered.reduce((sum, r) => sum + r.downtime_hrs, 0)).toFixed(1);
+
+            document.getElementById('kpiCapacity').textContent = avgCapacity + '%';
+            document.getElementById('kpiYield').textContent = avgYield + '%';
+            document.getElementById('kpiDefect').textContent = avgDefect + '%';
+            document.getElementById('kpiUnits').textContent = totalUnits.toLocaleString();
+            document.getElementById('kpiDowntime').textContent = totalDowntime;
+        }
+
+        // Generate production efficiency insights
+        function generateProductionInsights() {
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '';
+                document.getElementById('focusAreas').innerHTML = '';
+                return;
+            }
+
+            // Calculate metrics
+            const avgCapacity = filtered.reduce((sum, row) => sum + row.capacity_util, 0) / filtered.length;
+            const capacityHealthy = avgCapacity > 85;
+            const avgYield = filtered.reduce((sum, row) => sum + row.yield_pct, 0) / filtered.length;
+            const avgDefect = filtered.reduce((sum, row) => sum + row.defect_rate, 0) / filtered.length;
+            const totalUnits = filtered.reduce((sum, row) => sum + row.units_produced, 0);
+            const totalDowntime = filtered.reduce((sum, row) => sum + row.downtime_hrs, 0);
+            const totalDelayedBatches = filtered.reduce((sum, row) => sum + row.delayed_batches, 0);
+            const totalRecalledBatches = filtered.reduce((sum, row) => sum + row.recalled_batches, 0);
+
+            // Plant performance analysis
+            const plants = {};
+            filtered.forEach(row => {
+                if (!plants[row.plant]) {
+                    plants[row.plant] = { capacity_util: 0, defect_rate: 0, downtime_hrs: 0, count: 0 };
+                }
+                plants[row.plant].capacity_util += row.capacity_util;
+                plants[row.plant].defect_rate += row.defect_rate;
+                plants[row.plant].downtime_hrs += row.downtime_hrs;
+                plants[row.plant].count += 1;
+            });
+
+            Object.keys(plants).forEach(key => {
+                plants[key].capacity_util = plants[key].capacity_util / plants[key].count;
+                plants[key].defect_rate = plants[key].defect_rate / plants[key].count;
+            });
+
+            const plantNames = Object.keys(plants);
+            const worstPlant = plantNames.reduce((prev, current) =>
+                plants[current].defect_rate > plants[prev].defect_rate ? current : prev
+            );
+
+            // Trend analysis
+            const firstHalf = filtered.slice(0, Math.ceil(filtered.length / 2));
+            const secondHalf = filtered.slice(Math.ceil(filtered.length / 2));
+            const firstAvgDefect = firstHalf.reduce((sum, d) => sum + d.defect_rate, 0) / firstHalf.length;
+            const secondAvgDefect = secondHalf.reduce((sum, d) => sum + d.defect_rate, 0) / secondHalf.length;
+            const defectTrend = secondAvgDefect > firstAvgDefect ? 'worsening' : 'improving';
+
+            let insights = `
+                <div style="margin-left:20px;">
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Average capacity utilization: ${avgCapacity.toFixed(1)}% (${capacityHealthy ? 'meeting >85% target' : 'below target'})</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Yield rate evaluation: ${avgYield.toFixed(2)}% average (good efficiency indicator)</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Defect rate trend: ${defectTrend} (${firstAvgDefect.toFixed(2)}% → ${secondAvgDefect.toFixed(2)}%)</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Plant-level performance: ${worstPlant} has highest defect rate at ${plants[worstPlant].defect_rate.toFixed(2)}%</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Total downtime impact: ${totalDowntime.toFixed(1)} hours across all plants (${totalDelayedBatches} delayed batches)</div>
+                </div>
+            `;
+
+            let focusItems = [];
+            if (!capacityHealthy) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Capacity utilization below 85% - review production scheduling and demand forecasting</div>');
+            }
+            if (secondAvgDefect > firstAvgDefect) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Defect rate worsening - investigate quality control and maintenance issues</div>');
+            }
+            if (avgDefect > 3) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> High defect rate above 3% - accelerate quality improvement initiatives</div>');
+            }
+            if (totalDowntime > 100) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Excessive downtime impacting production - prioritize equipment maintenance</div>');
+            }
+            if (totalRecalledBatches > 2) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Multiple batch recalls - strengthen quality assurance processes</div>');
+            }
+
+            if (focusItems.length === 0) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#7CB701;">✓</span> Production efficiency within acceptable ranges - maintain current operations</div>');
+            }
+
+            document.getElementById('insightsContent').innerHTML = insights;
+            document.getElementById('focusAreas').innerHTML = focusItems.join('');
+        }
+
+        // Update all charts
+        function updateCharts() {
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="11" style="text-align:center; padding:20px; color:#9B999B;">No data available for selected filters</td></tr>';
+                return;
+            }
+
+            updateKPIs();
+            updateUnitsChart(filtered);
+            updateCapacityChart(filtered);
+            updateYieldChart(filtered);
+            updateDefectChart(filtered);
+            updateCostChart(filtered);
+            updateDowntimeChart(filtered);
+            updateDelayedChart(filtered);
+            updateTable(filtered);
+            generateProductionInsights();
+        }
+
+        // Units Produced Trend
+        function updateUnitsChart(data) {
+            const quarterLabels = ['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4',
+                                  '2022-Q1', '2022-Q2', '2022-Q3', '2022-Q4', '2023-Q1', '2023-Q2', '2023-Q3', '2023-Q4',
+                                  '2024-Q1', '2024-Q2', '2024-Q3', '2024-Q4', '2025-Q1', '2025-Q2', '2025-Q3', '2025-Q4'];
+
+            const atlantaData = quarterLabels.map(label => {
+                const [y, q] = label.split('-Q');
+                const row = data.find(r => r.year == y && r.quarter == q && r.plant === 'FizzCo Atlanta Plant');
+                return row ? row.units_produced : 0;
+            });
+
+            const austinData = quarterLabels.map(label => {
+                const [y, q] = label.split('-Q');
+                const row = data.find(r => r.year == y && r.quarter == q && r.plant === 'FizzCo Austin Plant');
+                return row ? row.units_produced : 0;
+            });
+
+            const chicagoData = quarterLabels.map(label => {
+                const [y, q] = label.split('-Q');
+                const row = data.find(r => r.year == y && r.quarter == q && r.plant === 'FizzCo Chicago Plant');
+                return row ? row.units_produced : 0;
+            });
+
+            destroyChart('unitsChart');
+            charts.unitsChart = new Chart(document.getElementById('unitsChart'), {
+                type: 'line',
+                data: {
+                    labels: quarterLabels,
+                    datasets: [
+                        {
+                            label: 'Atlanta',
+                            data: atlantaData,
+                            borderColor: colors.atlanta,
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Austin',
+                            data: austinData,
+                            borderColor: colors.austin,
+                            backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Chicago',
+                            data: chicagoData,
+                            borderColor: colors.chicago,
+                            backgroundColor: 'rgba(255, 230, 109, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight, maxRotation: 45, minRotation: 45 } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Capacity Utilization by Plant
+        function updateCapacityChart(data) {
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+            const avgCapacity = plants.map(plant => {
+                const plantData = data.filter(r => r.plant === plant);
+                return plantData.length > 0 ? (plantData.reduce((sum, r) => sum + r.capacity_util, 0) / plantData.length).toFixed(2) : 0;
+            });
+
+            destroyChart('capacityChart');
+            charts.capacityChart = new Chart(document.getElementById('capacityChart'), {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Avg Capacity %',
+                        data: avgCapacity,
+                        backgroundColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Yield % by Plant
+        function updateYieldChart(data) {
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+            const avgYield = plants.map(plant => {
+                const plantData = data.filter(r => r.plant === plant);
+                return plantData.length > 0 ? (plantData.reduce((sum, r) => sum + r.yield_pct, 0) / plantData.length).toFixed(2) : 0;
+            });
+
+            destroyChart('yieldChart');
+            charts.yieldChart = new Chart(document.getElementById('yieldChart'), {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Avg Yield %',
+                        data: avgYield,
+                        backgroundColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Defect Rate Trend
+        function updateDefectChart(data) {
+            const quarterLabels = ['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4',
+                                  '2022-Q1', '2022-Q2', '2022-Q3', '2022-Q4', '2023-Q1', '2023-Q2', '2023-Q3', '2023-Q4',
+                                  '2024-Q1', '2024-Q2', '2024-Q3', '2024-Q4', '2025-Q1', '2025-Q2', '2025-Q3', '2025-Q4'];
+
+            const defectData = quarterLabels.map(label => {
+                const [y, q] = label.split('-Q');
+                const rows = data.filter(r => r.year == y && r.quarter == q);
+                return rows.length > 0 ? (rows.reduce((sum, r) => sum + r.defect_rate, 0) / rows.length).toFixed(2) : 0;
+            });
+
+            destroyChart('defectChart');
+            charts.defectChart = new Chart(document.getElementById('defectChart'), {
+                type: 'line',
+                data: {
+                    labels: quarterLabels,
+                    datasets: [{
+                        label: 'Defect Rate %',
+                        data: defectData,
+                        borderColor: colors.danger,
+                        backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight, maxRotation: 45, minRotation: 45 } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Cost Per Unit by Plant
+        function updateCostChart(data) {
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+            const avgCost = plants.map(plant => {
+                const plantData = data.filter(r => r.plant === plant);
+                return plantData.length > 0 ? (plantData.reduce((sum, r) => sum + r.cost_per_unit, 0) / plantData.length).toFixed(3) : 0;
+            });
+
+            destroyChart('costChart');
+            charts.costChart = new Chart(document.getElementById('costChart'), {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Avg Cost/Unit ($)',
+                        data: avgCost,
+                        backgroundColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Downtime Hours by Plant
+        function updateDowntimeChart(data) {
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+            const totalDowntime = plants.map(plant => {
+                const plantData = data.filter(r => r.plant === plant);
+                return plantData.length > 0 ? plantData.reduce((sum, r) => sum + r.downtime_hrs, 0).toFixed(1) : 0;
+            });
+
+            destroyChart('downtimeChart');
+            charts.downtimeChart = new Chart(document.getElementById('downtimeChart'), {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Total Downtime (hrs)',
+                        data: totalDowntime,
+                        backgroundColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderColor: [colors.atlanta, colors.austin, colors.chicago],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Delayed Batches Trend
+        function updateDelayedChart(data) {
+            const quarterLabels = ['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4',
+                                  '2022-Q1', '2022-Q2', '2022-Q3', '2022-Q4', '2023-Q1', '2023-Q2', '2023-Q3', '2023-Q4',
+                                  '2024-Q1', '2024-Q2', '2024-Q3', '2024-Q4', '2025-Q1', '2025-Q2', '2025-Q3', '2025-Q4'];
+
+            const delayedData = quarterLabels.map(label => {
+                const [y, q] = label.split('-Q');
+                const rows = data.filter(r => r.year == y && r.quarter == q);
+                return rows.length > 0 ? rows.reduce((sum, r) => sum + r.delayed_batches, 0) : 0;
+            });
+
+            destroyChart('delayedChart');
+            charts.delayedChart = new Chart(document.getElementById('delayedChart'), {
+                type: 'bar',
+                data: {
+                    labels: quarterLabels,
+                    datasets: [{
+                        label: 'Delayed Batches',
+                        data: delayedData,
+                        backgroundColor: colors.warning,
+                        borderColor: colors.warning,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: colors.textLight, padding: 15, font: { size: 11, weight: '600' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight, maxRotation: 45, minRotation: 45 } },
+                        y: { grid: { color: '#2A2A2A' }, ticks: { color: colors.textLight } }
+                    }
+                }
+            });
+        }
+
+        // Update Table
+        function updateTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.slice(0, 50).forEach(row => {
+                const tr = document.createElement('tr');
+                const capacityClass = row.capacity_util >= 50 ? 'status-good' : 'status-warning';
+                const yieldClass = row.yield_pct >= 95 ? 'status-good' : 'status-warning';
+                const defectClass = row.defect_rate <= 1.5 ? 'status-good' : 'status-danger';
+
+                tr.innerHTML = `
+                    <td>${row.year}</td>
+                    <td>Q${row.quarter}</td>
+                    <td>${row.plant}</td>
+                    <td class="${capacityClass}">${row.capacity_util.toFixed(2)}%</td>
+                    <td class="${yieldClass}">${row.yield_pct.toFixed(2)}%</td>
+                    <td class="${defectClass}">${row.defect_rate.toFixed(2)}%</td>
+                    <td>${row.units_produced.toLocaleString()}</td>
+                    <td>${row.downtime_hrs.toFixed(1)}</td>
+                    <td>$${row.cost_per_unit.toFixed(3)}</td>
+                    <td>${row.delayed_batches}</td>
+                    <td>${row.recalled_batches}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (data.length > 50) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="11" style="text-align:center; color:#9B999B; padding:15px;">Showing 50 of ${data.length} records</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Destroy chart
+        function destroyChart(canvasId) {
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('yearFilter').addEventListener('change', updateCharts);
+        document.getElementById('quarterFilter').addEventListener('change', updateCharts);
+        document.getElementById('plantFilter').addEventListener('change', updateCharts);
+
+        // Initial load
+        updateCharts();
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04 — Consumption & Market Share | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html" class="active">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Consumption & Market Share <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Tier 3: POS/Scan Data | Weekly, Monthly & Quarterly with Prior Year Comparison</div>
+    <div class="dash-num">04</div>
+</div>
+
+<div class="container">
+
+<!-- KPI CARDS -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- WEEKLY TREND -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Weekly Consumption Sales — FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">52-week overlay showing week-by-week POS/scan sales with prior year comparison</div>
+        <canvas id="weeklyChart" height="70"></canvas>
+    </div>
+</div>
+
+<!-- MONTHLY SECTION -->
+<div class="section-label">Monthly Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Monthly Dollar Sales</h3>
+        <div class="chart-subtitle">POS consumption revenue by fiscal month</div>
+        <canvas id="monthlySalesChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Monthly Cases Sold</h3>
+        <div class="chart-subtitle">Volume comparison by month</div>
+        <canvas id="monthlyCasesChart"></canvas>
+    </div>
+</div>
+
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Monthly Avg Retail Price Trend</h3>
+        <div class="chart-subtitle">Average price per unit by month</div>
+        <canvas id="monthlyPriceChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Monthly Market Share %</h3>
+        <div class="chart-subtitle">FY2025 market share trend</div>
+        <canvas id="monthlyShareChart"></canvas>
+    </div>
+</div>
+
+<!-- CATEGORY & GEO SECTION -->
+<div class="section-label">Product Categories & Geography — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Sales by Category: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Spirit type breakdown with YoY comparison</div>
+        <canvas id="catChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Top 15 States: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">State-level consumption sales</div>
+        <canvas id="stateChart"></canvas>
+    </div>
+</div>
+
+<!-- CHANNEL SECTION -->
+<div class="section-label">Channel & Promotional Analysis — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Sales by Channel Type</h3>
+        <div class="chart-subtitle">Off-Premise consumption dominance</div>
+        <canvas id="channelChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Monthly Promotion Units Trend</h3>
+        <div class="chart-subtitle">Units on vs off promotion by month</div>
+        <canvas id="promoChart"></canvas>
+    </div>
+</div>
+
+<!-- CATEGORY TABLE -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Category Performance Detail — FY2025 vs FY2024</h3>
+    <div class="chart-subtitle">Sales, volume, market share by category with year-over-year change</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Category</th>
+            <th class="num">FY25 Sales</th><th class="num">vs FY24</th>
+            <th class="num">Cases Sold</th><th class="num">vs FY24</th>
+            <th class="num">Market Share %</th>
+        </tr></thead>
+        <tbody id="catTable"></tbody>
+        <tfoot id="catTfoot"></tfoot>
+    </table>
+</div>
+
+<!-- MONTHLY TABLE -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Consumption Detail — FY2025</h3>
+    <div class="chart-subtitle">Sales, cases, pricing, distribution, and market share metrics</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Dollar Sales</th><th class="num">Cases</th>
+            <th class="num">Avg Price</th><th class="num">Market Share %</th>
+            <th class="num">Distribution %</th><th class="num">Velocity</th>
+        </tr></thead>
+        <tbody id="monthTable"></tbody>
+        <tfoot id="monthTfoot"></tfoot>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 04 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+const fy25 = [{m:'Jul',q:1,sales:9269329.34,cases:20979.43,price:33.3746557,share:7.7618764,dist:57.6237928,vel:3.1037712,promo_on:59170,promo_off:203754},{m:'Aug',q:1,sales:7360780.29,cases:16074.22,price:33.6288946,share:7.7653232,dist:57.7453928,vel:2.9674740,promo_on:45708,promo_off:156312},{m:'Sep',q:1,sales:8763218.55,cases:19435.77,price:33.2909464,share:7.7764678,dist:57.1715714,vel:2.9005995,promo_on:53411,promo_off:188119},{m:'Oct',q:2,sales:7512481.79,cases:16228.37,price:33.7022473,share:7.7654919,dist:57.7546607,vel:2.9847041,promo_on:45990,promo_off:158449},{m:'Nov',q:2,sales:8744043.03,cases:19126.24,price:33.4112955,share:7.7190875,dist:57.6337232,vel:3.5392332,promo_on:54401,promo_off:184780},{m:'Dec',q:2,sales:13786606.59,cases:30042.24,price:33.4387314,share:7.7270942,dist:57.5540214,vel:4.4646610,promo_on:88561,promo_off:292192},{m:'Jan',q:3,sales:6094892.23,cases:13479.15,price:33.4323741,share:7.7513785,dist:57.0617142,vel:2.5027297,promo_on:36893,promo_off:130557},{m:'Feb',q:3,sales:6042699.01,cases:13199.39,price:33.5447214,share:7.7880482,dist:57.1065357,vel:2.4779169,promo_on:35636,promo_off:129481},{m:'Mar',q:3,sales:8524931.90,cases:18359.31,price:33.5063885,share:7.7645721,dist:57.4999357,vel:2.7240552,promo_on:50554,promo_off:178200},{m:'Apr',q:4,sales:7014487.66,cases:15270.95,price:33.3634241,share:7.7856750,dist:57.5079553,vel:2.8553711,promo_on:42387,promo_off:148168},{m:'May',q:4,sales:7755986.23,cases:16654.62,price:33.4302232,share:7.7285857,dist:57.5299375,vel:3.0901578,promo_on:46901,promo_off:161935},{m:'Jun',q:4,sales:9879557.51,cases:21092.58,price:33.8547321,share:7.7167092,dist:57.4704428,vel:3.1228711,promo_on:59080,promo_off:204432}];
+const fy24 = [{m:'Jul',sales:8582256.78,cases:19622.62,price:33.5147892,share:7.7242528,dist:57.6747642,vel:2.9003162,promo_on:54293,promo_off:190071},{m:'Aug',sales:6766537.58,cases:15224.51,price:33.4132946,share:7.7773955,dist:57.4384732,vel:2.8296886,promo_on:41447,promo_off:147281},{m:'Sep',sales:6289957.31,cases:14358.43,price:33.1677160,share:7.6934178,dist:57.6155714,vel:2.6750124,promo_on:39677,promo_off:140821},{m:'Oct',sales:8524765.06,cases:19058.13,price:33.4674285,share:7.7632321,dist:57.4030142,vel:2.8090280,promo_on:53176,promo_off:185692},{m:'Nov',sales:7839730.12,cases:17728.14,price:33.2478991,share:7.8036687,dist:57.3080982,vel:3.2878446,promo_on:50623,promo_off:172578},{m:'Dec',sales:9873031.54,cases:22243.70,price:33.4943830,share:7.7470500,dist:57.6342053,vel:4.0966268,promo_on:64029,promo_off:214775},{m:'Jan',sales:6990116.76,cases:15782.89,price:33.3101650,share:7.7679092,dist:57.7025071,vel:2.3307398,promo_on:42393,promo_off:154597},{m:'Feb',sales:5603988.19,cases:12473.52,price:33.3925178,share:7.7359000,dist:57.7043571,vel:2.2958756,promo_on:33091,promo_off:120997},{m:'Mar',sales:6089553.91,cases:13721.58,price:33.3838339,share:7.7364714,dist:57.5078303,vel:2.5501000,promo_on:37932,promo_off:134734},{m:'Apr',sales:8106031.06,cases:17796.77,price:33.6938150,share:7.7465692,dist:57.6380785,vel:2.6040992,promo_on:49315,promo_off:175131},{m:'May',sales:7210736.48,cases:15613.38,price:33.4711553,share:7.7060821,dist:57.5561785,vel:2.8960916,promo_on:43743,promo_off:152707},{m:'Jun',sales:7013112.49,cases:15894.76,price:33.3837767,share:7.7760589,dist:57.2955357,vel:2.9431541,promo_on:44008,promo_off:154624}];
+const wk25=[2737366.94,1520137.23,1457753.69,1604778.38,1512222.93,1521856.70,1484258.64,1543515.44,1493068.23,1684525.16,1708544.00,1728980.10,1730312.10,1672570.54,1746678.63,1751947.72,1741881.88,1773979.43,1915405.41,1928190.20,1958205.78,1954184.84,2048729.25,1922335.76,2005602.90,2021213.83,3690190.98,1987340.25,1763452.62,1882984.43,1827036.83,1913270.40,1763495.89,1857049.29,1826964.71,1856378.15,1743165.76,1717129.17,1756855.48,1689689.99,1898975.37,1991445.14,1799092.10,1822969.18,2111819.51,2197239.52,2222385.62,2212598.38,2639622.65,2865098.19,2766318.11,2778200.70];
+const wk24=[1371876.77,1419582.90,1420809.05,1339040.43,1438807.61,1421808.26,1346881.03,1435875.08,1399423.82,1512730.57,1583922.97,1474424.01,1518476.36,1669340.40,1539543.66,1569910.07,1622720.98,1704515.95,1808646.72,1891533.38,1822524.60,1688031.78,1736479.05,1682888.33,1801776.85,1791968.26,1666431.29,1776114.28,1694664.80,1734352.30,1710694.11,1695010.25,1636580.34,1722368.14,1712578.85,1559686.71,1584636.98,1479722.99,1665910.63,1713797.31,1719522.61,1611411.05,1689009.99,1791024.10,1933379.84,1930450.87,1902375.65,2073523.76,2487849.10,2577338.84,2392746.64,2415096.96];
+const catData = [{n:'Scotch Whisky',fy25:24409421.72,fy24:21597378.33,c25:33789.82,c24:30132.00,share:7.7290219},{n:'Premium Tequila',fy25:21523336.11,fy24:17702354.32,c25:25159.39,c24:20769.08,share:7.7695712},{n:'Canadian Whisky',fy25:17109252.17,fy24:15230760.08,c25:36652.56,c24:32747.51,share:7.7111819},{n:'Ultra-Premium Tequila',fy25:8629296.21,fy24:7373343.37,c25:14003.49,c24:12049.29,share:7.8094394},{n:'Bourbon',fy25:5488746.75,fy24:4880714.02,c25:12724.69,c24:11334.78,share:7.7164704},{n:'Premium Vodka',fy25:5340558.24,fy24:5254047.45,c25:32046.12,c24:31509.95,share:7.7892876},{n:'Ultra-Premium Vodka',fy25:4827474.94,fy24:4414418.74,c25:12885.81,c24:11780.88,share:7.8082761},{n:'Spiced Rum',fy25:4266376.00,fy24:4090528.48,c25:21118.51,c24:20283.98,share:7.7375194},{n:'Super-Premium Vodka',fy25:3366848.08,fy24:3080423.79,c25:10926.44,c24:10015.46,share:7.7394996},{n:'Premium Gin',fy25:3358265.66,fy24:3055017.02,c25:10452.49,c24:9538.85,share:7.7997529},{n:'Cream Liqueur',fy25:2234740.01,fy24:2022301.74,c25:8463.77,c24:7680.84,share:7.7345863},{n:'Stout',fy25:194698.24,fy24:188529.94,c25:1719.18,c24:1675.81,share:7.6690842}];
+const stData = [{s:'California',fy25:12555754.42,fy24:10915247.35},{s:'Texas',fy25:9343898.09,fy24:7922866.38},{s:'Florida',fy25:6450935.15,fy24:6072868.27},{s:'New York',fy25:6164215.62,fy24:5531777.25},{s:'Illinois',fy25:3951339.69,fy24:3398899.52},{s:'Pennsylvania',fy25:3910958.56,fy24:3559571.43},{s:'Ohio',fy25:3571269.58,fy24:3150687.26},{s:'Georgia',fy25:3386965.45,fy24:2945101.17},{s:'Michigan',fy25:3283240.30,fy24:2691605.86},{s:'North Carolina',fy25:3192490.17,fy24:2829027.52},{s:'New Jersey',fy25:2786027.80,fy24:2517605.01},{s:'Virginia',fy25:2577764.55,fy24:2331071.40},{s:'Washington',fy25:2254558.68,fy24:1962712.62},{s:'Tennessee',fy25:2152194.65,fy24:1834286.94},{s:'Arizona',fy25:2149769.38,fy24:1937470.32}];
+const chData = [{n:'Off-Premise',sales:100749014.13,share:7.7537351}];
+const totalSales25 = fy25.reduce((a,m)=>a+m.sales,0);
+const totalSales24 = fy24.reduce((a,m)=>a+m.sales,0);
+const totalCases25 = fy25.reduce((a,m)=>a+m.cases,0);
+const totalCases24 = fy24.reduce((a,m)=>a+m.cases,0);
+const avgPrice25 = totalSales25/totalCases25;
+const avgPrice24 = totalSales24/totalCases24;
+const avgShare25 = (fy25.reduce((a,m)=>a+m.share,0)/12);
+const avgDist25 = (fy25.reduce((a,m)=>a+m.dist,0)/12);
+const avgVel25 = (fy25.reduce((a,m)=>a+m.vel,0)/12);
+
+function renderKPIs(){const maxSales=Math.max(...fy25.map(m=>m.sales));const maxCases=Math.max(...fy25.map(m=>m.cases));const html=`<div class="kpi-card"><div class="label">Dollar Sales</div><div class="value">${fmt$(totalSales25)}</div><div class="change positive">+${pct(totalSales25,totalSales24)}% YoY</div><div class="sparkline-row">${fy25.map(m=>`<div class="sparkline-row bar ${m.sales===maxSales?'peak':''}"></div>`).join('')}</div></div><div class="kpi-card"><div class="label">Cases Sold</div><div class="value">${fmtK(totalCases25)}</div><div class="change positive">+${pct(totalCases25,totalCases24)}% YoY</div><div class="sparkline-row">${fy25.map(m=>`<div class="sparkline-row bar ${m.cases===maxCases?'peak':''}"></div>`).join('')}</div></div><div class="kpi-card"><div class="label">Avg Retail Price</div><div class="value">$${avgPrice25.toFixed(2)}</div><div class="change">Per unit</div><div class="sub-value">vs $${avgPrice24.toFixed(2)} PY</div></div><div class="kpi-card"><div class="label">Avg Market Share</div><div class="value">${avgShare25.toFixed(2)}%</div><div class="change">Category average</div><div class="sub-value">of total category</div></div><div class="kpi-card"><div class="label">Avg Distribution</div><div class="value">${avgDist25.toFixed(1)}%</div><div class="change">Weighted %</div><div class="sub-value">points of sale</div></div><div class="kpi-card"><div class="label">Avg Velocity</div><div class="value">${avgVel25.toFixed(2)}</div><div class="change">Units per point</div><div class="sub-value">per period</div></div>`;document.getElementById('kpiRow').innerHTML=html;}
+
+function renderWeeklyChart(){new Chart(document.getElementById('weeklyChart'),{type:'line',data:{labels:Array.from({length:52},((_,i)=>i+1)),datasets:[{label:'FY2025',data:wk25,borderColor:G,backgroundColor:'rgba(212,168,67,0.05)',tension:0.3,fill:true,pointRadius:0},{label:'FY2024',data:wk24,borderColor:PY,backgroundColor:'transparent',borderDash:[5,5],tension:0.3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'top'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmt$(v)}}}}});}
+
+function renderMonthlySalesChart(){new Chart(document.getElementById('monthlySalesChart'),{type:'bar',data:{labels:months,datasets:[{label:'FY2025',data:fy25.map(m=>m.sales),backgroundColor:G},{label:'FY2024',data:fy24.map(m=>m.sales),backgroundColor:PY}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>fmt$(v)}}}}});}
+
+function renderMonthlyCasesChart(){new Chart(document.getElementById('monthlyCasesChart'),{type:'bar',data:{labels:months,datasets:[{label:'FY2025',data:fy25.map(m=>m.cases),backgroundColor:G},{label:'FY2024',data:fy24.map(m=>m.cases),backgroundColor:PY}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>fmtK(v)}}}}});}
+
+function renderMonthlyPriceChart(){new Chart(document.getElementById('monthlyPriceChart'),{type:'line',data:{labels:months,datasets:[{label:'FY2025',data:fy25.map(m=>m.price),borderColor:G,fill:false,tension:0.3},{label:'FY2024',data:fy24.map(m=>m.price),borderColor:PY,borderDash:[5,5],fill:false,tension:0.3}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>'$'+v.toFixed(2)}}}}});}
+
+function renderMonthlyShareChart(){new Chart(document.getElementById('monthlyShareChart'),{type:'line',data:{labels:months,datasets:[{label:'Market Share %',data:fy25.map(m=>m.share),borderColor:G,fill:false,tension:0.3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v.toFixed(2)+'%'}}}}});}
+
+function renderCatChart(){new Chart(document.getElementById('catChart'),{type:'bar',data:{labels:catData.map(d=>d.n.substring(0,18)),datasets:[{label:'FY2025',data:catData.map(d=>d.fy25),backgroundColor:G},{label:'FY2024',data:catData.map(d=>d.fy24),backgroundColor:PY}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>fmt$(v)}}}}});}
+
+function renderStateChart(){new Chart(document.getElementById('stateChart'),{type:'bar',data:{labels:stData.map(d=>d.s),datasets:[{label:'FY2025',data:stData.map(d=>d.fy25),backgroundColor:G},{label:'FY2024',data:stData.map(d=>d.fy24),backgroundColor:PY}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:true}},scales:{x:{ticks:{callback:v=>fmt$(v)}}}}});}
+
+function renderChannelChart(){new Chart(document.getElementById('channelChart'),{type:'bar',data:{labels:chData.map(d=>d.n),datasets:[{label:'Sales',data:chData.map(d=>d.sales),backgroundColor:G}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt$(v)}}}}});}
+
+function renderPromoChart(){new Chart(document.getElementById('promoChart'),{type:'bar',data:{labels:months,datasets:[{label:'On Promotion',data:fy25.map(m=>m.promo_on),backgroundColor:'rgba(212,168,67,0.8)'},{label:'Off Promotion',data:fy25.map(m=>m.promo_off),backgroundColor:'rgba(212,168,67,0.3)'}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{stacked:true,ticks:{callback:v=>fmtK(v)}}}}});}
+
+function renderCatTable(){let total={sales25:0,sales24:0,cases25:0,cases24:0};let html=catData.map(d=>{total.sales25+=d.fy25;total.sales24+=d.fy24;total.cases25+=d.c25;total.cases24+=d.c24;return `<tr><td>${d.n}</td><td class="num">${fmt$(d.fy25)}</td><td class="num ${d.fy25>d.fy24?'pos':'neg'}">${pct(d.fy25,d.fy24)}%</td><td class="num">${fmtK(d.c25)}</td><td class="num ${d.c25>d.c24?'pos':'neg'}">${pct(d.c25,d.c24)}%</td><td class="num">${d.share.toFixed(2)}%</td></tr>`;}).join('');document.getElementById('catTable').innerHTML=html;document.getElementById('catTfoot').innerHTML=`<tr style="font-weight:bold;background:rgba(212,168,67,0.1);"><td>TOTAL</td><td class="num">${fmt$(total.sales25)}</td><td class="num ${total.sales25>total.sales24?'pos':'neg'}">${pct(total.sales25,total.sales24)}%</td><td class="num">${fmtK(total.cases25)}</td><td class="num ${total.cases25>total.cases24?'pos':'neg'}">${pct(total.cases25,total.cases24)}%</td><td class="num">${(total.sales25/total.cases25/avgPrice25*7.7).toFixed(2)}%</td></tr>`;}
+
+function renderMonthTable(){let total={sales25:0,sales24:0,cases25:0,cases24:0};let html=fy25.map((m,i)=>{total.sales25+=m.sales;total.sales24+=fy24[i].sales;total.cases25+=m.cases;total.cases24+=fy24[i].cases;return `<tr><td>${m.m}</td><td>Q${m.q}</td><td class="num">${fmt$(m.sales)}</td><td class="num">${fmtK(m.cases)}</td><td class="num">$${m.price.toFixed(2)}</td><td class="num">${m.share.toFixed(2)}%</td><td class="num">${m.dist.toFixed(1)}%</td><td class="num">${m.vel.toFixed(2)}</td></tr>`;}).join('');document.getElementById('monthTable').innerHTML=html;document.getElementById('monthTfoot').innerHTML=`<tr style="font-weight:bold;background:rgba(212,168,67,0.1);"><td colspan="2">TOTAL FY2025</td><td class="num">${fmt$(total.sales25)}</td><td class="num">${fmtK(total.cases25)}</td><td class="num">$${avgPrice25.toFixed(2)}</td><td class="num">${avgShare25.toFixed(2)}%</td><td class="num">${avgDist25.toFixed(1)}%</td><td class="num">${avgVel25.toFixed(2)}</td></tr>`;}
+
+renderKPIs();
+renderWeeklyChart();
+renderMonthlySalesChart();
+renderMonthlyCasesChart();
+renderMonthlyPriceChart();
+renderMonthlyShareChart();
+renderCatChart();
+renderStateChart();
+renderChannelChart();
+renderPromoChart();
+renderCatTable();
+renderMonthTable();
+</script>
+
+</body>
+</html>

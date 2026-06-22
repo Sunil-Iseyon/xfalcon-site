@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 4. Billing vs Incurred Cost</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 4. Billing vs Incurred Cost</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option><option value="2021">2021</option>
+        <option value="2022">2022</option><option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>September FY-end surge consistently ~12&ndash;15% above monthly average</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Financial Flow KPIs</div>
+    <div class="section-subtitle" id="kpiSubtitle">2024 vs 2023</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Billing Flow Analysis</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">Monthly Billed vs Recognized vs Incurred ($M)</div>
+        <div class="chart-subtitle" id="monthlySub">2024 &middot; Sep peak from FY-end obligations</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chMonthly"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Billing Lag (Recognized &minus; Billed, $M)</div>
+        <div class="chart-subtitle" id="lagSub">2024</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chLag"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue Type Mix ($M)</div>
+        <div class="chart-subtitle" id="revTypeSub">2024 &middot; Prime vs Modification vs Task Order</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chRevType"></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-title">5-Year September Surge Pattern ($M billed)</div>
+        <div class="chart-subtitle">Federal FY-end (Sep) vs surrounding months &middot; every year shows the spike</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chSurge"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Monthly Flow Detail</div>
+      <table class="detail-table" id="tblMonthly">
+        <thead><tr>
+          <th>Month</th>
+          <th class="num">Billed ($M)</th>
+          <th class="num">Recognized ($M)</th>
+          <th class="num">Incurred Cost ($M)</th>
+          <th class="num">Fee ($M)</th>
+          <th class="num">Fee %</th>
+          <th class="num">Lag ($M)</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Methodology.</strong> Billed = invoices issued. Recognized Revenue = ASC 606 percent-complete. Incurred Cost = allowable costs per FAR Part 31. Fee = recognized profit. Billing lag is positive when percent-complete revenue exceeds what's been invoiced (normal during active performance). September lift is driven by federal fiscal year-end funding obligations. Synthetic demo data; all contracts non-classified in this window.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    var MONTHLY_BY_YEAR = {
+      2024: [{m:1,b:4969,r:5230,c:5337,fee:217},{m:2,b:4636,r:4881,c:4979,fee:200},{m:3,b:4982,r:5245,c:5351,fee:218},{m:4,b:4987,r:5250,c:5358,fee:215},{m:5,b:4987,r:5249,c:5355,fee:213},{m:6,b:4958,r:5216,c:5321,fee:212},{m:7,b:4899,r:5158,c:5261,fee:210},{m:8,b:4784,r:5034,c:5136,fee:205},{m:9,b:5692,r:5993,c:6117,fee:243},{m:10,b:4930,r:5189,c:5294,fee:211},{m:11,b:4619,r:4862,c:4960,fee:198},{m:12,b:4257,r:4482,c:4573,fee:182}],
+      2023: [{m:1,b:4267,r:4486,c:4578,fee:186},{m:2,b:4349,r:4572,c:4665,fee:189},{m:3,b:4752,r:4996,c:5098,fee:207},{m:4,b:4769,r:5014,c:5116,fee:207},{m:5,b:5040,r:5299,c:5408,fee:219},{m:6,b:5511,r:5795,c:5914,fee:240},{m:7,b:5637,r:5927,c:6048,fee:246},{m:8,b:5977,r:6284,c:6413,fee:262},{m:9,b:7533,r:7921,c:8084,fee:331},{m:10,b:6748,r:7094,c:7240,fee:295},{m:11,b:6444,r:6775,c:6914,fee:282},{m:12,b:6134,r:6450,c:6582,fee:268}],
+      2022: [{m:1,b:3091,r:3252,c:3321,fee:143},{m:2,b:3001,r:3156,c:3223,fee:138},{m:3,b:3530,r:3712,c:3791,fee:163},{m:4,b:3662,r:3851,c:3932,fee:170},{m:5,b:3691,r:3882,c:3964,fee:171},{m:6,b:4058,r:4267,c:4357,fee:188},{m:7,b:4248,r:4467,c:4562,fee:196},{m:8,b:4319,r:4541,c:4637,fee:200},{m:9,b:5131,r:5395,c:5509,fee:237},{m:10,b:4967,r:5223,c:5334,fee:230},{m:11,b:4898,r:5150,c:5259,fee:226},{m:12,b:4988,r:5244,c:5355,fee:230}],
+      2021: [{m:1,b:3438,r:3616,c:3691,fee:156},{m:2,b:3224,r:3390,c:3461,fee:146},{m:3,b:3335,r:3507,c:3580,fee:151},{m:4,b:3295,r:3466,c:3537,fee:150},{m:5,b:3360,r:3534,c:3606,fee:153},{m:6,b:3347,r:3520,c:3593,fee:152},{m:7,b:3293,r:3463,c:3535,fee:149},{m:8,b:3577,r:3762,c:3840,fee:163},{m:9,b:4309,r:4531,c:4625,fee:196},{m:10,b:3766,r:3960,c:4042,fee:171},{m:11,b:3563,r:3747,c:3823,fee:162},{m:12,b:3576,r:3761,c:3839,fee:163}],
+      2020: [{m:1,b:5391,r:5663,c:5765,fee:239},{m:2,b:3670,r:3858,c:3930,fee:163},{m:3,b:3593,r:3778,c:3846,fee:159},{m:4,b:3565,r:3748,c:3815,fee:158},{m:5,b:3565,r:3748,c:3815,fee:158},{m:6,b:3287,r:3456,c:3518,fee:146},{m:7,b:3410,r:3586,c:3651,fee:151},{m:8,b:3778,r:3972,c:4044,fee:167},{m:9,b:4713,r:4954,c:5045,fee:209},{m:10,b:4156,r:4369,c:4450,fee:184},{m:11,b:4041,r:4249,c:4328,fee:179},{m:12,b:3952,r:4155,c:4232,fee:175}]
+    };
+    var SEP_BY_YEAR = { 2020:4713, 2021:4309, 2022:5131, 2023:7533, 2024:5692 };
+    var AUG_BY_YEAR = { 2020:3778, 2021:3577, 2022:4319, 2023:5977, 2024:4784 };
+    var OCT_BY_YEAR = { 2020:4156, 2021:3766, 2022:4967, 2023:6748, 2024:4930 };
+
+    var REV_TYPE_2024 = [
+      {t:'Prime',       billed:39274, rev:41343},
+      {t:'Modification',billed:13813, rev:14539},
+      {t:'Task Order',  billed:11773, rev:12394}
+    ];
+
+    var state = { year: 2024 };
+
+    function kpiCard(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>';}
+
+    function totals(yr){
+      var m = MONTHLY_BY_YEAR[yr]; var b=0,r=0,c=0,fee=0;
+      for (var i=0;i<m.length;i++){ b+=m[i].b; r+=m[i].r; c+=m[i].c; fee+=m[i].fee; }
+      return {billed:b, rev:r, cost:c, fee:fee};
+    }
+
+    function renderKPIs(yr){
+      var c = totals(yr), p = MONTHLY_BY_YEAR[yr-1] ? totals(yr-1) : null;
+      var lag = c.rev - c.billed;
+      var feePct = (c.fee / c.rev * 100);
+      var marginPct = ((c.rev - c.cost) / c.rev * 100);
+      var sepLift = ((SEP_BY_YEAR[yr] / ((AUG_BY_YEAR[yr] + OCT_BY_YEAR[yr]) / 2)) - 1) * 100;
+
+      var html = '';
+      html += kpiCard('Billed ' + yr, '$' + fmtInt(c.billed) + 'M', p?fmtDeltaLabel(c.billed,p.billed,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('Recognized ' + yr, '$' + fmtInt(c.rev) + 'M', p?fmtDeltaLabel(c.rev,p.rev,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('Incurred Cost ' + yr, '$' + fmtInt(c.cost) + 'M', p?fmtDeltaLabel(c.cost,p.cost,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('Fee Earned ' + yr, '$' + fmtInt(c.fee) + 'M', p?fmtDeltaLabel(c.fee,p.fee,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('Billing Lag ' + yr, '$' + fmtInt(lag) + 'M', {txt:'Recognized &minus; Billed',cls:'neutral'});
+      html += kpiCard('Fee Realization ' + yr, feePct.toFixed(2) + '%', {txt:'Industry 4-5%',cls:'neutral'});
+      html += kpiCard('Gross Margin ' + yr, marginPct.toFixed(2) + '%', {txt:'Cost-plus weighted',cls:'neutral'});
+      html += kpiCard('Sep FY-end Lift ' + yr, '+' + sepLift.toFixed(1) + '%', {txt:'vs Aug/Oct avg',cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = yr + ' vs ' + (yr-1);
+    }
+
+    function renderMonthly(yr){
+      var p = fdPalette();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var m = MONTHLY_BY_YEAR[yr];
+      mk('chMonthly', {
+        type:'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label:'Recognized', data: m.map(function(x){return x.r;}), borderColor: p.primary, backgroundColor:'rgba(54,69,79,0.08)', fill:true, tension:0.3, borderWidth:3, pointRadius:3 },
+            { label:'Billed',     data: m.map(function(x){return x.b;}), borderColor: p.secondary, backgroundColor:'transparent', borderDash:[5,5], tension:0.3, borderWidth:2, pointRadius:2 },
+            { label:'Incurred',   data: m.map(function(x){return x.c;}), borderColor: p.tertiary,  backgroundColor:'transparent', borderDash:[5,5], tension:0.3, borderWidth:2, pointRadius:2 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderLag(yr){
+      var p = fdPalette();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var m = MONTHLY_BY_YEAR[yr];
+      var lags = m.map(function(x){return x.r - x.b;});
+      mk('chLag', {
+        type:'bar',
+        data: {
+          labels: months,
+          datasets: [{ label:'Lag ($M)', data: lags, backgroundColor: p.primary, borderRadius:4 }]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+v+'M';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderRevType(){
+      var p = fdPalette();
+      mk('chRevType', {
+        type:'bar',
+        data: {
+          labels: REV_TYPE_2024.map(function(x){return x.t;}),
+          datasets: [
+            { label:'Billed',     data: REV_TYPE_2024.map(function(x){return x.billed;}), backgroundColor: p.secondary, borderRadius:4 },
+            { label:'Recognized', data: REV_TYPE_2024.map(function(x){return x.rev;}),    backgroundColor: p.primary,   borderRadius:4 }
+          ]
+        },
+        options: {
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            x: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderSurge(){
+      var p = fdPalette(); var yp = fdYearPalette();
+      var months = ['Aug','Sep','Oct'];
+      var datasets = [];
+      var years = [2020,2021,2022,2023,2024];
+      for (var i=0;i<years.length;i++){
+        var yr = years[i];
+        datasets.push({
+          label: yr.toString(),
+          data: [AUG_BY_YEAR[yr], SEP_BY_YEAR[yr], OCT_BY_YEAR[yr]],
+          backgroundColor: yp[yr.toString()],
+          borderRadius: 4
+        });
+      }
+      mk('chSurge', {
+        type:'bar',
+        data: { labels: months, datasets: datasets },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTable(yr){
+      var m = MONTHLY_BY_YEAR[yr];
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var html = '', tb=0,tr=0,tc=0,tfee=0;
+      for (var i=0;i<m.length;i++){
+        var x=m[i]; var lag = x.r - x.b; var pct = (x.fee/x.r*100).toFixed(2);
+        html += '<tr><td>'+months[i]+'</td>'+
+          '<td class="num">'+String(fmtInt(x.b))+'</td>'+
+          '<td class="num">'+String(fmtInt(x.r))+'</td>'+
+          '<td class="num">'+String(fmtInt(x.c))+'</td>'+
+          '<td class="num">'+String(fmtInt(x.fee))+'</td>'+
+          '<td class="num">'+String(pct)+'%</td>'+
+          '<td class="num">'+String(fmtInt(lag))+'</td></tr>';
+        tb+=x.b; tr+=x.r; tc+=x.c; tfee+=x.fee;
+      }
+      html += '<tr class="tot-row"><td>Total '+yr+'</td>'+
+        '<td class="num">'+String(fmtInt(tb))+'</td>'+
+        '<td class="num">'+String(fmtInt(tr))+'</td>'+
+        '<td class="num">'+String(fmtInt(tc))+'</td>'+
+        '<td class="num">'+String(fmtInt(tfee))+'</td>'+
+        '<td class="num">'+String((tfee/tr*100).toFixed(2))+'%</td>'+
+        '<td class="num">'+String(fmtInt(tr-tb))+'</td></tr>';
+      document.querySelector('#tblMonthly tbody').innerHTML = html;
+    }
+    function applyFilters(){
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      renderKPIs(state.year); renderMonthly(state.year); renderLag(state.year); renderRevType(); renderSurge(); renderTable(state.year);
+      document.getElementById('subtitle').textContent = 'Reporting Period: Jan-Dec ' + state.year;
+      document.getElementById('monthlySub').textContent = state.year + ' · Sep peak from FY-end obligations';
+      document.getElementById('lagSub').textContent = state.year.toString();
+      document.getElementById('revTypeSub').textContent = state.year + ' · Prime vs Modification vs Task Order';
+      fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

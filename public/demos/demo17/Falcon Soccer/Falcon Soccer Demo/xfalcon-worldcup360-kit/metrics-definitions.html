@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon World Cup 360 - Metrics & KPI Definitions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+            line-height: 1.6;
+        }
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .logo-x {
+            color: #66BB6A;
+        }
+        .logo-f {
+            color: #FFD600;
+        }
+        .title-section h1 {
+            color: #F1FAE5;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .title-section p {
+            color: #FFD600;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .back-link {
+            color: #FFD600;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .search-section {
+            margin-bottom: 40px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            background: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+        .filter-section {
+            margin-bottom: 40px;
+        }
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-bottom: 20px;
+        }
+        .chip {
+            padding: 10px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            background: #FFFFFF;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #475569;
+        }
+        .chip:hover {
+            border-color: #2E7D32;
+            background: #F0F9FF;
+        }
+        .chip.active {
+            background: #2E7D32;
+            color: #FFFFFF;
+            border-color: #2E7D32;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .metric-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: box-shadow 0.2s, transform 0.2s;
+            display: none;
+        }
+        .metric-card.visible {
+            display: block;
+        }
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+        .metric-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 12px;
+        }
+        .metric-definition {
+            font-size: 14px;
+            color: #4B5563;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .metric-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tag {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+        .tag-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 70px;
+        }
+        .tag-value {
+            font-size: 13px;
+            color: #1F2937;
+            font-weight: 500;
+        }
+        .tag-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: #F8FAFC;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 2px solid #C8A415;
+            color: #1F2937;
+            word-break: break-all;
+            flex: 1;
+        }
+        .tag-dashboards {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .dashboard-badge {
+            background: #EEF2FF;
+            color: #2E7D32;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9CA3AF;
+        }
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .metric-count {
+            display: inline-block;
+            background: #E8F5E9;
+            color: #1B5E20;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .logo-title {
+                width: 100%;
+            }
+            .back-link {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo-title">
+            <div class="logo">
+                <span class="logo-x">x</span><span class="logo-f">F</span>
+            </div>
+            <div class="title-section">
+                <h1>Falcon World Cup 360 / Metrics & KPI Definitions</h1>
+                <p>Comprehensive reference for all dashboard metrics</p>
+            </div>
+        </div>
+        <a href="index.html" class="back-link">← Back</a>
+    </div>
+
+    <div class="container">
+        <div class="search-section">
+            <input type="text" class="search-box" id="searchInput" placeholder="Search metrics by name, definition, or formula...">
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-chips" id="filterChips"></div>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid"></div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <p>No metrics found matching your search.</p>
+        </div>
+    </div>
+
+    <script>
+        var METRICS = [
+            {
+                id: 1,
+                name: "Total Matches",
+                category: "Tournament & Match",
+                definition: "Count of all World Cup matches played.",
+                formula: "COUNT(*) FROM FACT_MATCH",
+                unit: "count",
+                dashboards: [1, 2, 10]
+            },
+            {
+                id: 2,
+                name: "Total Goals",
+                category: "Tournament & Match",
+                definition: "Sum of all goals scored across all matches.",
+                formula: "SUM(TOTAL_GOALS) FROM FACT_MATCH",
+                unit: "count",
+                dashboards: [1, 2, 10]
+            },
+            {
+                id: 3,
+                name: "Goals per Match",
+                category: "Tournament & Match",
+                definition: "Average goals scored per match.",
+                formula: "SUM(TOTAL_GOALS) / COUNT(*)",
+                unit: "ratio (2 dec)",
+                dashboards: [2, 10]
+            },
+            {
+                id: 4,
+                name: "Average Attendance",
+                category: "Tournament & Match",
+                definition: "Mean crowd size across all matches.",
+                formula: "AVG(ATTENDANCE) FROM FACT_MATCH",
+                unit: "count",
+                dashboards: [1, 2, 9, 10]
+            },
+            {
+                id: 5,
+                name: "Total Attendance",
+                category: "Tournament & Match",
+                definition: "Sum of all match attendance figures.",
+                formula: "SUM(ATTENDANCE)",
+                unit: "count",
+                dashboards: [1, 9, 10]
+            },
+            {
+                id: 6,
+                name: "Home Win %",
+                category: "Tournament & Match",
+                definition: "Percentage of matches won by the home/first-listed team.",
+                formula: "COUNT(MATCH_RESULT='H') / COUNT(*)",
+                unit: "%",
+                dashboards: [2, 4]
+            },
+            {
+                id: 7,
+                name: "Away Win %",
+                category: "Tournament & Match",
+                definition: "Percentage of matches won by the away team.",
+                formula: "COUNT(MATCH_RESULT='A') / COUNT(*)",
+                unit: "%",
+                dashboards: [2, 4]
+            },
+            {
+                id: 8,
+                name: "Draw %",
+                category: "Tournament & Match",
+                definition: "Percentage of matches ending in a draw at full time.",
+                formula: "COUNT(MATCH_RESULT='D') / COUNT(*)",
+                unit: "%",
+                dashboards: [2]
+            },
+            {
+                id: 9,
+                name: "Extra Time %",
+                category: "Tournament & Match",
+                definition: "Matches requiring extra time or penalties.",
+                formula: "COUNT(WIN_CONDITIONS LIKE '%AET%' OR '%penalties%') / COUNT(*)",
+                unit: "%",
+                dashboards: [2]
+            },
+            {
+                id: 10,
+                name: "Venue Utilization %",
+                category: "Tournament & Match",
+                definition: "Ratio of match attendance to stadium capacity.",
+                formula: "ATTENDANCE / CAPACITY * 100",
+                unit: "%",
+                dashboards: [9]
+            },
+            {
+                id: 11,
+                name: "Goals Scored",
+                category: "Player Performance",
+                definition: "Total goals by a player (excludes own goals).",
+                formula: "SUM(GOALS_SCORED)",
+                unit: "count",
+                dashboards: [3]
+            },
+            {
+                id: 12,
+                name: "Goals per Appearance",
+                category: "Player Performance",
+                definition: "Scoring rate per match played.",
+                formula: "SUM(GOALS_SCORED) / COUNT(DISTINCT MATCH_ID)",
+                unit: "ratio",
+                dashboards: [3]
+            },
+            {
+                id: 13,
+                name: "Yellow Cards",
+                category: "Player Performance",
+                definition: "Total cautions received.",
+                formula: "SUM(YELLOW_CARDS)",
+                unit: "count",
+                dashboards: [3]
+            },
+            {
+                id: 14,
+                name: "Red Cards",
+                category: "Player Performance",
+                definition: "Total dismissals (straight red + second yellow).",
+                formula: "SUM(RED_CARDS)",
+                unit: "count",
+                dashboards: [3]
+            },
+            {
+                id: 15,
+                name: "Minutes Played",
+                category: "Player Performance",
+                definition: "Total playing time across all matches.",
+                formula: "SUM(MINUTES_PLAYED)",
+                unit: "minutes",
+                dashboards: [3]
+            },
+            {
+                id: 16,
+                name: "Appearances",
+                category: "Player Performance",
+                definition: "Distinct matches where the player featured.",
+                formula: "COUNT(DISTINCT MATCH_ID)",
+                unit: "count",
+                dashboards: [3]
+            },
+            {
+                id: 17,
+                name: "Starting XI Rate",
+                category: "Player Performance",
+                definition: "Percentage of appearances as a starter.",
+                formula: "COUNT(LINEUP_STATUS='S') / COUNT(*)",
+                unit: "%",
+                dashboards: [3]
+            },
+            {
+                id: 18,
+                name: "Minutes per Goal",
+                category: "Player Performance",
+                definition: "Efficiency metric — minutes played per goal scored.",
+                formula: "SUM(MINUTES_PLAYED) / SUM(GOALS_SCORED)",
+                unit: "minutes",
+                dashboards: [3]
+            },
+            {
+                id: 19,
+                name: "Penalties Scored",
+                category: "Player Performance",
+                definition: "Goals from penalty kicks during open play.",
+                formula: "SUM(PENALTIES_SCORED)",
+                unit: "count",
+                dashboards: [3]
+            },
+            {
+                id: 20,
+                name: "Matches Played",
+                category: "Team Rankings",
+                definition: "Total matches by a national team.",
+                formula: "COUNT(DISTINCT MATCH_ID)",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 21,
+                name: "Wins",
+                category: "Team Rankings",
+                definition: "Matches where the team scored more goals than the opponent.",
+                formula: "COUNT(MATCH_RESULT='W')",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 22,
+                name: "Win Rate",
+                category: "Team Rankings",
+                definition: "Wins / Matches Played multiplied by 100.",
+                formula: "COUNT(MATCH_RESULT='W') / COUNT(DISTINCT MATCH_ID) * 100",
+                unit: "%",
+                dashboards: [4]
+            },
+            {
+                id: 23,
+                name: "Goals Scored (Team)",
+                category: "Team Rankings",
+                definition: "Total goals scored by the team.",
+                formula: "SUM(GOALS_SCORED_TEAM)",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 24,
+                name: "Goals Conceded",
+                category: "Team Rankings",
+                definition: "Total goals conceded by the team.",
+                formula: "SUM(GOALS_CONCEDED_TEAM)",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 25,
+                name: "Goal Difference",
+                category: "Team Rankings",
+                definition: "Goals Scored minus Goals Conceded.",
+                formula: "SUM(GOALS_SCORED_TEAM) - SUM(GOALS_CONCEDED_TEAM)",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 26,
+                name: "Tournament Appearances",
+                category: "Team Rankings",
+                definition: "Distinct World Cup editions participated in.",
+                formula: "COUNT(DISTINCT TOURNAMENT_EDITION)",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 27,
+                name: "Titles Won",
+                category: "Team Rankings",
+                definition: "Number of World Cup championships.",
+                formula: "COUNT(CHAMPIONSHIP_WIN=TRUE)",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 28,
+                name: "Draws (Team)",
+                category: "Team Rankings",
+                definition: "Matches ending level at full time.",
+                formula: "COUNT(MATCH_RESULT='D')",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 29,
+                name: "Losses",
+                category: "Team Rankings",
+                definition: "Matches where the team conceded more.",
+                formula: "COUNT(MATCH_RESULT='L')",
+                unit: "count",
+                dashboards: [4]
+            },
+            {
+                id: 30,
+                name: "Total Ticket Revenue",
+                category: "Ticket Revenue",
+                definition: "Sum of all ticket sales revenue in USD.",
+                formula: "SUM(REVENUE_USD) FROM FACT_TICKET_SALES",
+                unit: "$",
+                dashboards: [5, 1, 10]
+            },
+            {
+                id: 31,
+                name: "Tickets Sold",
+                category: "Ticket Revenue",
+                definition: "Total number of tickets sold.",
+                formula: "SUM(TICKETS_SOLD)",
+                unit: "count",
+                dashboards: [5]
+            },
+            {
+                id: 32,
+                name: "Avg Ticket Price",
+                category: "Ticket Revenue",
+                definition: "Revenue per ticket.",
+                formula: "SUM(REVENUE_USD) / SUM(TICKETS_SOLD)",
+                unit: "$",
+                dashboards: [5]
+            },
+            {
+                id: 33,
+                name: "Revenue by Tier",
+                category: "Ticket Revenue",
+                definition: "Revenue broken down by price tier.",
+                formula: "SUM(REVENUE_USD) GROUP BY PRICE_TIER",
+                unit: "$",
+                dashboards: [5]
+            },
+            {
+                id: 34,
+                name: "Demand Index",
+                category: "Ticket Revenue",
+                definition: "Measure of ticket demand (1.0 = baseline).",
+                formula: "AVG(DEMAND_INDEX)",
+                unit: "ratio",
+                dashboards: [5]
+            },
+            {
+                id: 35,
+                name: "Resale Rate",
+                category: "Ticket Revenue",
+                definition: "Percentage of tickets resold on secondary market.",
+                formula: "AVG(RESALE_PCT)",
+                unit: "%",
+                dashboards: [5]
+            },
+            {
+                id: 36,
+                name: "Merchandise Revenue",
+                category: "Merchandise",
+                definition: "Total merchandise sales.",
+                formula: "SUM(REVENUE_USD) FROM FACT_MERCHANDISE_SALES",
+                unit: "$",
+                dashboards: [6, 1, 10]
+            },
+            {
+                id: 37,
+                name: "Units Sold",
+                category: "Merchandise",
+                definition: "Total merchandise units sold.",
+                formula: "SUM(UNITS_SOLD)",
+                unit: "count",
+                dashboards: [6]
+            },
+            {
+                id: 38,
+                name: "Gross Margin $",
+                category: "Merchandise",
+                definition: "Revenue minus cost of goods sold.",
+                formula: "SUM(GROSS_MARGIN_USD)",
+                unit: "$",
+                dashboards: [6]
+            },
+            {
+                id: 39,
+                name: "Gross Margin %",
+                category: "Merchandise",
+                definition: "Margin as a percentage of revenue.",
+                formula: "SUM(GROSS_MARGIN_USD) / SUM(REVENUE_USD) * 100",
+                unit: "%",
+                dashboards: [6]
+            },
+            {
+                id: 40,
+                name: "Avg Unit Price",
+                category: "Merchandise",
+                definition: "Average selling price per unit.",
+                formula: "SUM(REVENUE_USD) / SUM(UNITS_SOLD)",
+                unit: "$",
+                dashboards: [6]
+            },
+            {
+                id: 41,
+                name: "Promo Sales %",
+                category: "Merchandise",
+                definition: "Percentage of transactions with a promotion.",
+                formula: "COUNT(PROMO_FLAG=TRUE) / COUNT(*)",
+                unit: "%",
+                dashboards: [6]
+            },
+            {
+                id: 42,
+                name: "Avg Discount %",
+                category: "Merchandise",
+                definition: "Average discount on promotional sales.",
+                formula: "AVG(DISCOUNT_PCT) WHERE PROMO_FLAG=TRUE",
+                unit: "%",
+                dashboards: [6]
+            },
+            {
+                id: 43,
+                name: "COGS",
+                category: "Merchandise",
+                definition: "Cost of goods sold.",
+                formula: "SUM(COGS_USD)",
+                unit: "$",
+                dashboards: [6]
+            },
+            {
+                id: 44,
+                name: "Total Rights Fees",
+                category: "Broadcast & Media",
+                definition: "Broadcast rights payments.",
+                formula: "SUM(RIGHTS_FEE_USD)",
+                unit: "$",
+                dashboards: [7, 1, 10]
+            },
+            {
+                id: 45,
+                name: "Total Ad Revenue",
+                category: "Broadcast & Media",
+                definition: "Advertising revenue from broadcasts.",
+                formula: "SUM(AD_REVENUE_USD)",
+                unit: "$",
+                dashboards: [7]
+            },
+            {
+                id: 46,
+                name: "Sub-Licensing Revenue",
+                category: "Broadcast & Media",
+                definition: "Revenue from sub-licensing to other broadcasters.",
+                formula: "SUM(SUB_LICENSING_REVENUE_USD)",
+                unit: "$",
+                dashboards: [7]
+            },
+            {
+                id: 47,
+                name: "Peak Viewers",
+                category: "Broadcast & Media",
+                definition: "Maximum concurrent viewers for a tournament.",
+                formula: "MAX(PEAK_VIEWERS_MILLIONS)",
+                unit: "millions",
+                dashboards: [7]
+            },
+            {
+                id: 48,
+                name: "Avg Viewers",
+                category: "Broadcast & Media",
+                definition: "Average viewership.",
+                formula: "AVG(AVG_VIEWERS_MILLIONS)",
+                unit: "millions",
+                dashboards: [7]
+            },
+            {
+                id: 49,
+                name: "Total Broadcast Hours",
+                category: "Broadcast & Media",
+                definition: "Total broadcast coverage hours.",
+                formula: "SUM(TOTAL_BROADCAST_HOURS)",
+                unit: "hours",
+                dashboards: [7]
+            },
+            {
+                id: 50,
+                name: "Matches Broadcast",
+                category: "Broadcast & Media",
+                definition: "Number of matches that were broadcast.",
+                formula: "SUM(MATCHES_BROADCAST)",
+                unit: "count",
+                dashboards: [7]
+            },
+            {
+                id: 51,
+                name: "Total Contract Value",
+                category: "Sponsorship",
+                definition: "Sum of all sponsorship contract fees.",
+                formula: "SUM(CONTRACT_VALUE_USD)",
+                unit: "$",
+                dashboards: [8, 1, 10]
+            },
+            {
+                id: 52,
+                name: "Activation Spend",
+                category: "Sponsorship",
+                definition: "Additional marketing activation beyond rights fees.",
+                formula: "SUM(ACTIVATION_SPEND_USD)",
+                unit: "$",
+                dashboards: [8]
+            },
+            {
+                id: 53,
+                name: "Media Value",
+                category: "Sponsorship",
+                definition: "Estimated earned media value from brand visibility.",
+                formula: "SUM(MEDIA_VALUE_USD)",
+                unit: "$",
+                dashboards: [8]
+            },
+            {
+                id: 54,
+                name: "Sponsorship ROI",
+                category: "Sponsorship",
+                definition: "Return on investment ratio.",
+                formula: "SUM(MEDIA_VALUE_USD) / SUM(CONTRACT_VALUE_USD)",
+                unit: "ratio",
+                dashboards: [8]
+            },
+            {
+                id: 55,
+                name: "Brand Exposure Hours",
+                category: "Sponsorship",
+                definition: "Cumulative brand visibility time.",
+                formula: "SUM(BRAND_EXPOSURE_HOURS)",
+                unit: "hours",
+                dashboards: [8]
+            },
+            {
+                id: 56,
+                name: "Estimated Reach",
+                category: "Sponsorship",
+                definition: "Unique audience reach.",
+                formula: "SUM(ESTIMATED_REACH_MILLIONS)",
+                unit: "millions",
+                dashboards: [8]
+            },
+            {
+                id: 57,
+                name: "Renewal Rate",
+                category: "Sponsorship",
+                definition: "Percentage of sponsors who renewed.",
+                formula: "COUNT(RENEWAL_FLAG=TRUE) / COUNT(*)",
+                unit: "%",
+                dashboards: [8]
+            }
+        ];
+
+        var categories = [
+            "All",
+            "Tournament & Match",
+            "Player Performance",
+            "Team Rankings",
+            "Ticket Revenue",
+            "Merchandise",
+            "Broadcast & Media",
+            "Sponsorship"
+        ];
+
+        var activeCategory = "All";
+        var searchTerm = "";
+
+        function countMetricsInCategory(category) {
+            if (category === "All") {
+                return METRICS.length;
+            }
+            return METRICS.filter(function(m) { return m.category === category; }).length;
+        }
+
+        function initializeFilters() {
+            var filterChips = document.getElementById("filterChips");
+            categories.forEach(function(cat) {
+                var chip = document.createElement("button");
+                chip.className = "chip" + (cat === "All" ? " active" : "");
+                chip.textContent = cat + " ";
+                var countSpan = document.createElement("span");
+                countSpan.className = "metric-count";
+                countSpan.textContent = "(" + countMetricsInCategory(cat) + ")";
+                chip.appendChild(countSpan);
+                chip.onclick = function() {
+                    document.querySelectorAll(".chip").forEach(function(c) { c.classList.remove("active"); });
+                    chip.classList.add("active");
+                    activeCategory = cat;
+                    filterMetrics();
+                };
+                filterChips.appendChild(chip);
+            });
+        }
+
+        function createMetricCard(metric) {
+            var card = document.createElement("div");
+            card.className = "metric-card";
+            card.innerHTML = '<div class="metric-name">' + metric.name + '</div>' +
+                '<div class="metric-definition">' + metric.definition + '</div>' +
+                '<div class="metric-tags">' +
+                '<div class="tag">' +
+                '<span class="tag-label">Unit</span>' +
+                '<span class="tag-value">' + metric.unit + '</span>' +
+                '</div>' +
+                '<div class="tag">' +
+                '<span class="tag-label">Formula</span>' +
+                '<span class="tag-formula">' + metric.formula + '</span>' +
+                '</div>' +
+                '<div class="tag">' +
+                '<span class="tag-label">Dashboards</span>' +
+                '<div class="tag-dashboards">' +
+                metric.dashboards.map(function(d) { return '<span class="dashboard-badge">Dashboard ' + d + '</span>'; }).join("") +
+                '</div>' +
+                '</div>' +
+                '</div>';
+            return card;
+        }
+
+        function filterMetrics() {
+            var grid = document.getElementById("metricsGrid");
+            var emptyState = document.getElementById("emptyState");
+            var visibleCount = 0;
+
+            METRICS.forEach(function(metric) {
+                var card = grid.querySelector('[data-metric-id="' + metric.id + '"]') ||
+                    (function() {
+                        var c = createMetricCard(metric);
+                        c.setAttribute("data-metric-id", metric.id);
+                        c.setAttribute("data-name", metric.name.toLowerCase());
+                        c.setAttribute("data-definition", metric.definition.toLowerCase());
+                        c.setAttribute("data-formula", metric.formula.toLowerCase());
+                        c.setAttribute("data-category", metric.category);
+                        grid.appendChild(c);
+                        return c;
+                    })();
+
+                var categoryMatch = activeCategory === "All" || card.getAttribute("data-category") === activeCategory;
+                var searchMatch = searchTerm === "" ||
+                    card.getAttribute("data-name").indexOf(searchTerm) > -1 ||
+                    card.getAttribute("data-definition").indexOf(searchTerm) > -1 ||
+                    card.getAttribute("data-formula").indexOf(searchTerm) > -1;
+
+                if (categoryMatch && searchMatch) {
+                    card.classList.add("visible");
+                    visibleCount = visibleCount + 1;
+                } else {
+                    card.classList.remove("visible");
+                }
+            });
+
+            emptyState.style.display = visibleCount === 0 ? "block" : "none";
+        }
+
+        function initializeSearch() {
+            var searchInput = document.getElementById("searchInput");
+            searchInput.oninput = function() {
+                searchTerm = searchInput.value.toLowerCase();
+                filterMetrics();
+            };
+        }
+
+        function init() {
+            initializeFilters();
+            filterMetrics();
+            initializeSearch();
+        }
+
+        init();
+    </script>
+</body>
+</html>

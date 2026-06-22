@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product & Pricing Intelligence Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-content h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header-content p {
+            font-size: 14px;
+            color: #CCCCCC;
+        }
+
+        .header-link {
+            background-color: #E02B20;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .header-link:hover {
+            background-color: #C41F1A;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .filters {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 1px solid #DDDDDD;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #FFFFFF;
+            color: #1A1A1A;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: #E02B20;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E02B20;
+            box-shadow: 0 0 0 2px rgba(224, 43, 32, 0.1);
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: #999999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .chart-analysis {
+            border-left: 3px solid #E02B20;
+            padding: 15px;
+            background-color: #fafafa;
+            font-size: 13px;
+            color: #555;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .footer {
+            background-color: #1A1A1A;
+            color: #CCCCCC;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            font-size: 13px;
+        }
+
+        .footer-text {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .kpis {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>03 | Product & Pricing Intelligence</h1>
+            <p>Falcon Auto B2B</p>
+        </div>
+        <a href="index.html" class="header-link">Back to Home</a>
+    </div>
+
+    <div class="container">
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year</label>
+                <select id="yearFilter">
+                    <option value="All Time">All Time</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="brandFilter">Brand</label>
+                <select id="brandFilter">
+                    <option value="">All Brands</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpis">
+            <div class="kpi">
+                <div class="kpi-label">Total Orders</div>
+                <div class="kpi-value" id="kpiTotalOrders">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Order Value</div>
+                <div class="kpi-value" id="kpiAvgOrderValue">$0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Active Brands</div>
+                <div class="kpi-value" id="kpiActiveBrands">0</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value" id="kpiTotalRevenue">$0</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Chart 1: Top 15 Products by Rating -->
+            <div class="chart-container">
+                <div class="chart-title">Top 15 Products by Rating</div>
+                <div class="chart-wrapper">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis1"></div>
+            </div>
+
+            <!-- Chart 2: Revenue by Category -->
+            <div class="chart-container">
+                <div class="chart-title">Revenue by Category</div>
+                <div class="chart-wrapper">
+                    <canvas id="revenueByCategoryChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis2"></div>
+            </div>
+
+            <!-- Chart 3: Products by Category -->
+            <div class="chart-container">
+                <div class="chart-title">Products by Category</div>
+                <div class="chart-wrapper">
+                    <canvas id="productsByCategoryChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis3"></div>
+            </div>
+
+            <!-- Chart 4: Revenue by Brand -->
+            <div class="chart-container">
+                <div class="chart-title">Revenue by Brand</div>
+                <div class="chart-wrapper">
+                    <canvas id="revenueByBrandChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-text">Product & Pricing Intelligence Dashboard | Falcon Auto B2B</div>
+        <div class="footer-text">Last Updated: <span id="footerDate"></span></div>
+    </div>
+
+    <script>
+        // Embedded Data
+        const productData = [{"name":"ApexGrit P320 DA Sanding Disc","brand":"ApexGrit","category":"Abrasives","msrp":18.49,"avgRating":4.67,"reviews":9},{"name":"UltraCoat White Basecoat Quart","brand":"UltraCoat","category":"Paint & Coatings","msrp":54.00,"avgRating":4.50,"reviews":16},{"name":"SprayMaster Mini Touch-Up Gun","brand":"SprayMaster","category":"Autobody Tools","msrp":89.00,"avgRating":4.42,"reviews":12},{"name":"ProShield HVLP Gravity Spray Gun","brand":"ProShield","category":"Autobody Tools","msrp":199.99,"avgRating":4.40,"reviews":10},{"name":"UltraCoat Black Basecoat Quart","brand":"UltraCoat","category":"Paint & Coatings","msrp":54.00,"avgRating":4.33,"reviews":6},{"name":"SprayMaster Pro Gravity Feed Gun","brand":"SprayMaster","category":"Autobody Tools","msrp":245.00,"avgRating":4.31,"reviews":13},{"name":"SafeGuard Pro Nitrile Gloves M","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":12.99,"avgRating":4.25,"reviews":8},{"name":"ApexGrit P220 Hook & Loop Disc","brand":"ApexGrit","category":"Abrasives","msrp":24.99,"avgRating":4.25,"reviews":12},{"name":"ApexGrit P120 Hook & Loop Disc","brand":"ApexGrit","category":"Abrasives","msrp":24.99,"avgRating":4.24,"reviews":17},{"name":"CleanRun Heavy Duty Degreaser","brand":"CleanRun","category":"Shop Supplies","msrp":21.00,"avgRating":4.22,"reviews":9},{"name":"CleanRun Pre-Prep Wax Remover","brand":"CleanRun","category":"Shop Supplies","msrp":27.50,"avgRating":4.15,"reviews":13},{"name":"SafeGuard Pro OV Cartridge","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":18.99,"avgRating":4.13,"reviews":8},{"name":"ApexGrit P400 Wet/Dry Sheet","brand":"ApexGrit","category":"Abrasives","msrp":14.99,"avgRating":4.10,"reviews":10},{"name":"ProShield Masking Film 48in","brand":"ProShield","category":"Paint & Coatings","msrp":22.99,"avgRating":3.93,"reviews":14},{"name":"ProShield 3/4in Masking Tape","brand":"ProShield","category":"Paint & Coatings","msrp":31.50,"avgRating":3.93,"reviews":14},{"name":"UltraCoat Epoxy Primer Gallon","brand":"UltraCoat","category":"Paint & Coatings","msrp":72.00,"avgRating":3.92,"reviews":12},{"name":"ProShield HVLP Gravity Gun v2","brand":"ProShield","category":"Autobody Tools","msrp":189.99,"avgRating":3.90,"reviews":10},{"name":"SafeGuard Pro Nitrile Gloves L","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":12.99,"avgRating":3.75,"reviews":16},{"name":"UltraCoat 2K Urethane Clearcoat","brand":"UltraCoat","category":"Paint & Coatings","msrp":48.00,"avgRating":3.60,"reviews":10},{"name":"SafeGuard Pro Half-Face Respirator","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":34.99,"avgRating":3.43,"reviews":7},{"name":"LubriMax ATF Transmission Fluid","brand":"LubriMax","category":"Shop Supplies","msrp":66.00,"avgRating":0,"reviews":0},{"name":"BodRight 6-Piece Dolly Set","brand":"BodRight","category":"Autobody Tools","msrp":74.00,"avgRating":0,"reviews":0},{"name":"ClearView Machine Polish 16oz","brand":"ClearView","category":"Shop Supplies","msrp":29.99,"avgRating":0,"reviews":0},{"name":"ClearView 5in Buffing Pad","brand":"ClearView","category":"Shop Supplies","msrp":22.00,"avgRating":0,"reviews":0},{"name":"LubriMax 10W-30 Motor Oil","brand":"LubriMax","category":"Shop Supplies","msrp":58.00,"avgRating":0,"reviews":0},{"name":"TorqMaster 60-Gal Air Compressor","brand":"TorqMaster","category":"Equipment","msrp":1249.00,"avgRating":0,"reviews":0},{"name":"TorqMaster 2-Post Hydraulic Lift","brand":"TorqMaster","category":"Equipment","msrp":2899.00,"avgRating":0,"reviews":0},{"name":"BodRight XL Slide Hammer","brand":"BodRight","category":"Autobody Tools","msrp":119.00,"avgRating":0,"reviews":0},{"name":"BodRight 5-Piece Body Hammer Set","brand":"BodRight","category":"Autobody Tools","msrp":89.00,"avgRating":0,"reviews":0},{"name":"ProShield Pressure Cup Gun 2L","brand":"ProShield","category":"Autobody Tools","msrp":159.00,"avgRating":0,"reviews":0}];
+
+        const categoryByYear = [{"year":2023,"category":"Equipment","orders":54,"revenue":211842.31},{"year":2023,"category":"Autobody Tools","orders":258,"revenue":74816.69},{"year":2023,"category":"Paint & Coatings","orders":256,"revenue":22633.96},{"year":2023,"category":"Shop Supplies","orders":205,"revenue":15495.82},{"year":2023,"category":"Abrasives","orders":164,"revenue":6321.40},{"year":2023,"category":"Safety & PPE","orders":147,"revenue":5240.19},{"year":2024,"category":"Equipment","orders":149,"revenue":514775.43},{"year":2024,"category":"Autobody Tools","orders":686,"revenue":200730.67},{"year":2024,"category":"Paint & Coatings","orders":598,"revenue":50897.12},{"year":2024,"category":"Shop Supplies","orders":528,"revenue":35340.22},{"year":2024,"category":"Abrasives","orders":463,"revenue":18739.52},{"year":2024,"category":"Safety & PPE","orders":482,"revenue":16830.66},{"year":2025,"category":"Equipment","orders":167,"revenue":604005.39},{"year":2025,"category":"Autobody Tools","orders":733,"revenue":210967.01},{"year":2025,"category":"Paint & Coatings","orders":590,"revenue":52951.72},{"year":2025,"category":"Shop Supplies","orders":519,"revenue":34810.47},{"year":2025,"category":"Abrasives","orders":484,"revenue":20619.16},{"year":2025,"category":"Safety & PPE","orders":443,"revenue":15870.69}];
+
+        const brandByYear = [{"year":2023,"brand":"TorqMaster","orders":54,"revenue":211842.31},{"year":2023,"brand":"ProShield","orders":194,"revenue":49037.26},{"year":2023,"brand":"UltraCoat","orders":176,"revenue":18296.12},{"year":2023,"brand":"SprayMaster","orders":56,"revenue":16008.59},{"year":2023,"brand":"BodRight","orders":88,"revenue":14108.68},{"year":2023,"brand":"LubriMax","orders":65,"revenue":8586.33},{"year":2023,"brand":"ApexGrit","orders":164,"revenue":6321.40},{"year":2023,"brand":"SafeGuard Pro","orders":147,"revenue":5240.19},{"year":2023,"brand":"CleanRun","orders":83,"revenue":4083.29},{"year":2023,"brand":"ClearView","orders":57,"revenue":2826.20},{"year":2024,"brand":"TorqMaster","orders":149,"revenue":514775.43},{"year":2024,"brand":"ProShield","orders":513,"revenue":122100.41},{"year":2024,"brand":"SprayMaster","orders":148,"revenue":46840.59},{"year":2024,"brand":"BodRight","orders":225,"revenue":41702.71},{"year":2024,"brand":"UltraCoat","orders":398,"revenue":40984.08},{"year":2024,"brand":"ApexGrit","orders":463,"revenue":18739.52},{"year":2024,"brand":"LubriMax","orders":161,"revenue":18016.53},{"year":2024,"brand":"SafeGuard Pro","orders":482,"revenue":16830.66},{"year":2024,"brand":"CleanRun","orders":212,"revenue":9918.99},{"year":2024,"brand":"ClearView","orders":155,"revenue":7404.70},{"year":2025,"brand":"TorqMaster","orders":167,"revenue":604005.39},{"year":2025,"brand":"ProShield","orders":504,"revenue":122002.70},{"year":2025,"brand":"SprayMaster","orders":166,"revenue":50307.38},{"year":2025,"brand":"BodRight","orders":262,"revenue":49602.49},{"year":2025,"brand":"UltraCoat","orders":391,"revenue":42006.16},{"year":2025,"brand":"ApexGrit","orders":484,"revenue":20619.16},{"year":2025,"brand":"LubriMax","orders":144,"revenue":16959.84},{"year":2025,"brand":"SafeGuard Pro","orders":443,"revenue":15870.69},{"year":2025,"brand":"CleanRun","orders":229,"revenue":10351.08},{"year":2025,"brand":"ClearView","orders":146,"revenue":7499.55}];
+
+        // Chart color palette
+        const chartColors = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        // Chart instances
+        let charts = {
+            topProducts: null,
+            revenueByCategory: null,
+            productsByCategory: null,
+            revenueByBrand: null
+        };
+
+        // Initialize footer date
+        document.getElementById('footerDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Populate filter dropdowns dynamically
+        function initializeFilters() {
+            const brands = [...new Set(productData.map(p => p.brand))].sort();
+            const categories = [...new Set(productData.map(p => p.category))].sort();
+
+            const brandSelect = document.getElementById('brandFilter');
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            });
+
+            const categorySelect = document.getElementById('categoryFilter');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        // Get filtered product data
+        function getFilteredProducts() {
+            const brandFilter = document.getElementById('brandFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            return productData.filter(product => {
+                const matchesBrand = !brandFilter || product.brand === brandFilter;
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                return matchesBrand && matchesCategory;
+            });
+        }
+
+        // Get filtered category revenue data
+        function getFilteredCategoryRevenue() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            let filtered = categoryByYear;
+            if (yearFilter !== 'All Time') {
+                filtered = filtered.filter(item => item.year === parseInt(yearFilter));
+            }
+            if (categoryFilter) {
+                filtered = filtered.filter(item => item.category === categoryFilter);
+            }
+            return filtered;
+        }
+
+        // Get filtered brand revenue data
+        function getFilteredBrandRevenue() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            let filtered = brandByYear;
+            if (yearFilter !== 'All Time') {
+                filtered = filtered.filter(item => item.year === parseInt(yearFilter));
+            }
+            // Note: Brand data doesn't have category field, so we filter by brand against product categories
+            if (categoryFilter) {
+                const brandsInCategory = productData
+                    .filter(p => p.category === categoryFilter)
+                    .map(p => p.brand);
+                filtered = filtered.filter(item => brandsInCategory.includes(item.brand));
+            }
+            return filtered;
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            const filteredCategoryRevenue = getFilteredCategoryRevenue();
+            const filteredBrandRevenue = getFilteredBrandRevenue();
+
+            // Total Orders (from category revenue data - year-aware)
+            const totalOrders = filteredCategoryRevenue.reduce((sum, item) => sum + item.orders, 0);
+            document.getElementById('kpiTotalOrders').textContent = totalOrders.toLocaleString('en-US');
+
+            // Average Order Value (revenue / orders - year-aware)
+            const totalRevenue = filteredCategoryRevenue.reduce((sum, item) => sum + item.revenue, 0);
+            const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            document.getElementById('kpiAvgOrderValue').textContent = '$' + avgOrderValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            // Active Brands (from brand revenue data - year-aware)
+            const activeBrands = new Set(filteredBrandRevenue.map(item => item.brand)).size;
+            document.getElementById('kpiActiveBrands').textContent = activeBrands;
+
+            // Total Revenue (already year-aware)
+            document.getElementById('kpiTotalRevenue').textContent = '$' + totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        // Chart 1: Top 15 Products by Rating
+        function updateTopProductsChart() {
+            const filteredProducts = getFilteredProducts();
+            const sortedProducts = filteredProducts
+                .filter(p => p.avgRating > 0)
+                .sort((a, b) => b.avgRating - a.avgRating)
+                .slice(0, 15);
+
+            if (charts.topProducts) charts.topProducts.destroy();
+
+            const ctx = document.getElementById('topProductsChart').getContext('2d');
+            charts.topProducts = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedProducts.map(p => p.name),
+                    datasets: [{
+                        label: 'Average Rating',
+                        data: sortedProducts.map(p => p.avgRating),
+                        backgroundColor: chartColors[0],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: { color: '#666666' },
+                            grid: { color: '#EEEEEE' }
+                        },
+                        y: {
+                            ticks: { color: '#666666', font: { size: 12 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const topProduct = sortedProducts[0];
+            const avgTopRating = (sortedProducts.reduce((sum, p) => sum + p.avgRating, 0) / sortedProducts.length).toFixed(2);
+            document.getElementById('analysis1').innerHTML = `
+                The top-rated product is <strong>${topProduct.name}</strong> with a rating of <strong>${topProduct.avgRating}</strong> from <strong>${topProduct.reviews}</strong> reviews. The top 15 rated products have an average rating of <strong>${avgTopRating}</strong>, indicating strong customer satisfaction across the highest-performing product catalog items. Quality products with strong reviews drive customer confidence and repeat purchases.
+            `;
+        }
+
+        // Chart 2: Revenue by Category
+        function updateRevenueByCategoryChart() {
+            const filteredData = getFilteredCategoryRevenue();
+
+            // Aggregate by category
+            const categoryMap = {};
+            filteredData.forEach(item => {
+                if (!categoryMap[item.category]) {
+                    categoryMap[item.category] = 0;
+                }
+                categoryMap[item.category] += item.revenue;
+            });
+
+            const categories = Object.keys(categoryMap).sort((a, b) => categoryMap[b] - categoryMap[a]);
+            const revenues = categories.map(cat => categoryMap[cat]);
+
+            if (charts.revenueByCategory) charts.revenueByCategory.destroy();
+
+            const ctx = document.getElementById('revenueByCategoryChart').getContext('2d');
+            charts.revenueByCategory = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: revenues,
+                        backgroundColor: chartColors.slice(0, categories.length)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#666666', padding: 15 }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const topCategory = categories[0];
+            const topRevenue = categoryMap[topCategory];
+            const totalRevenue = revenues.reduce((a, b) => a + b, 0);
+            const topCategoryPercent = ((topRevenue / totalRevenue) * 100).toFixed(1);
+            document.getElementById('analysis2').innerHTML = `
+                <strong>${topCategory}</strong> leads revenue generation with <strong>$${topRevenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>, representing <strong>${topCategoryPercent}%</strong> of total category revenue. This indicates the strongest market segment and key revenue driver for Falcon Auto B2B's product portfolio.
+            `;
+        }
+
+        // Chart 3: Products by Category
+        function updateProductsByCategoryChart() {
+            const filteredProducts = getFilteredProducts();
+
+            // Count by category
+            const categoryMap = {};
+            filteredProducts.forEach(product => {
+                if (!categoryMap[product.category]) {
+                    categoryMap[product.category] = 0;
+                }
+                categoryMap[product.category]++;
+            });
+
+            const categories = Object.keys(categoryMap).sort((a, b) => categoryMap[b] - categoryMap[a]);
+            const counts = categories.map(cat => categoryMap[cat]);
+
+            if (charts.productsByCategory) charts.productsByCategory.destroy();
+
+            const ctx = document.getElementById('productsByCategoryChart').getContext('2d');
+            charts.productsByCategory = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Product Count',
+                        data: counts,
+                        backgroundColor: chartColors[1],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#666666' },
+                            grid: { color: '#EEEEEE' }
+                        },
+                        x: {
+                            ticks: { color: '#666666' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const topCategory = categories[0];
+            const topCount = categoryMap[topCategory];
+            const totalProducts = counts.reduce((a, b) => a + b, 0);
+            document.getElementById('analysis3').innerHTML = `
+                <strong>${topCategory}</strong> contains the largest product catalog with <strong>${topCount}</strong> SKUs out of <strong>${totalProducts}</strong> total products. This category breadth provides customers with diverse options and comprehensive solutions within the most well-stocked product segment.
+            `;
+        }
+
+        // Chart 4: Revenue by Brand
+        function updateRevenueByBrandChart() {
+            const filteredData = getFilteredBrandRevenue();
+
+            // Aggregate by brand
+            const brandMap = {};
+            filteredData.forEach(item => {
+                if (!brandMap[item.brand]) {
+                    brandMap[item.brand] = 0;
+                }
+                brandMap[item.brand] += item.revenue;
+            });
+
+            const brands = Object.keys(brandMap).sort((a, b) => brandMap[b] - brandMap[a]);
+            const revenues = brands.map(brand => brandMap[brand]);
+
+            if (charts.revenueByBrand) charts.revenueByBrand.destroy();
+
+            const ctx = document.getElementById('revenueByBrandChart').getContext('2d');
+            charts.revenueByBrand = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: brands,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenues,
+                        backgroundColor: chartColors[2],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#666666' },
+                            grid: { color: '#EEEEEE' }
+                        },
+                        y: {
+                            ticks: { color: '#666666', font: { size: 12 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const topBrand = brands[0];
+            const topRevenue = brandMap[topBrand];
+            const totalRevenue = revenues.reduce((a, b) => a + b, 0);
+            const topBrandPercent = ((topRevenue / totalRevenue) * 100).toFixed(1);
+            document.getElementById('analysis4').innerHTML = `
+                <strong>${topBrand}</strong> dominates brand revenue with <strong>$${topRevenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>, capturing <strong>${topBrandPercent}%</strong> of brand-level revenue. This brand's strong market position reflects customer preference and consistent sales performance across the portfolio.
+            `;
+        }
+
+        // Update all charts and KPIs
+        function updateDashboard() {
+            updateKPIs();
+            updateTopProductsChart();
+            updateRevenueByCategoryChart();
+            updateProductsByCategoryChart();
+            updateRevenueByBrandChart();
+        }
+
+        // Add filter event listeners
+        document.getElementById('yearFilter').addEventListener('change', updateDashboard);
+        document.getElementById('brandFilter').addEventListener('change', updateDashboard);
+        document.getElementById('categoryFilter').addEventListener('change', updateDashboard);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFilters();
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>

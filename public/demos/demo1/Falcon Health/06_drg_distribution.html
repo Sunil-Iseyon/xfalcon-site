@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 6: DRG Distribution — Case Mix & Complexity</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; color: #2d3436; padding: 24px; }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .header .subtitle { font-size: 14px; color: #636e72; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .kpi-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; margin-bottom: 8px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; }
+        .kpi-card .sub { font-size: 12px; color: #636e72; margin-top: 4px; }
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #2d3436; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h500 { height: 500px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #dfe6e9; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f2f6; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+        .badge.surg { background: #ffeaea; color: #C75B5B; }
+        .badge.med { background: #e8f5e9; color: #5BA67D; }
+        .badge.sev1 { background: #e8f5e9; color: #5BA67D; }
+        .badge.sev2 { background: #fff3e0; color: #d35400; }
+        .badge.sev3 { background: #ffeaea; color: #C75B5B; }
+        .badge.over { background: #ffeaea; color: #C75B5B; }
+        .badge.under { background: #e8f5e9; color: #5BA67D; }
+        .badge.on-target { background: #e3f2fd; color: #2C5F8A; }
+        .insight-box { background: #f0f7ff; border-left: 4px solid #2C5F8A; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 24px; font-size: 13px; line-height: 1.6; }
+        .insight-box h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #2C5F8A; }
+        .insight-box .flag { color: #C75B5B; font-weight: 600; }
+        .insight-box .good { color: #5BA67D; font-weight: 600; }
+        .generated-note { text-align: center; font-size: 11px; color: #b2bec3; margin-top: 32px; padding-top: 16px; border-top: 1px solid #dfe6e9; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Area 6: DRG Distribution — Case Mix & Complexity</h1>
+    <div class="subtitle">15 DRGs | 150 Inpatient Encounters | $9.14M Total Billed | Jan 2023 – Dec 2025 | Generated March 11, 2026</div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="label">Unique DRGs</div>
+        <div class="value">15</div>
+        <div class="sub">All MS-DRG classifications</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Most Common DRG</div>
+        <div class="value" style="font-size:18px">DRG 392</div>
+        <div class="sub">Esophagitis/GI (14 enc)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Highest DRG Weight</div>
+        <div class="value">2.05</div>
+        <div class="sub">Major Joint Replacement (470)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Avg Collection Rate</div>
+        <div class="value">40.5%</div>
+        <div class="sub">Paid / Billed across all DRGs</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Surgical DRGs</div>
+        <div class="value">2 of 15</div>
+        <div class="sub">DRG 470 & 418 (22 encounters)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">High Severity (Lv3)</div>
+        <div class="value">28 enc</div>
+        <div class="sub">3 DRGs: Sepsis, Pneumonia, HF</div>
+    </div>
+</div>
+
+<!-- Key Findings -->
+<div class="insight-box">
+    <h4>Key Findings from DRG Analysis</h4>
+    <span class="flag">LOS Overrun Alert:</span> Laparoscopic Cholecystectomy (DRG 418) actual LOS is 5.5 days vs 3.0 expected (+2.5 days variance). Syncope (312) also runs 1.7 days over benchmark.
+    These represent opportunities for care pathway optimization.<br>
+    <span class="good">Efficiency Wins:</span> Heart Failure w MCC (291) runs 1.85 days under benchmark, Pneumonia w MCC (193) is 1.64 days under, and Renal Failure (683) is 1.55 days under expected LOS.
+    However, short stays should be validated against readmission rates.<br>
+    <strong>Case Mix:</strong> Dominated by medical DRGs (85% of encounters). Average DRG weight of ~1.10 indicates moderate complexity. Digestive and Kidney/UT conditions are most common MDC categories.
+</div>
+
+<!-- DRG Volume + LOS Variance -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>DRG Volume Ranking</h3>
+        <div class="chart-wrap h500">
+            <canvas id="volumeChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>LOS Variance: Actual vs Expected (Days)</h3>
+        <div class="chart-wrap h500">
+            <canvas id="varianceChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Medical vs Surgical + Severity -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Medical vs Surgical DRG Split</h3>
+        <div class="chart-wrap h250">
+            <canvas id="typeChart"></canvas>
+        </div>
+        <div style="margin-top:16px; font-size:12px; color:#636e72;">
+            <table style="width:100%; font-size:12px;">
+                <tr><td><strong>Metric</strong></td><td style="text-align:right"><strong>Medical</strong></td><td style="text-align:right"><strong>Surgical</strong></td></tr>
+                <tr><td>Encounters</td><td style="text-align:right">128</td><td style="text-align:right">22</td></tr>
+                <tr><td>Avg DRG Weight</td><td style="text-align:right">1.03</td><td style="text-align:right">1.60</td></tr>
+                <tr><td>Avg Billed</td><td style="text-align:right">$59K</td><td style="text-align:right">$64K</td></tr>
+                <tr><td>Avg LOS</td><td style="text-align:right">3.6 days</td><td style="text-align:right">4.8 days</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Severity Level Distribution</h3>
+        <div class="chart-wrap h250">
+            <canvas id="severityChart"></canvas>
+        </div>
+        <div style="margin-top:16px; font-size:12px; color:#636e72;">
+            <table style="width:100%; font-size:12px;">
+                <tr><td><strong>Level</strong></td><td style="text-align:right"><strong>Enc</strong></td><td style="text-align:right"><strong>Avg Billed</strong></td><td style="text-align:right"><strong>Avg LOS</strong></td></tr>
+                <tr><td>Level 1 (Low)</td><td style="text-align:right">47</td><td style="text-align:right">$57K</td><td style="text-align:right">3.8 days</td></tr>
+                <tr><td>Level 2 (Moderate)</td><td style="text-align:right">75</td><td style="text-align:right">$63K</td><td style="text-align:right">3.8 days</td></tr>
+                <tr><td>Level 3 (High)</td><td style="text-align:right">28</td><td style="text-align:right">$56K</td><td style="text-align:right">3.9 days</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- DRG Weight vs Billed + MDC Distribution -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>DRG Weight vs Avg Billed Amount</h3>
+        <div class="chart-wrap h300">
+            <canvas id="weightBilledChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>MDC (Major Diagnostic Category) Distribution</h3>
+        <div class="chart-wrap h300">
+            <canvas id="mdcChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- YoY Volume Trend -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>DRG Volume by Year (Top 8 DRGs)</h3>
+        <div class="chart-wrap h300">
+            <canvas id="yoyChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- LOS Variance Detail Table -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>DRG Performance Detail — LOS Variance & Financial Analysis</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>DRG</th>
+                        <th>Description</th>
+                        <th>MDC</th>
+                        <th class="num">Weight</th>
+                        <th>Severity</th>
+                        <th>Type</th>
+                        <th class="num">Enc</th>
+                        <th class="num">Expected LOS</th>
+                        <th class="num">Actual LOS</th>
+                        <th class="num">Variance</th>
+                        <th class="num">Avg Billed</th>
+                        <th class="num">Avg Paid</th>
+                        <th class="num">Collection %</th>
+                    </tr>
+                </thead>
+                <tbody id="detailBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="generated-note">Generated by IDA | DRG Case Mix Analysis | Data: Jan 2023 – Dec 2025</div>
+
+<script>
+const C = {primary:'#2C5F8A',secondary:'#E8913A',success:'#5BA67D',danger:'#C75B5B',warning:'#D4A843',info:'#6A9BC3',purple:'#8E6BBF',teal:'#4ECDC4',muted:'#B2BEC3'};
+const CC = ['#2C5F8A','#E8913A','#5BA67D','#C75B5B','#D4A843','#6A9BC3','#8E6BBF','#4ECDC4','#B2BEC3','#e17055'];
+function fmt(v){if(Math.abs(v)>=1e6)return '$'+(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return '$'+(v/1e3).toFixed(0)+'K';return '$'+v.toFixed(0);}
+
+const drgs = [
+    {code:"392",desc:"Esophagitis/GI w/o MCC",mdc:"Digestive",w:1.18,elos:4.2,sev:2,surg:false,enc:14,avg:65011,avgPaid:26720,alos:4.36,coll:41.1},
+    {code:"065",desc:"Intracranial Hemorrhage",mdc:"Nervous System",w:1.07,elos:3.6,sev:2,surg:false,enc:13,avg:70236,avgPaid:28983,alos:3.62,coll:41.3},
+    {code:"871",desc:"Septicemia/Severe Sepsis",mdc:"Infectious",w:1.88,elos:5.3,sev:3,surg:false,enc:13,avg:55896,avgPaid:22647,alos:4.54,coll:40.5},
+    {code:"470",desc:"Major Joint Replacement",mdc:"Musculoskeletal",w:2.05,elos:3.2,sev:2,surg:true,enc:12,avg:61074,avgPaid:25370,alos:4.5,coll:41.5},
+    {code:"683",desc:"Renal Failure w CC",mdc:"Kidney/UT",w:0.95,elos:3.8,sev:2,surg:false,enc:12,avg:81539,avgPaid:33122,alos:2.25,coll:40.6},
+    {code:"690",desc:"Kidney/UT Infections",mdc:"Kidney/UT",w:0.74,elos:3.6,sev:1,surg:false,enc:11,avg:56186,avgPaid:22774,alos:3.64,coll:40.5},
+    {code:"603",desc:"Cellulitis w/o MCC",mdc:"Skin",w:0.77,elos:3.8,sev:1,surg:false,enc:11,avg:46865,avgPaid:20045,alos:2.82,coll:42.8},
+    {code:"193",desc:"Pneumonia w MCC",mdc:"Respiratory",w:1.41,elos:5.0,sev:3,surg:false,enc:11,avg:59214,avgPaid:23703,alos:3.36,coll:40.0},
+    {code:"418",desc:"Lap Cholecystectomy",mdc:"Hepatobiliary",w:1.14,elos:3.0,sev:1,surg:true,enc:10,avg:67026,avgPaid:26750,alos:5.5,coll:39.9},
+    {code:"312",desc:"Syncope & Collapse",mdc:"Circulatory",w:0.72,elos:2.6,sev:1,surg:false,enc:10,avg:61193,avgPaid:24841,alos:4.3,coll:40.6},
+    {code:"194",desc:"Pneumonia w CC",mdc:"Respiratory",w:0.93,elos:4.0,sev:2,surg:false,enc:9,avg:58774,avgPaid:23416,alos:4.89,coll:39.8},
+    {code:"885",desc:"Psychoses",mdc:"Mental",w:1.00,elos:5.5,sev:2,surg:false,enc:8,avg:45506,avgPaid:19527,alos:5.88,coll:42.9},
+    {code:"378",desc:"GI Hemorrhage w CC",mdc:"Digestive",w:1.03,elos:3.7,sev:2,surg:false,enc:7,avg:55014,avgPaid:21504,alos:2.29,coll:39.1},
+    {code:"948",desc:"Signs/Symptoms w/o MCC",mdc:"Factors/Health",w:0.59,elos:2.4,sev:1,surg:false,enc:5,avg:64711,avgPaid:25774,alos:3.8,coll:39.8},
+    {code:"291",desc:"Heart Failure w MCC",mdc:"Circulatory",w:1.35,elos:5.1,sev:3,surg:false,enc:4,avg:51438,avgPaid:20451,alos:3.25,coll:39.8}
+];
+
+// YoY data for top 8
+const yoyDrgs = [
+    {code:"392",y2023:3,y2024:7,y2025:4},
+    {code:"065",y2023:7,y2024:3,y2025:3},
+    {code:"871",y2023:5,y2024:3,y2025:5},
+    {code:"470",y2023:5,y2024:2,y2025:5},
+    {code:"683",y2023:4,y2024:3,y2025:5},
+    {code:"690",y2023:4,y2024:2,y2025:5},
+    {code:"603",y2023:2,y2024:6,y2025:3},
+    {code:"193",y2023:3,y2024:4,y2025:4}
+];
+
+// === Chart 1: Volume Ranking ===
+const sorted = [...drgs].sort((a,b) => a.enc - b.enc);
+new Chart(document.getElementById('volumeChart'), {
+    type: 'bar',
+    data: {
+        labels: sorted.map(d => d.code+': '+d.desc),
+        datasets: [{
+            data: sorted.map(d => d.enc),
+            backgroundColor: sorted.map(d => d.surg ? C.danger : C.primary),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: ctx => { const d=sorted[ctx.dataIndex]; return `Weight: ${d.w} | Severity: ${d.sev}\nAvg Billed: ${fmt(d.avg)}`; }}}},
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 2: LOS Variance (diverging bar) ===
+const byVariance = [...drgs].sort((a,b) => (b.alos-b.elos) - (a.alos-a.elos));
+new Chart(document.getElementById('varianceChart'), {
+    type: 'bar',
+    data: {
+        labels: byVariance.map(d => d.code+': '+d.desc.substring(0,20)),
+        datasets: [{
+            label: 'LOS Variance (Days)',
+            data: byVariance.map(d => +(d.alos - d.elos).toFixed(2)),
+            backgroundColor: byVariance.map(d => (d.alos-d.elos) > 0.5 ? C.danger : (d.alos-d.elos) < -0.5 ? C.success : C.info),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: ctx => { const d=byVariance[ctx.dataIndex]; return `Expected: ${d.elos} days\nActual: ${d.alos} days`; }}}},
+        scales: { x: { title: { display: true, text: 'Variance (Days) — Red = Over, Green = Under' } } }
+    }
+});
+
+// === Chart 3: Medical vs Surgical ===
+new Chart(document.getElementById('typeChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Medical (128 enc)', 'Surgical (22 enc)'],
+        datasets: [{ data: [128, 22], backgroundColor: [C.primary, C.danger], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+});
+
+// === Chart 4: Severity ===
+new Chart(document.getElementById('severityChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Level 1\n(Low)', 'Level 2\n(Moderate)', 'Level 3\n(High)'],
+        datasets: [{
+            data: [47, 75, 28],
+            backgroundColor: [C.success, C.warning, C.danger],
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 5: Weight vs Billed (bubble) ===
+new Chart(document.getElementById('weightBilledChart'), {
+    type: 'bubble',
+    data: {
+        datasets: drgs.map((d,i) => ({
+            label: d.code+': '+d.desc,
+            data: [{ x: d.w, y: d.avg, r: Math.max(5, d.enc * 1.2) }],
+            backgroundColor: CC[i % CC.length] + 'BB'
+        }))
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => { const d=drgs[ctx.datasetIndex]; return `${d.code}: Wt ${d.w}, Avg ${fmt(d.avg)}, ${d.enc} enc`; }}}},
+        scales: {
+            x: { title: { display: true, text: 'DRG Weight' } },
+            y: { title: { display: true, text: 'Avg Billed ($)' }, ticks: { callback: v => fmt(v) } }
+        }
+    }
+});
+
+// === Chart 6: MDC Distribution ===
+const mdcMap = {};
+drgs.forEach(d => { mdcMap[d.mdc] = (mdcMap[d.mdc]||0) + d.enc; });
+const mdcEntries = Object.entries(mdcMap).sort((a,b) => b[1]-a[1]);
+new Chart(document.getElementById('mdcChart'), {
+    type: 'bar',
+    data: {
+        labels: mdcEntries.map(e => e[0]),
+        datasets: [{ data: mdcEntries.map(e => e[1]), backgroundColor: C.secondary, borderRadius: 4 }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 7: YoY ===
+new Chart(document.getElementById('yoyChart'), {
+    type: 'bar',
+    data: {
+        labels: yoyDrgs.map(d => 'DRG '+d.code),
+        datasets: [
+            { label: '2023', data: yoyDrgs.map(d => d.y2023), backgroundColor: C.muted, borderRadius: 4 },
+            { label: '2024', data: yoyDrgs.map(d => d.y2024), backgroundColor: C.info, borderRadius: 4 },
+            { label: '2025', data: yoyDrgs.map(d => d.y2025), backgroundColor: C.primary, borderRadius: 4 }
+        ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+});
+
+// === Detail Table ===
+const tbody = document.getElementById('detailBody');
+const bySorted = [...drgs].sort((a,b) => (b.alos-b.elos) - (a.alos-a.elos));
+tbody.innerHTML = bySorted.map(d => {
+    const variance = (d.alos - d.elos).toFixed(2);
+    const vClass = variance > 0.5 ? 'over' : variance < -0.5 ? 'under' : 'on-target';
+    const vLabel = variance > 0.5 ? '+'+variance+' OVER' : variance < -0.5 ? variance+' UNDER' : variance+' OK';
+    const sevClass = d.sev===1?'sev1':d.sev===2?'sev2':'sev3';
+    return `<tr>
+        <td><strong>${d.code}</strong></td>
+        <td>${d.desc}</td>
+        <td>${d.mdc}</td>
+        <td class="num">${d.w.toFixed(2)}</td>
+        <td><span class="badge ${sevClass}">Lv ${d.sev}</span></td>
+        <td><span class="badge ${d.surg?'surg':'med'}">${d.surg?'Surgical':'Medical'}</span></td>
+        <td class="num">${d.enc}</td>
+        <td class="num">${d.elos.toFixed(1)}</td>
+        <td class="num">${d.alos.toFixed(2)}</td>
+        <td class="num"><span class="badge ${vClass}">${vLabel}</span></td>
+        <td class="num">${fmt(d.avg)}</td>
+        <td class="num">${fmt(d.avgPaid)}</td>
+        <td class="num">${d.coll.toFixed(1)}%</td>
+    </tr>`;
+}).join('');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Overview — Falcon Consumer</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'retailedge')</script>
+<link rel="stylesheet" href="theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background:#F3F4F6; color:#1E293B; line-height:1.5; }
+    .topbar { background:#1A1A2E; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    .topbar-left { display:flex; align-items:center; gap:16px; }
+    .logo { font-size:32px; font-weight:700; letter-spacing:-2px; }
+    .topbar-title { font-size:20px; font-weight:700; color:#FFFFFF; }
+    .topbar-subtitle { font-size:12px; font-weight:600; color:#94A3B8; margin-top:2px; }
+    .topbar-right a { color:#94A3B8; text-decoration:none; font-size:13px; font-weight:600; }
+    .topbar-right a:hover { color:#00AEFF; }
+    .container { max-width:1400px; margin:0 auto; padding:24px; }
+    .page-title { font-size:22px; font-weight:700; color:#1E293B; margin-bottom:4px; }
+    .page-subtitle { font-size:13px; color:#64748B; margin-bottom:20px; }
+
+    .filter-bar { background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:16px 20px; margin-bottom:24px; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+    .filter-group { display:flex; flex-direction:column; gap:4px; }
+    .filter-group label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#64748B; }
+    .filter-group select, .filter-group .multi { padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; background:#FFFFFF; color:#1E293B; min-width:180px; font-family:inherit; cursor:pointer; }
+    .filter-group .multi { position:relative; user-select:none; }
+    .multi-summary { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+    .multi-dropdown { position:absolute; top:100%; left:0; right:0; background:#FFF; border:1px solid #CBD5E1; border-radius:6px; margin-top:4px; padding:8px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:50; max-height:240px; overflow-y:auto; display:none; }
+    .multi.open .multi-dropdown { display:block; }
+    .multi-dropdown label { display:flex; align-items:center; gap:8px; padding:6px 4px; font-size:13px; cursor:pointer; text-transform:none; letter-spacing:0; color:#1E293B; font-weight:400; }
+    .multi-dropdown label:hover { background:#F1F5F9; border-radius:4px; }
+    .toggle-group { display:flex; align-items:center; gap:10px; padding:6px 12px; background:#F8FAFC; border-radius:6px; height:36px; border:1px solid #E2E8F0; cursor:pointer; }
+    .toggle-switch { position:relative; width:36px; height:20px; background:#CBD5E1; border-radius:20px; transition:background 0.2s; flex-shrink:0; }
+    .toggle-switch.on { background:#00AEFF; }
+    .toggle-switch::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; background:#FFF; border-radius:50%; transition:transform 0.2s; }
+    .toggle-switch.on::after { transform:translateX(16px); }
+    .toggle-label { font-size:13px; font-weight:600; color:#1E293B; white-space:nowrap; }
+    .reset-btn { padding:8px 14px; border:1px solid #CBD5E1; background:#FFFFFF; border-radius:6px; font-size:13px; font-weight:600; color:#475569; cursor:pointer; height:36px; }
+    .reset-btn:hover { background:#F1F5F9; }
+
+    .disclaimer { background:#FEF3C7; border-left:4px solid #F59E0B; padding:12px 16px; border-radius:4px; font-size:12px; color:#78350F; margin-bottom:20px; }
+    .disclaimer strong { color:#7C2D12; }
+    .disclaimer code { background:#FDE68A; padding:1px 4px; border-radius:3px; font-size:11px; }
+
+    .kpi-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px; }
+    .kpi-card { background:#FFF; border-radius:8px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border:1px solid #E2E8F0; }
+    .kpi-label { font-size:11px; font-weight:600; text-transform:uppercase; color:#64748B; letter-spacing:0.5px; margin-bottom:10px; }
+    .kpi-value { font-size:26px; font-weight:700; color:#00AEFF; margin-bottom:6px; word-break:break-word; }
+    .kpi-delta { font-size:12px; font-weight:600; }
+    .kpi-delta.positive { color:#059669; }
+    .kpi-delta.negative { color:#D32F2F; }
+    .kpi-delta.neutral { color:#64748B; }
+    .kpi-compare { display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+    .kpi-compare-row { display:flex; justify-content:space-between; align-items:baseline; font-size:13px; }
+    .kpi-compare-year { color:#64748B; font-weight:600; font-size:11px; }
+    .kpi-compare-val { font-weight:700; color:#1E293B; }
+    .kpi-compare-val.highlight { color:#00AEFF; }
+
+    .section-title { font-size:16px; font-weight:700; color:#1E293B; margin:24px 0 12px; }
+    .chart-grid-2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(460px, 1fr)); gap:20px; margin-bottom:24px; }
+    .chart-card { background:#FFF; border-radius:8px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border:1px solid #E2E8F0; }
+    .chart-card.full { grid-column:1/-1; }
+    .chart-title { font-size:14px; font-weight:700; color:#00AEFF; margin-bottom:14px; }
+    .chart-sub { font-size:11px; color:#64748B; margin-bottom:12px; }
+    .chart-wrapper { position:relative; height:320px; }
+    .chart-wrapper.tall { height:360px; }
+
+    .table-card { background:#FFF; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border:1px solid #E2E8F0; overflow:hidden; margin-bottom:24px; }
+    .table-header { padding:20px; border-bottom:1px solid #E2E8F0; }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#F8FAFC; color:#475569; padding:12px 14px; text-align:left; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.3px; border-bottom:2px solid #E2E8F0; }
+    td { padding:12px 14px; border-bottom:1px solid #F1F5F9; font-size:13px; color:#1E293B; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#F8FAFC; }
+    .text-right { text-align:right; }
+    .pos { color:#059669; font-weight:600; }
+    .neg { color:#D32F2F; font-weight:600; }
+
+    .footer { text-align:center; padding:24px; font-size:12px; color:#64748B; margin-top:24px; }
+    .footer a { color:#00AEFF; text-decoration:none; font-weight:600; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span style="color:#00AEFF">x</span><span style="color:#1A7F64">F</span></span>
+    <div>
+      <div class="topbar-title">Executive Overview</div>
+      <div class="topbar-subtitle">Falcon Consumer · xFalcon AnalyticsPro</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html">← Dashboard suite</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-title">Executive Overview</div>
+  <div class="page-subtitle">Net sales, orders, customers, and AOV across all 7 business units. Every chart responds to the filters below.</div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel">
+        <option value="2024" selected>FY 2024</option>
+        <option value="2023">FY 2023</option>
+        <option value="2022">FY 2022</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Business Unit</label>
+      <div class="multi" id="buMulti">
+        <div class="multi-summary" id="buSummary" onclick="toggleMulti('buMulti')">All (7)</div>
+        <div class="multi-dropdown" id="buDropdown"></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>Customer Type</label>
+      <div class="multi" id="ctMulti">
+        <div class="multi-summary" id="ctSummary" onclick="toggleMulti('ctMulti')">All (5)</div>
+        <div class="multi-dropdown" id="ctDropdown"></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <div class="toggle-group" onclick="toggleCompare()">
+        <div class="toggle-switch" id="cmpSwitch"></div>
+        <div class="toggle-label">Compare Years</div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <button class="reset-btn" onclick="resetFilters()">Reset</button>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Data governance:</strong> Metrics sourced from <code>FACT_CUSTOMER_PERFORMANCE</code> (PERIOD_TYPE=MTH, GOAL_TYPE_KEY=5 / NET_SALES_GOAL). No exclusions — employee, fraud, and deceased records are included per org policy. Customer Type filter on this page scales revenue proportionally because the BU × Customer Type cross-section is not pre-aggregated in the fact grain.
+  </div>
+
+  <!-- KPIs -->
+  <div class="section-title" id="kpiSectionTitle">FY 2024 Key Performance Indicators</div>
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- Monthly trend -->
+  <div class="chart-grid-2">
+    <div class="chart-card full">
+      <div class="chart-title" id="trendTitle">Monthly Net Sales — FY 2024</div>
+      <div class="chart-sub">Responds to Year, Business Unit, Customer Type, and Compare Years toggle.</div>
+      <div class="chart-wrapper tall"><canvas id="trendChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BU + Channel -->
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-title" id="buTitle">Net Sales by Business Unit — FY 2024</div>
+      <div class="chart-wrapper"><canvas id="buChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" id="channelTitle">Revenue Share by Channel Type — FY 2024</div>
+      <div class="chart-wrapper"><canvas id="channelChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Customer type + quarterly -->
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-title" id="ctypeTitle">Revenue by Customer Type — FY 2024</div>
+      <div class="chart-sub">NEW = ≤90d · RETURNING = repeat · VIP = high-value · LAPSED = 91–365d inactive · REACTIVATED = win-back</div>
+      <div class="chart-wrapper"><canvas id="ctypeChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" id="qtrTitle">Quarterly Net Sales — FY 2024</div>
+      <div class="chart-wrapper"><canvas id="qtrChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BU detail table -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="chart-title" id="buTableTitle" style="margin-bottom:4px;">Business Unit Detail — FY 2024</div>
+      <div class="chart-sub">Filtered by selected business units. YoY uses prior fiscal year.</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Business Unit</th>
+          <th>Channel</th>
+          <th>Region</th>
+          <th class="text-right">Net Sales</th>
+          <th class="text-right">Orders</th>
+          <th class="text-right">Customers</th>
+          <th class="text-right">AOV</th>
+          <th class="text-right">YoY Rev</th>
+        </tr>
+      </thead>
+      <tbody id="buTableBody"></tbody>
+      <tfoot>
+        <tr id="buTableFoot" style="background:#F8FAFC; font-weight:700;"></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="footer">
+    Falcon Consumer · xFalcon AnalyticsPro · Data source: IDA warehouse (FACT_CUSTOMER_PERFORMANCE, DIM_BUSINESS_UNIT, DIM_DATE) · <a href="metrics-definitions.html">Metric definitions</a>
+  </div>
+</div>
+
+<script>
+// ============================================================================
+// REAL DATA — pulled from IDA warehouse, filtered to GOAL_TYPE_KEY = 5
+// ============================================================================
+const YEARLY = [
+  { year:2022, net_sales:23495825.16, orders:41200, customers:302191, units:110192, aov:570.29 },
+  { year:2023, net_sales:25038567.96, orders:43805, customers:325342, units:116655, aov:571.59 },
+  { year:2024, net_sales:27071727.56, orders:47645, customers:348446, units:126389, aov:568.20 }
+];
+
+const BU_MONTH = [
+  {y:2022,m:1,bu:"Bijou Accessories",rev:480575.03,ord:578,cust:5526},{y:2022,m:1,bu:"LuxeStyle Mobile App",rev:293332.23,ord:549,cust:1235},{y:2022,m:1,bu:"LuxeStyle Online",rev:607810.19,ord:1318,cust:6450},{y:2022,m:1,bu:"LuxeStyle Outlet",rev:144868.17,ord:275,cust:5432},{y:2022,m:1,bu:"Maison Luxe",rev:75788.64,ord:230,cust:2123},{y:2022,m:1,bu:"SoleStep Footwear",rev:81784.69,ord:166,cust:1162},{y:2022,m:1,bu:"Urban Thread",rev:516962.17,ord:715,cust:5680},
+  {y:2022,m:2,bu:"Bijou Accessories",rev:292245.64,ord:380,cust:3465},{y:2022,m:2,bu:"LuxeStyle Mobile App",rev:188926.71,ord:360,cust:759},{y:2022,m:2,bu:"LuxeStyle Online",rev:388508.07,ord:858,cust:3735},{y:2022,m:2,bu:"LuxeStyle Outlet",rev:88515.84,ord:159,cust:3521},{y:2022,m:2,bu:"Maison Luxe",rev:47904.01,ord:147,cust:1369},{y:2022,m:2,bu:"SoleStep Footwear",rev:48355.40,ord:98,cust:737},{y:2022,m:2,bu:"Urban Thread",rev:291379.73,ord:389,cust:3947},
+  {y:2022,m:3,bu:"Bijou Accessories",rev:403217.42,ord:503,cust:4971},{y:2022,m:3,bu:"LuxeStyle Mobile App",rev:231478.12,ord:463,cust:1119},{y:2022,m:3,bu:"LuxeStyle Online",rev:495358.70,ord:1082,cust:5040},{y:2022,m:3,bu:"LuxeStyle Outlet",rev:120614.57,ord:212,cust:4446},{y:2022,m:3,bu:"Maison Luxe",rev:67279.33,ord:210,cust:1928},{y:2022,m:3,bu:"SoleStep Footwear",rev:67990.92,ord:150,cust:971},{y:2022,m:3,bu:"Urban Thread",rev:437380.49,ord:570,cust:4832},
+  {y:2022,m:4,bu:"Bijou Accessories",rev:441713.37,ord:563,cust:4887},{y:2022,m:4,bu:"LuxeStyle Mobile App",rev:271536.91,ord:531,cust:1223},{y:2022,m:4,bu:"LuxeStyle Online",rev:579767.50,ord:1220,cust:5668},{y:2022,m:4,bu:"LuxeStyle Outlet",rev:144486.62,ord:256,cust:5498},{y:2022,m:4,bu:"Maison Luxe",rev:76909.32,ord:223,cust:1952},{y:2022,m:4,bu:"SoleStep Footwear",rev:72500.18,ord:152,cust:1129},{y:2022,m:4,bu:"Urban Thread",rev:457193.30,ord:616,cust:5584},
+  {y:2022,m:5,bu:"Bijou Accessories",rev:314587.03,ord:391,cust:3834},{y:2022,m:5,bu:"LuxeStyle Mobile App",rev:197810.63,ord:402,cust:920},{y:2022,m:5,bu:"LuxeStyle Online",rev:435480.62,ord:982,cust:3847},{y:2022,m:5,bu:"LuxeStyle Outlet",rev:104505.32,ord:196,cust:3742},{y:2022,m:5,bu:"Maison Luxe",rev:55675.83,ord:166,cust:1553},{y:2022,m:5,bu:"SoleStep Footwear",rev:56666.05,ord:120,cust:832},{y:2022,m:5,bu:"Urban Thread",rev:356935.32,ord:481,cust:3960},
+  {y:2022,m:6,bu:"Bijou Accessories",rev:402272.91,ord:499,cust:4955},{y:2022,m:6,bu:"LuxeStyle Mobile App",rev:235602.03,ord:456,cust:1020},{y:2022,m:6,bu:"LuxeStyle Online",rev:505582.74,ord:1088,cust:5086},{y:2022,m:6,bu:"LuxeStyle Outlet",rev:125855.61,ord:219,cust:4761},{y:2022,m:6,bu:"Maison Luxe",rev:63239.22,ord:185,cust:1875},{y:2022,m:6,bu:"SoleStep Footwear",rev:68321.91,ord:136,cust:1024},{y:2022,m:6,bu:"Urban Thread",rev:416721.52,ord:558,cust:5069},
+  {y:2022,m:7,bu:"Bijou Accessories",rev:282885.54,ord:361,cust:3647},{y:2022,m:7,bu:"LuxeStyle Mobile App",rev:181343.19,ord:347,cust:802},{y:2022,m:7,bu:"LuxeStyle Online",rev:356983.41,ord:758,cust:3649},{y:2022,m:7,bu:"LuxeStyle Outlet",rev:87212.85,ord:162,cust:3370},{y:2022,m:7,bu:"Maison Luxe",rev:49756.97,ord:151,cust:1414},{y:2022,m:7,bu:"SoleStep Footwear",rev:46934.12,ord:95,cust:766},{y:2022,m:7,bu:"Urban Thread",rev:324520.41,ord:420,cust:3597},
+  {y:2022,m:8,bu:"Bijou Accessories",rev:323886.55,ord:385,cust:4027},{y:2022,m:8,bu:"LuxeStyle Mobile App",rev:197601.75,ord:377,cust:838},{y:2022,m:8,bu:"LuxeStyle Online",rev:415458.34,ord:949,cust:4209},{y:2022,m:8,bu:"LuxeStyle Outlet",rev:99055.71,ord:170,cust:3559},{y:2022,m:8,bu:"Maison Luxe",rev:53563.08,ord:157,cust:1492},{y:2022,m:8,bu:"SoleStep Footwear",rev:53483.76,ord:115,cust:811},{y:2022,m:8,bu:"Urban Thread",rev:364410.78,ord:460,cust:4200},
+  {y:2022,m:9,bu:"Bijou Accessories",rev:443099.85,ord:524,cust:5773},{y:2022,m:9,bu:"LuxeStyle Mobile App",rev:261619.71,ord:509,cust:1073},{y:2022,m:9,bu:"LuxeStyle Online",rev:586870.75,ord:1251,cust:5241},{y:2022,m:9,bu:"LuxeStyle Outlet",rev:144591.21,ord:261,cust:4937},{y:2022,m:9,bu:"Maison Luxe",rev:70988.53,ord:201,cust:2110},{y:2022,m:9,bu:"SoleStep Footwear",rev:76614.31,ord:168,cust:1033},{y:2022,m:9,bu:"Urban Thread",rev:481650.97,ord:648,cust:5767},
+  {y:2022,m:10,bu:"Bijou Accessories",rev:485964.03,ord:621,cust:5139},{y:2022,m:10,bu:"LuxeStyle Mobile App",rev:280563.14,ord:544,cust:1302},{y:2022,m:10,bu:"LuxeStyle Online",rev:601638.91,ord:1289,cust:6103},{y:2022,m:10,bu:"LuxeStyle Outlet",rev:152495.96,ord:279,cust:5834},{y:2022,m:10,bu:"Maison Luxe",rev:77063.44,ord:233,cust:2228},{y:2022,m:10,bu:"SoleStep Footwear",rev:81721.56,ord:173,cust:1191},{y:2022,m:10,bu:"Urban Thread",rev:497705.67,ord:651,cust:5846},
+  {y:2022,m:11,bu:"Bijou Accessories",rev:577159.11,ord:711,cust:7514},{y:2022,m:11,bu:"LuxeStyle Mobile App",rev:342620.87,ord:682,cust:1558},{y:2022,m:11,bu:"LuxeStyle Online",rev:786742.49,ord:1817,cust:8279},{y:2022,m:11,bu:"LuxeStyle Outlet",rev:177898.36,ord:329,cust:6688},{y:2022,m:11,bu:"Maison Luxe",rev:98081.38,ord:291,cust:2760},{y:2022,m:11,bu:"SoleStep Footwear",rev:96932.83,ord:198,cust:1423},{y:2022,m:11,bu:"Urban Thread",rev:594734.65,ord:771,cust:7272},
+  {y:2022,m:12,bu:"Bijou Accessories",rev:666560.00,ord:852,cust:7676},{y:2022,m:12,bu:"LuxeStyle Mobile App",rev:393268.32,ord:807,cust:1907},{y:2022,m:12,bu:"LuxeStyle Online",rev:811171.94,ord:1765,cust:8880},{y:2022,m:12,bu:"LuxeStyle Outlet",rev:211107.72,ord:401,cust:8154},{y:2022,m:12,bu:"Maison Luxe",rev:111310.82,ord:322,cust:3159},{y:2022,m:12,bu:"SoleStep Footwear",rev:116419.29,ord:242,cust:1577},{y:2022,m:12,bu:"Urban Thread",rev:678492.87,ord:901,cust:8519},
+  {y:2023,m:1,bu:"Bijou Accessories",rev:515344.45,ord:685,cust:5632},{y:2023,m:1,bu:"LuxeStyle Mobile App",rev:309717.30,ord:604,cust:1435},{y:2023,m:1,bu:"LuxeStyle Online",rev:670171.41,ord:1402,cust:6976},{y:2023,m:1,bu:"LuxeStyle Outlet",rev:151324.38,ord:274,cust:6430},{y:2023,m:1,bu:"Maison Luxe",rev:82572.79,ord:230,cust:2518},{y:2023,m:1,bu:"SoleStep Footwear",rev:86596.10,ord:188,cust:1220},{y:2023,m:1,bu:"Urban Thread",rev:527651.19,ord:679,cust:6583},
+  {y:2023,m:2,bu:"Bijou Accessories",rev:322451.25,ord:408,cust:3883},{y:2023,m:2,bu:"LuxeStyle Mobile App",rev:197058.74,ord:385,cust:821},{y:2023,m:2,bu:"LuxeStyle Online",rev:407226.67,ord:846,cust:3898},{y:2023,m:2,bu:"LuxeStyle Outlet",rev:102481.45,ord:185,cust:3405},{y:2023,m:2,bu:"Maison Luxe",rev:52392.87,ord:161,cust:1503},{y:2023,m:2,bu:"SoleStep Footwear",rev:54180.81,ord:108,cust:798},{y:2023,m:2,bu:"Urban Thread",rev:335861.54,ord:438,cust:4375},
+  {y:2023,m:3,bu:"Bijou Accessories",rev:435538.03,ord:528,cust:5341},{y:2023,m:3,bu:"LuxeStyle Mobile App",rev:259740.67,ord:512,cust:1217},{y:2023,m:3,bu:"LuxeStyle Online",rev:549895.07,ord:1215,cust:5519},{y:2023,m:3,bu:"LuxeStyle Outlet",rev:138354.27,ord:255,cust:4898},{y:2023,m:3,bu:"Maison Luxe",rev:75290.55,ord:212,cust:2125},{y:2023,m:3,bu:"SoleStep Footwear",rev:73995.15,ord:166,cust:1131},{y:2023,m:3,bu:"Urban Thread",rev:446454.44,ord:565,cust:5339},
+  {y:2023,m:4,bu:"Bijou Accessories",rev:449262.13,ord:584,cust:5474},{y:2023,m:4,bu:"LuxeStyle Mobile App",rev:296671.13,ord:546,cust:1308},{y:2023,m:4,bu:"LuxeStyle Online",rev:597252.16,ord:1256,cust:5915},{y:2023,m:4,bu:"LuxeStyle Outlet",rev:143134.51,ord:244,cust:5343},{y:2023,m:4,bu:"Maison Luxe",rev:78855.84,ord:223,cust:2331},{y:2023,m:4,bu:"SoleStep Footwear",rev:74516.05,ord:158,cust:1230},{y:2023,m:4,bu:"Urban Thread",rev:500507.05,ord:655,cust:5811},
+  {y:2023,m:5,bu:"Bijou Accessories",rev:345145.55,ord:424,cust:3817},{y:2023,m:5,bu:"LuxeStyle Mobile App",rev:214526.43,ord:414,cust:967},{y:2023,m:5,bu:"LuxeStyle Online",rev:470588.22,ord:996,cust:4599},{y:2023,m:5,bu:"LuxeStyle Outlet",rev:107496.48,ord:192,cust:4349},{y:2023,m:5,bu:"Maison Luxe",rev:60679.47,ord:184,cust:1590},{y:2023,m:5,bu:"SoleStep Footwear",rev:59818.02,ord:126,cust:899},{y:2023,m:5,bu:"Urban Thread",rev:362756.25,ord:474,cust:4385},
+  {y:2023,m:6,bu:"Bijou Accessories",rev:399764.75,ord:481,cust:5424},{y:2023,m:6,bu:"LuxeStyle Mobile App",rev:266122.76,ord:529,cust:1156},{y:2023,m:6,bu:"LuxeStyle Online",rev:574304.48,ord:1318,cust:6001},{y:2023,m:6,bu:"LuxeStyle Outlet",rev:131236.32,ord:231,cust:4777},{y:2023,m:6,bu:"Maison Luxe",rev:70622.01,ord:202,cust:2166},{y:2023,m:6,bu:"SoleStep Footwear",rev:69828.89,ord:142,cust:1098},{y:2023,m:6,bu:"Urban Thread",rev:428732.24,ord:534,cust:5670},
+  {y:2023,m:7,bu:"Bijou Accessories",rev:304884.09,ord:370,cust:4051},{y:2023,m:7,bu:"LuxeStyle Mobile App",rev:184925.98,ord:353,cust:905},{y:2023,m:7,bu:"LuxeStyle Online",rev:405182.63,ord:861,cust:4098},{y:2023,m:7,bu:"LuxeStyle Outlet",rev:102796.40,ord:179,cust:3900},{y:2023,m:7,bu:"Maison Luxe",rev:52502.91,ord:160,cust:1443},{y:2023,m:7,bu:"SoleStep Footwear",rev:54799.15,ord:113,cust:777},{y:2023,m:7,bu:"Urban Thread",rev:322912.59,ord:429,cust:4058},
+  {y:2023,m:8,bu:"Bijou Accessories",rev:354874.53,ord:426,cust:4395},{y:2023,m:8,bu:"LuxeStyle Mobile App",rev:204072.02,ord:383,cust:996},{y:2023,m:8,bu:"LuxeStyle Online",rev:446574.64,ord:981,cust:4586},{y:2023,m:8,bu:"LuxeStyle Outlet",rev:103892.37,ord:193,cust:4219},{y:2023,m:8,bu:"Maison Luxe",rev:61562.61,ord:179,cust:1711},{y:2023,m:8,bu:"SoleStep Footwear",rev:60811.76,ord:127,cust:867},{y:2023,m:8,bu:"Urban Thread",rev:366927.90,ord:490,cust:4498},
+  {y:2023,m:9,bu:"Bijou Accessories",rev:465812.81,ord:556,cust:5441},{y:2023,m:9,bu:"LuxeStyle Mobile App",rev:274851.99,ord:531,cust:1264},{y:2023,m:9,bu:"LuxeStyle Online",rev:608897.52,ord:1364,cust:6476},{y:2023,m:9,bu:"LuxeStyle Outlet",rev:146787.35,ord:267,cust:5564},{y:2023,m:9,bu:"Maison Luxe",rev:77487.53,ord:240,cust:2291},{y:2023,m:9,bu:"SoleStep Footwear",rev:79640.29,ord:163,cust:1119},{y:2023,m:9,bu:"Urban Thread",rev:494483.15,ord:656,cust:5723},
+  {y:2023,m:10,bu:"Bijou Accessories",rev:502965.95,ord:625,cust:6184},{y:2023,m:10,bu:"LuxeStyle Mobile App",rev:315904.94,ord:604,cust:1451},{y:2023,m:10,bu:"LuxeStyle Online",rev:639442.15,ord:1458,cust:6477},{y:2023,m:10,bu:"LuxeStyle Outlet",rev:163787.78,ord:309,cust:5570},{y:2023,m:10,bu:"Maison Luxe",rev:83720.06,ord:251,cust:2333},{y:2023,m:10,bu:"SoleStep Footwear",rev:85800.86,ord:175,cust:1371},{y:2023,m:10,bu:"Urban Thread",rev:515479.97,ord:653,cust:6134},
+  {y:2023,m:11,bu:"Bijou Accessories",rev:618531.83,ord:771,cust:7296},{y:2023,m:11,bu:"LuxeStyle Mobile App",rev:369553.17,ord:745,cust:1649},{y:2023,m:11,bu:"LuxeStyle Online",rev:793937.79,ord:1775,cust:8013},{y:2023,m:11,bu:"LuxeStyle Outlet",rev:200506.43,ord:385,cust:7095},{y:2023,m:11,bu:"Maison Luxe",rev:104343.52,ord:301,cust:2727},{y:2023,m:11,bu:"SoleStep Footwear",rev:109223.75,ord:239,cust:1634},{y:2023,m:11,bu:"Urban Thread",rev:643802.52,ord:821,cust:7710},
+  {y:2023,m:12,bu:"Bijou Accessories",rev:689965.64,ord:908,cust:7930},{y:2023,m:12,bu:"LuxeStyle Mobile App",rev:431359.88,ord:866,cust:2030},{y:2023,m:12,bu:"LuxeStyle Online",rev:880165.25,ord:1925,cust:9137},{y:2023,m:12,bu:"LuxeStyle Outlet",rev:227443.59,ord:419,cust:8357},{y:2023,m:12,bu:"Maison Luxe",rev:121096.61,ord:358,cust:3119},{y:2023,m:12,bu:"SoleStep Footwear",rev:118559.55,ord:233,cust:1741},{y:2023,m:12,bu:"Urban Thread",rev:752176.63,ord:1004,cust:9645},
+  {y:2024,m:1,bu:"Bijou Accessories",rev:538366.58,ord:693,cust:5860},{y:2024,m:1,bu:"LuxeStyle Mobile App",rev:325074.19,ord:638,cust:1423},{y:2024,m:1,bu:"LuxeStyle Online",rev:722807.85,ord:1620,cust:6793},{y:2024,m:1,bu:"LuxeStyle Outlet",rev:173843.41,ord:334,cust:6390},{y:2024,m:1,bu:"Maison Luxe",rev:96692.20,ord:280,cust:2350},{y:2024,m:1,bu:"SoleStep Footwear",rev:89850.35,ord:181,cust:1354},{y:2024,m:1,bu:"Urban Thread",rev:539286.44,ord:736,cust:6697},
+  {y:2024,m:2,bu:"Bijou Accessories",rev:338524.14,ord:443,cust:3952},{y:2024,m:2,bu:"LuxeStyle Mobile App",rev:193116.48,ord:361,cust:905},{y:2024,m:2,bu:"LuxeStyle Online",rev:430063.40,ord:945,cust:4195},{y:2024,m:2,bu:"LuxeStyle Outlet",rev:104801.85,ord:196,cust:4321},{y:2024,m:2,bu:"Maison Luxe",rev:57815.99,ord:172,cust:1637},{y:2024,m:2,bu:"SoleStep Footwear",rev:56898.76,ord:118,cust:828},{y:2024,m:2,bu:"Urban Thread",rev:352736.27,ord:462,cust:4508},
+  {y:2024,m:3,bu:"Bijou Accessories",rev:449781.82,ord:579,cust:5624},{y:2024,m:3,bu:"LuxeStyle Mobile App",rev:271828.65,ord:528,cust:1303},{y:2024,m:3,bu:"LuxeStyle Online",rev:610754.49,ord:1369,cust:6091},{y:2024,m:3,bu:"LuxeStyle Outlet",rev:139590.19,ord:241,cust:5709},{y:2024,m:3,bu:"Maison Luxe",rev:77814.31,ord:228,cust:2109},{y:2024,m:3,bu:"SoleStep Footwear",rev:73570.05,ord:161,cust:1219},{y:2024,m:3,bu:"Urban Thread",rev:473426.63,ord:599,cust:6420},
+  {y:2024,m:4,bu:"Bijou Accessories",rev:514637.32,ord:661,cust:5864},{y:2024,m:4,bu:"LuxeStyle Mobile App",rev:306163.11,ord:607,cust:1478},{y:2024,m:4,bu:"LuxeStyle Online",rev:628052.10,ord:1321,cust:6151},{y:2024,m:4,bu:"LuxeStyle Outlet",rev:152330.07,ord:263,cust:6138},{y:2024,m:4,bu:"Maison Luxe",rev:89523.92,ord:251,cust:2258},{y:2024,m:4,bu:"SoleStep Footwear",rev:83066.16,ord:170,cust:1232},{y:2024,m:4,bu:"Urban Thread",rev:554255.94,ord:716,cust:7095},
+  {y:2024,m:5,bu:"Bijou Accessories",rev:379422.94,ord:489,cust:4578},{y:2024,m:5,bu:"LuxeStyle Mobile App",rev:215057.55,ord:415,cust:961},{y:2024,m:5,bu:"LuxeStyle Online",rev:498346.64,ord:1090,cust:5153},{y:2024,m:5,bu:"LuxeStyle Outlet",rev:118070.54,ord:208,cust:4424},{y:2024,m:5,bu:"Maison Luxe",rev:62189.73,ord:187,cust:1794},{y:2024,m:5,bu:"SoleStep Footwear",rev:66412.90,ord:139,cust:934},{y:2024,m:5,bu:"Urban Thread",rev:398297.16,ord:515,cust:4888},
+  {y:2024,m:6,bu:"Bijou Accessories",rev:467749.26,ord:613,cust:5495},{y:2024,m:6,bu:"LuxeStyle Mobile App",rev:284205.75,ord:582,cust:1207},{y:2024,m:6,bu:"LuxeStyle Online",rev:627149.33,ord:1334,cust:5866},{y:2024,m:6,bu:"LuxeStyle Outlet",rev:141228.27,ord:261,cust:5085},{y:2024,m:6,bu:"Maison Luxe",rev:75352.21,ord:223,cust:2183},{y:2024,m:6,bu:"SoleStep Footwear",rev:77743.93,ord:169,cust:1198},{y:2024,m:6,bu:"Urban Thread",rev:493731.79,ord:617,cust:5745},
+  {y:2024,m:7,bu:"Bijou Accessories",rev:356585.95,ord:434,cust:3846},{y:2024,m:7,bu:"LuxeStyle Mobile App",rev:196062.13,ord:366,cust:862},{y:2024,m:7,bu:"LuxeStyle Online",rev:428736.32,ord:941,cust:4039},{y:2024,m:7,bu:"LuxeStyle Outlet",rev:108018.82,ord:189,cust:3793},{y:2024,m:7,bu:"Maison Luxe",rev:58294.80,ord:180,cust:1610},{y:2024,m:7,bu:"SoleStep Footwear",rev:57006.78,ord:117,cust:890},{y:2024,m:7,bu:"Urban Thread",rev:338405.05,ord:454,cust:4589},
+  {y:2024,m:8,bu:"Bijou Accessories",rev:394763.71,ord:513,cust:4761},{y:2024,m:8,bu:"LuxeStyle Mobile App",rev:221036.34,ord:415,cust:1038},{y:2024,m:8,bu:"LuxeStyle Online",rev:488067.55,ord:1098,cust:4584},{y:2024,m:8,bu:"LuxeStyle Outlet",rev:116286.52,ord:214,cust:4127},{y:2024,m:8,bu:"Maison Luxe",rev:66774.59,ord:206,cust:1653},{y:2024,m:8,bu:"SoleStep Footwear",rev:63822.68,ord:138,cust:940},{y:2024,m:8,bu:"Urban Thread",rev:414755.82,ord:561,cust:4954},
+  {y:2024,m:9,bu:"Bijou Accessories",rev:482571.81,ord:586,cust:5760},{y:2024,m:9,bu:"LuxeStyle Mobile App",rev:309684.10,ord:616,cust:1348},{y:2024,m:9,bu:"LuxeStyle Online",rev:635420.93,ord:1357,cust:6331},{y:2024,m:9,bu:"LuxeStyle Outlet",rev:161233.73,ord:293,cust:5740},{y:2024,m:9,bu:"Maison Luxe",rev:88673.91,ord:254,cust:2343},{y:2024,m:9,bu:"SoleStep Footwear",rev:88606.47,ord:180,cust:1207},{y:2024,m:9,bu:"Urban Thread",rev:507673.59,ord:636,cust:6323},
+  {y:2024,m:10,bu:"Bijou Accessories",rev:562572.61,ord:706,cust:6380},{y:2024,m:10,bu:"LuxeStyle Mobile App",rev:325110.28,ord:672,cust:1609},{y:2024,m:10,bu:"LuxeStyle Online",rev:729128.30,ord:1574,cust:7598},{y:2024,m:10,bu:"LuxeStyle Outlet",rev:175819.08,ord:341,cust:6477},{y:2024,m:10,bu:"Maison Luxe",rev:93463.71,ord:277,cust:2509},{y:2024,m:10,bu:"SoleStep Footwear",rev:94501.02,ord:199,cust:1394},{y:2024,m:10,bu:"Urban Thread",rev:537192.64,ord:686,cust:7325},
+  {y:2024,m:11,bu:"Bijou Accessories",rev:664378.18,ord:808,cust:8190},{y:2024,m:11,bu:"LuxeStyle Mobile App",rev:407844.28,ord:847,cust:1925},{y:2024,m:11,bu:"LuxeStyle Online",rev:867646.07,ord:1917,cust:8534},{y:2024,m:11,bu:"LuxeStyle Outlet",rev:219587.94,ord:403,cust:7690},{y:2024,m:11,bu:"Maison Luxe",rev:113210.55,ord:342,cust:3181},{y:2024,m:11,bu:"SoleStep Footwear",rev:118425.43,ord:269,cust:1787},{y:2024,m:11,bu:"Urban Thread",rev:690009.43,ord:888,cust:9346},
+  {y:2024,m:12,bu:"Bijou Accessories",rev:753621.29,ord:979,cust:8161},{y:2024,m:12,bu:"LuxeStyle Mobile App",rev:474443.41,ord:957,cust:2254},{y:2024,m:12,bu:"LuxeStyle Online",rev:1009362.50,ord:2168,cust:9342},{y:2024,m:12,bu:"LuxeStyle Outlet",rev:242659.69,ord:436,cust:8629},{y:2024,m:12,bu:"Maison Luxe",rev:130671.13,ord:389,cust:3724},{y:2024,m:12,bu:"SoleStep Footwear",rev:131633.98,ord:270,cust:2005},{y:2024,m:12,bu:"Urban Thread",rev:798333.77,ord:1054,cust:10233}
+];
+
+const CTYPE_YEAR = [
+  {y:2022,ct:"RETURNING",rev:10579997.85,cust:135095,ord:19236},{y:2022,ct:"NEW",rev:4733772.35,cust:61315,ord:8589},{y:2022,ct:"LAPSED",rev:3532852.99,cust:45742,ord:6263},{y:2022,ct:"VIP",rev:2335517.79,cust:29974,ord:2963},{y:2022,ct:"REACTIVATED",rev:2313684.18,cust:30065,ord:4149},
+  {y:2023,ct:"RETURNING",rev:11195467.20,cust:147953,ord:20254},{y:2023,ct:"NEW",rev:5049883.26,cust:64019,ord:9082},{y:2023,ct:"LAPSED",rev:3744676.16,cust:48059,ord:6760},{y:2023,ct:"REACTIVATED",rev:2531382.74,cust:32915,ord:4495},{y:2023,ct:"VIP",rev:2517158.60,cust:32396,ord:3214},
+  {y:2024,ct:"RETURNING",rev:12191849.03,cust:156448,ord:22188},{y:2024,ct:"NEW",rev:5392746.17,cust:70549,ord:9806},{y:2024,ct:"LAPSED",rev:4078764.65,cust:51503,ord:7348},{y:2024,ct:"REACTIVATED",rev:2718645.37,cust:35201,ord:4875},{y:2024,ct:"VIP",rev:2689722.34,cust:34745,ord:3428}
+];
+
+const QTR = [
+  {y:2022,q:1,rev:5370276.07,ord:9412,cust:68448},{y:2022,q:2,rev:5383363.94,ord:9440,cust:68419},{y:2022,q:3,rev:4902531.79,ord:8469,cust:62315},{y:2022,q:4,rev:7839653.36,ord:13879,cust:103009},
+  {y:2023,q:1,rev:5794299.13,ord:10046,cust:75047},{y:2023,q:2,rev:5701820.74,ord:9913,cust:74310},{y:2023,q:3,rev:5174680.22,ord:9021,cust:68382},{y:2023,q:4,rev:8367767.87,ord:14825,cust:107603},
+  {y:2024,q:1,rev:6116644.05,ord:10884,cust:79688},{y:2024,q:2,rev:6232986.62,ord:10831,cust:79727},{y:2024,q:3,rev:5582481.60,ord:9748,cust:70738},{y:2024,q:4,rev:9139615.29,ord:16182,cust:118293}
+];
+
+const BU_META = {
+  "LuxeStyle Online": {channel:"WEB", region:"Nationwide"},
+  "Urban Thread": {channel:"RETAIL", region:"Midwest US"},
+  "Bijou Accessories": {channel:"RETAIL", region:"West US"},
+  "LuxeStyle Mobile App": {channel:"MOBILE", region:"Nationwide"},
+  "LuxeStyle Outlet": {channel:"RETAIL", region:"South US"},
+  "Maison Luxe": {channel:"RETAIL", region:"Northeast US"},
+  "SoleStep Footwear": {channel:"RETAIL", region:"Southeast US"}
+};
+
+const BU_LIST = Object.keys(BU_META).sort();
+const CT_LIST = ["NEW","RETURNING","VIP","LAPSED","REACTIVATED"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const YEAR_COLORS = { 2022:"#94A3B8", 2023:"#1A7F64", 2024:"#00AEFF" };
+
+// ============================================================================
+const state = {
+  year: 2024,
+  compare: false,
+  bus: new Set(BU_LIST),
+  cts: new Set(CT_LIST)
+};
+
+const fmtDollars = v => {
+  if (v == null || isNaN(v)) return "—";
+  if (Math.abs(v) >= 1e6) return "$" + (v/1e6).toFixed(2) + "M";
+  if (Math.abs(v) >= 1e3) return "$" + (v/1e3).toFixed(0) + "K";
+  return "$" + v.toFixed(0);
+};
+const fmtInt = v => (v == null || isNaN(v)) ? "—" : Math.round(v).toLocaleString("en-US");
+const fmtPct = v => (v == null || isNaN(v)) ? "—" : (v >= 0 ? "+" : "") + v.toFixed(1) + "%";
+const fmtAOV = v => (v == null || isNaN(v)) ? "—" : "$" + v.toFixed(2);
+
+function ctFactor(year) {
+  if (state.cts.size === CT_LIST.length) return 1;
+  const all = CTYPE_YEAR.filter(r=>r.y===year).reduce((s,r)=>s+r.rev,0);
+  const sel = CTYPE_YEAR.filter(r=>r.y===year && state.cts.has(r.ct)).reduce((s,r)=>s+r.rev,0);
+  return all > 0 ? sel/all : 0;
+}
+
+function aggYearTotals(year) {
+  const rows = BU_MONTH.filter(r => r.y === year && state.bus.has(r.bu));
+  const rev = rows.reduce((s,r)=>s+r.rev,0);
+  const ord = rows.reduce((s,r)=>s+r.ord,0);
+  const cust = rows.reduce((s,r)=>s+r.cust,0);
+  const f = ctFactor(year);
+  const revF = rev * f, ordF = ord * f;
+  return { rev: revF, ord: ordF, cust: cust * f, aov: ordF > 0 ? revF / ordF : 0 };
+}
+
+function aggMonthly(year) {
+  const out = Array(12).fill(0).map(()=>({rev:0,ord:0,cust:0}));
+  BU_MONTH.filter(r=>r.y===year && state.bus.has(r.bu)).forEach(r=>{
+    out[r.m-1].rev += r.rev; out[r.m-1].ord += r.ord; out[r.m-1].cust += r.cust;
+  });
+  const f = ctFactor(year);
+  return out.map(o=>({rev:o.rev*f, ord:o.ord*f, cust:o.cust*f}));
+}
+
+function aggBUByYear(year) {
+  const out = {};
+  BU_LIST.forEach(bu => out[bu] = {rev:0,ord:0,cust:0});
+  BU_MONTH.filter(r=>r.y===year && state.bus.has(r.bu)).forEach(r=>{
+    out[r.bu].rev += r.rev; out[r.bu].ord += r.ord; out[r.bu].cust += r.cust;
+  });
+  const f = ctFactor(year);
+  Object.keys(out).forEach(bu=>{ out[bu].rev*=f; out[bu].ord*=f; out[bu].cust*=f; });
+  return out;
+}
+
+function aggChannelByYear(year) {
+  const out = {WEB:0, RETAIL:0, MOBILE:0};
+  BU_MONTH.filter(r=>r.y===year && state.bus.has(r.bu)).forEach(r=>{
+    out[BU_META[r.bu].channel] += r.rev;
+  });
+  const f = ctFactor(year);
+  Object.keys(out).forEach(k=>out[k]*=f);
+  return out;
+}
+
+function aggCTypeByYear(year) {
+  const rows = CTYPE_YEAR.filter(r=>r.y===year);
+  // Scale revenue by BU selection share
+  let buShare = 1;
+  if (state.bus.size < BU_LIST.length) {
+    const ally = BU_MONTH.filter(r=>r.y===year).reduce((s,r)=>s+r.rev,0);
+    const sely = BU_MONTH.filter(r=>r.y===year && state.bus.has(r.bu)).reduce((s,r)=>s+r.rev,0);
+    if (ally > 0) buShare = sely / ally;
+  }
+  return CT_LIST.map(ct => {
+    const row = rows.find(r=>r.ct===ct);
+    return {ct, rev: (row ? row.rev : 0) * buShare, cust: (row ? row.cust : 0) * buShare};
+  });
+}
+
+function aggQuarterly(year) {
+  const rows = QTR.filter(r=>r.y===year);
+  let buShare = 1;
+  if (state.bus.size < BU_LIST.length) {
+    const ally = BU_MONTH.filter(r=>r.y===year).reduce((s,r)=>s+r.rev,0);
+    const sely = BU_MONTH.filter(r=>r.y===year && state.bus.has(r.bu)).reduce((s,r)=>s+r.rev,0);
+    if (ally > 0) buShare = sely / ally;
+  }
+  const f = ctFactor(year) * buShare;
+  return rows.map(r=>({q:r.q, rev:r.rev*f, ord:r.ord*f, cust:r.cust*f}));
+}
+
+// ============================================================================
+// FILTER UI
+// ============================================================================
+function buildMultiOptions() {
+  const buDD = document.getElementById("buDropdown");
+  buDD.innerHTML = "";
+  const allBu = document.createElement("label");
+  allBu.innerHTML = `<input type="checkbox" id="buAll" ${state.bus.size===BU_LIST.length?'checked':''}> <strong>All</strong>`;
+  allBu.querySelector("input").addEventListener("change", e => {
+    state.bus = e.target.checked ? new Set(BU_LIST) : new Set();
+    buildMultiOptions(); render();
+  });
+  buDD.appendChild(allBu);
+  BU_LIST.forEach(bu => {
+    const l = document.createElement("label");
+    l.innerHTML = `<input type="checkbox" value="${bu}" ${state.bus.has(bu)?'checked':''}> ${bu}`;
+    l.querySelector("input").addEventListener("change", e => {
+      if (e.target.checked) state.bus.add(bu); else state.bus.delete(bu);
+      document.getElementById("buAll").checked = state.bus.size === BU_LIST.length;
+      updateSummaries(); render();
+    });
+    buDD.appendChild(l);
+  });
+
+  const ctDD = document.getElementById("ctDropdown");
+  ctDD.innerHTML = "";
+  const allCt = document.createElement("label");
+  allCt.innerHTML = `<input type="checkbox" id="ctAll" ${state.cts.size===CT_LIST.length?'checked':''}> <strong>All</strong>`;
+  allCt.querySelector("input").addEventListener("change", e => {
+    state.cts = e.target.checked ? new Set(CT_LIST) : new Set();
+    buildMultiOptions(); render();
+  });
+  ctDD.appendChild(allCt);
+  CT_LIST.forEach(ct => {
+    const l = document.createElement("label");
+    l.innerHTML = `<input type="checkbox" value="${ct}" ${state.cts.has(ct)?'checked':''}> ${ct}`;
+    l.querySelector("input").addEventListener("change", e => {
+      if (e.target.checked) state.cts.add(ct); else state.cts.delete(ct);
+      document.getElementById("ctAll").checked = state.cts.size === CT_LIST.length;
+      updateSummaries(); render();
+    });
+    ctDD.appendChild(l);
+  });
+  updateSummaries();
+}
+
+function updateSummaries() {
+  const bs = document.getElementById("buSummary");
+  bs.textContent = state.bus.size === BU_LIST.length ? `All (${BU_LIST.length})` :
+                   state.bus.size === 0 ? "None" :
+                   state.bus.size === 1 ? [...state.bus][0] : `${state.bus.size} selected`;
+  const cs = document.getElementById("ctSummary");
+  cs.textContent = state.cts.size === CT_LIST.length ? `All (${CT_LIST.length})` :
+                   state.cts.size === 0 ? "None" :
+                   state.cts.size === 1 ? [...state.cts][0] : `${state.cts.size} selected`;
+}
+
+function toggleMulti(id) {
+  document.querySelectorAll(".multi").forEach(m => { if (m.id !== id) m.classList.remove("open"); });
+  document.getElementById(id).classList.toggle("open");
+}
+document.addEventListener("click", e => {
+  if (!e.target.closest(".multi")) {
+    document.querySelectorAll(".multi").forEach(m => m.classList.remove("open"));
+  }
+});
+
+function toggleCompare() {
+  state.compare = !state.compare;
+  document.getElementById("cmpSwitch").classList.toggle("on", state.compare);
+  render();
+}
+
+function resetFilters() {
+  state.year = 2024;
+  state.compare = false;
+  state.bus = new Set(BU_LIST);
+  state.cts = new Set(CT_LIST);
+  document.getElementById("yearSel").value = "2024";
+  document.getElementById("cmpSwitch").classList.remove("on");
+  buildMultiOptions(); render();
+}
+
+document.getElementById("yearSel").addEventListener("change", e => {
+  state.year = parseInt(e.target.value);
+  render();
+});
+
+// ============================================================================
+const charts = {};
+function mk(id, type, data, options) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), { type, data, options });
+}
+
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { display:true, position:'top', labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"}, color:'#1E293B', boxWidth:14, padding:12}},
+    tooltip: { backgroundColor:'rgba(30,41,59,0.95)', padding:10, titleFont:{size:12,weight:'600'}, bodyFont:{size:12} }
+  }
+};
+
+function render() {
+  renderKPIs(); renderTrend(); renderBU(); renderChannel();
+  renderCType(); renderQtr(); renderTable(); renderTitles();
+}
+
+function renderTitles() {
+  const yl = state.compare ? "2022 · 2023 · 2024" : "FY " + state.year;
+  document.getElementById("kpiSectionTitle").textContent =
+    state.compare ? "Year-over-Year KPI Comparison (Single-Year Values, No Summing)" : `FY ${state.year} Key Performance Indicators`;
+  document.getElementById("trendTitle").textContent = state.compare ? "Monthly Net Sales — 2022 vs 2023 vs 2024" : `Monthly Net Sales — ${yl}`;
+  document.getElementById("buTitle").textContent = state.compare ? "Net Sales by Business Unit — 3-Year Comparison" : `Net Sales by Business Unit — ${yl}`;
+  document.getElementById("channelTitle").textContent = state.compare ? "Revenue Share by Channel Type — 3-Year Comparison" : `Revenue Share by Channel Type — ${yl}`;
+  document.getElementById("ctypeTitle").textContent = state.compare ? "Revenue by Customer Type — 3-Year Comparison" : `Revenue by Customer Type — ${yl}`;
+  document.getElementById("qtrTitle").textContent = state.compare ? "Quarterly Net Sales — 3-Year Comparison" : `Quarterly Net Sales — ${yl}`;
+  document.getElementById("buTableTitle").textContent = state.compare ? "Business Unit Detail — FY 2024 (latest year shown)" : `Business Unit Detail — ${yl}`;
+}
+
+function renderKPIs() {
+  const row = document.getElementById("kpiRow");
+  row.innerHTML = "";
+  if (state.compare) {
+    const metrics = [
+      {k:"rev", label:"Net Sales", fmt:fmtDollars},
+      {k:"ord", label:"Orders", fmt:fmtInt},
+      {k:"cust", label:"Customers", fmt:fmtInt},
+      {k:"aov", label:"Avg Order Value", fmt:fmtAOV}
+    ];
+    const years = [2022,2023,2024];
+    const vals = {};
+    years.forEach(y => vals[y] = aggYearTotals(y));
+    metrics.forEach(m => {
+      const card = document.createElement("div");
+      card.className = "kpi-card";
+      let rows = "";
+      years.forEach(y => {
+        const v = vals[y][m.k];
+        rows += `<div class="kpi-compare-row"><span class="kpi-compare-year">FY ${y}</span><span class="kpi-compare-val ${y===2024?'highlight':''}">${m.fmt(v)}</span></div>`;
+      });
+      const v2024 = vals[2024][m.k], v2022 = vals[2022][m.k];
+      const cagr = v2022 > 0 ? (Math.pow(v2024/v2022, 1/2) - 1) * 100 : 0;
+      card.innerHTML = `<div class="kpi-label">${m.label}</div><div class="kpi-compare">${rows}</div><div class="kpi-delta ${cagr>=0?'positive':'negative'}" style="margin-top:10px;padding-top:8px;border-top:1px solid #F1F5F9;">CAGR: ${fmtPct(cagr)}</div>`;
+      row.appendChild(card);
+    });
+    return;
+  }
+  const cur = aggYearTotals(state.year);
+  const prevYear = state.year - 1;
+  const hasPrev = prevYear >= 2022;
+  const prev = hasPrev ? aggYearTotals(prevYear) : null;
+  const delta = (c, p) => p > 0 ? ((c - p) / p) * 100 : 0;
+  const kpis = [
+    {label:`Net Sales ${state.year}`, value:fmtDollars(cur.rev), deltaVal: hasPrev ? delta(cur.rev, prev.rev) : null},
+    {label:`Orders ${state.year}`, value:fmtInt(cur.ord), deltaVal: hasPrev ? delta(cur.ord, prev.ord) : null},
+    {label:`Customers ${state.year}`, value:fmtInt(cur.cust), deltaVal: hasPrev ? delta(cur.cust, prev.cust) : null},
+    {label:`AOV ${state.year}`, value:fmtAOV(cur.aov), deltaVal: hasPrev ? delta(cur.aov, prev.aov) : null},
+    {label:"Business Units", value:state.bus.size + " / 7", deltaVal: null, note:"Selected"},
+    {label:"Customer Types", value:state.cts.size + " / 5", deltaVal: null, note:"Selected"}
+  ];
+  kpis.forEach(k => {
+    const card = document.createElement("div");
+    card.className = "kpi-card";
+    let deltaHtml = "";
+    if (k.deltaVal !== null) {
+      const cls = k.deltaVal > 0.1 ? "positive" : k.deltaVal < -0.1 ? "negative" : "neutral";
+      deltaHtml = `<div class="kpi-delta ${cls}">${k.deltaVal>=0?'↑':'↓'} ${fmtPct(Math.abs(k.deltaVal))} vs FY ${prevYear}</div>`;
+    } else if (k.note) {
+      deltaHtml = `<div class="kpi-delta neutral">${k.note}</div>`;
+    }
+    card.innerHTML = `<div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div>${deltaHtml}`;
+    row.appendChild(card);
+  });
+}
+
+function renderTrend() {
+  const datasets = [];
+  if (state.compare) {
+    [2022,2023,2024].forEach(y => {
+      const rows = aggMonthly(y);
+      datasets.push({
+        label: String(y), data: rows.map(r=>r.rev/1e6),
+        borderColor: YEAR_COLORS[y], backgroundColor: YEAR_COLORS[y]+"22",
+        borderWidth: y===2024?3:2, fill:false, tension:0.4, pointRadius:4, pointHoverRadius:6,
+        pointBackgroundColor: YEAR_COLORS[y], pointBorderColor:"#FFF", pointBorderWidth:2
+      });
+    });
+  } else {
+    const rows = aggMonthly(state.year);
+    datasets.push({
+      label: `FY ${state.year} Net Sales`, data: rows.map(r=>r.rev/1e6),
+      borderColor: YEAR_COLORS[state.year], backgroundColor: YEAR_COLORS[state.year]+"22",
+      borderWidth:3, fill:true, tension:0.4, pointRadius:5, pointHoverRadius:7,
+      pointBackgroundColor:YEAR_COLORS[state.year], pointBorderColor:"#FFF", pointBorderWidth:2
+    });
+  }
+  mk("trendChart","line",{labels:MONTHS, datasets},{...baseOpts,
+    plugins:{...baseOpts.plugins, tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => ctx.dataset.label+": $"+ctx.parsed.y.toFixed(2)+"M" }}},
+    scales:{
+      y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+      x:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+    }
+  });
+}
+
+function renderBU() {
+  if (state.compare) {
+    const datasets = [2022,2023,2024].map(y => {
+      const d = aggBUByYear(y);
+      return {label: String(y), data: BU_LIST.map(bu=>d[bu].rev/1e6), backgroundColor: YEAR_COLORS[y], borderRadius:4};
+    });
+    mk("buChart","bar",{labels:BU_LIST, datasets},{...baseOpts,
+      plugins:{...baseOpts.plugins, tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => ctx.dataset.label+": $"+ctx.parsed.y.toFixed(2)+"M" }}},
+      scales:{
+        y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        x:{ticks:{color:'#64748B', font:{size:10}, maxRotation:35, minRotation:30}, grid:{display:false}}
+      }
+    });
+  } else {
+    const d = aggBUByYear(state.year);
+    const sorted = BU_LIST.map(bu=>({bu, rev:d[bu].rev})).sort((a,b)=>b.rev-a.rev);
+    mk("buChart","bar",{
+      labels: sorted.map(r=>r.bu),
+      datasets:[{label:`FY ${state.year} Net Sales`, data:sorted.map(r=>r.rev/1e6),
+        backgroundColor: sorted.map(r=>BU_META[r.bu].channel==="WEB"?"#00AEFF":BU_META[r.bu].channel==="MOBILE"?"#0EA5E9":"#1A7F64"),
+        borderRadius:4}]
+    },{...baseOpts, indexAxis:'y',
+      plugins:{...baseOpts.plugins, legend:{display:false},
+        tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => "$"+ctx.parsed.x.toFixed(2)+"M" }}},
+      scales:{
+        x:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        y:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+      }
+    });
+  }
+}
+
+function renderChannel() {
+  if (state.compare) {
+    const years = [2022,2023,2024];
+    const channels = ["RETAIL","WEB","MOBILE"];
+    const datasets = years.map(y => {
+      const c = aggChannelByYear(y);
+      return {label: String(y), data: channels.map(ch=>c[ch]/1e6), backgroundColor: YEAR_COLORS[y], borderRadius:4};
+    });
+    mk("channelChart","bar",{labels:channels, datasets},{...baseOpts,
+      plugins:{...baseOpts.plugins, tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => ctx.dataset.label+": $"+ctx.parsed.y.toFixed(2)+"M" }}},
+      scales:{
+        y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        x:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+      }
+    });
+  } else {
+    const c = aggChannelByYear(state.year);
+    const labels = ["RETAIL","WEB","MOBILE"];
+    mk("channelChart","doughnut",{
+      labels, datasets:[{data: labels.map(k=>c[k]), backgroundColor:["#1A7F64","#00AEFF","#0EA5E9"], borderColor:"#FFF", borderWidth:2}]
+    },{...baseOpts,
+      plugins:{...baseOpts.plugins,
+        legend:{position:'right', labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"}, color:'#1E293B', boxWidth:14, padding:12}},
+        tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => {
+          const total = ctx.dataset.data.reduce((s,v)=>s+v,0);
+          return ctx.label+": "+fmtDollars(ctx.parsed)+" ("+(total>0?(ctx.parsed/total*100).toFixed(1):"0")+"%)";
+        }}}
+      }
+    });
+  }
+}
+
+function renderCType() {
+  if (state.compare) {
+    const datasets = [2022,2023,2024].map(y => {
+      const rows = aggCTypeByYear(y);
+      return {label: String(y), data: rows.map(r=>r.rev/1e6), backgroundColor: YEAR_COLORS[y], borderRadius:4};
+    });
+    mk("ctypeChart","bar",{labels:CT_LIST, datasets},{...baseOpts,
+      plugins:{...baseOpts.plugins, tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => ctx.dataset.label+": $"+ctx.parsed.y.toFixed(2)+"M" }}},
+      scales:{
+        y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        x:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+      }
+    });
+  } else {
+    const rows = aggCTypeByYear(state.year);
+    const colors = CT_LIST.map(ct => state.cts.has(ct) ? "#00AEFF" : "#CBD5E1");
+    mk("ctypeChart","bar",{
+      labels:CT_LIST, datasets:[{label:`FY ${state.year}`, data: rows.map(r=>r.rev/1e6), backgroundColor:colors, borderRadius:4}]
+    },{...baseOpts,
+      plugins:{...baseOpts.plugins, legend:{display:false},
+        tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => "$"+ctx.parsed.y.toFixed(2)+"M" }}},
+      scales:{
+        y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        x:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+      }
+    });
+  }
+}
+
+function renderQtr() {
+  const labels = ["Q1","Q2","Q3","Q4"];
+  if (state.compare) {
+    const datasets = [2022,2023,2024].map(y => {
+      const rows = aggQuarterly(y);
+      return {label: String(y), data: rows.map(r=>r.rev/1e6), backgroundColor: YEAR_COLORS[y], borderRadius:4};
+    });
+    mk("qtrChart","bar",{labels, datasets},{...baseOpts,
+      plugins:{...baseOpts.plugins, tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => ctx.dataset.label+": $"+ctx.parsed.y.toFixed(2)+"M" }}},
+      scales:{
+        y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        x:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+      }
+    });
+  } else {
+    const rows = aggQuarterly(state.year);
+    mk("qtrChart","bar",{
+      labels, datasets:[{label:`FY ${state.year}`, data: rows.map(r=>r.rev/1e6), backgroundColor: YEAR_COLORS[state.year], borderRadius:4}]
+    },{...baseOpts,
+      plugins:{...baseOpts.plugins, legend:{display:false},
+        tooltip:{...baseOpts.plugins.tooltip, callbacks:{ label: ctx => "$"+ctx.parsed.y.toFixed(2)+"M" }}},
+      scales:{
+        y:{beginAtZero:true, ticks:{color:'#64748B', font:{size:11}, callback:v=>'$'+v.toFixed(1)+'M'}, grid:{color:'#E2E8F0'}},
+        x:{ticks:{color:'#64748B', font:{size:11}}, grid:{display:false}}
+      }
+    });
+  }
+}
+
+function renderTable() {
+  const body = document.getElementById("buTableBody");
+  body.innerHTML = "";
+  const year = state.compare ? 2024 : state.year;
+  const cur = aggBUByYear(year);
+  const prev = year > 2022 ? aggBUByYear(year-1) : null;
+  const sorted = BU_LIST.filter(bu => state.bus.has(bu)).sort((a,b)=> cur[b].rev - cur[a].rev);
+  let totRev=0, totOrd=0, totCust=0, totPrev=0;
+  sorted.forEach(bu => {
+    const c = cur[bu]; const p = prev ? prev[bu] : null;
+    const yoy = p && p.rev > 0 ? ((c.rev - p.rev) / p.rev) * 100 : null;
+    const aov = c.ord > 0 ? c.rev / c.ord : 0;
+    totRev += c.rev; totOrd += c.ord; totCust += c.cust; totPrev += p ? p.rev : 0;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${bu}</strong></td>
+      <td>${BU_META[bu].channel}</td>
+      <td>${BU_META[bu].region}</td>
+      <td class="text-right">${fmtDollars(c.rev)}</td>
+      <td class="text-right">${fmtInt(c.ord)}</td>
+      <td class="text-right">${fmtInt(c.cust)}</td>
+      <td class="text-right">${fmtAOV(aov)}</td>
+      <td class="text-right">${yoy===null?'—':`<span class="${yoy>=0?'pos':'neg'}">${fmtPct(yoy)}</span>`}</td>`;
+    body.appendChild(tr);
+  });
+  const totYoy = prev && totPrev > 0 ? ((totRev - totPrev) / totPrev) * 100 : null;
+  const totAOV = totOrd > 0 ? totRev / totOrd : 0;
+  document.getElementById("buTableFoot").innerHTML = `
+    <td colspan="3"><strong>TOTAL (${sorted.length} BU${sorted.length===1?'':'s'})</strong></td>
+    <td class="text-right"><strong>${fmtDollars(totRev)}</strong></td>
+    <td class="text-right"><strong>${fmtInt(totOrd)}</strong></td>
+    <td class="text-right"><strong>${fmtInt(totCust)}</strong></td>
+    <td class="text-right"><strong>${fmtAOV(totAOV)}</strong></td>
+    <td class="text-right">${totYoy===null?'—':`<span class="${totYoy>=0?'pos':'neg'}"><strong>${fmtPct(totYoy)}</strong></span>`}</td>`;
+}
+
+// INIT
+buildMultiOptions();
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

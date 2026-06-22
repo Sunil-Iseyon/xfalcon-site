@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01 — Executive Summary | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; padding: 0; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFFFFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+
+        .header { background: linear-gradient(135deg, #1E2A45 0%, #232340 100%); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; margin-bottom: 4px; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .header .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        /* KPI Cards */
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 18px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 8px; }
+        .kpi-card .value { font-size: 26px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 12px; margin-top: 5px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 11px; color: #666; margin-top: 3px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 8px; height: 24px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; min-width: 3px; flex: 1; transition: background 0.2s; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        /* Three-tier flow */
+        .tier-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 0; margin-bottom: 24px; align-items: center; }
+        .tier-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 18px; text-align: center; }
+        .tier-card .tier-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #D4A843; margin-bottom: 4px; }
+        .tier-card .tier-name { font-size: 15px; font-weight: 600; color: #FFF; font-family: 'Playfair Display', serif; margin-bottom: 10px; }
+        .tier-card .tier-metric { font-size: 22px; font-weight: 700; color: #D4A843; }
+        .tier-card .tier-sub { font-size: 11px; color: #888; margin-top: 3px; }
+        .tier-card .tier-change { font-size: 11px; margin-top: 4px; }
+        .tier-card .tier-change.positive { color: #C9B037; }
+        .tier-arrow { font-size: 22px; color: rgba(212,168,67,0.4); text-align: center; padding: 0 8px; }
+
+        /* Chart cards */
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        /* Table */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html" style="color:#FFF;background:rgba(212,168,67,0.2);border-radius:4px;">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Executive Summary <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Full-year performance with monthly, quarterly & weekly views | vs Prior Year (FY2024)</div>
+    <div class="dash-num">01</div>
+</div>
+
+<div class="container">
+
+<!-- ═══ KPI CARDS ═══ -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ═══ THREE-TIER FLOW ═══ -->
+<div class="section-label">Three-Tier Distribution Pipeline — FY2025</div>
+<div class="tier-flow">
+    <div class="tier-card">
+        <div class="tier-label">Tier 1 &mdash; Sell-In</div>
+        <div class="tier-name">Shipments</div>
+        <div class="tier-metric">$37.0M</div>
+        <div class="tier-sub">848.3K cases shipped</div>
+        <div class="tier-change positive">&#9650; 11.6% vs FY24</div>
+    </div>
+    <div class="tier-arrow">&#10132;</div>
+    <div class="tier-card">
+        <div class="tier-label">Tier 2 &mdash; Sell-Through</div>
+        <div class="tier-name">Depletions</div>
+        <div class="tier-metric">$14.6M</div>
+        <div class="tier-sub">296.5K cases depleted</div>
+        <div class="tier-change positive">&#9650; 10.6% vs FY24</div>
+    </div>
+    <div class="tier-arrow">&#10132;</div>
+    <div class="tier-card">
+        <div class="tier-label">Tier 3 &mdash; Consumer</div>
+        <div class="tier-name">Consumption</div>
+        <div class="tier-metric">$100.7M</div>
+        <div class="tier-sub">219.9K cases sold</div>
+        <div class="tier-change positive">&#9650; 13.3% vs FY24</div>
+    </div>
+</div>
+
+<!-- ═══ WEEKLY REVENUE TREND ═══ -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Weekly Net Revenue — FY2025</h3>
+        <div class="chart-subtitle">52-week view showing shipment net revenue by calendar week (Jul 2024 — Jun 2025)</div>
+        <canvas id="weeklyChart" height="65"></canvas>
+    </div>
+</div>
+
+<!-- ═══ MONTHLY FY25 vs FY24 ═══ -->
+<div class="section-label">Monthly Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Net Revenue: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Side-by-side monthly comparison across all 12 fiscal periods</div>
+        <canvas id="monthlyCompChart" height="70"></canvas>
+    </div>
+</div>
+
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Monthly Depletion Revenue: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Distributor sell-through by month</div>
+        <canvas id="depletionMonthly"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Monthly Retail Dollar Sales: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">POS/scan data consumer purchases</div>
+        <canvas id="consumptionMonthly"></canvas>
+    </div>
+</div>
+
+<!-- ═══ QUARTERLY VIEW ═══ -->
+<div class="section-label">Quarterly Breakdown — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Quarterly Revenue Breakdown</h3>
+        <div class="chart-subtitle">Net Revenue, Gross Profit & COGS by quarter</div>
+        <canvas id="qtrStackChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Quarterly Cases: Ship vs Deplete vs Consume</h3>
+        <div class="chart-subtitle">Volume comparison across all three tiers</div>
+        <canvas id="qtrTierChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ BRAND & PRICE TIER ═══ -->
+<div class="section-label">Product & Pricing — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Top 10 Brands by Net Revenue</h3>
+        <div class="chart-subtitle">FY2025 shipment revenue leaders</div>
+        <canvas id="brandChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Revenue by Price Tier: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Premiumization trend analysis</div>
+        <canvas id="tierChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ REGION ═══ -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Revenue by Region: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Geographic performance comparison</div>
+        <canvas id="regionChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Gross Profit Margin by Month</h3>
+        <div class="chart-subtitle">GP% trend FY2025 vs FY2024</div>
+        <canvas id="marginChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ MONTHLY DETAIL TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Performance Detail — FY2025</h3>
+    <div class="chart-subtitle">All key metrics by fiscal period with YoY comparison</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Net Revenue</th><th class="num">vs PY</th>
+            <th class="num">Gross Profit</th><th class="num">GP%</th>
+            <th class="num">Cases Ship</th><th class="num">vs PY</th>
+            <th class="num">Depl Rev</th><th class="num">Retail $</th>
+        </tr></thead>
+        <tbody id="monthTable"></tbody>
+        <tfoot id="monthTfoot"></tfoot>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 01 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+// ── THEME ──
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+
+// ── DATA ──
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+const fy25Ship = [
+    {m:'Jul',q:1,nr:3328697.91,gr:3351192.90,gp:1240658.00,cogs:2088039.91,cases:79563.5,ret:45.7},
+    {m:'Aug',q:1,nr:2616557.45,gr:2633913.77,gp:975640.97,cogs:1640916.48,cases:61571.6,ret:37.9},
+    {m:'Sep',q:1,nr:3335445.97,gr:3356753.37,gp:1241590.25,cogs:2093855.72,cases:75642.9,ret:53.5},
+    {m:'Oct',q:2,nr:2887869.86,gr:2906002.80,gp:1072944.15,cogs:1814925.71,cases:64277.5,ret:42.0},
+    {m:'Nov',q:2,nr:3266443.72,gr:3287181.90,gp:1214095.42,cogs:2052348.30,cases:73804.2,ret:48.6},
+    {m:'Dec',q:2,nr:5263840.10,gr:5297147.61,gp:1958186.99,cogs:3305653.11,cases:118072.8,ret:83.5},
+    {m:'Jan',q:3,nr:2318625.06,gr:2333549.00,gp:861745.54,cogs:1456879.52,cases:52496.4,ret:36.7},
+    {m:'Feb',q:3,nr:2257008.53,gr:2271405.11,gp:839489.88,cogs:1417518.65,cases:51037.8,ret:37.1},
+    {m:'Mar',q:3,nr:3070893.98,gr:3090788.19,gp:1142391.18,cogs:1928502.80,cases:70459.4,ret:56.7},
+    {m:'Apr',q:4,nr:2547395.68,gr:2563899.61,gp:946410.14,cogs:1600985.54,cases:58431.2,ret:37.7},
+    {m:'May',q:4,nr:2662191.32,gr:2679539.18,gp:991523.20,cogs:1670668.12,cases:61762.1,ret:42.6},
+    {m:'Jun',q:4,nr:3452340.67,gr:3475268.59,gp:1286722.03,cogs:2165618.64,cases:81137.9,ret:55.8}
+];
+const fy24Ship = [
+    {m:'Jul',nr:3119714.65,gp:1163366.17,cases:76757.4},
+    {m:'Aug',nr:2426278.14,gp:905016.41,cases:58655.2},
+    {m:'Sep',nr:2457043.42,gp:914525.77,cases:57219.2},
+    {m:'Oct',nr:3292521.57,gp:1224550.34,cases:75709.0},
+    {m:'Nov',nr:3012514.68,gp:1119553.90,cases:69758.9},
+    {m:'Dec',nr:3855727.14,gp:1434761.18,cases:88962.4},
+    {m:'Jan',nr:2691425.36,gp:1001244.71,cases:62388.9},
+    {m:'Feb',nr:2067486.97,gp:769710.19,cases:48395.7},
+    {m:'Mar',nr:2304401.85,gp:857844.14,cases:54069.9},
+    {m:'Apr',nr:2918139.12,gp:1087658.99,cases:68810.0},
+    {m:'May',nr:2482644.30,gp:925637.95,cases:59043.2},
+    {m:'Jun',nr:2540798.68,gp:947572.55,cases:61542.1}
+];
+
+const fy25Dep = [1405328.51,1073415.50,1281754.02,1070584.13,1204824.46,1923535.17,954818.15,925185.18,1240106.91,1031867.56,1124195.73,1374838.45];
+const fy24Dep = [1267069.15,981879.80,971987.34,1242101.60,1146649.53,1403869.63,1110209.66,858167.35,931974.13,1215163.59,1045458.31,1032658.04];
+const fy25DepCases = [28819.00,22043.78,26069.94,21697.04,24463.74,38369.12,19542.81,18861.69,25318.63,20880.82,22428.92,27960.20];
+const fy24DepCases = [26551.80,20635.08,20259.99,25888.57,23561.70,29093.75,23100.30,17823.89,19331.34,24984.31,21211.98,21403.75];
+
+const fy25Con = [9269329.34,7360780.29,8763218.55,7512481.79,8744043.03,13786606.59,6094892.23,6042699.01,8524931.90,7014487.66,7755986.23,9879557.51];
+const fy24Con = [8582256.78,6766537.58,6289957.31,8524765.06,7839730.12,9873031.54,6990116.76,5603988.19,6089553.91,8106031.06,7210736.48,7013112.49];
+
+const weekly = [1035887.94,564921.91,573185.38,604690.48,575827.29,560965.49,571811.20,567273.27,556958.57,611117.08,617886.12,625119.75,625108.49,591662.54,639966.71,638470.93,634009.00,634949.04,654484.07,654822.08,671740.06,681145.11,679958.44,697581.60,694787.44,688559.73,1355545.88,661234.95,672025.74,657809.69,673535.11,659823.38,644787.65,664403.02,647543.40,680739.07,646740.85,659138.32,682800.26,666027.47,718782.74,744086.33,703527.10,721473.69,802427.04,819707.17,837993.82,806315.69,1049229.76,1027484.62,1064073.49,1087164.29];
+
+const brandData = [
+    {n:'JW Blue Label',r:5791839.86},{n:'Crown Royal XR',r:5194933.82},{n:'JW 18 Year',r:2702720.10},
+    {n:'JW Gold Reserve',r:2178302.15},{n:'JW Green Label',r:1815262.15},{n:'CR Reserve',r:1557396.27},
+    {n:'JW Double Black',r:1238636.75},{n:'JW Black Label',r:1201860.37},{n:'CR Deluxe',r:1025910.15},
+    {n:'CR Apple',r:1004359.91}
+];
+const tierData = {
+    labels:['Ultra-Premium','Premium','Super-Premium','Prestige','Standard','Value'],
+    fy25:[9749874.32,8596161.77,6423753.67,6268952.84,5732541.49,236026.16],
+    fy24:[8405212.20,7831185.25,5720600.54,5472042.65,5509529.46,230125.78]
+};
+const regionData = {
+    labels:['West','Midwest','Southeast','Northeast','Southwest'],
+    fy25:[10307558.53,8298820.70,8119146.24,7777065.76,2504719.02],
+    fy24:[9235331.51,7422506.21,7302133.90,6978661.39,2230062.87]
+};
+
+// ── TOTALS ──
+const fy25Total = fy25Ship.reduce((a,d)=>({nr:a.nr+d.nr,gp:a.gp+d.gp,cases:a.cases+d.cases}),{nr:0,gp:0,cases:0});
+const fy24Total = fy24Ship.reduce((a,d)=>({nr:a.nr+d.nr,gp:a.gp+d.gp,cases:a.cases+d.cases}),{nr:0,gp:0,cases:0});
+const fy25DepTotal = fy25Dep.reduce((a,v)=>a+v,0);
+const fy24DepTotal = fy24Dep.reduce((a,v)=>a+v,0);
+const fy25ConTotal = fy25Con.reduce((a,v)=>a+v,0);
+const fy24ConTotal = fy24Con.reduce((a,v)=>a+v,0);
+
+// ── KPI CARDS ──
+const kpis = [
+    {label:'Net Revenue',val:fy25Total.nr,prev:fy24Total.nr,sub:'Gross: '+fmt$(fy25Ship.reduce((a,d)=>a+d.gr,0))},
+    {label:'Gross Profit',val:fy25Total.gp,prev:fy24Total.gp,sub:'Margin: '+(fy25Total.gp/fy25Total.nr*100).toFixed(1)+'%'},
+    {label:'Cases Shipped',val:fy25Total.cases,prev:fy24Total.cases,sub:'9L equiv. cases',isCases:true},
+    {label:'Depletion Revenue',val:fy25DepTotal,prev:fy24DepTotal,sub:fmtK(fy25DepCases.reduce((a,v)=>a+v,0))+' cases depleted'},
+    {label:'Retail Dollar Sales',val:fy25ConTotal,prev:fy24ConTotal,sub:'Avg Market Share: 7.8%'}
+];
+const kpiRow = document.getElementById('kpiRow');
+kpis.forEach((k,i)=>{
+    const chg = pct(k.val, k.prev);
+    const arrow = chg >= 0 ? '&#9650;' : '&#9660;';
+    const cls = chg >= 0 ? 'positive' : 'negative';
+    const displayVal = k.isCases ? fmtK(k.val) : fmt$(k.val);
+    // Sparkline from monthly shipment data
+    const sparkVals = fy25Ship.map(d => k.isCases ? d.cases : d.nr);
+    const sparkMax = Math.max(...sparkVals);
+    const bars = sparkVals.map(v => {
+        const h = Math.max(3, Math.round(v/sparkMax*24));
+        const peak = v === sparkMax ? ' peak' : '';
+        return `<div class="bar${peak}" style="height:${h}px"></div>`;
+    }).join('');
+    kpiRow.innerHTML += `<div class="kpi-card">
+        <div class="label">${k.label}</div>
+        <div class="value">${displayVal}</div>
+        <div class="change ${cls}">${arrow} ${Math.abs(chg)}% vs FY24</div>
+        <div class="sub-value">${k.sub}</div>
+        <div class="sparkline-row">${bars}</div>
+    </div>`;
+});
+
+// ── WEEKLY CHART ──
+new Chart(document.getElementById('weeklyChart'),{type:'bar',data:{
+    labels:weekly.map((_,i)=>'W'+(i+1)),
+    datasets:[{data:weekly,backgroundColor:weekly.map(v=>v>900000?G:v>700000?DG:'rgba(212,168,67,0.4)'),borderRadius:2,barPercentage:0.85}]
+},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{ticks:{font:{size:8},maxTicksLimit:26},grid:{display:false}}}}});
+
+// ── MONTHLY FY25 vs FY24 ──
+new Chart(document.getElementById('monthlyCompChart'),{type:'bar',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25Ship.map(d=>d.nr),backgroundColor:G,borderRadius:4,barPercentage:0.8},
+        {label:'FY2024',data:fy24Ship.map(d=>d.nr),backgroundColor:'rgba(184,134,11,0.4)',borderRadius:4,barPercentage:0.8}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:16}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── DEPLETION MONTHLY ──
+new Chart(document.getElementById('depletionMonthly'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25Dep,borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
+        {label:'FY2024',data:fy24Dep,borderColor:'rgba(184,134,11,0.5)',fill:false,tension:.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── CONSUMPTION MONTHLY ──
+new Chart(document.getElementById('consumptionMonthly'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25Con,borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
+        {label:'FY2024',data:fy24Con,borderColor:'rgba(184,134,11,0.5)',fill:false,tension:.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── QUARTERLY STACKED BAR ──
+const qLabels = ['Q1 (Jul-Sep)','Q2 (Oct-Dec)','Q3 (Jan-Mar)','Q4 (Apr-Jun)'];
+const qGP = [0,0,0,0], qCOGS = [0,0,0,0], qNR = [0,0,0,0];
+fy25Ship.forEach(d => { const qi = d.q-1; qGP[qi]+=d.gp; qCOGS[qi]+=d.cogs; qNR[qi]+=d.nr; });
+new Chart(document.getElementById('qtrStackChart'),{type:'bar',data:{
+    labels:qLabels,
+    datasets:[
+        {label:'Gross Profit',data:qGP,backgroundColor:G,borderRadius:2},
+        {label:'Cost of Goods',data:qCOGS,backgroundColor:'rgba(184,134,11,0.45)',borderRadius:2}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{stacked:true,ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{stacked:true,grid:{display:false}}}}});
+
+// ── QUARTERLY THREE-TIER ──
+const qShipCases=[0,0,0,0],qDepCases=[0,0,0,0],qConCases=[0,0,0,0];
+fy25Ship.forEach((d,i)=>{qShipCases[d.q-1]+=d.cases;qDepCases[d.q-1]+=fy25DepCases[i];qConCases[d.q-1]+=(i<12?[20979.43,16074.22,19435.77,16228.37,19126.24,30042.24,13479.15,13199.39,18359.31,15270.95,16654.62,21092.58][i]:0);});
+new Chart(document.getElementById('qtrTierChart'),{type:'bar',data:{
+    labels:qLabels,
+    datasets:[
+        {label:'Shipped',data:qShipCases,backgroundColor:G,borderRadius:3},
+        {label:'Depleted',data:qDepCases,backgroundColor:DG,borderRadius:3},
+        {label:'Consumed',data:qConCases,backgroundColor:LG,borderRadius:3}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── BRANDS ──
+new Chart(document.getElementById('brandChart'),{type:'bar',data:{
+    labels:brandData.map(d=>d.n),
+    datasets:[{data:brandData.map(d=>d.r),backgroundColor:G,borderRadius:4}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+// ── PRICE TIER ──
+new Chart(document.getElementById('tierChart'),{type:'bar',data:{
+    labels:tierData.labels,
+    datasets:[
+        {label:'FY2025',data:tierData.fy25,backgroundColor:G,borderRadius:3},
+        {label:'FY2024',data:tierData.fy24,backgroundColor:'rgba(184,134,11,0.4)',borderRadius:3}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── REGION ──
+new Chart(document.getElementById('regionChart'),{type:'bar',data:{
+    labels:regionData.labels,
+    datasets:[
+        {label:'FY2025',data:regionData.fy25,backgroundColor:G,borderRadius:3},
+        {label:'FY2024',data:regionData.fy24,backgroundColor:'rgba(184,134,11,0.4)',borderRadius:3}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── GP MARGIN TREND ──
+const fy25Margin = fy25Ship.map(d=>(d.gp/d.nr*100));
+const fy24Margin = fy24Ship.map(d=>(d.gp/d.nr*100));
+new Chart(document.getElementById('marginChart'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25Margin,borderColor:G,tension:.3,pointRadius:4,borderWidth:2,pointBackgroundColor:G},
+        {label:'FY2024',data:fy24Margin,borderColor:'rgba(184,134,11,0.5)',tension:.3,pointRadius:4,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(1)+'%'}}},scales:{y:{min:35,max:40,ticks:{callback:v=>v+'%'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── MONTHLY TABLE ──
+const tbody = document.getElementById('monthTable');
+let totNR=0,totGP=0,totCases=0,totDep=0,totCon=0,totPrevNR=0,totPrevCases=0;
+fy25Ship.forEach((d,i) => {
+    const prevNR = fy24Ship[i].nr;
+    const prevCases = fy24Ship[i].cases;
+    const nrChg = pct(d.nr, prevNR);
+    const caseChg = pct(d.cases, prevCases);
+    const margin = (d.gp/d.nr*100).toFixed(1);
+    const nrCls = nrChg >= 0 ? 'pos' : 'neg';
+    const caseCls = caseChg >= 0 ? 'pos' : 'neg';
+    const nrArr = nrChg >= 0 ? '&#9650;' : '&#9660;';
+    const caseArr = caseChg >= 0 ? '&#9650;' : '&#9660;';
+    totNR+=d.nr; totGP+=d.gp; totCases+=d.cases; totDep+=fy25Dep[i]; totCon+=fy25Con[i]; totPrevNR+=prevNR; totPrevCases+=prevCases;
+    tbody.innerHTML += `<tr>
+        <td>${d.m}</td><td>Q${d.q}</td>
+        <td class="num">${fmt$(d.nr)}</td>
+        <td class="num ${nrCls}">${nrArr} ${Math.abs(nrChg)}%</td>
+        <td class="num">${fmt$(d.gp)}</td><td class="num">${margin}%</td>
+        <td class="num">${fmtK(d.cases)}</td>
+        <td class="num ${caseCls}">${caseArr} ${Math.abs(caseChg)}%</td>
+        <td class="num">${fmt$(fy25Dep[i])}</td>
+        <td class="num">${fmt$(fy25Con[i])}</td>
+    </tr>`;
+});
+const tfoot = document.getElementById('monthTfoot');
+const totMargin = (totGP/totNR*100).toFixed(1);
+const totNRchg = pct(totNR,totPrevNR);
+const totCasechg = pct(totCases,totPrevCases);
+tfoot.innerHTML = `<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td><td>FY25</td>
+    <td class="num" style="color:#D4A843">${fmt$(totNR)}</td>
+    <td class="num pos">&#9650; ${Math.abs(totNRchg)}%</td>
+    <td class="num" style="color:#D4A843">${fmt$(totGP)}</td><td class="num">${totMargin}%</td>
+    <td class="num" style="color:#D4A843">${fmtK(totCases)}</td>
+    <td class="num pos">&#9650; ${Math.abs(totCasechg)}%</td>
+    <td class="num" style="color:#D4A843">${fmt$(totDep)}</td>
+    <td class="num" style="color:#D4A843">${fmt$(totCon)}</td>
+</tr>`;
+</script>
+</body>
+</html>

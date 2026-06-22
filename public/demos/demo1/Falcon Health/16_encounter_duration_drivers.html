@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 16: Encounter Duration Drivers</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid #2C5F8A;
+        }
+
+        .kpi-card.secondary {
+            border-left-color: #E8913A;
+        }
+
+        .kpi-card.success {
+            border-left-color: #5BA67D;
+        }
+
+        .kpi-card.danger {
+            border-left-color: #C75B5B;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f5f6fa;
+            border-bottom: 2px solid #e8eaed;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2d3436;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .footer-note {
+            display: inline-block;
+            background: #f5f6fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Area 16: Encounter Duration Drivers</h1>
+            <p>What Drives Longer Encounters? | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Overall Avg LOS</div>
+                <div class="kpi-value">0.40 days</div>
+                <div class="kpi-detail">All encounters</div>
+            </div>
+            <div class="kpi-card secondary">
+                <div class="kpi-label">Inpatient Avg LOS</div>
+                <div class="kpi-value">3.95 days</div>
+                <div class="kpi-detail">150 inpatient encounters</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Longest Department</div>
+                <div class="kpi-value">General Surgery</div>
+                <div class="kpi-detail">5.80 days average</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Longest DRG</div>
+                <div class="kpi-value">Psychoses</div>
+                <div class="kpi-detail">5.88 days average</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">LOS by Department</div>
+                <div class="chart-wrap h300">
+            <canvas id="deptLosChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top 10 DRGs by LOS</div>
+                <div class="chart-wrap h300">
+            <canvas id="drgChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Surgical vs Non-Surgical LOS</div>
+                <div class="chart-wrap h300">
+            <canvas id="surgicalChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Average Cost per LOS Day by Department</div>
+                <div class="chart-wrap h300">
+            <canvas id="costPerDayChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Department LOS Details</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Average LOS (days)</th>
+                        <th>Encounters</th>
+                        <th>Total LOS Days</th>
+                        <th>Cost per LOS Day</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>General Surgery</td>
+                        <td>5.80</td>
+                        <td>10</td>
+                        <td>58</td>
+                        <td>$41,587</td>
+                    </tr>
+                    <tr>
+                        <td>Nephrology</td>
+                        <td>4.00</td>
+                        <td>17</td>
+                        <td>68</td>
+                        <td>$18,595</td>
+                    </tr>
+                    <tr>
+                        <td>ICU</td>
+                        <td>3.40</td>
+                        <td>15</td>
+                        <td>51</td>
+                        <td>$22,353</td>
+                    </tr>
+                    <tr>
+                        <td>Oncology</td>
+                        <td>3.12</td>
+                        <td>17</td>
+                        <td>53</td>
+                        <td>$20,277</td>
+                    </tr>
+                    <tr>
+                        <td>Pulmonology</td>
+                        <td>2.29</td>
+                        <td>14</td>
+                        <td>32</td>
+                        <td>$15,594</td>
+                    </tr>
+                    <tr>
+                        <td>Gastroenterology</td>
+                        <td>1.07</td>
+                        <td>83</td>
+                        <td>89</td>
+                        <td>$9,449</td>
+                    </tr>
+                    <tr>
+                        <td>Orthopedics</td>
+                        <td>0.83</td>
+                        <td>80</td>
+                        <td>66</td>
+                        <td>$7,333</td>
+                    </tr>
+                    <tr>
+                        <td>Cardiology</td>
+                        <td>0.80</td>
+                        <td>83</td>
+                        <td>66</td>
+                        <td>$7,182</td>
+                    </tr>
+                    <tr>
+                        <td>Internal Medicine</td>
+                        <td>0.76</td>
+                        <td>99</td>
+                        <td>75</td>
+                        <td>$7,279</td>
+                    </tr>
+                    <tr>
+                        <td>Neurology</td>
+                        <td>0.41</td>
+                        <td>85</td>
+                        <td>35</td>
+                        <td>$4,609</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="footer-note">Generated on March 11, 2026 | Data represents encounters from Jan 2023 – Dec 2025</div>
+        </div>
+    </div>
+
+    <script>
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Department LOS Chart
+        new Chart(document.getElementById('deptLosChart'), {
+            type: 'bar',
+            data: {
+                labels: ['General Surgery', 'Nephrology', 'ICU', 'Oncology', 'Pulmonology', 'Gastroenterology', 'Orthopedics', 'Cardiology', 'Internal Medicine', 'Neurology'],
+                datasets: [{
+                    label: 'Average LOS (days)',
+                    data: [5.80, 4.00, 3.40, 3.12, 2.29, 1.07, 0.83, 0.80, 0.76, 0.41],
+                    backgroundColor: colors.primary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Top 10 DRGs Chart
+        new Chart(document.getElementById('drgChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Psychoses', 'Lap Cholecystectomy', 'Pneumonia w CC', 'Septicemia', 'Major Joint', 'Esophagitis', 'Syncope', 'Signs/Symptoms', 'Intracranial', 'Kidney Infection'],
+                datasets: [{
+                    label: 'Average LOS (days)',
+                    data: [5.88, 5.50, 4.89, 4.54, 4.50, 4.36, 4.30, 3.80, 3.62, 3.64],
+                    backgroundColor: colors.secondary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Surgical vs Non-Surgical Chart
+        new Chart(document.getElementById('surgicalChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Surgical Procedures'],
+                datasets: [
+                    {
+                        label: 'Total Knee Replacement',
+                        data: [4.35],
+                        backgroundColor: colors.danger
+                    },
+                    {
+                        label: 'Upper GI Endoscopy',
+                        data: [3.89],
+                        backgroundColor: colors.warning
+                    },
+                    {
+                        label: 'Total Hip Replacement',
+                        data: [2.76],
+                        backgroundColor: colors.success
+                    },
+                    {
+                        label: 'Lap Cholecystectomy',
+                        data: [4.54],
+                        backgroundColor: colors.info
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Average LOS (days)' } }
+                }
+            }
+        });
+
+        // Cost per LOS Day Chart
+        new Chart(document.getElementById('costPerDayChart'), {
+            type: 'bar',
+            data: {
+                labels: ['General Surgery', 'Nephrology', 'ICU', 'Oncology', 'Pulmonology', 'Gastroenterology', 'Orthopedics', 'Cardiology', 'Internal Medicine', 'Neurology'],
+                datasets: [{
+                    label: 'Cost per LOS Day ($)',
+                    data: [41587, 18595, 22353, 20277, 15594, 9449, 7333, 7182, 7279, 4609],
+                    backgroundColor: colors.teal,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metric Definitions & Glossary - Falcon Retail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #2D2D2D;
+            --color-gold: #C9A84C;
+            --color-border: #8B6F3A;
+            --color-text: #F5F0E8;
+            --color-muted: #9A9590;
+            --color-success: #4CAF50;
+            --color-danger: #E74C3C;
+            --chart-1: #C9A84C;
+            --chart-2: #6A9BC3;
+            --chart-3: #5BA67D;
+            --chart-4: #E8913A;
+            --chart-5: #C75B5B;
+            --chart-6: #8E6BBF;
+            --chart-7: #4ECDC4;
+            --chart-8: #D4A843;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--color-text);
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header Section */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #1F1F1F 100%);
+            padding: 20px;
+            border-bottom: 2px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-gold);
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            color: var(--color-muted);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--color-gold);
+            border-color: var(--color-gold);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Title Section */
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--color-gold);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .page-subtitle {
+            color: var(--color-muted);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* Search and Filter Section */
+        .search-filter-section {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: system-ui;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-gold);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+        }
+
+        .filter-label {
+            color: var(--color-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            align-self: center;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-gold);
+            color: var(--color-gold);
+        }
+
+        .filter-btn.active {
+            background: var(--color-gold);
+            color: var(--bg-primary);
+            border-color: var(--color-gold);
+        }
+
+        /* Accordion Sections */
+        .accordion {
+            margin-bottom: 20px;
+        }
+
+        .accordion-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-item:hover {
+            border-color: var(--color-gold);
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.15);
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            cursor: pointer;
+            background: linear-gradient(90deg, rgba(201, 168, 76, 0.05) 0%, transparent 100%);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(90deg, rgba(201, 168, 76, 0.1) 0%, transparent 100%);
+        }
+
+        .accordion-item.open .accordion-header {
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .accordion-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-gold);
+            letter-spacing: 0.5px;
+        }
+
+        .accordion-count {
+            background: var(--color-gold);
+            color: var(--bg-primary);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .accordion-toggle {
+            color: var(--color-gold);
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.open .accordion-toggle {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-item.open .accordion-content {
+            max-height: 10000px;
+        }
+
+        .accordion-body {
+            padding: 25px;
+        }
+
+        /* Metric Card */
+        .metric-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            border-color: var(--color-gold);
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.1);
+        }
+
+        .metric-item.hidden {
+            display: none;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .metric-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-gold);
+            letter-spacing: 0.3px;
+        }
+
+        .metric-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .metric-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(201, 168, 76, 0.15);
+            border: 1px solid var(--color-gold);
+            color: var(--color-gold);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-definition {
+            color: var(--color-text);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .metric-formula {
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--color-gold);
+            padding: 12px 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--chart-4);
+            font-size: 13px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .metric-footer {
+            border-top: 1px solid var(--color-border);
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .metric-used-in {
+            color: var(--color-muted);
+        }
+
+        .metric-used-in strong {
+            color: var(--color-gold);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 2px solid var(--color-border);
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--color-muted);
+            font-size: 13px;
+            margin-top: 50px;
+        }
+
+        footer .footer-text {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 32px;
+            }
+
+            .accordion-title {
+                font-size: 18px;
+            }
+
+            .metric-name {
+                font-size: 16px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .category-filters {
+                gap: 8px;
+            }
+
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">FALCON RETAIL</div>
+            <a href="index.html" class="back-link">← Back to Dashboards</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Title -->
+        <h1 class="page-title">Metric Definitions & Glossary</h1>
+        <p class="page-subtitle">Complete reference guide for all metrics used across Falcon Retail dashboards</p>
+
+        <!-- Search & Filter Section -->
+        <div class="search-filter-section">
+            <div class="search-bar">
+                <input
+                    type="text"
+                    class="search-input"
+                    id="searchInput"
+                    placeholder="Search metrics by name or keyword..."
+                    autocomplete="off"
+                >
+            </div>
+            <div style="margin-bottom: 15px;">
+                <div class="filter-label">Filter by Category:</div>
+                <div class="category-filters">
+                    <button class="filter-btn active" data-category="all">All Metrics</button>
+                    <button class="filter-btn" data-category="sales">Sales & Revenue</button>
+                    <button class="filter-btn" data-category="profitability">Profitability</button>
+                    <button class="filter-btn" data-category="inventory">Inventory</button>
+                    <button class="filter-btn" data-category="customer">Customer</button>
+                    <button class="filter-btn" data-category="operations">Operations</button>
+                    <button class="filter-btn" data-category="ecommerce">E-Commerce</button>
+                    <button class="filter-btn" data-category="channel">Channel</button>
+                    <button class="filter-btn" data-category="promotion">Promotion</button>
+                    <button class="filter-btn" data-category="time">Time Definitions</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Sections -->
+        <div class="accordion">
+
+            <!-- Sales & Revenue Metrics -->
+            <div class="accordion-item" data-category="sales">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Sales & Revenue Metrics</span>
+                        <span class="accordion-count">7</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Net Sales">
+                            <div class="metric-header">
+                                <span class="metric-name">Net Sales</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                    <span class="metric-tag">Primary</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Total revenue after discounts and returns. This is the primary revenue measure reflecting actual cash collected from customer transactions.</p>
+                            <div class="metric-formula">Gross Sales - Discounts - Returns</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Daily Flash, Sales Performance, Monthly Review, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Gross Sales">
+                            <div class="metric-header">
+                                <span class="metric-name">Gross Sales</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Total revenue before any deductions such as discounts, returns, or allowances. Represents the sum of all transaction values.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Sales Performance, Promotion Effectiveness</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Discount Amount">
+                            <div class="metric-header">
+                                <span class="metric-name">Discount Amount</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Total monetary value of all discounts applied to transactions. Includes promotional discounts, employee discounts, and loyalty reductions.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Promotion Effectiveness, Sales Performance</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Discount Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Discount Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of gross sales given as discount. Indicates promotional intensity and pricing strategy effectiveness.</p>
+                            <div class="metric-formula">Discount Amount / Gross Sales × 100</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Promotion Effectiveness, Sales Performance</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Average Order Value (AOV)">
+                            <div class="metric-header">
+                                <span class="metric-name">Average Order Value (AOV)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                    <span class="metric-tag">Performance</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Average revenue per transaction. A key performance indicator for measuring transaction productivity and customer spending patterns.</p>
+                            <div class="metric-formula">Net Sales / Transaction Count</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Daily Flash, Store Operations, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Revenue per Unit">
+                            <div class="metric-header">
+                                <span class="metric-name">Revenue per Unit</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Average revenue per unit sold. Reflects pricing strategy and mix of products sold across channels.</p>
+                            <div class="metric-formula">Net Sales / Units Sold</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Sales Performance, E-Commerce Digital</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Comp Sales">
+                            <div class="metric-header">
+                                <span class="metric-name">Comp Sales</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Sales & Revenue</span>
+                                    <span class="metric-tag">Year-over-Year</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Same-store sales growth comparing the same period in the current year versus the prior year. Eliminates the impact of new store openings to measure like-for-like performance.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Sales Performance, Monthly Review</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profitability Metrics -->
+            <div class="accordion-item" data-category="profitability">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Profitability Metrics</span>
+                        <span class="accordion-count">4</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Gross Margin">
+                            <div class="metric-header">
+                                <span class="metric-name">Gross Margin</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Profitability</span>
+                                    <span class="metric-tag">Primary</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Revenue minus cost of goods sold. Represents the profit available after covering the direct cost of products. Core measure of operational efficiency.</p>
+                            <div class="metric-formula">Net Sales - (Unit Cost × Quantity)</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Sales Performance, Inventory Health, Monthly Review</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Gross Margin %">
+                            <div class="metric-header">
+                                <span class="metric-name">Gross Margin %</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Profitability</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Margin expressed as a percentage of sales. Allows comparison across product categories and time periods. Target typically 40-50% for retail.</p>
+                            <div class="metric-formula">Gross Margin / Net Sales × 100</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Sales Performance, Daily Flash, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Contribution Margin">
+                            <div class="metric-header">
+                                <span class="metric-name">Contribution Margin</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Profitability</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Revenue after variable costs (COGS, shipping, fulfillment). Indicates how much each sale contributes toward covering fixed costs and profit.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>E-Commerce Digital, Promotion Effectiveness</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="GMROI">
+                            <div class="metric-header">
+                                <span class="metric-name">GMROI (Gross Margin Return on Inventory Investment)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Profitability</span>
+                                    <span class="metric-tag">Efficiency</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Gross Margin Return on Inventory Investment. Measures how many dollars of gross margin profit are generated for each dollar of average inventory investment. Higher values indicate better inventory productivity.</p>
+                            <div class="metric-formula">Gross Margin / Average Inventory Cost</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Inventory Health, Open-to-Buy</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Metrics -->
+            <div class="accordion-item" data-category="inventory">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Inventory Metrics</span>
+                        <span class="accordion-count">6</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Units on Hand (UOH)">
+                            <div class="metric-header">
+                                <span class="metric-name">Units on Hand (UOH)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Inventory</span>
+                                    <span class="metric-tag">Primary</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Current inventory quantity across all locations and channels. Real-time snapshot of available stock ready for sale.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Inventory Health, Open-to-Buy, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Sell-Through Rate (STR)">
+                            <div class="metric-header">
+                                <span class="metric-name">Sell-Through Rate (STR)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Inventory</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of received inventory that has been sold. Key metric for assessing demand and product performance. Target typically 80%+.</p>
+                            <div class="metric-formula">Units Sold / (Units Sold + Units on Hand) × 100</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Inventory Health, Promotion Effectiveness</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Weeks of Supply (WOS)">
+                            <div class="metric-header">
+                                <span class="metric-name">Weeks of Supply (WOS)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Inventory</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Number of weeks current inventory will last at current sales velocity. Indicates inventory health and potential stockout or overstock risk.</p>
+                            <div class="metric-formula">Units on Hand / Avg Weekly Units Sold</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Inventory Health, Open-to-Buy</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Stock-Out Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Stock-Out Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Inventory</span>
+                                    <span class="metric-tag">Risk</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of SKUs with zero units on hand. Indicates product availability risk and potential lost sales opportunity.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Inventory Health</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Markdown Depth">
+                            <div class="metric-header">
+                                <span class="metric-name">Markdown Depth</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Inventory</span>
+                                    <span class="metric-tag">Pricing</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Average percentage reduction from original retail price. Reflects clearance and promotional activity. Higher values indicate more aggressive discounting.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Inventory Health, Promotion Effectiveness</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Open-to-Buy (OTB)">
+                            <div class="metric-header">
+                                <span class="metric-name">Open-to-Buy (OTB)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Inventory</span>
+                                    <span class="metric-tag">Planning</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Budget available for new inventory purchases within the current period. Critical for inventory planning and purchase authorization.</p>
+                            <div class="metric-formula">Planned Purchases - On-Order</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Open-to-Buy Dashboard, Inventory Health</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Metrics -->
+            <div class="accordion-item" data-category="customer">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Customer Metrics</span>
+                        <span class="accordion-count">4</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Customer Lifetime Value (CLV)">
+                            <div class="metric-header">
+                                <span class="metric-name">Customer Lifetime Value (CLV)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Customer</span>
+                                    <span class="metric-tag">Strategic</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Predicted total revenue from a customer relationship over its entire duration. Used to segment customers by value and determine acquisition investment levels.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Customer Intelligence, Omnichannel</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Repeat Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Repeat Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Customer</span>
+                                    <span class="metric-tag">Loyalty</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of customers who make 2 or more purchases within a defined period. Key indicator of customer satisfaction and retention.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Customer Intelligence, Omnichannel, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Customer Acquisition Cost (CAC)">
+                            <div class="metric-header">
+                                <span class="metric-name">Customer Acquisition Cost (CAC)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Customer</span>
+                                    <span class="metric-tag">Marketing</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Cost to acquire a new customer. Divides total marketing and promotional spend by number of new customers acquired. Critical for ROI measurement.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Customer Intelligence, Promotion Effectiveness</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Loyalty Tier">
+                            <div class="metric-header">
+                                <span class="metric-name">Loyalty Tier</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Customer</span>
+                                    <span class="metric-tag">Segmentation</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Customer classification based on spend levels: Bronze (baseline), Silver, Gold, Platinum (highest). Used for targeted marketing and personalization.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Customer Intelligence, Omnichannel</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Operations Metrics -->
+            <div class="accordion-item" data-category="operations">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Store Operations Metrics</span>
+                        <span class="accordion-count">5</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Traffic / Visitors">
+                            <div class="metric-header">
+                                <span class="metric-name">Traffic / Visitors</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Operations</span>
+                                    <span class="metric-tag">Primary</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Number of people entering a physical store. Measured via foot counters and sensors. Foundation metric for traffic-based analysis.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Store Operations, Daily Flash, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Conversion Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Conversion Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Operations</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of store visitors who make a purchase. Critical indicator of sales effectiveness and customer engagement at store level.</p>
+                            <div class="metric-formula">Transactions / Visitors × 100</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Store Operations, Daily Flash, Associate Performance</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Average Basket Size">
+                            <div class="metric-header">
+                                <span class="metric-name">Average Basket Size</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Operations</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Average dollar value per transaction. Reflects successful upselling and customer purchasing power.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Store Operations, Daily Flash</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Units Per Transaction (UPT)">
+                            <div class="metric-header">
+                                <span class="metric-name">Units Per Transaction (UPT)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Operations</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Average number of items per sale. Indicates selling effectiveness and basket building. Target typically 1.5+ units.</p>
+                            <div class="metric-formula">Units Sold / Transactions</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Store Operations, Associate Performance, Daily Flash</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Email Capture Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Email Capture Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Operations</span>
+                                    <span class="metric-tag">Marketing</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of transactions capturing customer email addresses. Used for loyalty program enrollment and marketing communication.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Store Operations, Customer Intelligence</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- E-Commerce Metrics -->
+            <div class="accordion-item" data-category="ecommerce">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">E-Commerce Metrics</span>
+                        <span class="accordion-count">5</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Sessions">
+                            <div class="metric-header">
+                                <span class="metric-name">Sessions</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">E-Commerce</span>
+                                    <span class="metric-tag">Primary</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Total website and app visits. A session represents one user's visit duration. Foundation metric for digital traffic analysis.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>E-Commerce Digital, Omnichannel, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Session Conversion Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Session Conversion Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">E-Commerce</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of sessions resulting in a purchase order. Critical indicator of digital channel effectiveness. Target typically 2-4%.</p>
+                            <div class="metric-formula">Orders / Sessions × 100</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>E-Commerce Digital, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Net Merchandise Demand (NMD)">
+                            <div class="metric-header">
+                                <span class="metric-name">Net Merchandise Demand (NMD)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">E-Commerce</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Ordered revenue after accounting for cancellations. Reflects true customer demand for products ordered online.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>E-Commerce Digital, Sales Performance</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Bounce Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Bounce Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">E-Commerce</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of single-page sessions where users exit without further engagement. Lower is better. Target under 50%.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>E-Commerce Digital</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Cart Abandonment">
+                            <div class="metric-header">
+                                <span class="metric-name">Cart Abandonment</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">E-Commerce</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of shopping carts not converted to completed orders. Indicates friction in checkout process. Target under 70%.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>E-Commerce Digital, Omnichannel</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channel Metrics -->
+            <div class="accordion-item" data-category="channel">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Channel Metrics</span>
+                        <span class="accordion-count">4</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Channel Mix">
+                            <div class="metric-header">
+                                <span class="metric-name">Channel Mix</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Channel</span>
+                                    <span class="metric-tag">Allocation</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Revenue distribution across sales channels (store, online, BOPIS, etc.). Shows which channels drive the most revenue.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Omnichannel, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="BOPIS">
+                            <div class="metric-header">
+                                <span class="metric-name">BOPIS (Buy Online Pick Up In Store)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Channel</span>
+                                    <span class="metric-tag">Omnichannel</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Orders placed online for in-store pickup. Growing channel that bridges digital and physical retail, driving foot traffic.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Omnichannel, E-Commerce Digital</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Digital Penetration">
+                            <div class="metric-header">
+                                <span class="metric-name">Digital Penetration</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Channel</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Digital revenue (online + BOPIS) as percentage of total company revenue. Shows shift toward digital commerce.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Omnichannel, E-Commerce Digital</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Omnichannel Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Omnichannel Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Channel</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of customers using two or more channels. Indicates customer engagement depth and cross-channel loyalty.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Omnichannel, Customer Intelligence</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promotion Metrics -->
+            <div class="accordion-item" data-category="promotion">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Promotion Metrics</span>
+                        <span class="accordion-count">3</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="Promo Lift">
+                            <div class="metric-header">
+                                <span class="metric-name">Promo Lift</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Promotion</span>
+                                    <span class="metric-tag">Performance</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Incremental sales attributed to a promotion above baseline. Calculated as actual sales minus expected sales without promotion.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Promotion Effectiveness, Sales Performance</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Promotion ROI">
+                            <div class="metric-header">
+                                <span class="metric-name">Promotion ROI</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Promotion</span>
+                                    <span class="metric-tag">Performance</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Return on promotional investment. Measures profit generated for every dollar spent on promotion. Target >200%.</p>
+                            <div class="metric-formula">Incremental Revenue / Promo Cost</div>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Promotion Effectiveness</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Redemption Rate">
+                            <div class="metric-header">
+                                <span class="metric-name">Redemption Rate</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Promotion</span>
+                                    <span class="metric-tag">Percentage</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Percentage of promotional offers that are actually used by customers. Indicates offer appeal and customer engagement.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Promotion Effectiveness, Customer Intelligence</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Period Definitions -->
+            <div class="accordion-item" data-category="time">
+                <div class="accordion-header">
+                    <div style="display: flex; align-items: center;">
+                        <span class="accordion-title">Time Period Definitions</span>
+                        <span class="accordion-count">8</span>
+                    </div>
+                    <span class="accordion-toggle">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+
+                        <div class="metric-item" data-metric="WTD">
+                            <div class="metric-header">
+                                <span class="metric-name">WTD (Week-to-Date)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Calendar period from Monday through the current day of the week. Used for weekly trend analysis and rapid reporting.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Daily Flash, Weekly Recap</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="MTD">
+                            <div class="metric-header">
+                                <span class="metric-name">MTD (Month-to-Date)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Calendar period from the 1st of the month through the current day. Standard reporting period for monthly performance.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>All Dashboards</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="YTD">
+                            <div class="metric-header">
+                                <span class="metric-name">YTD (Year-to-Date)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Period from January 1 through the current day of the calendar year. Used for annual performance tracking.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Monthly Review, Sales Performance</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="TY">
+                            <div class="metric-header">
+                                <span class="metric-name">TY (This Year)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                    <span class="metric-tag">Current Period</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Current fiscal year (February 1, 2026 - January 31, 2027). Reference year for all year-over-year comparisons.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>All Dashboards</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="LY">
+                            <div class="metric-header">
+                                <span class="metric-name">LY (Last Year)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                    <span class="metric-tag">Prior Period</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Prior fiscal year (February 1, 2025 - January 31, 2026). Used for year-over-year performance comparisons.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>All Dashboards</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Comp Period">
+                            <div class="metric-header">
+                                <span class="metric-name">Comp Period (Comparable Period)</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Same calendar period in the prior year. Used for like-for-like seasonal comparisons. For example, Feb 2025 is comp to Feb 2026.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>Comp Sales, Monthly Review</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Fiscal Year Definition">
+                            <div class="metric-header">
+                                <span class="metric-name">Fiscal Year Definition</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">Falcon Retail fiscal year runs from February 1 through January 31. Aligns with retail calendar and inventory planning cycles.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>All Annual Reports</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item" data-metric="Reference Date">
+                            <div class="metric-header">
+                                <span class="metric-name">Reference Date</span>
+                                <div class="metric-tags">
+                                    <span class="metric-tag">Time Definitions</span>
+                                </div>
+                            </div>
+                            <p class="metric-definition">The specific date used as the calculation point for all metrics. Typically the current date or end of reporting period. Ensures consistency across dashboards.</p>
+                            <div class="metric-footer">
+                                <span class="metric-used-in">Used in: <strong>All Dashboards</strong></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-text">
+            <p>Metric Definitions & Glossary | Generated March 16, 2026 | Falcon Retail Dashboard Suite</p>
+            <p style="margin-top: 10px; font-size: 12px;">For questions or clarifications about these metrics, contact the Analytics Team.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Accordion functionality
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const accordionItem = this.parentElement;
+                accordionItem.classList.toggle('open');
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const metricItems = document.querySelectorAll('.metric-item');
+        const accordionItems = document.querySelectorAll('.accordion-item');
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            let visibleCategories = new Set();
+
+            metricItems.forEach(item => {
+                const metricName = item.getAttribute('data-metric').toLowerCase();
+                const metricText = item.textContent.toLowerCase();
+
+                if (searchTerm === '' || metricName.includes(searchTerm) || metricText.includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                    const categoryItem = item.closest('.accordion-item');
+                    visibleCategories.add(categoryItem);
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            accordionItems.forEach(accordion => {
+                const hasVisibleMetrics = Array.from(accordion.querySelectorAll('.metric-item')).some(
+                    metric => !metric.classList.contains('hidden')
+                );
+                accordion.style.display = hasVisibleMetrics ? 'block' : 'none';
+            });
+        });
+
+        // Category filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const categoryProperty = 'data-category';
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                const selectedCategory = this.getAttribute('data-category');
+
+                if (selectedCategory === 'all') {
+                    accordionItems.forEach(item => item.style.display = 'block');
+                    metricItems.forEach(item => item.classList.remove('hidden'));
+                } else {
+                    accordionItems.forEach(item => {
+                        if (item.getAttribute(categoryProperty) === selectedCategory) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Clear search when filtering by category
+                searchInput.value = '';
+            });
+        });
+
+        // Initialize: Open first accordion by default
+        if (accordionItems.length > 0) {
+            accordionItems[0].classList.add('open');
+        }
+    </script>
+</body>
+</html>

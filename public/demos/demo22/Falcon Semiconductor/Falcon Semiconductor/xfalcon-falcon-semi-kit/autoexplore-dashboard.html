@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / AutoExplore: Evidence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.55}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 28px 40px}
+.hero{background:linear-gradient(135deg,#1A2332 0%,#0F172A 100%);color:#F1FAEE;padding:24px 28px;border-radius:8px;margin-bottom:24px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(45,139,139,.25),transparent 70%)}
+.hero h1{font-size:24px;margin-bottom:6px}
+.hero p{font-size:13px;color:rgba(241,250,238,.85);max-width:720px}
+.hero .chip{display:inline-block;background:var(--wrn);color:#fff;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:600;margin-top:10px}
+.meta-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px 18px;margin-bottom:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;font-size:12px}
+.meta-item .l{color:var(--txm);text-transform:uppercase;font-size:10px;font-weight:600;margin-bottom:2px}
+.meta-item .v{color:var(--tx);font-size:14px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.finding{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:18px;border-left:4px solid var(--p)}
+.finding.hi{border-left-color:var(--wrn)}
+.finding.pos{border-left-color:var(--pos)}
+.finding h3{font-size:14px;color:var(--p);margin-bottom:4px}
+.finding.hi h3{color:var(--wrn)}
+.finding.pos h3{color:var(--pos)}
+.finding .headline{font-size:18px;font-weight:700;color:var(--tx);margin-bottom:10px;line-height:1.3}
+.finding .cw{position:relative;height:180px;margin-bottom:12px}
+.finding .data{font-size:12px;color:var(--txm);margin-bottom:8px}
+.finding .data strong{color:var(--tx)}
+.finding .sowhat{background:#F1FAEE;border-radius:4px;padding:10px 12px;font-size:12px;color:var(--tx);line-height:1.5}
+.finding .sowhat strong{color:var(--p)}
+.finding.hi .sowhat strong{color:var(--wrn)}
+.finding.pos .sowhat strong{color:var(--pos)}
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;background:#F1F5F9;color:var(--txm);font-weight:500;margin-right:4px}
+.tag.warn{background:rgba(217,119,6,.12);color:var(--wrn)}
+.tag.pos{background:rgba(5,150,105,.12);color:var(--pos)}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+@media(max-width:1100px){.grid{grid-template-columns:1fr}.meta-bar{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / AutoExplore: Evidence Dashboard</div>
+<div class="topbar-subtitle">Directed exploration · 8 key findings · FY23-FY25 data window · extended 2026-04-23</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+
+<div class="hero">
+<h1>AutoExplore: What's Really Going On</h1>
+<p>Autonomous directed exploration of the Falcon Semiconductor warehouse against five strategic questions: <em>What drove the FY23 correction? Where is automotive concentration risk concentrated? How healthy is the forward pipeline? Which process nodes give the best cost efficiency? How fast is our design-win → revenue conversion?</em></p>
+<span class="chip">8 findings · fact-checked against FACT_SHIPMENTS, FACT_ORDERS, FACT_BACKLOG, FACT_DESIGN_WINS, FACT_SUPPLY_CHAIN</span>
+</div>
+
+<div class="meta-bar">
+<div class="meta-item"><div class="l">Hypotheses Tested</div><div class="v">52</div></div>
+<div class="meta-item"><div class="l">Confirmed Findings</div><div class="v">8</div></div>
+<div class="meta-item"><div class="l">Null Results</div><div class="v">7</div></div>
+<div class="meta-item"><div class="l">Surprising Patterns</div><div class="v">4</div></div>
+</div>
+
+<div class="grid">
+
+<div class="finding hi">
+<h3>Finding 1 · Concentration Risk <span class="tag warn">HIGH PRIORITY</span></h3>
+<div class="headline">Automotive end-market is 20.8 percentage points over its strategic target share — the single largest revenue-mix risk.</div>
+<div class="cw"><canvas id="f1"></canvas></div>
+<div class="data"><strong>Evidence:</strong> FY25 Automotive revenue $1.81B (48.8% of $3.71B total) vs 28% MARKET_SHARE_TARGET from DIM_END_MARKET. Gap has widened FY23→FY25 as Auto grew ~27% while total grew ~24%.</div>
+<div class="sowhat"><strong>So what:</strong> A single-market auto slowdown (regulatory, EV demand pause, tariff) would translate to a 15-20% total revenue shock. Diversification into COMM (target 15%, actual 7.3%) and Industrial (22% target, 12.2% actual) would materially de-risk the book.</div>
+</div>
+
+<div class="finding hi">
+<h3>Finding 2 · Customer Concentration <span class="tag warn">HIGH PRIORITY</span></h3>
+<div class="headline">One customer — Stellar Dynamics — contributes 22% of FY25 shipment revenue ($814M).</div>
+<div class="cw"><canvas id="f2"></canvas></div>
+<div class="data"><strong>Evidence:</strong> Top 5 customers = 45.2% of FY25 revenue. Top 20 = 65.3%. Stellar Dynamics alone (Tier 1 OEM, South region) is 4× the size of #2 account (Onyx Devices $365M).</div>
+<div class="sowhat"><strong>So what:</strong> Stellar defection or major budget cut would cost $814M of revenue — nearly 2 years of organic growth. Recommend a dedicated retention plan plus accelerated growth in Tier 2 OEM and Design House segments (combined only 20% of revenue today).</div>
+</div>
+
+<div class="finding">
+<h3>Finding 3 · Product Pareto</h3>
+<div class="headline">MCU category dominates at 82% of FY25 revenue; single SKU (MCU-8-B0001) = 19.4%.</div>
+<div class="cw"><canvas id="f3"></canvas></div>
+<div class="data"><strong>Evidence:</strong> MCU $3.06B of $3.71B. Top 15 products (5% of 284 SKUs) = 66% of revenue. Highest-margin categories (PWR 55%, RF 55%, FPGA 55%) represent only 11% of total revenue.</div>
+<div class="sowhat"><strong>So what:</strong> Revenue is heavily tied to mature MCU SKUs with mid-tier margin (~50%). Growth margin-accretive categories (PWR/RF/FPGA) would materially lift blended GM% if scaled. Current trajectory keeps GM% pinned at ~50.3%.</div>
+</div>
+
+<div class="finding pos">
+<h3>Finding 4 · Cycle Recovery Confirmed <span class="tag pos">GOOD</span></h3>
+<div class="headline">B:B ratio recovered from 0.94 (FY23 correction) to 1.08 (FY25), with forward momentum.</div>
+<div class="cw"><canvas id="f4"></canvas></div>
+<div class="data"><strong>Evidence:</strong> FACT_BACKLOG authoritative B:B: FY21 1.20 (shortage peak), FY22 1.18, FY23 0.94 (correction), FY24 0.98 (early recovery), FY25 1.08 (confirmed), FY26 partial 1.13 (accelerating).</div>
+<div class="sowhat"><strong>So what:</strong> Demand cycle has turned decisively. The FY23 inventory correction is fully absorbed. Continue capacity ramp plans — FY26 bookings are tracking ahead of FY25 shipments, implying shipment growth through FY26-27.</div>
+</div>
+
+<div class="finding">
+<h3>Finding 5 · External Fab Dependency</h3>
+<div class="headline">84% of shipped revenue comes from external foundries (TSMC, Samsung, GF, UMC, etc.).</div>
+<div class="cw"><canvas id="f5"></canvas></div>
+<div class="data"><strong>Evidence:</strong> FY25 revenue by fab type: External Foundry $3.13B (84.4%), Internal $531M (14.3%), Specialty $27M (0.7%), Assembly/Test $22M (0.6%). Leading-edge (5-7nm) exclusively external.</div>
+<div class="sowhat"><strong>So what:</strong> Strategic exposure to foundry allocation, geopolitics, and CAPEX cycles beyond our control. Internal fab capex should target Advanced/Mainstream nodes where internal cost-per-die is competitive. Specialty (SiC) is a 2nd-sourcing opportunity.</div>
+</div>
+
+<div class="finding pos">
+<h3>Finding 6 · Pipeline Health <span class="tag pos">GOOD</span></h3>
+<div class="headline">Weighted design-win pipeline = $1.24B · late-stage conversion ($468M at Qual+Prod) covers 12% of annual revenue.</div>
+<div class="cw"><canvas id="f6"></canvas></div>
+<div class="data"><strong>Evidence:</strong> FACT_DESIGN_WINS 10,442 records across 7 stages. Weighted by win-probability: Prospect $48M, Engage $117M, Eval $236M, Design $282M, Qual $257M, Prod $212M. Competitive displacement 64.7% vs greenfield 35.3%. Top displaced: STMicro ($128M weighted), Qualcomm ($116M).</div>
+<div class="sowhat"><strong>So what:</strong> Pipeline signals solid 2-3 year forward revenue, heavily displacement-driven (good: we take share; flag: dependent on competitor weakness). Auto pipeline at $325M weighted continues to over-index vs target mix — re-examine end-market allocation of R&D.</div>
+</div>
+
+<div class="finding">
+<h3>Finding 7 · Fab Cost Efficiency</h3>
+<div class="headline">Best $/die efficiency sits in the 22–40nm band — 100% external today. Internal fabs stranded at 74% utilization on Legacy/Mature nodes.</div>
+<div class="cw"><canvas id="f7"></canvas></div>
+<div class="data"><strong>Evidence:</strong> $/die by node (FY25): 5nm $18.40 · 7nm $14.80 · 14nm $9.20 · 22nm $6.40 · 40nm $4.10 · 65nm $2.80 · 90nm $2.10 · 130nm $1.60 · 180nm $1.20. Yield 88-96% across the stack. Internal fab util: Chandler 78% · Gresham 73% · Colorado Springs 71%.</div>
+<div class="sowhat"><strong>So what:</strong> Capital is tied up on mature nodes that produce our lowest-margin products, while the efficient 22-40nm band is 100% outsourced. A node-migration feasibility study for internal fabs — even to 40nm — is the single highest-leverage capital decision.</div>
+</div>
+
+<div class="finding">
+<h3>Finding 8 · Design-Win Conversion Velocity</h3>
+<div class="headline">Average design-in → first revenue cycle is 14.2 months. Biggest leak: 41% loss at Eval → Design.</div>
+<div class="cw"><canvas id="f8"></canvas></div>
+<div class="data"><strong>Evidence:</strong> Stage dwell (months, FY23-25 cohort): Prospect 2.1 · Engage 2.8 · Eval 3.1 · Design 4.3 · Qual 4.8. Conversion rates: Prospect→Engage 82% · Engage→Eval 74% · Eval→Design 59% · Design→Qual 71% · Qual→Prod 78%. RF/FPGA cycle 17-18mo (vs MCU 12.4mo).</div>
+<div class="sowhat"><strong>So what:</strong> Eval → Design is the biggest pipeline leak at 41% loss — likely under-matched FAE coverage. Lifting Eval conversion to 70% could unlock ~$300M of incremental FY27 revenue from the current pipeline.</div>
+</div>
+
+</div>
+
+<div class="ft">AutoExplore Evidence Dashboard · xFalcon AnalyticsPro · Generated 2026-04-21 · Extended 2026-04-23 (Findings 7 & 8)</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',wrn:'#D97706',pos:'#059669',gr:'#D8E2DD'};
+var ins={};function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+
+// F1: Auto actual vs target
+mk('f1',{type:'bar',data:{labels:['Auto','Comp','Ind','Cons','Comm','IoT','Mil','Med'],datasets:[
+ {label:'Actual %',data:[48.8,13.6,12.2,8.6,7.3,5.1,3.3,1.1],backgroundColor:C.wrn},
+ {label:'Target %',data:[28,10,22,12,15,3,6,4],backgroundColor:C.t}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:function(v){return v+'%'},font:{size:10}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// F2: top customer Pareto
+var topC=[814,365,215,147,126,99,82,71,58,52];var cum=0;var cumPct=topC.map(function(v){cum+=v;return +(cum/3709*100).toFixed(1)});
+mk('f2',{type:'bar',data:{labels:['#1','#2','#3','#4','#5','#6','#7','#8','#9','#10'],datasets:[
+ {type:'bar',label:'Rev ($M)',data:topC,backgroundColor:topC.map(function(v,i){return i===0?C.wrn:C.p}),yAxisID:'y',borderRadius:2},
+ {type:'line',label:'Cum %',data:cumPct,borderColor:C.wrn,tension:.2,pointRadius:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return '$'+v},font:{size:10}},grid:{color:C.gr}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{callback:function(v){return v+'%'},font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// F3: Category revenue
+mk('f3',{type:'bar',data:{labels:['MCU','PWR','RF','MEM','ANA','FPGA','SEN','INT','OPT','DIS'],datasets:[
+ {label:'Rev ($M)',data:[3055,213,140,80,70,58,36,35,14,9],backgroundColor:['#D97706','#2D8B8B','#2D8B8B','#A8DADC','#A8DADC','#2D8B8B','#A8DADC','#A8DADC','#94A3B8','#94A3B8']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{type:'logarithmic',ticks:{callback:function(v){return '$'+v},font:{size:10}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// F4: B:B cycle
+mk('f4',{type:'line',data:{labels:['FY19','FY20','FY21','FY22','FY23','FY24','FY25','FY26*'],datasets:[
+ {label:'B:B',data:[1.02,1.02,1.20,1.18,0.94,0.98,1.08,1.13],borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:4,
+  pointBackgroundColor:['#2D8B8B','#2D8B8B','#2D8B8B','#2D8B8B','#D97706','#2D8B8B','#2D8B8B','#059669']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:.8,max:1.3,ticks:{callback:function(v){return v.toFixed(2)},font:{size:10}},grid:{color:function(ctx){return ctx.tick.value===1?C.wrn:C.gr}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// F5: Fab mix
+mk('f5',{type:'bar',data:{labels:['External Foundry','Internal','Specialty','Assembly/Test'],datasets:[
+ {label:'Rev ($M)',data:[3128.7,530.6,26.8,22.5],backgroundColor:[C.wrn,C.p,C.sd,C.t],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v},font:{size:10}},grid:{color:C.gr}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// F6: Design win funnel weighted
+mk('f6',{type:'bar',data:{labels:['Prospect','Engage','Eval','Design','Qual','Prod','EOL'],datasets:[
+ {label:'Weighted $M',data:[48,117,236,282,257,212,91],backgroundColor:['#94A3B8','#A8DADC','#5EABAB','#2D8B8B','#2D8B8B','#5EABAB','#94A3B8'],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return '$'+v},font:{size:10}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// F7: $/die by node + yield overlay
+mk('f7',{
+ type:'bar',
+ data:{
+  labels:['5nm','7nm','14nm','22nm','40nm','65nm','90nm','130nm','180nm'],
+  datasets:[
+   {type:'bar',label:'$/die',data:[18.4,14.8,9.2,6.4,4.1,2.8,2.1,1.6,1.2],backgroundColor:['#D97706','#D97706','#2D8B8B','#2D8B8B','#2D8B8B','#5EABAB','#5EABAB','#94A3B8','#94A3B8'],yAxisID:'y',borderRadius:2},
+   {type:'line',label:'Yield %',data:[88.2,91.4,93.1,94.8,95.6,95.9,96.3,96.3,96.2],borderColor:C.p,borderDash:[4,4],backgroundColor:'transparent',tension:0.2,pointRadius:2,yAxisID:'y1'}
+  ]
+ },
+ options:{
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
+  scales:{
+   y:{beginAtZero:true,ticks:{callback:function(v){return '$'+v},font:{size:10}},grid:{color:C.gr}},
+   y1:{position:'right',min:85,max:100,grid:{drawOnChartArea:false},ticks:{callback:function(v){return v+'%'},font:{size:10}}},
+   x:{grid:{display:false},ticks:{font:{size:10}}}
+  }
+ }
+});
+
+// F8: Design-win stage dwell + conversion overlay
+mk('f8',{
+ type:'bar',
+ data:{
+  labels:['Prospect','Engage','Eval','Design','Qual','Prod'],
+  datasets:[
+   {type:'bar',label:'Stage dwell (months)',data:[2.1,2.8,3.1,4.3,4.8,0],backgroundColor:['#94A3B8','#A8DADC','#D97706','#5EABAB','#D97706','#2D8B8B'],yAxisID:'y',borderRadius:2},
+   {type:'line',label:'Conversion to next %',data:[82,74,59,71,78,null],borderColor:C.p,backgroundColor:'transparent',tension:0.2,pointRadius:3,yAxisID:'y1',spanGaps:false}
+  ]
+ },
+ options:{
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
+  scales:{
+   y:{beginAtZero:true,ticks:{callback:function(v){return v+'mo'},font:{size:10}},grid:{color:C.gr}},
+   y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{callback:function(v){return v+'%'},font:{size:10}}},
+   x:{grid:{display:false},ticks:{font:{size:10}}}
+  }
+ }
+});
+</script></body></html>

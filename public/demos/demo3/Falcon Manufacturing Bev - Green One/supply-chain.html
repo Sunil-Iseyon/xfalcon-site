@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beverage Manufacturing Supply Chain Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0D0D0D;
+            color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7CB701 0%, #95D600 100%);
+            padding: 30px 20px;
+            color: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(124, 183, 1, 0.3);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .header-nav a {
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .header-nav a:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 30px 20px;
+        }
+
+        .filters-section {
+            background: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #7CB701;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #95D600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-group select {
+            background: #0D0D0D;
+            border: 2px solid #7CB701;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: #95D600;
+            box-shadow: 0 0 8px rgba(124, 183, 1, 0.3);
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #95D600;
+            box-shadow: 0 0 12px rgba(149, 214, 0, 0.5);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #1A1A1A 0%, #252525 100%);
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(124, 183, 1, 0.2);
+            border-left-color: #95D600;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #9B999B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: #95D600;
+            margin-bottom: 5px;
+        }
+
+        .kpi-subtitle {
+            font-size: 12px;
+            color: #7CB701;
+        }
+
+        .danger .kpi-value {
+            color: #FF4444;
+        }
+
+        .success .kpi-value {
+            color: #7CB701;
+        }
+
+        .warning .kpi-value {
+            color: #FFB800;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: #1A1A1A;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #95D600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 10px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+        }
+
+        @media (max-width: 1400px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-container {
+            background: #1A1A1A;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: #0D0D0D;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        table th {
+            padding: 15px;
+            text-align: left;
+            color: #95D600;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #252525;
+            color: #FFFFFF;
+        }
+
+        table tbody tr:hover {
+            background: #252525;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #1A1A1A;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-good {
+            background: rgba(124, 183, 1, 0.2);
+            color: #7CB701;
+        }
+
+        .status-warning {
+            background: rgba(255, 184, 0, 0.2);
+            color: #FFB800;
+        }
+
+        .status-danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .footer {
+            background: #1A1A1A;
+            padding: 20px;
+            text-align: center;
+            color: #9B999B;
+            border-top: 1px solid #252525;
+            font-size: 12px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚡ BEVERAGE MANUFACTURING SUPPLY CHAIN</h1>
+        <div class="header-nav">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="yearFilter">Year</label>
+                <select id="yearFilter">
+                    <option value="">All Years</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="quarterFilter">Quarter</label>
+                <select id="quarterFilter">
+                    <option value="">All Quarters</option>
+                    <option value="1">Q1</option>
+                    <option value="2">Q2</option>
+                    <option value="3">Q3</option>
+                    <option value="4">Q4</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">Supplier Type</label>
+                <select id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="Packaging">Packaging</option>
+                    <option value="Raw Material">Raw Material</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Avg Reliability Score</div>
+                <div class="kpi-value" id="kpiReliability">0.00</div>
+                <div class="kpi-subtitle">Out of 5.0</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Total Late Deliveries</div>
+                <div class="kpi-value" id="kpiLateDeliveries">0</div>
+                <div class="kpi-subtitle">Delayed shipments</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Quality Rejections</div>
+                <div class="kpi-value" id="kpiQualityRejections">0</div>
+                <div class="kpi-subtitle">Failed inspections</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Total Procurement Cost</div>
+                <div class="kpi-value" id="kpiCost">$0</div>
+                <div class="kpi-subtitle">Cumulative spend</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Avg Lead Time</div>
+                <div class="kpi-value" id="kpiLeadTime">0.0</div>
+                <div class="kpi-subtitle">Days</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Procurement Cost Trend by Quarter</div>
+                <div class="chart-wrapper">
+                    <canvas id="procurementCostChart"></canvas>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <div class="chart-container">
+                    <div class="chart-title">Reliability Rating: Packaging vs Raw Material</div>
+                    <div class="chart-wrapper">
+                        <canvas id="reliabilityChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Lead Time Trend by Quarter</div>
+                    <div class="chart-wrapper">
+                        <canvas id="leadTimeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <div class="chart-container">
+                    <div class="chart-title">Late Deliveries by Quarter</div>
+                    <div class="chart-wrapper">
+                        <canvas id="lateDeliveriesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Quality Rejections by Quarter</div>
+                    <div class="chart-wrapper">
+                        <canvas id="qualityRejectionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="chart-title" style="margin-bottom: 15px;">Supplier Performance Comparison</div>
+            <table id="performanceTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Quarter</th>
+                        <th>Type</th>
+                        <th>Suppliers</th>
+                        <th>Reliability</th>
+                        <th>Lead Time (Days)</th>
+                        <th>Late Deliveries</th>
+                        <th>Late Rate %</th>
+                        <th>Quality Rejections</th>
+                        <th>Total Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Key Insights & Analysis -->
+        <div class="insights-section" style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+            <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+            <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+            <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+            <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated by IDA Analytics | Beverage Manufacturing Supply Chain Dashboard
+    </div>
+
+    <script>
+        const supplyData = [
+            {year:2020,quarter:1,type:"Packaging",suppliers:4,reliability:3.77,lead_time:25.5,late_deliveries:0,quality_rejections:0,total_cost:64137.98,late_rate:0},
+            {year:2020,quarter:1,type:"Raw Material",suppliers:3,reliability:4.06,lead_time:19.79,late_deliveries:2,quality_rejections:0,total_cost:74121.28,late_rate:21.43},
+            {year:2020,quarter:2,type:"Packaging",suppliers:4,reliability:3.83,lead_time:24.0,late_deliveries:0,quality_rejections:0,total_cost:87571.13,late_rate:0},
+            {year:2020,quarter:2,type:"Raw Material",suppliers:5,reliability:4.24,lead_time:16.1,late_deliveries:0,quality_rejections:0,total_cost:94498.27,late_rate:0},
+            {year:2020,quarter:3,type:"Packaging",suppliers:3,reliability:4.02,lead_time:16.78,late_deliveries:1,quality_rejections:0,total_cost:141194.19,late_rate:11.11},
+            {year:2020,quarter:3,type:"Raw Material",suppliers:6,reliability:4.48,lead_time:16.4,late_deliveries:2,quality_rejections:0,total_cost:166876.77,late_rate:20.0},
+            {year:2020,quarter:4,type:"Packaging",suppliers:4,reliability:3.82,lead_time:23.4,late_deliveries:0,quality_rejections:0,total_cost:98158.72,late_rate:0},
+            {year:2020,quarter:4,type:"Raw Material",suppliers:5,reliability:4.30,lead_time:17.75,late_deliveries:0,quality_rejections:1,total_cost:114138.85,late_rate:0},
+            {year:2021,quarter:1,type:"Packaging",suppliers:2,reliability:3.88,lead_time:21.25,late_deliveries:1,quality_rejections:0,total_cost:117464.51,late_rate:25.0},
+            {year:2021,quarter:1,type:"Raw Material",suppliers:4,reliability:4.20,lead_time:19.0,late_deliveries:1,quality_rejections:0,total_cost:70986.29,late_rate:16.67},
+            {year:2021,quarter:2,type:"Packaging",suppliers:4,reliability:3.77,lead_time:25.5,late_deliveries:0,quality_rejections:1,total_cost:47910.02,late_rate:0},
+            {year:2021,quarter:2,type:"Raw Material",suppliers:5,reliability:4.27,lead_time:17.0,late_deliveries:0,quality_rejections:0,total_cost:78626.75,late_rate:0},
+            {year:2021,quarter:3,type:"Packaging",suppliers:3,reliability:3.75,lead_time:26.17,late_deliveries:2,quality_rejections:0,total_cost:48778.63,late_rate:33.33},
+            {year:2021,quarter:3,type:"Raw Material",suppliers:4,reliability:4.24,lead_time:16.67,late_deliveries:0,quality_rejections:1,total_cost:86227.47,late_rate:0},
+            {year:2021,quarter:4,type:"Packaging",suppliers:3,reliability:3.65,lead_time:29.5,late_deliveries:1,quality_rejections:0,total_cost:53013.91,late_rate:16.67},
+            {year:2021,quarter:4,type:"Raw Material",suppliers:4,reliability:4.33,lead_time:12.67,late_deliveries:1,quality_rejections:0,total_cost:120412.55,late_rate:16.67},
+            {year:2022,quarter:1,type:"Packaging",suppliers:1,reliability:3.80,lead_time:21.0,late_deliveries:0,quality_rejections:0,total_cost:104654.23,late_rate:0},
+            {year:2022,quarter:1,type:"Raw Material",suppliers:4,reliability:4.39,lead_time:16.0,late_deliveries:1,quality_rejections:0,total_cost:118449.42,late_rate:14.29},
+            {year:2022,quarter:2,type:"Packaging",suppliers:2,reliability:4.03,lead_time:17.0,late_deliveries:1,quality_rejections:0,total_cost:58299.83,late_rate:25.0},
+            {year:2022,quarter:2,type:"Raw Material",suppliers:4,reliability:4.33,lead_time:12.88,late_deliveries:0,quality_rejections:0,total_cost:85428.17,late_rate:0},
+            {year:2022,quarter:3,type:"Packaging",suppliers:3,reliability:3.80,lead_time:24.4,late_deliveries:2,quality_rejections:0,total_cost:63611.56,late_rate:40.0},
+            {year:2022,quarter:3,type:"Raw Material",suppliers:3,reliability:4.25,lead_time:12.67,late_deliveries:0,quality_rejections:1,total_cost:49648.68,late_rate:0},
+            {year:2022,quarter:4,type:"Packaging",suppliers:1,reliability:3.80,lead_time:28.0,late_deliveries:1,quality_rejections:0,total_cost:53746.71,late_rate:50.0},
+            {year:2022,quarter:4,type:"Raw Material",suppliers:6,reliability:4.16,lead_time:25.25,late_deliveries:3,quality_rejections:0,total_cost:87663.36,late_rate:37.5},
+            {year:2023,quarter:1,type:"Packaging",suppliers:3,reliability:3.60,lead_time:32.25,late_deliveries:0,quality_rejections:0,total_cost:70606.11,late_rate:0},
+            {year:2023,quarter:1,type:"Raw Material",suppliers:5,reliability:3.96,lead_time:25.29,late_deliveries:0,quality_rejections:0,total_cost:102703.97,late_rate:0},
+            {year:2023,quarter:2,type:"Packaging",suppliers:2,reliability:3.65,lead_time:28.5,late_deliveries:0,quality_rejections:0,total_cost:1792.85,late_rate:0},
+            {year:2023,quarter:2,type:"Raw Material",suppliers:4,reliability:3.97,lead_time:26.67,late_deliveries:0,quality_rejections:2,total_cost:70128.02,late_rate:0},
+            {year:2023,quarter:3,type:"Packaging",suppliers:4,reliability:3.94,lead_time:21.88,late_deliveries:2,quality_rejections:0,total_cost:130813.06,late_rate:18.75},
+            {year:2023,quarter:3,type:"Raw Material",suppliers:6,reliability:4.36,lead_time:19.43,late_deliveries:1,quality_rejections:1,total_cost:68598.11,late_rate:14.29},
+            {year:2023,quarter:4,type:"Packaging",suppliers:3,reliability:3.90,lead_time:21.75,late_deliveries:0,quality_rejections:0,total_cost:28789.46,late_rate:0},
+            {year:2023,quarter:4,type:"Raw Material",suppliers:4,reliability:4.17,lead_time:18.89,late_deliveries:1,quality_rejections:1,total_cost:94973.62,late_rate:11.11},
+            {year:2024,quarter:1,type:"Packaging",suppliers:4,reliability:3.88,lead_time:25.33,late_deliveries:2,quality_rejections:0,total_cost:133473.98,late_rate:25.0},
+            {year:2024,quarter:1,type:"Raw Material",suppliers:3,reliability:4.25,lead_time:13.75,late_deliveries:0,quality_rejections:0,total_cost:62525.40,late_rate:0},
+            {year:2024,quarter:2,type:"Packaging",suppliers:3,reliability:4.06,lead_time:16.5,late_deliveries:0,quality_rejections:1,total_cost:82055.87,late_rate:0},
+            {year:2024,quarter:2,type:"Raw Material",suppliers:4,reliability:4.58,lead_time:13.25,late_deliveries:2,quality_rejections:0,total_cost:60593.97,late_rate:50.0},
+            {year:2024,quarter:3,type:"Packaging",suppliers:1,reliability:3.80,lead_time:21.0,late_deliveries:0,quality_rejections:0,total_cost:4692.77,late_rate:0},
+            {year:2024,quarter:3,type:"Raw Material",suppliers:5,reliability:4.23,lead_time:18.8,late_deliveries:2,quality_rejections:1,total_cost:164564.49,late_rate:15.0},
+            {year:2024,quarter:4,type:"Packaging",suppliers:4,reliability:3.70,lead_time:30.2,late_deliveries:2,quality_rejections:1,total_cost:62124.48,late_rate:40.0},
+            {year:2024,quarter:4,type:"Raw Material",suppliers:5,reliability:4.38,lead_time:14.1,late_deliveries:3,quality_rejections:0,total_cost:167431.13,late_rate:25.0},
+            {year:2025,quarter:1,type:"Packaging",suppliers:4,reliability:3.88,lead_time:24.33,late_deliveries:1,quality_rejections:0,total_cost:74139.88,late_rate:16.67},
+            {year:2025,quarter:1,type:"Raw Material",suppliers:3,reliability:4.09,lead_time:23.0,late_deliveries:1,quality_rejections:0,total_cost:112308.23,late_rate:14.29},
+            {year:2025,quarter:2,type:"Packaging",suppliers:2,reliability:4.04,lead_time:13.8,late_deliveries:0,quality_rejections:1,total_cost:67261.65,late_rate:0},
+            {year:2025,quarter:2,type:"Raw Material",suppliers:4,reliability:4.13,lead_time:24.86,late_deliveries:1,quality_rejections:0,total_cost:106798.31,late_rate:14.29},
+            {year:2025,quarter:3,type:"Packaging",suppliers:4,reliability:3.94,lead_time:19.14,late_deliveries:1,quality_rejections:0,total_cost:62779.42,late_rate:14.29},
+            {year:2025,quarter:3,type:"Raw Material",suppliers:4,reliability:4.33,lead_time:15.5,late_deliveries:0,quality_rejections:1,total_cost:136919.63,late_rate:0},
+            {year:2025,quarter:4,type:"Packaging",suppliers:3,reliability:3.98,lead_time:16.25,late_deliveries:1,quality_rejections:0,total_cost:71638.57,late_rate:25.0},
+            {year:2025,quarter:4,type:"Raw Material",suppliers:6,reliability:4.37,lead_time:17.11,late_deliveries:1,quality_rejections:0,total_cost:144676.39,late_rate:11.11}
+        ];
+
+        let procurementCostChart, reliabilityChart, leadTimeChart, lateDeliveriesChart, qualityRejectionsChart;
+        const chartColors = {
+            primary: '#7CB701',
+            secondary: '#95D600',
+            accent: '#FFB800',
+            danger: '#FF4444',
+            success: '#7CB701',
+            grid: 'rgba(155, 153, 155, 0.1)'
+        };
+
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const quarter = document.getElementById('quarterFilter').value;
+            const type = document.getElementById('typeFilter').value;
+
+            return supplyData.filter(row => {
+                return (year === '' || row.year === parseInt(year)) &&
+                       (quarter === '' || row.quarter === parseInt(quarter)) &&
+                       (type === '' || row.type === type);
+            });
+        }
+
+        function updateKPIs() {
+            const filtered = getFilteredData();
+            if (filtered.length === 0) {
+                document.getElementById('kpiReliability').textContent = '0.00';
+                document.getElementById('kpiLateDeliveries').textContent = '0';
+                document.getElementById('kpiQualityRejections').textContent = '0';
+                document.getElementById('kpiCost').textContent = '$0';
+                document.getElementById('kpiLeadTime').textContent = '0.0';
+                return;
+            }
+
+            const avgReliability = (filtered.reduce((sum, row) => sum + row.reliability, 0) / filtered.length).toFixed(2);
+            const totalLate = filtered.reduce((sum, row) => sum + row.late_deliveries, 0);
+            const totalQuality = filtered.reduce((sum, row) => sum + row.quality_rejections, 0);
+            const totalCost = filtered.reduce((sum, row) => sum + row.total_cost, 0);
+            const avgLeadTime = (filtered.reduce((sum, row) => sum + row.lead_time, 0) / filtered.length).toFixed(1);
+
+            document.getElementById('kpiReliability').textContent = avgReliability;
+            document.getElementById('kpiLateDeliveries').textContent = totalLate;
+            document.getElementById('kpiQualityRejections').textContent = totalQuality;
+            document.getElementById('kpiCost').textContent = '$' + totalCost.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('kpiLeadTime').textContent = avgLeadTime;
+        }
+
+        function updateCharts() {
+            const filtered = getFilteredData();
+
+            // Procurement Cost Trend
+            const costByQuarter = {};
+            filtered.forEach(row => {
+                const key = `${row.year}Q${row.quarter}`;
+                costByQuarter[key] = (costByQuarter[key] || 0) + row.total_cost;
+            });
+            const costLabels = Object.keys(costByQuarter).sort();
+            const costData = costLabels.map(label => costByQuarter[label]);
+
+            updateChart(procurementCostChart, costLabels, [{
+                label: 'Total Cost',
+                data: costData,
+                borderColor: chartColors.secondary,
+                backgroundColor: 'rgba(149, 214, 0, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: chartColors.secondary,
+                pointBorderColor: '#0D0D0D',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]);
+
+            // Reliability by Type
+            const reliabilityByType = {Packaging: [], 'Raw Material': []};
+            const reliabilityLabels = [];
+            const typeData = {};
+            filtered.forEach(row => {
+                const key = `${row.year}Q${row.quarter}`;
+                if (!typeData[key]) {
+                    typeData[key] = {Packaging: [], 'Raw Material': []};
+                }
+                typeData[key][row.type].push(row.reliability);
+            });
+            const sortedKeys = Object.keys(typeData).sort();
+            sortedKeys.forEach(key => {
+                reliabilityLabels.push(key);
+                reliabilityByType.Packaging.push(typeData[key].Packaging.length > 0 ?
+                    (typeData[key].Packaging.reduce((a, b) => a + b) / typeData[key].Packaging.length).toFixed(2) : 0);
+                reliabilityByType['Raw Material'].push(typeData[key]['Raw Material'].length > 0 ?
+                    (typeData[key]['Raw Material'].reduce((a, b) => a + b) / typeData[key]['Raw Material'].length).toFixed(2) : 0);
+            });
+
+            updateChart(reliabilityChart, reliabilityLabels, [
+                {
+                    label: 'Packaging',
+                    data: reliabilityByType.Packaging,
+                    backgroundColor: chartColors.primary,
+                    borderColor: chartColors.primary,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Raw Material',
+                    data: reliabilityByType['Raw Material'],
+                    backgroundColor: chartColors.secondary,
+                    borderColor: chartColors.secondary,
+                    borderWidth: 2
+                }
+            ], 'bar');
+
+            // Lead Time Trend
+            const leadTimeByQuarter = {};
+            filtered.forEach(row => {
+                const key = `${row.year}Q${row.quarter}`;
+                if (!leadTimeByQuarter[key]) leadTimeByQuarter[key] = [];
+                leadTimeByQuarter[key].push(row.lead_time);
+            });
+            const leadLabels = Object.keys(leadTimeByQuarter).sort();
+            const leadData = leadLabels.map(label => (leadTimeByQuarter[label].reduce((a, b) => a + b) / leadTimeByQuarter[label].length).toFixed(2));
+
+            updateChart(leadTimeChart, leadLabels, [{
+                label: 'Average Lead Time',
+                data: leadData,
+                borderColor: chartColors.accent,
+                backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: chartColors.accent,
+                pointBorderColor: '#0D0D0D',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]);
+
+            // Late Deliveries
+            const lateByQuarter = {};
+            filtered.forEach(row => {
+                const key = `${row.year}Q${row.quarter}`;
+                lateByQuarter[key] = (lateByQuarter[key] || 0) + row.late_deliveries;
+            });
+            const lateLabels = Object.keys(lateByQuarter).sort();
+            const lateData = lateLabels.map(label => lateByQuarter[label]);
+
+            updateChart(lateDeliveriesChart, lateLabels, [{
+                label: 'Late Deliveries',
+                data: lateData,
+                backgroundColor: chartColors.danger,
+                borderColor: chartColors.danger,
+                borderWidth: 2
+            }], 'bar');
+
+            // Quality Rejections
+            const qualityByQuarter = {};
+            filtered.forEach(row => {
+                const key = `${row.year}Q${row.quarter}`;
+                qualityByQuarter[key] = (qualityByQuarter[key] || 0) + row.quality_rejections;
+            });
+            const qualityLabels = Object.keys(qualityByQuarter).sort();
+            const qualityData = qualityLabels.map(label => qualityByQuarter[label]);
+
+            updateChart(qualityRejectionsChart, qualityLabels, [{
+                label: 'Quality Rejections',
+                data: qualityData,
+                backgroundColor: chartColors.accent,
+                borderColor: chartColors.accent,
+                borderWidth: 2
+            }], 'bar');
+        }
+
+        function updateChart(chart, labels, datasets, type = 'line') {
+            chart.data.labels = labels;
+            chart.data.datasets = datasets;
+            chart.options.indexAxis = type === 'bar' ? undefined : chart.options.indexAxis;
+            chart.update();
+        }
+
+        function updateTable() {
+            const filtered = getFilteredData();
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            filtered.forEach(row => {
+                const tr = document.createElement('tr');
+                const reliabilityStatus = row.reliability >= 4.0 ? 'status-good' : row.reliability >= 3.8 ? 'status-warning' : 'status-danger';
+                const leadTimeStatus = row.lead_time <= 20 ? 'status-good' : row.lead_time <= 25 ? 'status-warning' : 'status-danger';
+
+                tr.innerHTML = `
+                    <td>${row.year}</td>
+                    <td>Q${row.quarter}</td>
+                    <td>${row.type}</td>
+                    <td>${row.suppliers}</td>
+                    <td><span class="status-badge ${reliabilityStatus}">${row.reliability.toFixed(2)}</span></td>
+                    <td><span class="status-badge ${leadTimeStatus}">${row.lead_time.toFixed(2)}</span></td>
+                    <td>${row.late_deliveries}</td>
+                    <td>${row.late_rate.toFixed(2)}%</td>
+                    <td>${row.quality_rejections}</td>
+                    <td>$${row.total_cost.toLocaleString('en-US', {maximumFractionDigits: 2})}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function initCharts() {
+            const chartConfig = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#FFFFFF',
+                            font: { size: 12, weight: '600' },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1A1A1A',
+                        titleColor: '#95D600',
+                        bodyColor: '#FFFFFF',
+                        borderColor: '#7CB701',
+                        borderWidth: 1,
+                        padding: 12,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#9B999B', font: { size: 11 } },
+                        grid: { color: chartColors.grid },
+                        title: { display: true, color: '#95D600' }
+                    },
+                    x: {
+                        ticks: { color: '#9B999B', font: { size: 11 } },
+                        grid: { display: false }
+                    }
+                }
+            };
+
+            const ctxCost = document.getElementById('procurementCostChart').getContext('2d');
+            procurementCostChart = new Chart(ctxCost, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: chartConfig
+            });
+
+            const ctxReliability = document.getElementById('reliabilityChart').getContext('2d');
+            reliabilityChart = new Chart(ctxReliability, {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: {
+                    ...chartConfig,
+                    scales: {
+                        ...chartConfig.scales,
+                        y: {
+                            ...chartConfig.scales.y,
+                            max: 5
+                        }
+                    }
+                }
+            });
+
+            const ctxLeadTime = document.getElementById('leadTimeChart').getContext('2d');
+            leadTimeChart = new Chart(ctxLeadTime, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: chartConfig
+            });
+
+            const ctxLate = document.getElementById('lateDeliveriesChart').getContext('2d');
+            lateDeliveriesChart = new Chart(ctxLate, {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: chartConfig
+            });
+
+            const ctxQuality = document.getElementById('qualityRejectionsChart').getContext('2d');
+            qualityRejectionsChart = new Chart(ctxQuality, {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: chartConfig
+            });
+        }
+
+        function generateSupplyChainInsights() {
+            const filtered = getFilteredData();
+            if (filtered.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '';
+                document.getElementById('focusAreas').innerHTML = '';
+                return;
+            }
+
+            // Calculate metrics
+            const avgReliability = filtered.reduce((sum, row) => sum + row.reliability, 0) / filtered.length;
+            const reliabilityGood = avgReliability >= 4.0;
+            const totalLateDeliveries = filtered.reduce((sum, row) => sum + row.late_deliveries, 0);
+            const avgLateRate = filtered.reduce((sum, row) => sum + row.late_rate, 0) / filtered.length;
+            const totalQualityRejections = filtered.reduce((sum, row) => sum + row.quality_rejections, 0);
+            const avgLeadTime = filtered.reduce((sum, row) => sum + row.lead_time, 0) / filtered.length;
+            const leadTimeGood = avgLeadTime <= 20;
+            const totalCost = filtered.reduce((sum, row) => sum + row.total_cost, 0);
+
+            // Cost trend analysis
+            const firstHalf = filtered.slice(0, Math.ceil(filtered.length / 2));
+            const secondHalf = filtered.slice(Math.ceil(filtered.length / 2));
+            const firstCost = firstHalf.reduce((sum, d) => sum + d.total_cost, 0);
+            const secondCost = secondHalf.reduce((sum, d) => sum + d.total_cost, 0);
+            const costTrend = secondCost > firstCost ? 'increasing' : 'decreasing';
+            const costChange = ((secondCost - firstCost) / firstCost * 100).toFixed(1);
+
+            // Find worst performing supplier type
+            const packagingData = filtered.filter(row => row.type === 'Packaging');
+            const rawMaterialData = filtered.filter(row => row.type === 'Raw Material');
+            const packagingReliability = packagingData.length > 0 ? packagingData.reduce((sum, r) => sum + r.reliability, 0) / packagingData.length : 0;
+            const rawMaterialReliability = rawMaterialData.length > 0 ? rawMaterialData.reduce((sum, r) => sum + r.reliability, 0) / rawMaterialData.length : 0;
+
+            let insights = `
+                <div style="margin-left:20px;">
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Overall supplier reliability score: ${avgReliability.toFixed(2)}/5.0 (${reliabilityGood ? 'above 4.0 target' : 'below 4.0 target'})</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Late delivery rate: ${avgLateRate.toFixed(1)}% with ${totalLateDeliveries} delayed shipments</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Quality rejections: ${totalQualityRejections} failures requiring investigation</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Average lead time: ${avgLeadTime.toFixed(1)} days (${leadTimeGood ? 'efficient' : 'needs improvement'})</div>
+                    <div style="margin-bottom:12px;"><span style="color:#7CB701;">•</span> Procurement cost trend: ${costTrend} by ${Math.abs(costChange)}% (${formatCurrency(totalCost)})</div>
+                </div>
+            `;
+
+            let focusItems = [];
+            if (!reliabilityGood) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Supplier reliability below target - identify low-performing suppliers and remediate</div>');
+            }
+            if (avgLateRate > 15) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> High late delivery rate impacting production - review SLAs and supplier contracts</div>');
+            }
+            if (totalQualityRejections > 5) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Quality rejections above acceptable levels - escalate with suppliers and improve controls</div>');
+            }
+            if (!leadTimeGood) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Lead times extending - evaluate faster suppliers or expedited shipping options</div>');
+            }
+            if (costTrend === 'increasing') {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#FFB800;">→</span> Procurement costs rising - negotiate better terms or source alternatives</div>');
+            }
+
+            if (focusItems.length === 0) {
+                focusItems.push('<div style="margin-bottom:10px;"><span style="color:#7CB701;">✓</span> Supply chain performing well - maintain strong supplier relationships</div>');
+            }
+
+            document.getElementById('insightsContent').innerHTML = insights;
+            document.getElementById('focusAreas').innerHTML = focusItems.join('');
+        }
+
+        function updateAll() {
+            updateKPIs();
+            updateCharts();
+            updateTable();
+            generateSupplyChainInsights();
+        }
+
+        document.getElementById('yearFilter').addEventListener('change', updateAll);
+        document.getElementById('quarterFilter').addEventListener('change', updateAll);
+        document.getElementById('typeFilter').addEventListener('change', updateAll);
+
+        window.addEventListener('load', () => {
+            initCharts();
+            updateAll();
+        });
+    </script>
+</body>
+</html>

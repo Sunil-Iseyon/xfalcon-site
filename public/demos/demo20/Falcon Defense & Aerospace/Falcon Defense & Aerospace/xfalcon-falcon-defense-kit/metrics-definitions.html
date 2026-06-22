@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / Metrics Definitions</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--color-bg); color: var(--color-text); font-size: 14px; line-height: 1.5; }
+
+    .topbar { background: var(--color-topbar); color: var(--color-text-on-dark); height: 56px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .logo { font-weight: 800; font-size: 24px; }
+    [data-theme="modern-minimalist"] .logo-x { color: #FFFFFF; }
+    [data-theme="modern-minimalist"] .logo-f { color: #A8B3BD; }
+    [data-theme="clean-light"] .logo-x { color: #60A5FA; }
+    [data-theme="clean-light"] .logo-f { color: #86EFAC; }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .back-link { color: var(--color-text-on-dark); text-decoration: none; font-size: 14px; opacity: 0.85; }
+    .back-link:hover { text-decoration: underline; }
+
+    .content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 24px; font-weight: 700; color: var(--color-primary); margin-bottom: 6px; }
+    .lede { font-size: 14px; color: var(--color-text-muted); margin-bottom: 24px; }
+
+    .controls { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+    .search-wrap { flex: 1; min-width: 240px; position: relative; }
+    #search { width: 100%; padding: 10px 12px 10px 36px; font-family: inherit; font-size: 14px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); color: var(--color-text); }
+    #search:focus { outline: 2px solid var(--color-primary); outline-offset: -1px; }
+    .search-wrap::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 13px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .chip { padding: 6px 12px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+    .chip:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    .chip.active { background: var(--color-primary); color: #FFFFFF; border-color: var(--color-primary); }
+    .chip-count { font-size: 11px; opacity: 0.7; margin-left: 4px; }
+
+    .category-block { margin-bottom: 32px; }
+    .category-title { font-size: 18px; font-weight: 700; color: var(--color-primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+    .metric-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 16px; }
+    .metric-name { font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 6px; }
+    .metric-def { font-size: 13px; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 8px; }
+    .metric-formula { font-family: 'Menlo', 'Consolas', monospace; font-size: 11px; background: var(--color-surface-alt); padding: 6px 8px; border-radius: 4px; color: var(--color-text); margin-bottom: 8px; overflow-x: auto; }
+    .metric-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .metric-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: var(--color-surface-alt); color: var(--color-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric-tag.unit { background: #DBEAFE; color: #1E40AF; }
+    .metric-tag.direction { background: #FEF3C7; color: #92400E; }
+
+    .no-results { padding: 48px; text-align: center; color: var(--color-text-muted); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <span class="topbar-title">Falcon Defense &amp; Aerospace / Metrics Definitions</span>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+
+  <main class="content">
+    <h1>Metrics &amp; KPI Definitions</h1>
+    <p class="lede">Searchable reference for every KPI used across the 8 Falcon Defense &amp; Aerospace dashboards. All currency in USD (nominal). Fiscal year = Federal FY (Oct&ndash;Sep) unless noted.</p>
+
+    <div class="controls">
+      <div class="search-wrap"><input id="search" placeholder="Search metrics (e.g. CPI, utilization, sole-source)"></div>
+    </div>
+    <div class="chips" id="chips"></div>
+
+    <div id="results"></div>
+  </main>
+
+  <script>
+    var METRICS = [
+      // A. Revenue & P&L
+      { cat: 'Revenue & P&L', name: 'Billed Amount', def: 'Dollar amount invoiced to the government customer in the period.', formula: 'SUM(BILLED_AMOUNT_USD)', unit: '$', dir: 'higher is better', dashboards: '1, 4, 5' },
+      { cat: 'Revenue & P&L', name: 'Recognized Revenue', def: 'Revenue recognized under ASC 606 using percent-complete.', formula: 'SUM(RECOGNIZED_REV_USD)', unit: '$', dir: 'higher is better', dashboards: '1, 4, 5' },
+      { cat: 'Revenue & P&L', name: 'Incurred Cost', def: 'Allowable costs recorded in the period (FAR Part 31).', formula: 'SUM(INCURRED_COST_USD)', unit: '$', dir: 'lower is better', dashboards: '1, 4' },
+      { cat: 'Revenue & P&L', name: 'Fee Earned', def: 'Profit recognized on a contract for this period.', formula: 'SUM(FEE_EARNED_USD)', unit: '$', dir: 'higher is better', dashboards: '1, 4, 5' },
+      { cat: 'Revenue & P&L', name: 'Fee Realization %', def: 'Fee as a percentage of recognized revenue.', formula: 'SUM(FEE_EARNED_USD) / NULLIF(SUM(RECOGNIZED_REV_USD),0) * 100', unit: '%', dir: 'higher is better', dashboards: '1, 4' },
+      { cat: 'Revenue & P&L', name: 'Billing Lag', def: 'Recognized revenue not yet invoiced.', formula: 'SUM(RECOGNIZED_REV_USD) - SUM(BILLED_AMOUNT_USD)', unit: '$', dir: 'lower is better', dashboards: '4' },
+      { cat: 'Revenue & P&L', name: 'Gross Margin %', def: 'Portfolio gross margin.', formula: '(SUM(RECOGNIZED_REV_USD) - SUM(INCURRED_COST_USD)) / SUM(RECOGNIZED_REV_USD) * 100', unit: '%', dir: 'higher is better', dashboards: '1, 4' },
+      { cat: 'Revenue & P&L', name: 'YoY Revenue Growth', def: 'Year-over-year change in recognized revenue.', formula: '(rev_y - rev_{y-1}) / rev_{y-1} * 100', unit: '%', dir: 'higher is better', dashboards: '1, 5' },
+
+      // B. EVM
+      { cat: 'EVM (Earned Value)', name: 'Portfolio CPI', def: 'Cost Performance Index weighted by incurred cost across all contracts.', formula: 'SUM(CPI * INCURRED_COST_USD) / SUM(INCURRED_COST_USD)', unit: 'ratio', dir: 'higher is better (target 1.0)', dashboards: '1, 3' },
+      { cat: 'EVM (Earned Value)', name: 'Portfolio SPI', def: 'Schedule Performance Index weighted by incurred cost.', formula: 'SUM(SPI * INCURRED_COST_USD) / SUM(INCURRED_COST_USD)', unit: 'ratio', dir: 'higher is better (target 1.0)', dashboards: '1, 3' },
+      { cat: 'EVM (Earned Value)', name: 'Program CPI', def: 'CPI weighted by incurred cost, grouped by program.', formula: 'SUM(CPI * INCURRED_COST_USD) / SUM(INCURRED_COST_USD) GROUP BY PROGRAM_KEY', unit: 'ratio', dir: 'higher is better', dashboards: '3' },
+      { cat: 'EVM (Earned Value)', name: 'Program SPI', def: 'SPI weighted by incurred cost, grouped by program.', formula: 'SUM(SPI * INCURRED_COST_USD) / SUM(INCURRED_COST_USD) GROUP BY PROGRAM_KEY', unit: 'ratio', dir: 'higher is better', dashboards: '3' },
+      { cat: 'EVM (Earned Value)', name: 'EVM Health Tier', def: 'Green / Yellow / Red tier based on CPI and SPI thresholds.', formula: 'CPI≥1.00 AND SPI≥1.00 = Green; ≥0.95 = Yellow; else Red', unit: 'category', dir: 'Green best', dashboards: '1, 3' },
+      { cat: 'EVM (Earned Value)', name: 'Estimate at Completion (EAC)', def: 'Projected total cost at contract completion.', formula: 'SUM(COST_AT_COMPLETION)', unit: '$', dir: 'lower is better', dashboards: '3' },
+
+      // C. Budget
+      { cat: 'Budget Performance', name: 'Total Budget (Revised)', def: 'Planned spend (Revised baseline only).', formula: 'SUM(BUDGET_USD) WHERE BUDGET_VERSION = \'Revised\'', unit: '$', dir: '—', dashboards: '2' },
+      { cat: 'Budget Performance', name: 'Actual Spend', def: 'Actual costs incurred.', formula: 'SUM(ACTUAL_USD) WHERE BUDGET_VERSION = \'Revised\'', unit: '$', dir: 'lower when over budget', dashboards: '2' },
+      { cat: 'Budget Performance', name: 'Forecast Spend', def: 'Latest estimate of expected period spend.', formula: 'SUM(FORECAST_USD) WHERE BUDGET_VERSION = \'Revised\'', unit: '$', dir: '—', dashboards: '2' },
+      { cat: 'Budget Performance', name: 'Variance USD', def: 'Actual minus budget. Positive = over budget.', formula: 'SUM(ACTUAL_USD - BUDGET_USD) WHERE Revised', unit: '$', dir: 'lower is better', dashboards: '2' },
+      { cat: 'Budget Performance', name: 'Variance %', def: 'Variance as % of budget.', formula: 'SUM(VARIANCE_USD) / NULLIF(SUM(BUDGET_USD),0) * 100', unit: '%', dir: 'lower is better', dashboards: '2' },
+      { cat: 'Budget Performance', name: 'Budget Execution %', def: 'Actual as % of budget (target ~100%).', formula: 'SUM(ACTUAL_USD) / SUM(BUDGET_USD) * 100', unit: '%', dir: 'target 100', dashboards: '2' },
+      { cat: 'Budget Performance', name: 'Baseline Shift $', def: 'Change in budget from Original to Revised baseline.', formula: 'SUM(BUDGET_USD when Revised) - SUM(BUDGET_USD when Original)', unit: '$', dir: '—', dashboards: '2' },
+
+      // D. Supply chain
+      { cat: 'Supply Chain', name: 'On-Time Delivery % (portfolio)', def: 'Fraction of PO lines received on or before promised date.', formula: 'SUM(ON_TIME_FLAG) / COUNT(*) * 100', unit: '%', dir: 'higher is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'Supplier OTD %', def: 'Per-supplier historical on-time delivery rate.', formula: 'AVG(ON_TIME_DELIVERY_PCT) GROUP BY SUPPLIER_TIER', unit: '%', dir: 'higher is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'First-Pass Yield %', def: 'Share of units accepted without rework.', formula: 'AVG(FIRST_PASS_YIELD) * 100', unit: '%', dir: 'higher is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'Defect Rate', def: 'Defective units as % of units ordered.', formula: 'SUM(DEFECT_QTY) / SUM(QUANTITY_ORDERED) * 100', unit: '%', dir: 'lower is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'Purchase Price Variance (PPV)', def: 'Dollar variance vs catalog standard cost.', formula: 'SUM((UNIT_PRICE_USD - UNIT_COST_USD) * QUANTITY_ORDERED)', unit: '$', dir: 'lower is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'Sole-Source Spend %', def: 'Spend on parts procurable from only one supplier.', formula: 'SUM(PO_VALUE WHERE IS_SOLE_SOURCE) / SUM(PO_VALUE) * 100', unit: '%', dir: 'lower is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'Lead Time Reliability', def: 'Average absolute deviation from promised delivery.', formula: 'AVG(ABS(DAYS_EARLY_LATE))', unit: 'days', dir: 'lower is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'DCAA Approved Supplier %', def: 'Active suppliers with DCAA-approved accounting systems.', formula: 'COUNT(DCAA_APPROVED) / COUNT(*) * 100', unit: '%', dir: 'higher is better', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'MIL-SPEC Parts %', def: 'Share of spend on MIL-SPEC parts.', formula: 'SUM(PO_VALUE WHERE IS_MIL_SPEC) / SUM(PO_VALUE) * 100', unit: '%', dir: '—', dashboards: '6' },
+      { cat: 'Supply Chain', name: 'Quality Rating (avg)', def: 'Average supplier quality score (0-5).', formula: 'AVG(QUALITY_RATING)', unit: '0-5', dir: 'higher is better', dashboards: '6' },
+
+      // E. Labor
+      { cat: 'Labor & Workforce', name: 'Direct Labor Hours', def: 'Hours charged directly to a government contract.', formula: 'SUM(HOURS_DIRECT)', unit: 'hours', dir: '—', dashboards: '7' },
+      { cat: 'Labor & Workforce', name: 'Indirect Labor Hours', def: 'Hours charged to indirect cost pools (bid & proposal, overhead, G&A).', formula: 'SUM(HOURS_INDIRECT)', unit: 'hours', dir: 'lower is better', dashboards: '7' },
+      { cat: 'Labor & Workforce', name: 'Overtime Hours', def: 'Hours worked beyond 40/week.', formula: 'SUM(HOURS_OVERTIME)', unit: 'hours', dir: 'lower (burn risk)', dashboards: '7' },
+      { cat: 'Labor & Workforce', name: 'Utilization %', def: 'Direct hours as % of total productive hours.', formula: 'SUM(HOURS_DIRECT) / (SUM(HOURS_DIRECT)+SUM(HOURS_INDIRECT)) * 100', unit: '%', dir: 'higher (80-88% target)', dashboards: '1, 7' },
+      { cat: 'Labor & Workforce', name: 'Direct Labor Cost', def: 'Direct hours × fully-loaded rate.', formula: 'SUM(LABOR_COST_DIRECT)', unit: '$', dir: '—', dashboards: '7' },
+      { cat: 'Labor & Workforce', name: 'Indirect Rate %', def: 'Indirect cost share of total labor cost.', formula: 'SUM(LABOR_COST_INDIRECT) / (SUM(LABOR_COST_DIRECT)+SUM(LABOR_COST_INDIRECT)) * 100', unit: '%', dir: 'lower is better', dashboards: '7' },
+      { cat: 'Labor & Workforce', name: 'Classified Hours %', def: 'Share of direct hours on classified work.', formula: 'SUM(HOURS_DIRECT WHERE IS_CLASSIFIED_WORK) / SUM(HOURS_DIRECT) * 100', unit: '%', dir: '—', dashboards: '7' },
+      { cat: 'Labor & Workforce', name: 'Active Headcount', def: 'Count of distinct active employees.', formula: 'COUNT(DISTINCT EMPLOYEE_KEY) WHERE IS_ACTIVE', unit: 'people', dir: '—', dashboards: '1, 7' },
+      { cat: 'Labor & Workforce', name: 'Facility Capacity Utilization %', def: 'Charge hours as % of facility capacity.', formula: 'SUM(HOURS_DIRECT) / (HEADCOUNT_CAPACITY * 40 * weeks) * 100', unit: '%', dir: 'higher is better', dashboards: '7' },
+
+      // F. Contract portfolio
+      { cat: 'Contract Portfolio', name: 'Active Contract Count', def: 'Contracts with PERIOD_OF_PERF_END ≥ today.', formula: 'COUNT(DISTINCT CONTRACT_KEY) WHERE PERIOD_OF_PERF_END >= CURRENT_DATE', unit: 'count', dir: '—', dashboards: '1, 8' },
+      { cat: 'Contract Portfolio', name: 'Total Ceiling Value', def: 'Maximum authorized value across contracts.', formula: 'SUM(CEILING_VALUE_MN) * 1e6', unit: '$', dir: '—', dashboards: '8' },
+      { cat: 'Contract Portfolio', name: 'Total Funded Value', def: 'Obligated funding across contracts.', formula: 'SUM(FUNDED_VALUE_MN) * 1e6', unit: '$', dir: '—', dashboards: '8' },
+      { cat: 'Contract Portfolio', name: 'Funded-to-Ceiling %', def: 'Funding commitment against authorized ceiling.', formula: 'SUM(FUNDED) / SUM(CEILING) * 100', unit: '%', dir: 'higher is better', dashboards: '8' },
+      { cat: 'Contract Portfolio', name: 'Backlog', def: 'Funded not-yet-recognized revenue.', formula: 'SUM(FUNDED) - SUM(RECOGNIZED_REV_USD) at contract level', unit: '$', dir: 'higher is better', dashboards: '1, 8' },
+      { cat: 'Contract Portfolio', name: 'Period-of-Perf Days Remaining', def: 'Days until PERIOD_OF_PERF_END.', formula: 'DATE_DIFF(PERIOD_OF_PERF_END, CURRENT_DATE, DAY)', unit: 'days', dir: '—', dashboards: '8' },
+      { cat: 'Contract Portfolio', name: 'Small-Business Set-Aside %', def: 'Share of contracts with a set-aside designation.', formula: 'COUNT(WHERE SET_ASIDE IS NOT NULL) / COUNT(*) * 100', unit: '%', dir: '—', dashboards: '8' },
+      { cat: 'Contract Portfolio', name: 'Prime Contract %', def: 'Share of contracts held directly with government.', formula: 'COUNT(IS_PRIME) / COUNT(*) * 100', unit: '%', dir: '—', dashboards: '8' },
+      { cat: 'Contract Portfolio', name: 'Avg Subcontractor %', def: 'Average subcontractor share of ceiling value.', formula: 'AVG(SUBCONTRACTOR_PCT)', unit: '%', dir: '—', dashboards: '8' }
+    ];
+
+    var activeCategory = 'All';
+    var categories = [];
+    var categoryCounts = {};
+    for (var i = 0; i < METRICS.length; i++) {
+      var c = METRICS[i].cat;
+      if (categories.indexOf(c) === -1) categories.push(c);
+      categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+    }
+
+    function renderChips() {
+      var container = document.getElementById('chips');
+      var html = '<span class="chip ' + (activeCategory === 'All' ? 'active' : '') + '" data-cat="All">All <span class="chip-count">' + METRICS.length + '</span></span>';
+      for (var i = 0; i < categories.length; i++) {
+        var c = categories[i];
+        html += '<span class="chip ' + (activeCategory === c ? 'active' : '') + '" data-cat="' + c + '">' + c + ' <span class="chip-count">' + categoryCounts[c] + '</span></span>';
+      }
+      container.innerHTML = html;
+      var chips = container.querySelectorAll('.chip');
+      for (var j = 0; j < chips.length; j++) {
+        chips[j].addEventListener('click', function () {
+          activeCategory = this.getAttribute('data-cat');
+          renderChips();
+          renderResults();
+        });
+      }
+    }
+
+    function renderResults() {
+      var q = document.getElementById('search').value.toLowerCase().trim();
+      var filtered = [];
+      for (var i = 0; i < METRICS.length; i++) {
+        var m = METRICS[i];
+        if (activeCategory !== 'All' && m.cat !== activeCategory) continue;
+        if (q) {
+          var hay = (m.name + ' ' + m.def + ' ' + m.formula + ' ' + m.dashboards).toLowerCase();
+          if (hay.indexOf(q) === -1) continue;
+        }
+        filtered.push(m);
+      }
+      var container = document.getElementById('results');
+      if (!filtered.length) {
+        container.innerHTML = '<div class="no-results">No metrics match &quot;' + q + '&quot;</div>';
+        return;
+      }
+      // Group by category
+      var groups = {};
+      for (var k = 0; k < filtered.length; k++) {
+        var cat = filtered[k].cat;
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(filtered[k]);
+      }
+      var html = '';
+      for (var ci = 0; ci < categories.length; ci++) {
+        var cat2 = categories[ci];
+        if (!groups[cat2]) continue;
+        html += '<div class="category-block"><div class="category-title">' + cat2 + ' <span style="font-size:12px;color:var(--color-text-muted);font-weight:400;">(' + groups[cat2].length + ')</span></div>';
+        html += '<div class="metric-grid">';
+        for (var mi = 0; mi < groups[cat2].length; mi++) {
+          var mm = groups[cat2][mi];
+          html += '<div class="metric-card">';
+          html += '<div class="metric-name">' + mm.name + '</div>';
+          html += '<div class="metric-def">' + mm.def + '</div>';
+          html += '<div class="metric-formula">' + mm.formula + '</div>';
+          html += '<div class="metric-tags">';
+          html += '<span class="metric-tag unit">' + mm.unit + '</span>';
+          html += '<span class="metric-tag direction">' + mm.dir + '</span>';
+          html += '<span class="metric-tag">Dashboards ' + mm.dashboards + '</span>';
+          html += '</div>';
+          html += '</div>';
+        }
+        html += '</div></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    document.getElementById('search').addEventListener('input', renderResults);
+    renderChips();
+    renderResults();
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

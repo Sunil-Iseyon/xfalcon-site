@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Collection & Delinquency | Falcon Real Estate</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topbar-logo {
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #006aff;
+      letter-spacing: 0.05em;
+    }
+
+    .topbar-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+      flex: 1;
+    }
+
+    .topbar-back {
+      text-decoration: none;
+      color: #006aff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border: 1px solid #006aff;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .topbar-back:hover {
+      background-color: #006aff;
+      color: white;
+    }
+
+    .content {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .kpi-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .kpi-subtext {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+
+    .positive {
+      color: #16a34a;
+    }
+
+    .negative {
+      color: #d32f2f;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .chart-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-container-full {
+      grid-column: 1 / -1;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 400px;
+    }
+
+    .chart-wrapper-small {
+      position: relative;
+      height: 300px;
+    }
+
+    .table-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead {
+      background-color: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+    }
+
+    td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+
+    tr:hover {
+      background-color: #f8fafc;
+    }
+
+    tr.risk-6plus {
+      background-color: #fef2f2;
+    }
+
+    tr.risk-6plus td {
+      color: #7f1d1d;
+      font-weight: 500;
+    }
+
+    .num-right {
+      text-align: right;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.8125rem;
+    }
+
+    .footer {
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.8125rem;
+      margin-top: 3rem;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 2rem;
+      color: #94a3b8;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-logo">xF</div>
+    <div class="topbar-title">Falcon Real Estate / Rent Collection & Delinquency</div>
+    <a href="index.html" class="topbar-back">Back to Dashboard</a>
+  </div>
+
+  <div class="content">
+    <!-- KPI CARDS -->
+    <div class="section-title">Current Year Performance</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Collection Rate</div>
+        <div class="kpi-value">93.3%</div>
+        <div class="kpi-subtext"><span class="negative">-0.1%</span> vs PY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Charged</div>
+        <div class="kpi-value">$260.8M</div>
+        <div class="kpi-subtext"><span class="negative">-3.6%</span> vs PY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Collected</div>
+        <div class="kpi-value">$243.2M</div>
+        <div class="kpi-subtext"><span class="negative">-3.7%</span> vs PY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Uncollected</div>
+        <div class="kpi-value">$17.6M</div>
+        <div class="kpi-subtext">7.4% of charged rents</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Bad Debt Written Off</div>
+        <div class="kpi-value">$712.5K</div>
+        <div class="kpi-subtext"><span class="positive">+15.3%</span> vs PY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Abatements</div>
+        <div class="kpi-value">$8.41M</div>
+        <div class="kpi-subtext"><span class="positive">+4.5%</span> vs PY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">At-Risk Tenants</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-subtext">3+ months delinquent</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Delinquency Rate</div>
+        <div class="kpi-value">8.1%</div>
+        <div class="kpi-subtext"><span class="positive">+0.1%</span> vs PY</div>
+      </div>
+    </div>
+
+    <!-- FULL-WIDTH TREND -->
+    <div class="section-title">Collection Rate Trend (24 Months)</div>
+    <div class="chart-container">
+      <div class="chart-wrapper">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- TWO-COLUMN SECTION 1 -->
+    <div class="section-title">Asset Class Performance</div>
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-wrapper-small">
+          <canvas id="assetClassCollectionChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-wrapper-small">
+          <canvas id="badDebtTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TWO-COLUMN SECTION 2 -->
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-wrapper-small">
+          <canvas id="delinquencyRateChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-wrapper-small">
+          <canvas id="chargedCollectedChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- AT-RISK TABLE -->
+    <div class="section-title">At-Risk Tenants (3+ Months Delinquent)</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Tenant Name</th>
+            <th>Industry</th>
+            <th>Covenant Score</th>
+            <th>Property</th>
+            <th>Asset Class</th>
+            <th>Consecutive Months</th>
+            <th class="num-right">Charged</th>
+            <th class="num-right">Collected</th>
+            <th class="num-right">Collection %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="9" class="no-data">No at-risk tenants identified as of December 2025</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    Dashboard as of March 28, 2026 | Data from Falcon Real Estate DW | Confidential
+  </div>
+
+  <script>
+    const mk = (tag, props, ...children) => {
+      const el = document.createElement(tag);
+      if (props) {
+        Object.assign(el, props);
+        if (props.style) Object.assign(el.style, props.style);
+      }
+      children.forEach(c => el.append(typeof c === 'string' ? document.createTextNode(c) : c));
+      return el;
+    };
+
+    // Colors
+    const colors = {
+      blue: '#006AFF',
+      teal: '#1A7F64',
+      gray: '#94A3B8',
+      red: '#D32F2F',
+      lightGray: '#f1f5f9'
+    };
+
+    // Chart defaults
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.borderColor = '#e2e8f0';
+
+    // ===== TREND CHART (24 MONTHS) =====
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    const trendData = [
+      { month: 'Jan-24', rate: 97.1 },
+      { month: 'Feb-24', rate: 95.1 },
+      { month: 'Mar-24', rate: 96.0 },
+      { month: 'Apr-24', rate: 90.2 },
+      { month: 'May-24', rate: 93.5 },
+      { month: 'Jun-24', rate: 94.5 },
+      { month: 'Jul-24', rate: 94.4 },
+      { month: 'Aug-24', rate: 92.1 },
+      { month: 'Sep-24', rate: 92.0 },
+      { month: 'Oct-24', rate: 92.2 },
+      { month: 'Nov-24', rate: 90.5 },
+      { month: 'Dec-24', rate: 93.3 },
+      { month: 'Jan-25', rate: 94.0 },
+      { month: 'Feb-25', rate: 93.9 },
+      { month: 'Mar-25', rate: 94.1 },
+      { month: 'Apr-25', rate: 92.2 },
+      { month: 'May-25', rate: 96.9 },
+      { month: 'Jun-25', rate: 93.0 },
+      { month: 'Jul-25', rate: 88.8 },
+      { month: 'Aug-25', rate: 92.7 },
+      { month: 'Sep-25', rate: 92.1 },
+      { month: 'Oct-25', rate: 93.5 },
+      { month: 'Nov-25', rate: 94.3 },
+      { month: 'Dec-25', rate: 93.6 }
+    ];
+
+    new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: trendData.map(d => d.month),
+        datasets: [
+          {
+            label: 'Collection Rate',
+            data: trendData.map(d => d.rate),
+            borderColor: colors.blue,
+            backgroundColor: 'rgba(0, 106, 255, 0.05)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: colors.blue
+          },
+          {
+            label: '98% Target',
+            data: Array(trendData.length).fill(98),
+            borderColor: colors.teal,
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            pointRadius: 0,
+            tension: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { usePointStyle: true, padding: 15 }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+            padding: 12,
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: colors.blue,
+            borderWidth: 1,
+            callbacks: {
+              label: function(ctx) {
+                return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: 80,
+            max: 100,
+            ticks: {
+              callback: function(v) { return v + '%'; }
+            },
+            title: {
+              display: true,
+              text: 'Collection Rate (%)'
+            }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+
+    // ===== ASSET CLASS COLLECTION CHART (CY vs PY) =====
+    const assetClassCtx = document.getElementById('assetClassCollectionChart').getContext('2d');
+    const assetClassData = [
+      { name: 'Data Center', cy: 94.3, py: 92.7 },
+      { name: 'Healthcare', cy: 89.9, py: 95.8 },
+      { name: 'Industrial', cy: 92.7, py: 95.1 },
+      { name: 'Office', cy: 95.1, py: 94.4 },
+      { name: 'Residential', cy: 91.9, py: 93.0 },
+      { name: 'Retail', cy: 91.2, py: 89.2 },
+      { name: 'Telecom Tower', cy: 94.9, py: 92.5 }
+    ];
+
+    new Chart(assetClassCtx, {
+      type: 'bar',
+      data: {
+        labels: assetClassData.map(d => d.name),
+        datasets: [
+          {
+            label: '2025',
+            data: assetClassData.map(d => d.cy),
+            backgroundColor: colors.blue,
+            borderRadius: 4,
+            borderSkipped: false
+          },
+          {
+            label: '2024',
+            data: assetClassData.map(d => d.py),
+            backgroundColor: colors.gray,
+            borderRadius: 4,
+            borderSkipped: false
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } },
+          tooltip: {
+            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+            padding: 12,
+            callbacks: {
+              label: function(ctx) {
+                return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: { callback: function(v) { return v + '%'; } }
+          }
+        }
+      }
+    });
+
+    // ===== BAD DEBT & UNCOLLECTED TREND (2025) =====
+    const badDebtCtx = document.getElementById('badDebtTrendChart').getContext('2d');
+    const badDebtData = [
+      { month: 'Jan-25', badDebt: 0, abate: 758.45, uncoll: 1357.77 },
+      { month: 'Feb-25', badDebt: 178.13, abate: 342.50, uncoll: 1376.42 },
+      { month: 'Mar-25', badDebt: 0, abate: 799.98, uncoll: 1336.05 },
+      { month: 'Apr-25', badDebt: 0, abate: 630.11, uncoll: 1714.64 },
+      { month: 'May-25', badDebt: 178.13, abate: 140.93, uncoll: 679.38 },
+      { month: 'Jun-25', badDebt: 0, abate: 792.46, uncoll: 1529.70 },
+      { month: 'Jul-25', badDebt: 0, abate: 1107.01, uncoll: 2432.13 },
+      { month: 'Aug-25', badDebt: 178.13, abate: 1064.43, uncoll: 1574.44 },
+      { month: 'Sep-25', badDebt: 0, abate: 742.77, uncoll: 1678.21 },
+      { month: 'Oct-25', badDebt: 0, abate: 590.41, uncoll: 1392.17 },
+      { month: 'Nov-25', badDebt: 178.13, abate: 710.32, uncoll: 1220.43 },
+      { month: 'Dec-25', badDebt: 0, abate: 728.59, uncoll: 1298.13 }
+    ];
+
+    new Chart(badDebtCtx, {
+      type: 'bar',
+      data: {
+        labels: badDebtData.map(d => d.month),
+        datasets: [
+          {
+            label: 'Bad Debt',
+            data: badDebtData.map(d => d.badDebt),
+            backgroundColor: '#F59E0B',
+            borderRadius: 4,
+            borderSkipped: false
+          },
+          {
+            label: 'Abatements',
+            data: badDebtData.map(d => d.abate),
+            backgroundColor: colors.gray,
+            borderRadius: 4,
+            borderSkipped: false
+          },
+          {
+            label: 'Uncollected',
+            data: badDebtData.map(d => d.uncoll),
+            backgroundColor: colors.blue,
+            borderRadius: 4,
+            borderSkipped: false
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function(v) { return '$' + v.toFixed(0) + 'K'; } } } },
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } },
+          tooltip: {
+            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+            padding: 12,
+            callbacks: {
+              label: function(ctx) {
+                return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(0) + 'K';
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // ===== DELINQUENCY RATE BY ASSET CLASS (CY vs PY) =====
+    const delinqCtx = document.getElementById('delinquencyRateChart').getContext('2d');
+    const delinqData = [
+      { name: 'Data Center', cy: 4.5, py: 4.5 },
+      { name: 'Healthcare', cy: 6.3, py: 2.8 },
+      { name: 'Industrial', cy: 4.1, py: 3.1 },
+      { name: 'Office', cy: 2.6, py: 3.3 },
+      { name: 'Residential', cy: 7.4, py: 6.0 },
+      { name: 'Retail', cy: 19.5, py: 19.9 },
+      { name: 'Telecom Tower', cy: 3.7, py: 5.7 }
+    ];
+
+    new Chart(delinqCtx, {
+      type: 'bar',
+      data: {
+        labels: delinqData.map(d => d.name),
+        datasets: [
+          {
+            label: '2025',
+            data: delinqData.map(d => d.cy),
+            backgroundColor: colors.blue,
+            borderRadius: 4,
+            borderSkipped: false
+          },
+          {
+            label: '2024',
+            data: delinqData.map(d => d.py),
+            backgroundColor: colors.gray,
+            borderRadius: 4,
+            borderSkipped: false
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } },
+          tooltip: {
+            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+            padding: 12,
+            callbacks: {
+              label: function(ctx) {
+                return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 25,
+            ticks: { callback: function(v) { return v + '%'; } }
+          }
+        }
+      }
+    });
+
+    // ===== CHARGED vs COLLECTED (2025 Monthly) =====
+    const chargedCtx = document.getElementById('chargedCollectedChart').getContext('2d');
+    const chargedData = [
+      { month: 'Jan', charged: 22.48, collected: 21.12 },
+      { month: 'Feb', charged: 22.47, collected: 21.10 },
+      { month: 'Mar', charged: 22.47, collected: 21.14 },
+      { month: 'Apr', charged: 22.04, collected: 20.33 },
+      { month: 'May', charged: 21.90, collected: 21.22 },
+      { month: 'Jun', charged: 21.71, collected: 20.18 },
+      { month: 'Jul', charged: 21.71, collected: 19.28 },
+      { month: 'Aug', charged: 21.71, collected: 20.14 },
+      { month: 'Sep', charged: 21.30, collected: 19.62 },
+      { month: 'Oct', charged: 21.29, collected: 19.90 },
+      { month: 'Nov', charged: 21.25, collected: 20.03 },
+      { month: 'Dec', charged: 20.41, collected: 19.12 }
+    ];
+
+    new Chart(chargedCtx, {
+      type: 'bar',
+      data: {
+        labels: chargedData.map(d => d.month),
+        datasets: [
+          {
+            label: 'Charged',
+            data: chargedData.map(d => d.charged),
+            backgroundColor: colors.gray,
+            borderRadius: 4,
+            borderSkipped: false
+          },
+          {
+            label: 'Collected',
+            data: chargedData.map(d => d.collected),
+            backgroundColor: colors.blue,
+            borderRadius: 4,
+            borderSkipped: false
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } },
+          tooltip: {
+            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+            padding: 12,
+            callbacks: {
+              label: function(ctx) {
+                return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(1) + 'M';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: { callback: function(v) { return '$' + v.toFixed(0) + 'M'; } }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

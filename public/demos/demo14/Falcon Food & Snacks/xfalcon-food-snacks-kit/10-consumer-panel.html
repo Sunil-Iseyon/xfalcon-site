@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Food & Snacks / 10. Consumer Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #1F2937; }
+        .topbar { background-color: #0F172A; padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #006AFF; }
+        .logo-f { color: #1A7F64; }
+        .topbar-title { color: white; font-size: 1rem; font-weight: 600; }
+        .topbar-right { display: flex; align-items: center; gap: 1rem; }
+        .back-link { color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem; border-radius: 0.375rem; transition: all 0.2s; }
+        .back-link:hover { background-color: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .kpi-card { background: #FFFFFF; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-left: 4px solid #006AFF; }
+        .kpi-label { font-size: 0.85rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 0.5rem; }
+        .kpi-value { font-size: 1.875rem; font-weight: 700; color: #1F2937; margin-bottom: 0.25rem; }
+        .kpi-delta { font-size: 0.875rem; font-weight: 500; }
+        .kpi-positive { color: #059669; }
+        .kpi-negative { color: #D32F2F; }
+        .filter-section { background: #FFFFFF; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-label { font-size: 0.875rem; font-weight: 600; color: #374151; }
+        .filter-select { padding: 0.625rem 0.875rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; font-size: 0.875rem; font-family: 'Inter', sans-serif; cursor: pointer; background-color: #F9FAFB; }
+        .filter-select:focus { outline: none; border-color: #006AFF; background-color: #FFFFFF; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .chart-card { background: #FFFFFF; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; }
+        .full-width { grid-column: 1 / -1; }
+        canvas { max-height: 350px; }
+        .table-container { background: #FFFFFF; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); overflow-x: auto; }
+        .table-title { font-size: 1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        table th { background-color: #0F172A; color: white; padding: 0.75rem; text-align: left; font-weight: 600; }
+        table td { padding: 0.75rem; border-bottom: 1px solid #E5E7EB; }
+        table tr:hover { background-color: #F9FAFB; }
+        table tr:last-child td { border-bottom: none; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div>
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        </div>
+        <div class="topbar-title">Falcon Food & Snacks / 10. Consumer Panel</div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-group">
+                <label class="filter-label">Segment</label>
+                <select id="segmentFilter" class="filter-select" onchange="applyFilters()">
+                    <option value="all">All Segments</option>
+                    <option value="heavy">Heavy Buyer</option>
+                    <option value="moderate">Moderate Buyer</option>
+                    <option value="light">Light Buyer</option>
+                    <option value="new">New</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Loyalty Tier</label>
+                <select id="loyaltyFilter" class="filter-select" onchange="applyFilters()">
+                    <option value="all">All Tiers</option>
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silver</option>
+                    <option value="bronze">Bronze</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Panel Size</div>
+                <div class="kpi-value">80,000</div>
+                <div class="kpi-delta">Households</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Purchase Events</div>
+                <div class="kpi-value">1.4M</div>
+                <div class="kpi-delta">2020-2025 Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Basket</div>
+                <div class="kpi-value">$6.08</div>
+                <div class="kpi-delta">Per Purchase</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Heavy Buyer Spend</div>
+                <div class="kpi-value">$2.98M</div>
+                <div class="kpi-delta kpi-positive">+137% vs Avg</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Repeat Purchase Rate</div>
+                <div class="kpi-value">66.2%</div>
+                <div class="kpi-delta">All Segments</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Days Between (Heavy)</div>
+                <div class="kpi-value">13.6</div>
+                <div class="kpi-delta">Gold Tier HH</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Gold Tier HH</div>
+                <div class="kpi-value">400</div>
+                <div class="kpi-delta">Heavy Buyer</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Loyalty Tiers</div>
+                <div class="kpi-value">4</div>
+                <div class="kpi-delta">Active Programs</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Avg Spend by Segment (2024 vs 2025)</div>
+                <canvas id="spendBySegmentChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Units by Segment (2024 vs 2025)</div>
+                <canvas id="unitsBySegmentChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Repeat Purchase Rate by Loyalty Tier (2024 vs 2025)</div>
+                <canvas id="repeatRateChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Avg Spend by Life Stage (2024 vs 2025)</div>
+                <canvas id="basketByLifeStageChart"></canvas>
+            </div>
+            <div class="chart-card full-width">
+                <div class="chart-title">Avg Days Between Purchases by Loyalty (2024 vs 2025)</div>
+                <canvas id="frequencyByTierChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Segment × Loyalty Tier Combinations</div>
+            <table id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Segment</th>
+                        <th>Loyalty Tier</th>
+                        <th class="text-right">Households</th>
+                        <th class="text-right">Total Units</th>
+                        <th class="text-right">Total Spend</th>
+                        <th class="text-right">Avg Basket</th>
+                        <th class="text-right">Repeat %</th>
+                        <th class="text-right">Avg Days Between</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        var panelData = [
+            { segment: 'Heavy Buyer', tier: 'Gold', hh: 400, units: 724650, spend: 2.98, basket: 6.08, repeat: 66.2, days: 13.6 },
+            { segment: 'Moderate Buyer', tier: 'Silver', hh: 400, units: 409542, spend: 1.75, basket: 6.08, repeat: 66.2, days: 32.4 },
+            { segment: 'New', tier: 'None', hh: 400, units: 279033, spend: 1.26, basket: 6.08, repeat: 66.2, days: null },
+            { segment: 'Light Buyer', tier: 'None', hh: 400, units: 278913, spend: 1.26, basket: 6.08, repeat: 66.2, days: 66.0 },
+            { segment: 'Light Buyer', tier: 'Bronze', hh: 400, units: 279393, spend: 1.23, basket: 6.08, repeat: 66.2, days: 66.1 }
+        ];
+
+        var lifeStageData = [
+            { stage: 'Young Single', income: '<$35K', hh: 667, units: 659000, spend: 2.83, basket: 6.08, repeat: 66.2 },
+            { stage: 'Young Family', income: '<$35K', hh: 667, units: 657000, spend: 2.82, basket: 6.07, repeat: 66.2 },
+            { stage: 'Empty Nester', income: '<$35K', hh: 666, units: 656000, spend: 2.82, basket: 6.07, repeat: 0 }
+        ];
+
+        function buildTableRows() {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            panelData.forEach(function(item) {
+                var daysStr = item.days !== null ? item.days.toFixed(1) : 'N/A';
+                var row = '<tr><td>' + item.segment + '</td><td>' + item.tier + '</td><td class="text-right">' + item.hh.toLocaleString() + '</td><td class="text-right">' + item.units.toLocaleString() + '</td><td class="text-right">$' + item.spend.toFixed(2) + 'M</td><td class="text-right">$' + item.basket.toFixed(2) + '</td><td class="text-right">' + item.repeat.toFixed(1) + '%</td><td class="text-right">' + daysStr + '</td></tr>';
+                tbody.innerHTML = tbody.innerHTML + row;
+            });
+        }
+
+        function initCharts() {
+            mk('spendBySegmentChart', {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['Heavy Buyer', 'Moderate Buyer', 'Light Buyer', 'New'],
+                    datasets: [
+                        {
+                            label: '2024 Avg Spend',
+                            data: [10.42, 6.13, 4.42, 4.49],
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2025 Avg Spend',
+                            data: [10.78, 6.33, 4.48, 4.55],
+                            backgroundColor: '#006AFF',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: true } }, scales: { x: { beginAtZero: true } } }
+            });
+
+            mk('unitsBySegmentChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Heavy Buyer', 'Moderate Buyer', 'Light Buyer', 'New'],
+                    datasets: [
+                        {
+                            label: '2024 Units',
+                            data: [122679, 69450, 95628, 47790],
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2025 Units',
+                            data: [117846, 66723, 90477, 45219],
+                            backgroundColor: '#006AFF',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            mk('repeatRateChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Gold', 'Silver', 'Bronze', 'None'],
+                    datasets: [
+                        {
+                            label: '2024 Repeat %',
+                            data: [43.3, 43.3, 43.3, 43.2],
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2025 Repeat %',
+                            data: [44.3, 44.3, 44.3, 44.2],
+                            backgroundColor: '#006AFF',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+
+            mk('basketByLifeStageChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Young Single', 'Young Family', 'Empty Nester'],
+                    datasets: [
+                        {
+                            label: '2024 Avg Spend',
+                            data: [5.98, 5.97, 5.97],
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2025 Avg Spend',
+                            data: [6.13, 6.12, 6.12],
+                            backgroundColor: '#006AFF',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            mk('frequencyByTierChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Gold', 'Silver', 'Bronze', 'None'],
+                    datasets: [
+                        {
+                            label: '2024 Avg Days',
+                            data: [13.6, 32.3, 66.1, 66.0],
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '2025 Avg Days',
+                            data: [13.6, 32.4, 66.1, 66.0],
+                            backgroundColor: '#006AFF',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function applyFilters() {
+            initCharts();
+            buildTableRows();
+        }
+
+        initCharts();
+        buildTableRows();
+    </script>
+</body>
+</html>

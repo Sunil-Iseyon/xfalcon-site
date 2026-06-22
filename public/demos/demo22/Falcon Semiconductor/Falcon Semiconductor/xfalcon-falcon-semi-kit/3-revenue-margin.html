@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 3. Revenue & Margin Deep-Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700;letter-spacing:-.5px}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.5px}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-size:13px;color:var(--tx);min-width:140px;cursor:pointer}
+.fg select:focus{outline:none;border-color:var(--p)}.fg select[disabled]{background:#F1F5F9;color:var(--txm)}
+.tg{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+.sw{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+.tg.on .sw{background:var(--p)}.tg.on .sw::after{transform:translateX(16px)}
+.tgl{font-size:12px;font-weight:500;color:var(--tx)}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer}.rst:hover{background:#237373}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:24px 0 10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.7}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--txm);letter-spacing:.5px;margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--p);line-height:1.1}.kpi-d{font-size:12px;font-weight:500;margin-top:3px}
+.kpi-d.positive{color:var(--pos)}.kpi-d.negative{color:var(--neg)}.kpi-d.neutral{color:var(--t)}.kpi-d.warn{color:var(--wrn)}
+.kpi-stk .kpi-val{font-size:16px;line-height:1.35;font-weight:500}.kpi-stk .kpi-val span{display:block}
+.kpi-stk .kpi-val .fy23{color:var(--t)}.kpi-stk .kpi-val .fy24{color:var(--sd)}.kpi-stk .kpi-val .fy25{color:var(--p);font-weight:700}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+.ct{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px}
+.cw{position:relative;height:260px}.cw.tall{height:300px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tbl-h{padding:14px 18px 10px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:14px;font-weight:700;color:var(--p)}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--tb);color:var(--txd);padding:10px 12px;text-align:left;font-size:12px;font-weight:600}
+th.num,td.num{text-align:right}td{padding:10px 12px;font-size:13px;border-top:1px solid var(--bd)}tr:hover td{background:#F8FAFB}
+tfoot td{font-weight:700;background:#F1FAEE;border-top:2px solid var(--p)}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+.pos{color:var(--pos);font-weight:500}.neg{color:var(--neg);font-weight:500}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.row.two,.row.three{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 3. Revenue & Margin Deep-Dive</div>
+<div class="topbar-subtitle" id="rp">Reporting Period: FY2025</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Fiscal Year</label><select id="fy" onchange="apply()"></select></div>
+<div class="fg"><label>&nbsp;</label><div class="tg" id="cmp" onclick="tog()"><div class="sw"></div><div class="tgl">Compare FY23/24/25</div></div></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>Data governance:</strong> Revenue and margin derived from FACT_SHIPMENTS (invoice-level). GM% = SUM(GROSS_MARGIN)/SUM(REVENUE). Sample orders not applicable at shipment grain. End market joined via DIM_CUSTOMER.END_MARKET_CODE.</div>
+
+<div class="sec">FY<span class="fyl">25</span> Revenue & Margin KPIs</div>
+<div class="kpi-grid" id="kg"></div>
+
+<div class="row two">
+<div class="ch"><div class="ct">Revenue by FY with GM% Overlay</div><div class="cw"><canvas id="c1"></canvas></div>
+<div class="csub">GM% held at ~50.3% across the cycle. FY22 peak then mild FY23 dip.</div></div>
+<div class="ch"><div class="ct">Revenue by Channel — FY25</div><div class="cw"><canvas id="c2"></canvas></div>
+<div class="csub">DISTI dominates at 45.6% via 8 distributors. GM spread across channels is <1pt.</div></div>
+</div>
+
+<div class="row three">
+<div class="ch"><div class="ct">Category Revenue — FY25</div><div class="cw"><canvas id="c3"></canvas></div>
+<div class="csub">MCU contributes 82% of revenue. PWR/RF are highest-margin categories.</div></div>
+<div class="ch"><div class="ct">Category GM %</div><div class="cw"><canvas id="c4"></canvas></div>
+<div class="csub">PWR/RF/FPGA categories earn 55%+. SEN/OPT/DIS at 45%.</div></div>
+<div class="ch"><div class="ct">Revenue by End Market — FY25</div><div class="cw"><canvas id="c5"></canvas></div>
+<div class="csub">Automotive dominates at 48.8% — 20.8pts over target share.</div></div>
+</div>
+
+<div class="row two">
+<div class="ch"><div class="ct">ASP Trend ($/unit) by FY</div><div class="cw"><canvas id="c6"></canvas></div>
+<div class="csub">Average selling price = Revenue / Shipped Units. Stable band $4.40-$4.50.</div></div>
+<div class="ch"><div class="ct">Fab Source × Revenue — FY25</div><div class="cw"><canvas id="c7"></canvas></div>
+<div class="csub">External foundries (TSMC, Samsung, GF, etc.) handle 84% of revenue.</div></div>
+</div>
+
+<div class="tbl"><div class="tbl-h"><div class="tbl-t">Product Category P&L — FY25</div></div>
+<table><thead><tr><th>Category</th><th>Name</th><th class="num">Revenue ($M)</th><th class="num">GM ($M)</th><th class="num">GM %</th><th class="num">Share %</th></tr></thead>
+<tbody id="tb"></tbody>
+<tfoot><tr id="tf"></tr></tfoot></table></div>
+
+<div class="ft">Revenue & Margin · xFalcon AnalyticsPro · Falcon Semiconductor kit</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',pos:'#059669',wrn:'#D97706',gr:'#D8E2DD',mu:'#64748B'};
+var FY=[{fy:'FY19',rev:1543.0,gm:776.3,gmPct:50.31,units:351500000},{fy:'FY20',rev:2158.9,gm:1086.4,gmPct:50.32,units:486000000},
+ {fy:'FY21',rev:2636.9,gm:1328.3,gmPct:50.37,units:595000000},{fy:'FY22',rev:3093.3,gm:1555.8,gmPct:50.30,units:700000000},
+ {fy:'FY23',rev:2993.9,gm:1506.2,gmPct:50.31,units:676000000},{fy:'FY24',rev:3179.6,gm:1602.3,gmPct:50.39,units:720000000},
+ {fy:'FY25',rev:3708.7,gm:1866.4,gmPct:50.33,units:840000000},{fy:'FY26*',rev:2427.2,gm:1221.8,gmPct:50.34,units:548000000}];
+var CAT=[{c:'MCU',n:'Microcontrollers',rev:3055.4,gmPct:50.01},{c:'PWR',n:'Power Management',rev:212.5,gmPct:55.11},
+ {c:'RF',n:'RF & Wireless',rev:139.5,gmPct:55.07},{c:'MEM',n:'Memory & Storage',rev:80.2,gmPct:44.57},
+ {c:'ANA',n:'Analog & Mixed-Signal',rev:70.0,gmPct:49.91},{c:'FPGA',n:'Programmable Logic',rev:58.1,gmPct:54.79},
+ {c:'SEN',n:'Sensors & MEMS',rev:35.6,gmPct:44.93},{c:'INT',n:'Interface & Connect.',rev:34.9,gmPct:45.48},
+ {c:'OPT',n:'Optoelectronics',rev:13.7,gmPct:45.00},{c:'DIS',n:'Discrete',rev:8.8,gmPct:45.18}];
+var CHMIX=[{ch:'DISTI',rev:1692.5,gmPct:50.29},{ch:'DIRECT',rev:1278.1,gmPct:50.36},{ch:'OEM',rev:550.8,gmPct:50.35},{ch:'ONLINE',rev:187.3,gmPct:50.33}];
+var EM=[{n:'Automotive',r:1811.4},{n:'Computing & DC',r:505.4},{n:'Industrial',r:453.5},{n:'Consumer',r:317.3},{n:'Communications',r:271.9},{n:'IoT',r:188.8},{n:'Mil/Aero',r:120.7},{n:'Medical',r:39.7}];
+var FAB=[{t:'External Foundry',rev:3128.7,pct:84.4},{t:'Internal',rev:530.6,pct:14.3},{t:'Specialty',rev:26.8,pct:0.7},{t:'Assembly/Test',rev:22.5,pct:0.6}];
+var st={fy:'FY25',cmp:false};var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function f(v){return v>=1000?'$'+(v/1000).toFixed(2)+'B':'$'+v.toFixed(1)+'M'}
+function fR(a,b){var d=(a-b)/b*100;return (d>0?'▲ ':d<0?'▼ ':'▬ ')+Math.abs(d).toFixed(1)+'%'}
+function cl(d){return d>0?'positive':d<0?'negative':'neutral'}
+function row(fy){for(var i=0;i<FY.length;i++)if(FY[i].fy===fy)return FY[i];return FY[FY.length-1]}
+function init(){var y=document.getElementById('fy');y.innerHTML='';['FY21','FY22','FY23','FY24','FY25'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v==='FY25')o.selected=true;y.appendChild(o)})}
+function tog(){st.cmp=!st.cmp;document.getElementById('cmp').classList.toggle('on');document.getElementById('fy').disabled=st.cmp;apply()}
+function rst(){document.getElementById('fy').value='FY25';st.cmp=false;document.getElementById('cmp').classList.remove('on');document.getElementById('fy').disabled=false;apply()}
+function apply(){st.fy=document.getElementById('fy').value;
+ document.getElementById('rp').textContent=st.cmp?'Compare Years: FY23 · FY24 · FY25':'Reporting Period: '+st.fy;
+ var fls=document.querySelectorAll('.fyl');for(var i=0;i<fls.length;i++)fls[i].textContent=st.cmp?'23/24/25':st.fy.replace('FY','');
+ kpi();c1();c2();c3();c4();c5();c6();c7();tbl()}
+function kpi(){var el=document.getElementById('kg');el.innerHTML='';
+ if(st.cmp){
+  var y23=row('FY23'),y24=row('FY24'),y25=row('FY25');
+  var cagr=function(a,c){return (Math.pow(c/a,0.5)-1)*100};
+  var asp=function(r){return r.rev*1e6/r.units};
+  var cks=[
+   {l:'Revenue',v23:f(y23.rev),v24:f(y24.rev),v25:f(y25.rev),su:'2yr CAGR '+(cagr(y23.rev,y25.rev)>=0?'+':'')+cagr(y23.rev,y25.rev).toFixed(1)+'%'},
+   {l:'Gross Margin $',v23:f(y23.gm),v24:f(y24.gm),v25:f(y25.gm),su:'2yr CAGR '+(cagr(y23.gm,y25.gm)>=0?'+':'')+cagr(y23.gm,y25.gm).toFixed(1)+'%'},
+   {l:'GM %',v23:y23.gmPct.toFixed(2)+'%',v24:y24.gmPct.toFixed(2)+'%',v25:y25.gmPct.toFixed(2)+'%',su:'Stable at ~50.3% across cycle'},
+   {l:'Shipped Units',v23:(y23.units/1e6).toFixed(0)+'M',v24:(y24.units/1e6).toFixed(0)+'M',v25:(y25.units/1e6).toFixed(0)+'M',su:'2yr CAGR '+(cagr(y23.units,y25.units)>=0?'+':'')+cagr(y23.units,y25.units).toFixed(1)+'%'},
+   {l:'ASP',v23:'$'+asp(y23).toFixed(2),v24:'$'+asp(y24).toFixed(2),v25:'$'+asp(y25).toFixed(2),su:'Blended list price per unit'},
+   {l:'MCU Category Share',v23:'~80%',v24:'~81%',v25:'82.4%',su:'Concentration rising'},
+   {l:'Top Margin Category',v23:'PWR ~55%',v24:'PWR ~55%',v25:'PWR 55.1%',su:'Power Management leads all years'},
+   {l:'External Fab Reliance',v23:'~82%',v24:'~83%',v25:'84.4%',su:'Foundry dependence trending up'}];
+  cks.forEach(function(k){var d=document.createElement('div');d.className='kpi kpi-stk';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val"><span class="fy23">FY23 '+k.v23+'</span><span class="fy24">FY24 '+k.v24+'</span><span class="fy25">FY25 '+k.v25+'</span></div><div class="kpi-d neutral">'+k.su+'</div>';el.appendChild(d)});
+  return;
+ }
+ var c=row(st.fy);var p=row('FY'+(parseInt(st.fy.replace('FY',''))-1));var asp=c.rev*1e6/c.units;var aspP=p.rev*1e6/p.units;
+ var ks=[
+  {l:'Revenue '+st.fy,v:f(c.rev),d:fR(c.rev,p.rev)+' vs prior',c:cl(c.rev-p.rev)},
+  {l:'Gross Margin $ '+st.fy,v:f(c.gm),d:fR(c.gm,p.gm)+' vs prior',c:cl(c.gm-p.gm)},
+  {l:'GM % '+st.fy,v:c.gmPct.toFixed(2)+'%',d:((c.gmPct-p.gmPct)>0?'▲ +':'')+(c.gmPct-p.gmPct).toFixed(2)+' pts',c:cl(c.gmPct-p.gmPct)},
+  {l:'Shipped Units '+st.fy,v:(c.units/1e6).toFixed(0)+'M',d:fR(c.units,p.units)+' vs prior',c:cl(c.units-p.units)},
+  {l:'ASP '+st.fy,v:'$'+asp.toFixed(2),d:((asp-aspP)>0?'▲ +':'▼ ')+Math.abs(asp-aspP).toFixed(2)+' vs prior',c:cl(asp-aspP)},
+  {l:'MCU Category Share',v:'82.4%',d:'SKU-count Pareto: 37 of 284',c:'warn'},
+  {l:'Top Margin Category',v:'PWR 55.1%',d:'Power Management leads',c:'positive'},
+  {l:'External Fab Reliance',v:'84.4%',d:'$3.13B of $3.71B from foundries',c:'warn'}];
+ ks.forEach(function(k){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-d '+k.c+'">'+k.d+'</div>';el.appendChild(d)})}
+function c1(){mk('c1',{type:'bar',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+ {type:'bar',label:'Revenue ($M)',data:FY.map(function(r){return r.rev}),backgroundColor:FY.map(function(r){return r.fy===st.fy?C.p:C.gr}),yAxisID:'y',borderRadius:3},
+ {type:'line',label:'GM %',data:FY.map(function(r){return r.gmPct}),borderColor:C.t,borderDash:[5,5],tension:.2,pointRadius:3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y1:{position:'right',min:40,max:60,grid:{drawOnChartArea:false},ticks:{callback:function(v){return v+'%'}}}}}})}
+function c2(){mk('c2',{type:'bar',data:{labels:CHMIX.map(function(r){return r.ch}),datasets:[
+ {label:'Revenue ($M)',data:CHMIX.map(function(r){return r.rev}),backgroundColor:[C.p,C.sd,C.s,C.t],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x.toFixed(1)+'M · GM '+CHMIX[ctx.dataIndex].gmPct.toFixed(2)+'%'}}}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c3(){mk('c3',{type:'bar',data:{labels:CAT.map(function(r){return r.c}),datasets:[
+ {label:'Revenue ($M)',data:CAT.map(function(r){return r.rev}),backgroundColor:CAT.map(function(r,i){return i===0?C.p:i<3?C.sd:C.s}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{type:'logarithmic',ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c4(){mk('c4',{type:'bar',data:{labels:CAT.map(function(r){return r.c}),datasets:[
+ {label:'GM %',data:CAT.map(function(r){return r.gmPct}),backgroundColor:CAT.map(function(r){return r.gmPct>53?C.p:r.gmPct>48?C.sd:C.t}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:40,max:60,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c5(){mk('c5',{type:'bar',data:{labels:EM.map(function(r){return r.n}),datasets:[
+ {label:'Revenue ($M)',data:EM.map(function(r){return r.r}),backgroundColor:EM.map(function(r){return r.n==='Automotive'?C.wrn:C.p}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c6(){var asps=FY.map(function(r){return +(r.rev*1e6/r.units).toFixed(2)});mk('c6',{type:'line',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+ {label:'ASP ($/unit)',data:asps,borderColor:C.p,backgroundColor:'rgba(45,139,139,.1)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:C.p}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:4,max:5,ticks:{callback:function(v){return '$'+v.toFixed(2)}},grid:{color:C.gr}}}}})}
+function c7(){mk('c7',{type:'bar',data:{labels:FAB.map(function(r){return r.t}),datasets:[
+ {label:'Revenue ($M)',data:FAB.map(function(r){return r.rev}),backgroundColor:[C.wrn,C.p,C.sd,C.t],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x.toFixed(1)+'M · '+FAB[ctx.dataIndex].pct.toFixed(1)+'%'}}}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function tbl(){var b=document.getElementById('tb');b.innerHTML='';var tot=0;CAT.forEach(function(r){tot+=r.rev});
+ CAT.forEach(function(r){var gmD=r.rev*r.gmPct/100;b.innerHTML+='<tr><td><strong>'+r.c+'</strong></td><td>'+r.n+'</td><td class="num">$'+r.rev.toFixed(1)+'</td><td class="num">$'+gmD.toFixed(1)+'</td><td class="num '+(r.gmPct>50?'pos':r.gmPct<47?'neg':'')+'">'+r.gmPct.toFixed(2)+'%</td><td class="num">'+(r.rev/tot*100).toFixed(1)+'%</td></tr>'});
+ var totGM=CAT.reduce(function(s,r){return s+r.rev*r.gmPct/100},0);
+ document.getElementById('tf').innerHTML='<td><strong>Total</strong></td><td>All Categories</td><td class="num">$'+tot.toFixed(1)+'</td><td class="num">$'+totGM.toFixed(1)+'</td><td class="num">'+(totGM/tot*100).toFixed(2)+'%</td><td class="num">100.0%</td>'}
+init();apply();
+</script></body></html>

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Compliance Dashboard - Beverage Manufacturing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-content h1 {
+            color: #7CB701;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(124, 183, 1, 0.3);
+        }
+
+        .header-content p {
+            color: #9B999B;
+            font-size: 0.9em;
+        }
+
+        .back-link {
+            color: #95D600;
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #7CB701;
+            text-decoration: underline;
+        }
+
+        .filters-section {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #7CB701;
+        }
+
+        .filters-title {
+            color: #7CB701;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #95D600;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .filter-group select {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            border: 1px solid #7CB701;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: #95D600;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #95D600;
+            box-shadow: 0 0 5px rgba(149, 214, 0, 0.3);
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 3px solid #7CB701;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(124, 183, 1, 0.2);
+        }
+
+        .kpi-label {
+            color: #9B999B;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            color: #95D600;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .kpi-subtext {
+            color: #7CB701;
+            font-size: 0.8em;
+        }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-full {
+            grid-column: 1;
+        }
+
+        .chart-half {
+            grid-column: 1;
+        }
+
+        @media (min-width: 1000px) {
+            .chart-grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+                margin-bottom: 30px;
+            }
+            .chart-half {
+                grid-column: auto;
+            }
+        }
+
+        .chart-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+        }
+
+        .chart-title {
+            color: #95D600;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        canvas {
+            max-height: 100%;
+        }
+
+        .table-section {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .table-title {
+            color: #95D600;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        table thead {
+            background-color: #0D0D0D;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        table th {
+            color: #95D600;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #2A2A2A;
+            color: #FFFFFF;
+        }
+
+        table tr:hover {
+            background-color: #252525;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-success {
+            color: #7CB701;
+            font-weight: 600;
+        }
+
+        .status-warning {
+            color: #FFB800;
+            font-weight: 600;
+        }
+
+        .status-danger {
+            color: #FF4444;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            color: #9B999B;
+            font-size: 0.85em;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2A2A2A;
+        }
+
+        .legend-custom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-section {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .chart-grid-2 {
+                grid-template-columns: 1fr !important;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Quality & Compliance Dashboard</h1>
+                <p>Real-time monitoring of manufacturing compliance metrics</p>
+            </div>
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </header>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filters-title">Filters</div>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="yearFilter">Year</label>
+                    <select id="yearFilter">
+                        <option value="All">All Years</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="quarterFilter">Quarter</label>
+                    <select id="quarterFilter">
+                        <option value="All">All Quarters</option>
+                        <option value="Q1">Q1</option>
+                        <option value="Q2">Q2</option>
+                        <option value="Q3">Q3</option>
+                        <option value="Q4">Q4</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="plantFilter">Plant</label>
+                    <select id="plantFilter">
+                        <option value="All">All Plants</option>
+                        <option value="FizzCo Atlanta Plant">FizzCo Atlanta Plant</option>
+                        <option value="FizzCo Austin Plant">FizzCo Austin Plant</option>
+                        <option value="FizzCo Chicago Plant">FizzCo Chicago Plant</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Average Pass Rate</div>
+                <div class="kpi-value"><span id="avgPassRate">98.98</span>%</div>
+                <div class="kpi-subtext">Units meeting standards</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total FDA Violations</div>
+                <div class="kpi-value" id="totalViolations">25</div>
+                <div class="kpi-subtext">Regulatory compliance issues</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Recalls</div>
+                <div class="kpi-value" id="totalRecalls">16</div>
+                <div class="kpi-subtext">Product recalls issued</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Recall Units</div>
+                <div class="kpi-value" id="totalRecallUnits">680</div>
+                <div class="kpi-subtext">Units affected</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Inspections</div>
+                <div class="kpi-value" id="totalInspections">629</div>
+                <div class="kpi-subtext">Quality audits completed</div>
+            </div>
+        </div>
+
+        <!-- Pass Rate Trend Chart -->
+        <div class="chart-section">
+            <div class="chart-card chart-full">
+                <div class="chart-title">Pass Rate Trend by Quarter</div>
+                <div class="chart-container tall">
+                    <canvas id="passRateTrendChart"></canvas>
+                </div>
+                <div class="legend-custom">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #7CB701;"></div>
+                        <span>FizzCo Atlanta Plant</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #95D600;"></div>
+                        <span>FizzCo Austin Plant</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFB800;"></div>
+                        <span>FizzCo Chicago Plant</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Charts -->
+        <div class="chart-grid-2">
+            <div class="chart-card">
+                <div class="chart-title">FDA Violations by Plant</div>
+                <div class="chart-container">
+                    <canvas id="fdaViolationsChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Recalls & Recall Units</div>
+                <div class="chart-container">
+                    <canvas id="recallsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Charts -->
+        <div class="chart-grid-2">
+            <div class="chart-card">
+                <div class="chart-title">Units Inspected vs Failed</div>
+                <div class="chart-container">
+                    <canvas id="unitsChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Labeling Issues Trend</div>
+                <div class="chart-container">
+                    <canvas id="labelingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Summary Table -->
+        <div class="table-section">
+            <div class="table-title">Compliance Summary</div>
+            <table id="complianceTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Quarter</th>
+                        <th>Plant</th>
+                        <th>Pass Rate</th>
+                        <th>FDA Violations</th>
+                        <th>Recalls</th>
+                        <th>Recall Units</th>
+                        <th>Inspections</th>
+                        <th>Units Inspected</th>
+                        <th>Units Failed</th>
+                        <th>Labeling Issues</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Key Insights & Analysis Section -->
+        <div class="insights-section" style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+            <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+            <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+            <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+            <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+        </div>
+
+        <footer>
+            Generated by IDA Analytics
+        </footer>
+    </div>
+
+    <script>
+        // Quality data
+        const qualityData = [
+            {year:2020,quarter:1,plant:"FizzCo Atlanta Plant",pass_rate:98.27,fda_violations:0,recalls:1,recall_units:15,labeling_issues:1,inspections:7,units_inspected:4812,units_failed:72},
+            {year:2020,quarter:1,plant:"FizzCo Austin Plant",pass_rate:99.00,fda_violations:1,recalls:0,recall_units:0,labeling_issues:0,inspections:6,units_inspected:6847,units_failed:65},
+            {year:2020,quarter:1,plant:"FizzCo Chicago Plant",pass_rate:99.27,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:6,units_inspected:4649,units_failed:35},
+            {year:2020,quarter:2,plant:"FizzCo Atlanta Plant",pass_rate:96.80,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:5,units_inspected:5498,units_failed:175},
+            {year:2020,quarter:2,plant:"FizzCo Austin Plant",pass_rate:97.12,fda_violations:0,recalls:1,recall_units:113,labeling_issues:0,inspections:5,units_inspected:7050,units_failed:212},
+            {year:2020,quarter:2,plant:"FizzCo Chicago Plant",pass_rate:97.57,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:6,units_inspected:4821,units_failed:119},
+            {year:2020,quarter:3,plant:"FizzCo Atlanta Plant",pass_rate:96.65,fda_violations:0,recalls:1,recall_units:41,labeling_issues:0,inspections:4,units_inspected:4500,units_failed:157},
+            {year:2020,quarter:3,plant:"FizzCo Austin Plant",pass_rate:96.86,fda_violations:0,recalls:4,recall_units:288,labeling_issues:0,inspections:11,units_inspected:11325,units_failed:378},
+            {year:2020,quarter:3,plant:"FizzCo Chicago Plant",pass_rate:97.12,fda_violations:1,recalls:1,recall_units:57,labeling_issues:1,inspections:9,units_inspected:8304,units_failed:244},
+            {year:2020,quarter:4,plant:"FizzCo Atlanta Plant",pass_rate:99.07,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:6,units_inspected:4904,units_failed:45},
+            {year:2020,quarter:4,plant:"FizzCo Austin Plant",pass_rate:99.08,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:4,units_inspected:3410,units_failed:34},
+            {year:2020,quarter:4,plant:"FizzCo Chicago Plant",pass_rate:99.03,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:4,units_inspected:2795,units_failed:28},
+            {year:2021,quarter:1,plant:"FizzCo Atlanta Plant",pass_rate:98.94,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:9404,units_failed:105},
+            {year:2021,quarter:1,plant:"FizzCo Austin Plant",pass_rate:99.00,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:5,units_inspected:6550,units_failed:72},
+            {year:2021,quarter:1,plant:"FizzCo Chicago Plant",pass_rate:99.03,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:7,units_inspected:8776,units_failed:81},
+            {year:2021,quarter:2,plant:"FizzCo Atlanta Plant",pass_rate:99.14,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:8001,units_failed:79},
+            {year:2021,quarter:2,plant:"FizzCo Austin Plant",pass_rate:98.92,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:5,units_inspected:8000,units_failed:82},
+            {year:2021,quarter:2,plant:"FizzCo Chicago Plant",pass_rate:99.18,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:7899,units_failed:73},
+            {year:2021,quarter:3,plant:"FizzCo Atlanta Plant",pass_rate:98.98,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:9553,units_failed:102},
+            {year:2021,quarter:3,plant:"FizzCo Austin Plant",pass_rate:99.00,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:6917,units_failed:71},
+            {year:2021,quarter:3,plant:"FizzCo Chicago Plant",pass_rate:98.96,fda_violations:2,recalls:0,recall_units:0,labeling_issues:1,inspections:9,units_inspected:10435,units_failed:114},
+            {year:2021,quarter:4,plant:"FizzCo Atlanta Plant",pass_rate:99.10,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:6922,units_failed:62},
+            {year:2021,quarter:4,plant:"FizzCo Austin Plant",pass_rate:99.14,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:6331,units_failed:55},
+            {year:2021,quarter:4,plant:"FizzCo Chicago Plant",pass_rate:99.11,fda_violations:2,recalls:1,recall_units:17,labeling_issues:1,inspections:12,units_inspected:11904,units_failed:103},
+            {year:2022,quarter:1,plant:"FizzCo Atlanta Plant",pass_rate:99.01,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:9988,units_failed:104},
+            {year:2022,quarter:1,plant:"FizzCo Austin Plant",pass_rate:99.09,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:12,units_inspected:13188,units_failed:113},
+            {year:2022,quarter:1,plant:"FizzCo Chicago Plant",pass_rate:99.17,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:10377,units_failed:83},
+            {year:2022,quarter:2,plant:"FizzCo Atlanta Plant",pass_rate:99.18,fda_violations:1,recalls:0,recall_units:0,labeling_issues:1,inspections:5,units_inspected:4382,units_failed:44},
+            {year:2022,quarter:2,plant:"FizzCo Austin Plant",pass_rate:99.14,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:11092,units_failed:96},
+            {year:2022,quarter:2,plant:"FizzCo Chicago Plant",pass_rate:99.08,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:12047,units_failed:117},
+            {year:2022,quarter:3,plant:"FizzCo Atlanta Plant",pass_rate:99.11,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:12,units_inspected:9655,units_failed:87},
+            {year:2022,quarter:3,plant:"FizzCo Austin Plant",pass_rate:99.13,fda_violations:1,recalls:0,recall_units:0,labeling_issues:1,inspections:12,units_inspected:10009,units_failed:96},
+            {year:2022,quarter:3,plant:"FizzCo Chicago Plant",pass_rate:99.15,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:2,units_inspected:2211,units_failed:22},
+            {year:2022,quarter:4,plant:"FizzCo Atlanta Plant",pass_rate:99.12,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:9265,units_failed:88},
+            {year:2022,quarter:4,plant:"FizzCo Austin Plant",pass_rate:99.14,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:14,units_inspected:13461,units_failed:126},
+            {year:2022,quarter:4,plant:"FizzCo Chicago Plant",pass_rate:99.15,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:8250,units_failed:69},
+            {year:2023,quarter:1,plant:"FizzCo Atlanta Plant",pass_rate:99.11,fda_violations:2,recalls:0,recall_units:0,labeling_issues:1,inspections:15,units_inspected:17872,units_failed:170},
+            {year:2023,quarter:1,plant:"FizzCo Austin Plant",pass_rate:99.18,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:6,units_inspected:7025,units_failed:57},
+            {year:2023,quarter:1,plant:"FizzCo Chicago Plant",pass_rate:99.11,fda_violations:1,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:9268,units_failed:88},
+            {year:2023,quarter:2,plant:"FizzCo Atlanta Plant",pass_rate:99.02,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:9612,units_failed:89},
+            {year:2023,quarter:2,plant:"FizzCo Austin Plant",pass_rate:99.27,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:7,units_inspected:6305,units_failed:48},
+            {year:2023,quarter:2,plant:"FizzCo Chicago Plant",pass_rate:99.16,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:13,units_inspected:12432,units_failed:109},
+            {year:2023,quarter:3,plant:"FizzCo Atlanta Plant",pass_rate:99.19,fda_violations:0,recalls:0,recall_units:0,labeling_issues:1,inspections:15,units_inspected:12855,units_failed:104},
+            {year:2023,quarter:3,plant:"FizzCo Austin Plant",pass_rate:99.09,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:12120,units_failed:136},
+            {year:2023,quarter:3,plant:"FizzCo Chicago Plant",pass_rate:99.13,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:9002,units_failed:89},
+            {year:2023,quarter:4,plant:"FizzCo Atlanta Plant",pass_rate:99.06,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:11352,units_failed:108},
+            {year:2023,quarter:4,plant:"FizzCo Austin Plant",pass_rate:99.07,fda_violations:1,recalls:1,recall_units:8,labeling_issues:0,inspections:8,units_inspected:7887,units_failed:72},
+            {year:2023,quarter:4,plant:"FizzCo Chicago Plant",pass_rate:99.13,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:9560,units_failed:95},
+            {year:2024,quarter:1,plant:"FizzCo Atlanta Plant",pass_rate:99.14,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:16,units_inspected:15828,units_failed:135},
+            {year:2024,quarter:1,plant:"FizzCo Austin Plant",pass_rate:99.11,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:13074,units_failed:117},
+            {year:2024,quarter:1,plant:"FizzCo Chicago Plant",pass_rate:99.00,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:7,units_inspected:7753,units_failed:86},
+            {year:2024,quarter:2,plant:"FizzCo Atlanta Plant",pass_rate:99.18,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:10757,units_failed:87},
+            {year:2024,quarter:2,plant:"FizzCo Austin Plant",pass_rate:98.89,fda_violations:1,recalls:0,recall_units:0,labeling_issues:0,inspections:7,units_inspected:7863,units_failed:90},
+            {year:2024,quarter:2,plant:"FizzCo Chicago Plant",pass_rate:99.06,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:15,units_inspected:13339,units_failed:132},
+            {year:2024,quarter:3,plant:"FizzCo Atlanta Plant",pass_rate:99.07,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:8991,units_failed:89},
+            {year:2024,quarter:3,plant:"FizzCo Austin Plant",pass_rate:99.08,fda_violations:1,recalls:0,recall_units:0,labeling_issues:1,inspections:16,units_inspected:18364,units_failed:163},
+            {year:2024,quarter:3,plant:"FizzCo Chicago Plant",pass_rate:99.08,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:14,units_inspected:16274,units_failed:157},
+            {year:2024,quarter:4,plant:"FizzCo Atlanta Plant",pass_rate:99.05,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:9,units_inspected:9915,units_failed:88},
+            {year:2024,quarter:4,plant:"FizzCo Austin Plant",pass_rate:99.21,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:10,units_inspected:11729,units_failed:96},
+            {year:2024,quarter:4,plant:"FizzCo Chicago Plant",pass_rate:98.93,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:12,units_inspected:12996,units_failed:150},
+            {year:2025,quarter:1,plant:"FizzCo Atlanta Plant",pass_rate:99.03,fda_violations:1,recalls:1,recall_units:20,labeling_issues:1,inspections:16,units_inspected:16845,units_failed:167},
+            {year:2025,quarter:1,plant:"FizzCo Austin Plant",pass_rate:98.96,fda_violations:0,recalls:0,recall_units:0,labeling_issues:1,inspections:9,units_inspected:8712,units_failed:93},
+            {year:2025,quarter:1,plant:"FizzCo Chicago Plant",pass_rate:99.05,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:11894,units_failed:111},
+            {year:2025,quarter:2,plant:"FizzCo Atlanta Plant",pass_rate:99.20,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:12,units_inspected:11636,units_failed:92},
+            {year:2025,quarter:2,plant:"FizzCo Austin Plant",pass_rate:99.18,fda_violations:1,recalls:1,recall_units:23,labeling_issues:2,inspections:13,units_inspected:15061,units_failed:135},
+            {year:2025,quarter:2,plant:"FizzCo Chicago Plant",pass_rate:99.07,fda_violations:1,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:9434,units_failed:83},
+            {year:2025,quarter:3,plant:"FizzCo Atlanta Plant",pass_rate:99.07,fda_violations:0,recalls:0,recall_units:0,labeling_issues:1,inspections:7,units_inspected:7760,units_failed:76},
+            {year:2025,quarter:3,plant:"FizzCo Austin Plant",pass_rate:99.09,fda_violations:0,recalls:0,recall_units:0,labeling_issues:0,inspections:8,units_inspected:9392,units_failed:82},
+            {year:2025,quarter:3,plant:"FizzCo Chicago Plant",pass_rate:99.13,fda_violations:1,recalls:1,recall_units:20,labeling_issues:1,inspections:12,units_inspected:14993,units_failed:141},
+            {year:2025,quarter:4,plant:"FizzCo Atlanta Plant",pass_rate:99.19,fda_violations:1,recalls:0,recall_units:0,labeling_issues:1,inspections:8,units_inspected:7433,units_failed:57},
+            {year:2025,quarter:4,plant:"FizzCo Austin Plant",pass_rate:99.23,fda_violations:1,recalls:0,recall_units:0,labeling_issues:1,inspections:9,units_inspected:11006,units_failed:91},
+            {year:2025,quarter:4,plant:"FizzCo Chicago Plant",pass_rate:99.00,fda_violations:0,recalls:0,recall_units:0,labeling_issues:1,inspections:14,units_inspected:13956,units_failed:159}
+        ];
+
+        // Chart instances
+        let passRateTrendChart, fdaViolationsChart, recallsChart, unitsChart, labelingChart;
+
+        // Filter functions
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const quarter = document.getElementById('quarterFilter').value.replace('Q', '');
+            const plant = document.getElementById('plantFilter').value;
+
+            return qualityData.filter(row => {
+                const yearMatch = year === 'All' || row.year == year;
+                const quarterMatch = quarter === 'All' || row.quarter == quarter;
+                const plantMatch = plant === 'All' || row.plant === plant;
+                return yearMatch && quarterMatch && plantMatch;
+            });
+        }
+
+        function updateKPIs() {
+            const filtered = getFilteredData();
+
+            const avgPassRate = filtered.length > 0
+                ? (filtered.reduce((sum, d) => sum + d.pass_rate, 0) / filtered.length).toFixed(2)
+                : 0;
+            const totalViolations = filtered.reduce((sum, d) => sum + d.fda_violations, 0);
+            const totalRecalls = filtered.reduce((sum, d) => sum + d.recalls, 0);
+            const totalRecallUnits = filtered.reduce((sum, d) => sum + d.recall_units, 0);
+            const totalInspections = filtered.reduce((sum, d) => sum + d.inspections, 0);
+
+            document.getElementById('avgPassRate').textContent = avgPassRate;
+            document.getElementById('totalViolations').textContent = totalViolations;
+            document.getElementById('totalRecalls').textContent = totalRecalls;
+            document.getElementById('totalRecallUnits').textContent = totalRecallUnits;
+            document.getElementById('totalInspections').textContent = totalInspections;
+        }
+
+        function updatePassRateTrendChart() {
+            const filtered = getFilteredData();
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+            const plantColors = ['#7CB701', '#95D600', '#FFB800'];
+
+            const datasets = plants.map((plant, idx) => {
+                const data = quarters.map(q => {
+                    const match = filtered.filter(d => d.plant === plant && d.quarter == q.slice(1));
+                    return match.length > 0 ? match[0].pass_rate : null;
+                });
+                return {
+                    label: plant,
+                    data: data,
+                    borderColor: plantColors[idx],
+                    backgroundColor: plantColors[idx] + '20',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 5,
+                    pointBackgroundColor: plantColors[idx],
+                    pointBorderColor: '#0D0D0D',
+                    pointBorderWidth: 2
+                };
+            });
+
+            if (passRateTrendChart) passRateTrendChart.destroy();
+
+            const ctx = document.getElementById('passRateTrendChart').getContext('2d');
+            passRateTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: quarters,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 96,
+                            max: 100,
+                            ticks: {
+                                color: '#9B999B',
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            },
+                            grid: {
+                                color: '#2A2A2A'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#9B999B'
+                            },
+                            grid: {
+                                color: '#2A2A2A'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateFDAViolationsChart() {
+            const filtered = getFilteredData();
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+
+            const data = plants.map(plant => {
+                return filtered.filter(d => d.plant === plant).reduce((sum, d) => sum + d.fda_violations, 0);
+            });
+
+            if (fdaViolationsChart) fdaViolationsChart.destroy();
+
+            const ctx = document.getElementById('fdaViolationsChart').getContext('2d');
+            fdaViolationsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'FDA Violations',
+                        data: data,
+                        backgroundColor: ['#7CB701', '#95D600', '#FFB800'],
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRecallsChart() {
+            const filtered = getFilteredData();
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+
+            const recalls = plants.map(plant =>
+                filtered.filter(d => d.plant === plant).reduce((sum, d) => sum + d.recalls, 0)
+            );
+            const recallUnits = plants.map(plant =>
+                filtered.filter(d => d.plant === plant).reduce((sum, d) => sum + d.recall_units, 0)
+            );
+
+            if (recallsChart) recallsChart.destroy();
+
+            const ctx = document.getElementById('recallsChart').getContext('2d');
+            recallsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [
+                        {
+                            label: 'Recalls',
+                            data: recalls,
+                            backgroundColor: '#FF4444',
+                            borderRadius: 4,
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Recall Units',
+                            data: recallUnits,
+                            backgroundColor: '#FFB800',
+                            borderRadius: 4,
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#9B999B' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateUnitsChart() {
+            const filtered = getFilteredData();
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+
+            const inspected = plants.map(plant =>
+                filtered.filter(d => d.plant === plant).reduce((sum, d) => sum + d.units_inspected, 0)
+            );
+            const failed = plants.map(plant =>
+                filtered.filter(d => d.plant === plant).reduce((sum, d) => sum + d.units_failed, 0)
+            );
+
+            if (unitsChart) unitsChart.destroy();
+
+            const ctx = document.getElementById('unitsChart').getContext('2d');
+            unitsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [
+                        {
+                            label: 'Units Inspected',
+                            data: inspected,
+                            backgroundColor: '#7CB701',
+                            borderRadius: 4,
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Units Failed',
+                            data: failed,
+                            backgroundColor: '#FF4444',
+                            borderRadius: 4,
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#9B999B' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateLabelingChart() {
+            const filtered = getFilteredData();
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+
+            const labeling = plants.map(plant =>
+                filtered.filter(d => d.plant === plant).reduce((sum, d) => sum + d.labeling_issues, 0)
+            );
+
+            if (labelingChart) labelingChart.destroy();
+
+            const ctx = document.getElementById('labelingChart').getContext('2d');
+            labelingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Labeling Issues',
+                        data: labeling,
+                        backgroundColor: ['#7CB701', '#95D600', '#FFB800'],
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable() {
+            const filtered = getFilteredData().sort((a, b) => {
+                if (a.year !== b.year) return a.year - b.year;
+                if (a.quarter !== b.quarter) return a.quarter - b.quarter;
+                return a.plant.localeCompare(b.plant);
+            });
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = filtered.map(row => {
+                const passRateStatus = row.pass_rate >= 99 ? 'status-success' : row.pass_rate >= 98 ? 'status-warning' : 'status-danger';
+                return `
+                    <tr>
+                        <td>${row.year}</td>
+                        <td>Q${row.quarter}</td>
+                        <td>${row.plant}</td>
+                        <td class="${passRateStatus}">${row.pass_rate.toFixed(2)}%</td>
+                        <td>${row.fda_violations}</td>
+                        <td>${row.recalls}</td>
+                        <td>${row.recall_units}</td>
+                        <td>${row.inspections}</td>
+                        <td>${row.units_inspected}</td>
+                        <td>${row.units_failed}</td>
+                        <td>${row.labeling_issues}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateInsights() {
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                document.getElementById('focusAreas').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                return;
+            }
+
+            // Calculate metrics
+            const avgPassRate = filtered.reduce((sum, d) => sum + d.pass_rate, 0) / filtered.length;
+            const totalViolations = filtered.reduce((sum, d) => sum + d.fda_violations, 0);
+            const totalRecalls = filtered.reduce((sum, d) => sum + d.recalls, 0);
+            const totalRecallUnits = filtered.reduce((sum, d) => sum + d.recall_units, 0);
+            const totalLabelingIssues = filtered.reduce((sum, d) => sum + d.labeling_issues, 0);
+
+            // Get data by plant
+            const plantData = {};
+            filtered.forEach(d => {
+                if (!plantData[d.plant]) {
+                    plantData[d.plant] = { passRates: [], violations: 0, recalls: 0, labelingIssues: 0 };
+                }
+                plantData[d.plant].passRates.push(d.pass_rate);
+                plantData[d.plant].violations += d.fda_violations;
+                plantData[d.plant].recalls += d.recalls;
+                plantData[d.plant].labelingIssues += d.labeling_issues;
+            });
+
+            // Calculate plant averages
+            const plantStats = Object.entries(plantData).map(([plant, data]) => ({
+                plant,
+                avgPassRate: data.passRates.reduce((a, b) => a + b, 0) / data.passRates.length,
+                violations: data.violations,
+                recalls: data.recalls,
+                labelingIssues: data.labelingIssues
+            }));
+
+            // Sort plants by pass rate
+            const bestPlant = plantStats.reduce((a, b) => a.avgPassRate > b.avgPassRate ? a : b);
+            const worstPlant = plantStats.reduce((a, b) => a.avgPassRate < b.avgPassRate ? a : b);
+
+            // Determine trends
+            const fdaTrend = totalViolations > 5 ? 'increasing' : totalViolations > 0 ? 'present' : 'improving';
+            const recallAssessment = totalRecallUnits > 50 ? 'concerning' : totalRecallUnits > 0 ? 'moderate' : 'excellent';
+            const labelingTrend = totalLabelingIssues > 3 ? 'concerning' : totalLabelingIssues > 0 ? 'minor' : 'none';
+
+            // Generate insights HTML
+            const insightsHTML = `
+                <ul style="margin-left:20px;">
+                    <li style="margin-bottom:10px;">• Overall pass rate is <strong>${avgPassRate.toFixed(2)}%</strong>${avgPassRate >= 98 ? ', exceeding target of >98%' : ', below target of 98%'}</li>
+                    <li style="margin-bottom:10px;">• FDA violations trend is <strong>${fdaTrend}</strong> with ${totalViolations} total violations across selected period</li>
+                    <li style="margin-bottom:10px;">• Recall assessment is <strong>${recallAssessment}</strong> with ${totalRecalls} recalls affecting ${totalRecallUnits} units</li>
+                    <li style="margin-bottom:10px;">• <strong>${bestPlant.plant}</strong> has best pass rate at ${bestPlant.avgPassRate.toFixed(2)}% vs <strong>${worstPlant.plant}</strong> at ${worstPlant.avgPassRate.toFixed(2)}%</li>
+                    <li style="margin-bottom:10px;">• Labeling issues show <strong>${labelingTrend}</strong> status with ${totalLabelingIssues} occurrences</li>
+                </ul>
+            `;
+
+            // Generate focus areas HTML
+            const focusAreasHTML = `
+                <ul style="margin-left:20px;">
+                    ${avgPassRate < 98 ? `<li style="margin-bottom:8px;">• Improve pass rates: Current ${avgPassRate.toFixed(2)}% is below 98% target</li>` : ''}
+                    ${totalViolations > 5 ? `<li style="margin-bottom:8px;">• Address FDA violations: ${totalViolations} violations suggest compliance gaps</li>` : ''}
+                    ${totalRecallUnits > 50 ? `<li style="margin-bottom:8px;">• Reduce recall volume: ${totalRecallUnits} units recalled indicates quality concerns</li>` : ''}
+                    ${worstPlant.avgPassRate < bestPlant.avgPassRate - 1 ? `<li style="margin-bottom:8px;">• ${worstPlant.plant} requires attention: ${(bestPlant.avgPassRate - worstPlant.avgPassRate).toFixed(2)}% pass rate gap vs best performer</li>` : ''}
+                    ${totalLabelingIssues > 3 ? `<li style="margin-bottom:8px;">• Investigate labeling issues: ${totalLabelingIssues} issues suggest process improvement needed</li>` : ''}
+                </ul>
+            `;
+
+            document.getElementById('insightsContent').innerHTML = insightsHTML;
+            document.getElementById('focusAreas').innerHTML = focusAreasHTML || '<li style="margin-bottom:8px;">• No critical focus areas - performance is strong</li>';
+        }
+
+        function updateAllCharts() {
+            updateKPIs();
+            updatePassRateTrendChart();
+            updateFDAViolationsChart();
+            updateRecallsChart();
+            updateUnitsChart();
+            updateLabelingChart();
+            updateTable();
+            updateInsights();
+        }
+
+        // Event listeners for filters
+        document.getElementById('yearFilter').addEventListener('change', updateAllCharts);
+        document.getElementById('quarterFilter').addEventListener('change', updateAllCharts);
+        document.getElementById('plantFilter').addEventListener('change', updateAllCharts);
+
+        // Initial load
+        window.addEventListener('load', updateAllCharts);
+    </script>
+</body>
+</html>

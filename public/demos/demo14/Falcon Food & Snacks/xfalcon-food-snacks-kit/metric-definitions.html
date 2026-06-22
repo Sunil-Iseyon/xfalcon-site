@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metric Definitions — xFalcon AnalyticsPro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .topbar {
+            background: #0F172A;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-x {
+            color: #006AFF;
+        }
+
+        .logo-f {
+            color: #1A7F64;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .back-link {
+            color: #E5E7EB;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #64748B;
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .search-input {
+            padding: 10px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            width: 100%;
+            max-width: 400px;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #006AFF;
+            box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            font-size: 22px;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: white;
+            display: inline-block;
+        }
+
+        .category-1 {
+            background: #006AFF;
+        }
+
+        .category-2 {
+            background: #1A7F64;
+        }
+
+        .category-3 {
+            background: #D97706;
+        }
+
+        .category-4 {
+            background: #7C3AED;
+        }
+
+        .category-5 {
+            background: #EC4899;
+        }
+
+        .category-6 {
+            background: #0891B2;
+        }
+
+        .category-7 {
+            background: #6366F1;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(550px, 1fr));
+            gap: 24px;
+        }
+
+        .metric-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            border-color: #D1D5DB;
+        }
+
+        .metric-card.hidden {
+            display: none;
+        }
+
+        .metric-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .metric-definition {
+            font-size: 14px;
+            color: #4B5563;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .metric-formula {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #1F2937;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+
+        .metric-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tag-table {
+            background: #EFF6FF;
+            color: #0066CC;
+            border: 1px solid #BFDBFE;
+        }
+
+        .tag-dashboard {
+            background: #F0FDF4;
+            color: #059669;
+            border: 1px solid #BBEF63;
+        }
+
+        .metric-direction {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            background: #F3F4F6;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            width: fit-content;
+        }
+
+        .direction-up {
+            color: #059669;
+        }
+
+        .direction-down {
+            color: #D32F2F;
+        }
+
+        .direction-target {
+            color: #7C3AED;
+        }
+
+        .direction-icon {
+            font-size: 14px;
+        }
+
+        .metric-target {
+            background: #FEF3C7;
+            border-left: 3px solid #F59E0B;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .target-label {
+            font-weight: 700;
+            color: #92400E;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .target-value {
+            color: #78350F;
+        }
+
+        .dashboards {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-badge {
+            background: #E0E7FF;
+            color: #4F46E5;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .notes-section {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 48px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .notes-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .notes-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notes-list li {
+            font-size: 14px;
+            color: #4B5563;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .notes-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #006AFF;
+            font-weight: bold;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 48px 24px;
+            color: #64748B;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .topbar-left {
+                width: 100%;
+            }
+
+            .back-link {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span>alcon</div>
+            <div class="topbar-title">AnalyticsPro</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Metric Definitions</h1>
+            <p class="page-subtitle">Complete reference for all KPIs used across the xFalcon AnalyticsPro Falcon Food & Snacks dashboard suite</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search metrics by name...">
+        </div>
+
+        <div id="metricsContainer"></div>
+
+        <div class="notes-section">
+            <h2 class="notes-title">Important Notes</h2>
+            <ul class="notes-list">
+                <li><strong>Trade Spend Data:</strong> Trade Spend and Promotion data covers 2020–2024 only. 2025 data is not yet available.</li>
+                <li><strong>Household Panel:</strong> Household Penetration and Repeat Purchase Rate metrics use a separate household panel of 80K households and are not directly comparable to POS customer data.</li>
+                <li><strong>Active SKUs:</strong> Always filter IS_ACTIVE=1 to exclude discontinued SKUs when calculating revenue, volume, and margin metrics.</li>
+                <li><strong>Trackable Channels:</strong> When calculating market share and total revenue benchmarks, filter IS_TRACKABLE=1 in DIM_CHANNEL to avoid estimation bias.</li>
+                <li><strong>Period Definitions:</strong> "Current Period" defaults to the latest calendar month; "Prior Period" defaults to the same month one year ago unless otherwise specified.</li>
+                <li><strong>Rounding:</strong> All percentages are rounded to two decimal places. YoY comparisons use actual (not growth-adjusted) values from equivalent periods.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        var metricsData = [
+            {
+                category: 'Revenue Metrics',
+                categoryIndex: 1,
+                dashboards: ['01', '02', '03', '04'],
+                metrics: [
+                    {
+                        name: 'Net Revenue',
+                        definition: 'Total revenue after all discounts and adjustments',
+                        formula: 'SUM(NET_REVENUE) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        target: '2024: $21.6M | 2025: $31.5M (+45.8% YoY)',
+                        dashboards: ['01', '02', '03', '04']
+                    },
+                    {
+                        name: 'Gross Revenue',
+                        definition: 'Total revenue before discounts and adjustments',
+                        formula: 'SUM(GROSS_REVENUE) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['01', '02', '03', '04']
+                    },
+                    {
+                        name: 'COGS',
+                        definition: 'Cost of Goods Sold — direct manufacturing and product costs',
+                        formula: 'SUM(COGS) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Lower is better',
+                        directionIcon: '↓',
+                        dashboards: ['02', '03', '04']
+                    },
+                    {
+                        name: 'Gross Profit',
+                        definition: 'Net revenue minus cost of goods sold',
+                        formula: 'SUM(NET_REVENUE - COGS) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['02', '03', '04']
+                    },
+                    {
+                        name: 'Gross Margin %',
+                        definition: 'Gross profit expressed as percentage of net revenue',
+                        formula: 'SUM(GROSS_PROFIT) / SUM(NET_REVENUE) * 100',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Target range',
+                        directionIcon: '◯',
+                        target: 'Target: 45–55% for snacks category',
+                        dashboards: ['02', '03', '04']
+                    },
+                    {
+                        name: 'Trade Discount %',
+                        definition: 'Discounts given to retailers as percentage of gross revenue',
+                        formula: 'SUM(TRADE_DISCOUNT) / SUM(GROSS_REVENUE) * 100',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Lower is better',
+                        directionIcon: '↓',
+                        dashboards: ['01', '02', '03']
+                    },
+                    {
+                        name: 'Net Revenue per Unit',
+                        definition: 'Average price realization per unit sold after all discounts',
+                        formula: 'SUM(NET_REVENUE) / SUM(UNITS_SOLD)',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['01', '02', '03']
+                    }
+                ]
+            },
+            {
+                category: 'Volume Metrics',
+                categoryIndex: 2,
+                dashboards: ['01', '02', '03'],
+                metrics: [
+                    {
+                        name: 'Units Sold',
+                        definition: 'Total number of individual units sold across all channels',
+                        formula: 'SUM(UNITS_SOLD) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['01', '02', '03']
+                    },
+                    {
+                        name: 'Cases Sold',
+                        definition: 'Total cases sold (used for supply chain planning and forecasting)',
+                        formula: 'SUM(CASES_SOLD) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['01', '02', '03']
+                    }
+                ]
+            },
+            {
+                category: 'Supply Chain Metrics',
+                categoryIndex: 3,
+                dashboards: ['07', '08'],
+                metrics: [
+                    {
+                        name: 'Fill Rate %',
+                        definition: 'Percentage of requested cases actually shipped to retailers',
+                        formula: 'SUM(CASES_SHIPPED) / SUM(CASES_REQUESTED) * 100 from FACT_SHIPMENTS',
+                        table: 'FACT_SHIPMENTS',
+                        direction: 'Target range',
+                        directionIcon: '◯',
+                        target: 'Target: >95% (industry standard)',
+                        dashboards: ['07', '08']
+                    },
+                    {
+                        name: 'On-Time %',
+                        definition: 'Percentage of shipments delivered by the promised delivery date',
+                        formula: 'COUNT(on-time shipments) / COUNT(total shipments) * 100 from FACT_SHIPMENTS',
+                        table: 'FACT_SHIPMENTS',
+                        direction: 'Target range',
+                        directionIcon: '◯',
+                        target: 'Target: >90%',
+                        dashboards: ['07', '08']
+                    },
+                    {
+                        name: 'Units Shipped',
+                        definition: 'Total individual units physically shipped to retailers',
+                        formula: 'SUM(UNITS_SHIPPED) from FACT_SHIPMENTS',
+                        table: 'FACT_SHIPMENTS',
+                        direction: 'Informational',
+                        directionIcon: '→',
+                        dashboards: ['07', '08']
+                    },
+                    {
+                        name: 'Invoice Value',
+                        definition: 'Total shipment value net of freight and logistics charges',
+                        formula: 'SUM(NET_INVOICE_VALUE) from FACT_SHIPMENTS',
+                        table: 'FACT_SHIPMENTS',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['07', '08']
+                    }
+                ]
+            },
+            {
+                category: 'Inventory Metrics',
+                categoryIndex: 4,
+                dashboards: ['08'],
+                metrics: [
+                    {
+                        name: 'Weeks of Supply (WOS)',
+                        definition: 'Average number of weeks of inventory on hand at current sales velocity',
+                        formula: 'AVG(WEEKS_OF_SUPPLY) from FACT_INVENTORY',
+                        table: 'FACT_INVENTORY',
+                        direction: 'Target range',
+                        directionIcon: '◯',
+                        target: 'Optimal: 1.5–2.5 weeks (minimizes stockouts and overstock)',
+                        dashboards: ['08']
+                    },
+                    {
+                        name: 'Days on Hand',
+                        definition: 'Average number of days of inventory available at current sales rate',
+                        formula: 'AVG(DAYS_ON_HAND) from FACT_INVENTORY',
+                        table: 'FACT_INVENTORY',
+                        direction: 'Target range',
+                        directionIcon: '◯',
+                        target: 'Optimal: 7–14 days',
+                        dashboards: ['08']
+                    },
+                    {
+                        name: 'Out-of-Stock Rate %',
+                        definition: 'Percentage of SKUs with zero inventory across the distribution network',
+                        formula: 'COUNT(SKUs with inventory=0) / COUNT(total trackable SKUs) * 100',
+                        table: 'FACT_INVENTORY',
+                        direction: 'Lower is better',
+                        directionIcon: '↓',
+                        target: 'Target: <2%',
+                        dashboards: ['08']
+                    },
+                    {
+                        name: 'Overstock Rate %',
+                        definition: 'Percentage of SKUs exceeding safety stock levels',
+                        formula: 'COUNT(SKUs > safety stock) / COUNT(total trackable SKUs) * 100',
+                        table: 'FACT_INVENTORY',
+                        direction: 'Lower is better',
+                        directionIcon: '↓',
+                        target: 'Target: <5%',
+                        dashboards: ['08']
+                    }
+                ]
+            },
+            {
+                category: 'Promotion & Trade Spend',
+                categoryIndex: 5,
+                dashboards: ['09'],
+                metrics: [
+                    {
+                        name: 'Promo ROI',
+                        definition: 'Return on investment for promotional and trade spending initiatives',
+                        formula: 'SUM(INCREMENTAL_REVENUE) / SUM(ACTUAL_SPEND) * 100 from FACT_TRADE_SPEND',
+                        table: 'FACT_TRADE_SPEND',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        target: 'Target: >200%',
+                        dashboards: ['09']
+                    },
+                    {
+                        name: 'Incremental Lift %',
+                        definition: 'Percentage increase in units sold during a promotional period vs. baseline',
+                        formula: 'SUM(INCREMENTAL_UNITS) / SUM(BASELINE_UNITS) * 100 from FACT_TRADE_SPEND',
+                        table: 'FACT_TRADE_SPEND',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['09']
+                    },
+                    {
+                        name: 'Planned vs Actual Variance',
+                        definition: 'Difference between budgeted and actual trade spend for promotions',
+                        formula: 'SUM(ACTUAL_SPEND - PLANNED_SPEND) from FACT_TRADE_SPEND',
+                        table: 'FACT_TRADE_SPEND',
+                        direction: 'Near zero is optimal',
+                        directionIcon: '◯',
+                        dashboards: ['09']
+                    },
+                    {
+                        name: 'Cost per Incremental Unit',
+                        definition: 'Promotion spend required to drive one additional unit of sales',
+                        formula: 'SUM(ACTUAL_SPEND) / SUM(INCREMENTAL_UNITS) from FACT_TRADE_SPEND',
+                        table: 'FACT_TRADE_SPEND',
+                        direction: 'Lower is better',
+                        directionIcon: '↓',
+                        dashboards: ['09']
+                    }
+                ]
+            },
+            {
+                category: 'Consumer / Household Metrics',
+                categoryIndex: 6,
+                dashboards: ['10'],
+                metrics: [
+                    {
+                        name: 'Household Penetration %',
+                        definition: 'Percentage of active households that have purchased the brand',
+                        formula: 'COUNT(DISTINCT HOUSEHOLD_KEY) / total active households * 100 from FACT_HOUSEHOLD_PURCHASE',
+                        table: 'FACT_HOUSEHOLD_PURCHASE',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['10']
+                    },
+                    {
+                        name: 'Repeat Purchase Rate %',
+                        definition: 'Percentage of purchases that are repeat purchases by existing customers',
+                        formula: 'COUNT(IS_REPEAT_PURCHASE=1) / COUNT(total purchases) * 100 from FACT_HOUSEHOLD_PURCHASE',
+                        table: 'FACT_HOUSEHOLD_PURCHASE',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        target: 'Target: >60% (indicates strong loyalty)',
+                        dashboards: ['10']
+                    },
+                    {
+                        name: 'Avg Basket Size',
+                        definition: 'Average dollar amount spent per shopping occasion',
+                        formula: 'SUM(AMOUNT_PAID) / COUNT(distinct purchase occasions) from FACT_HOUSEHOLD_PURCHASE',
+                        table: 'FACT_HOUSEHOLD_PURCHASE',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['10']
+                    },
+                    {
+                        name: 'Days Since Last Purchase',
+                        definition: 'Average number of days between today and most recent customer purchase',
+                        formula: 'AVG(DAYS_SINCE_LAST_PURCHASE) from FACT_HOUSEHOLD_PURCHASE',
+                        table: 'FACT_HOUSEHOLD_PURCHASE',
+                        direction: 'Lower is better',
+                        directionIcon: '↓',
+                        dashboards: ['10']
+                    }
+                ]
+            },
+            {
+                category: 'Composite Metrics',
+                categoryIndex: 7,
+                dashboards: ['01', '02', '03', '04', '05', '06'],
+                metrics: [
+                    {
+                        name: 'Revenue per SKU',
+                        definition: 'Average revenue generated by each unique product',
+                        formula: 'SUM(NET_REVENUE) / COUNT(DISTINCT PRODUCT_KEY) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['02', '03', '04', '05']
+                    },
+                    {
+                        name: 'Revenue per Customer',
+                        definition: 'Average lifetime revenue contribution per unique customer',
+                        formula: 'SUM(NET_REVENUE) / COUNT(DISTINCT CUSTOMER_KEY) from FACT_POS_SALES',
+                        table: 'FACT_POS_SALES',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['01', '02', '03', '04']
+                    },
+                    {
+                        name: 'Market Share %',
+                        definition: 'Brand revenue as a percentage of total category revenue',
+                        formula: 'SUM(NET_REVENUE [BRAND]) / SUM(NET_REVENUE [all brands]) * 100',
+                        table: 'FACT_POS_SALES + DIM_CHANNEL (IS_TRACKABLE=1)',
+                        direction: 'Higher is better',
+                        directionIcon: '↑',
+                        dashboards: ['01', '04', '06']
+                    },
+                    {
+                        name: 'Inventory Turns',
+                        definition: 'Number of times inventory is sold and replaced in a given period (typically annual)',
+                        formula: 'SUM(COGS) / AVG(on-hand inventory value)',
+                        table: 'FACT_POS_SALES + FACT_INVENTORY',
+                        direction: 'Target range',
+                        directionIcon: '◯',
+                        target: 'Target: 12–24 turns/year (varies by SKU shelf life)',
+                        dashboards: ['03', '04', '08']
+                    }
+                ]
+            }
+        ];
+
+        function renderMetrics() {
+            var container = document.getElementById('metricsContainer');
+            container.innerHTML = '';
+
+            metricsData.forEach(function(section) {
+                var sectionDiv = document.createElement('div');
+                sectionDiv.className = 'category-section';
+
+                var categoryClass = 'category-' + section.categoryIndex;
+                var headerDiv = document.createElement('div');
+                headerDiv.className = 'category-header ' + categoryClass;
+                headerDiv.textContent = section.category;
+                sectionDiv.appendChild(headerDiv);
+
+                var metricsGridDiv = document.createElement('div');
+                metricsGridDiv.className = 'metrics-grid';
+
+                section.metrics.forEach(function(metric) {
+                    var cardDiv = document.createElement('div');
+                    cardDiv.className = 'metric-card';
+                    cardDiv.setAttribute('data-name', metric.name.toLowerCase());
+                    cardDiv.setAttribute('data-searchable', (metric.name + ' ' + metric.definition).toLowerCase());
+
+                    var directionClass = 'direction-' + (metric.directionIcon === '↑' ? 'up' : metric.directionIcon === '↓' ? 'down' : 'target');
+
+                    var dashboardBadges = metric.dashboards.map(function(db) {
+                        return '<div class="dashboard-badge">Dashboard ' + db + '</div>';
+                    }).join('');
+
+                    var targetHtml = metric.target ? '<div class="metric-target"><span class="target-label">Target / Optimal:</span><span class="target-value">' + metric.target + '</span></div>' : '';
+
+                    cardDiv.innerHTML =
+                        '<div class="metric-name">' + metric.name + '</div>' +
+                        '<div class="metric-definition">' + metric.definition + '</div>' +
+                        '<div class="metric-formula">' + metric.formula + '</div>' +
+                        '<div class="metric-meta">' +
+                            '<span class="tag tag-table">Table: ' + metric.table + '</span>' +
+                        '</div>' +
+                        '<div class="metric-direction ' + directionClass + '">' +
+                            '<span class="direction-icon">' + metric.directionIcon + '</span>' +
+                            '<span>' + metric.direction + '</span>' +
+                        '</div>' +
+                        targetHtml +
+                        '<div style="margin-top: 16px;"><strong style="display: block; font-size: 12px; color: #64748B; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px;">Used in:</strong><div class="dashboards">' + dashboardBadges + '</div></div>';
+
+                    metricsGridDiv.appendChild(cardDiv);
+                });
+
+                sectionDiv.appendChild(metricsGridDiv);
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function filterMetrics() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var cards = document.querySelectorAll('.metric-card');
+            var visibleCount = 0;
+
+            cards.forEach(function(card) {
+                var searchable = card.getAttribute('data-searchable');
+                if (searchable.includes(searchTerm)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            if (visibleCount === 0 && searchTerm.length > 0) {
+                if (!document.getElementById('noResults')) {
+                    var noResults = document.createElement('div');
+                    noResults.id = 'noResults';
+                    noResults.className = 'no-results';
+                    noResults.textContent = 'No metrics found matching "' + searchTerm + '"';
+                    document.getElementById('metricsContainer').appendChild(noResults);
+                }
+            } else {
+                var noResults = document.getElementById('noResults');
+                if (noResults) {
+                    noResults.remove();
+                }
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', filterMetrics);
+        document.getElementById('searchInput').addEventListener('change', filterMetrics);
+
+        renderMetrics();
+    </script>
+</body>
+</html>

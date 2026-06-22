@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 1. Executive Overview</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 1. Executive Overview</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <div class="toggle-group" id="cmpToggle" onclick="toggleCompare()">
+        <div class="toggle-switch"></div>
+        <div class="toggle-label">Compare Years</div>
+      </div>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Source: FACT_CONTRACT_REVENUE + FACT_PROGRAM_BUDGET (Revised)</span>
+    </div>
+  </div>
+
+  <main class="content">
+
+    <div class="section-title">Headline P&amp;L</div>
+    <div class="section-subtitle" id="kpiSubtitle">2024 vs 2023 (YoY)</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Trends</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title" id="ch1Title">Monthly Revenue &middot; Billed vs Recognized ($M)</div>
+        <div class="chart-subtitle">Sep FY-end surge visible every year</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chMonthly"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top 10 Programs by Recognized Revenue ($M)</div>
+        <div class="chart-subtitle" id="progSub">2024</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chPrograms"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Customer Agency ($M)</div>
+        <div class="chart-subtitle" id="agencySub">2024 &middot; DoD-dominant portfolio</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chAgencies"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Domain ($M)</div>
+        <div class="chart-subtitle" id="domainSub">2024 &middot; 6 warfighting domains</div>
+        <div class="chart-canvas-wrap"><canvas id="chDomain"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Program Portfolio Snapshot</div>
+      <table class="detail-table" id="tblPortfolio">
+        <thead><tr>
+          <th>Program</th><th>Domain</th>
+          <th class="num">Revenue ($M)</th>
+          <th class="num">Fee ($M)</th>
+          <th class="num">CPI</th>
+          <th class="num">SPI</th>
+          <th>EVM Health</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Methodology.</strong> Recognized Revenue per ASC 606 percent-complete. Portfolio CPI/SPI weighted by incurred cost. Fee Realization = Fee / Recognized Revenue. 2023 peak reflects platform-delivery milestones in Air and Multi-Domain programs; 2024 step-down (-12.6%) is within normal program-cycle variation. Budget metrics use <strong>BUDGET_VERSION = 'Revised'</strong> only (grain test confirmed 2&times; inflation without this filter). All values are nominal USD, synthetic demo data.
+    </div>
+
+  </main>
+
+  <script src="dashboard-common.js"></script>
+  <script>
+    // -------- Data (pre-aggregated server-side) --------
+    var YEAR_PL = [
+      {y: 2020, billed: 47121, rev: 49611, cost: 50625, fee: 2093},
+      {y: 2021, billed: 42085, rev: 44299, cost: 45202, fee: 1913},
+      {y: 2022, billed: 49582, rev: 52193, cost: 53265, fee: 2296},
+      {y: 2023, billed: 67161, rev: 70698, cost: 72140, fee: 2947},
+      {y: 2024, billed: 58699, rev: 61789, cost: 63041, fee: 2524}
+    ];
+    var CPI_BY_YEAR = { 2020: 0.9700, 2021: 0.9699, 2022: 0.9700, 2023: 0.9702, 2024: 0.9700 };
+    var SPI_BY_YEAR = { 2020: 0.9498, 2021: 0.9500, 2022: 0.9503, 2023: 0.9502, 2024: 0.9499 };
+
+    var MONTHLY_BY_YEAR = {
+      2020: [{m:1,b:5391,r:5663},{m:2,b:3670,r:3858},{m:3,b:3593,r:3778},{m:4,b:3565,r:3748},{m:5,b:3565,r:3748},{m:6,b:3287,r:3456},{m:7,b:3410,r:3586},{m:8,b:3778,r:3972},{m:9,b:4713,r:4954},{m:10,b:4156,r:4369},{m:11,b:4041,r:4249},{m:12,b:3952,r:4155}],
+      2021: [{m:1,b:3438,r:3616},{m:2,b:3224,r:3390},{m:3,b:3335,r:3507},{m:4,b:3295,r:3466},{m:5,b:3360,r:3534},{m:6,b:3347,r:3520},{m:7,b:3293,r:3463},{m:8,b:3577,r:3762},{m:9,b:4309,r:4531},{m:10,b:3766,r:3960},{m:11,b:3563,r:3747},{m:12,b:3576,r:3761}],
+      2022: [{m:1,b:3091,r:3252},{m:2,b:3001,r:3156},{m:3,b:3530,r:3712},{m:4,b:3662,r:3851},{m:5,b:3691,r:3882},{m:6,b:4058,r:4267},{m:7,b:4248,r:4467},{m:8,b:4319,r:4541},{m:9,b:5131,r:5395},{m:10,b:4967,r:5223},{m:11,b:4898,r:5150},{m:12,b:4988,r:5244}],
+      2023: [{m:1,b:4267,r:4486},{m:2,b:4349,r:4572},{m:3,b:4752,r:4996},{m:4,b:4769,r:5014},{m:5,b:5040,r:5299},{m:6,b:5511,r:5795},{m:7,b:5637,r:5927},{m:8,b:5977,r:6284},{m:9,b:7533,r:7921},{m:10,b:6748,r:7094},{m:11,b:6444,r:6775},{m:12,b:6134,r:6450}],
+      2024: [{m:1,b:4969,r:5230},{m:2,b:4636,r:4881},{m:3,b:4982,r:5245},{m:4,b:4987,r:5250},{m:5,b:4987,r:5249},{m:6,b:4958,r:5216},{m:7,b:4899,r:5158},{m:8,b:4784,r:5034},{m:9,b:5692,r:5993},{m:10,b:4930,r:5189},{m:11,b:4619,r:4862},{m:12,b:4257,r:4482}]
+    };
+
+    // 2024 program portfolio (CPI/SPI already weighted per program)
+    var PROGRAMS_2024 = [
+      {code:'ARES-HERMES', domain:'Land', rev:6052, fee:267.6, cpi:0.9702, spi:0.9498},
+      {code:'ARES-GHOST',  domain:'Air',  rev:5313, fee:222.1, cpi:0.9698, spi:0.9490},
+      {code:'ARES-BRIDGE', domain:'Cyber',rev:4699, fee:175.3, cpi:0.9698, spi:0.9502},
+      {code:'ARES-TRIDENT',domain:'Sea',  rev:4672, fee:223.2, cpi:0.9699, spi:0.9504},
+      {code:'ARES-FORGE',  domain:'Multi-Domain',rev:4313, fee:179.6, cpi:0.9704, spi:0.9493},
+      {code:'ARES-POSEIDON',domain:'Sea', rev:4298, fee:173.7, cpi:0.9698, spi:0.9497},
+      {code:'ARES-ARGO',   domain:'Multi-Domain',rev:4274, fee:126.6, cpi:0.9695, spi:0.9514},
+      {code:'ARES-HORIZON',domain:'Space',rev:4243, fee:172.4, cpi:0.9699, spi:0.9500},
+      {code:'ARES-SENTINEL',domain:'Air', rev:4025, fee:151.8, cpi:0.9703, spi:0.9486},
+      {code:'ARES-PHALANX',domain:'Multi-Domain',rev:3874, fee:155.3, cpi:0.9700, spi:0.9499},
+      {code:'ARES-ATLAS',  domain:'Land', rev:3669, fee:146.7, cpi:0.9700, spi:0.9505},
+      {code:'ARES-TITAN',  domain:'Air',  rev:3539, fee:156.4, cpi:0.9696, spi:0.9504},
+      {code:'ARES-VANGUARD',domain:'Air', rev:3114, fee:123.4, cpi:0.9699, spi:0.9506},
+      {code:'ARES-NEXUS',  domain:'Multi-Domain',rev:2959, fee:130.5, cpi:0.9702, spi:0.9505},
+      {code:'ARES-SHIELD', domain:'Cyber',rev:2744, fee:119.3, cpi:0.9700, spi:0.9498}
+    ];
+    var AGENCIES_2024 = [
+      {type:'DoD', short:'Army',         rev:13996},
+      {type:'DoD', short:'Navy',         rev:12996},
+      {type:'DoD', short:'Air Force',    rev:10811},
+      {type:'DoD', short:'DARPA',        rev:8427},
+      {type:'Civilian Federal', short:'DHS',rev:4699},
+      {type:'DoD', short:'Space Force',  rev:4243},
+      {type:'DoD', short:'MDA',          rev:3874},
+      {type:'DoD', short:'USMC',         rev:2744}
+    ];
+    var DOMAINS_2024 = [
+      {d:'Air',          rev:15991},
+      {d:'Multi-Domain', rev:15420},
+      {d:'Land',         rev:9721},
+      {d:'Sea',          rev:8970},
+      {d:'Cyber',        rev:7443},
+      {d:'Space',        rev:4243}
+    ];
+
+    var state = { year: 2024, compare: false };
+
+    function toggleCompare() {
+      state.compare = !state.compare;
+      document.getElementById('cmpToggle').classList.toggle('active', state.compare);
+      document.getElementById('yearSel').disabled = state.compare;
+      applyFilters();
+    }
+
+    function row(yr) { for (var i=0;i<YEAR_PL.length;i++) if (YEAR_PL[i].y===yr) return YEAR_PL[i]; return null; }
+
+    function renderKPIsSingle(yr) {
+      var c = row(yr), p = row(yr-1);
+      var cpiVal = CPI_BY_YEAR[yr]; var spiVal = SPI_BY_YEAR[yr];
+      var dBilled = fmtDeltaLabel(c.billed, p?p.billed:null, '$', (yr-1));
+      var dRev    = fmtDeltaLabel(c.rev,    p?p.rev:null,    '$', (yr-1));
+      var dCost   = fmtDeltaLabel(c.cost,   p?p.cost:null,   '$', (yr-1));
+      var dFee    = fmtDeltaLabel(c.fee,    p?p.fee:null,    '$', (yr-1));
+      var feePct = (c.fee / c.rev * 100).toFixed(2);
+      var marginPct = ((c.rev - c.cost) / c.rev * 100).toFixed(2);
+      var html = '';
+      html += kpiCard('Recognized Revenue ' + yr, '$' + fmtInt(c.rev) + 'M', dRev);
+      html += kpiCard('Billed Amount ' + yr,      '$' + fmtInt(c.billed) + 'M', dBilled);
+      html += kpiCard('Incurred Cost ' + yr,      '$' + fmtInt(c.cost) + 'M', dCost);
+      html += kpiCard('Fee Earned ' + yr,         '$' + fmtInt(c.fee) + 'M',  dFee);
+      html += kpiCard('Fee Realization ' + yr,    feePct + '%',               {txt:'Target 4-5%', cls:'neutral'});
+      html += kpiCard('Gross Margin ' + yr,       marginPct + '%',            {txt:'Cost-plus weighted', cls:'neutral'});
+      html += kpiCard('Portfolio CPI ' + yr,      cpiVal.toFixed(3),          {txt:'Target &ge; 1.000', cls:'neutral'});
+      html += kpiCard('Portfolio SPI ' + yr,      spiVal.toFixed(3),          {txt:'Target &ge; 1.000', cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = yr + ' vs ' + (yr-1) + ' (YoY)';
+    }
+    function renderKPIsCompare() {
+      var html = '';
+      html += kpiStack('Recognized Revenue', 'rev', '$', 'M');
+      html += kpiStack('Incurred Cost',      'cost','$', 'M');
+      html += kpiStack('Fee Earned',         'fee', '$', 'M');
+      // 5-year avg CPI / SPI / Margin / Fee Realization (tiled stacked style)
+      var c20 = row(2020), c24 = row(2024);
+      var cagrRev = Math.pow(c24.rev/c20.rev, 1/4) - 1;
+      var cagrCost = Math.pow(c24.cost/c20.cost, 1/4) - 1;
+      html += '<div class="kpi-card"><div class="kpi-label">Revenue CAGR 20-24</div>' +
+        '<div class="kpi-value">' + (cagrRev*100).toFixed(1) + '%</div>' +
+        '<div class="kpi-delta neutral">4-year compound growth</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Cost CAGR 20-24</div>' +
+        '<div class="kpi-value">' + (cagrCost*100).toFixed(1) + '%</div>' +
+        '<div class="kpi-delta neutral">4-year compound growth</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Portfolio CPI (5-yr avg)</div>' +
+        '<div class="kpi-value">0.970</div><div class="kpi-delta neutral">Slightly over-cost</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Portfolio SPI (5-yr avg)</div>' +
+        '<div class="kpi-value">0.950</div><div class="kpi-delta neutral">Slightly behind schedule</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Peak Year</div>' +
+        '<div class="kpi-value">2023</div><div class="kpi-delta neutral">$70.7B recognized</div></div>';
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = 'All years (2020-2024) compared';
+    }
+    function kpiCard(label, value, delta) {
+      return '<div class="kpi-card"><div class="kpi-label">' + label + '</div>' +
+        '<div class="kpi-value">' + value + '</div>' +
+        '<div class="kpi-delta ' + delta.cls + '">' + delta.txt + '</div></div>';
+    }
+    function kpiStack(label, key, pre, suf) {
+      var rows = '';
+      for (var i = 0; i < YEAR_PL.length; i++) {
+        var r = YEAR_PL[i];
+        var prior = i > 0 ? YEAR_PL[i-1][key] : null;
+        var chg = prior ? ((r[key]-prior)/prior*100).toFixed(1) + '%' : '';
+        rows += '<div class="yr">' + r.y + '</div><div class="val">' + pre + fmtInt(r[key]) + suf + '</div><div class="chg">' + chg + '</div>';
+      }
+      var c20 = YEAR_PL[0][key], c24 = YEAR_PL[4][key];
+      var cagr = (Math.pow(c24/c20, 1/4) - 1) * 100;
+      return '<div class="kpi-card"><div class="kpi-label">' + label + '</div>' +
+        '<div class="kpi-stacked">' + rows + '</div>' +
+        '<div class="kpi-cagr">CAGR ' + cagr.toFixed(1) + '%</div></div>';
+    }
+
+    function renderMonthly() {
+      var p = fdPalette(); var yp = fdYearPalette();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var datasets;
+      if (state.compare) {
+        datasets = [];
+        var years = [2020,2021,2022,2023,2024];
+        for (var i = 0; i < years.length; i++) {
+          var yr = years[i]; var arr = MONTHLY_BY_YEAR[yr].map(function(m){return m.r;});
+          datasets.push({label: yr.toString(), data: arr, borderColor: yp[yr.toString()], backgroundColor: 'transparent', borderWidth: yr===2024?3:2, tension:0.25, pointRadius: 2});
+        }
+      } else {
+        var cur = MONTHLY_BY_YEAR[state.year].map(function(m){return m.r;});
+        var bill = MONTHLY_BY_YEAR[state.year].map(function(m){return m.b;});
+        var prior = (state.year > 2020) ? MONTHLY_BY_YEAR[state.year-1].map(function(m){return m.r;}) : null;
+        datasets = [
+          {label:'Recognized ' + state.year, data: cur, borderColor: p.primary, backgroundColor:'rgba(54,69,79,0.08)', fill:true, tension:0.3, borderWidth:3, pointRadius:3},
+          {label:'Billed ' + state.year, data: bill, borderColor: p.secondary, backgroundColor:'transparent', borderDash:[5,5], tension:0.3, borderWidth:2, pointRadius:2}
+        ];
+        if (prior) datasets.push({label:'Recognized ' + (state.year-1), data: prior, borderColor: p.tertiary, backgroundColor:'transparent', borderDash:[5,5], tension:0.3, borderWidth:2, pointRadius:2});
+      }
+      mk('chMonthly', {
+        type: 'line',
+        data: { labels: months, datasets: datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { beginAtZero: false, grid: { color: p.grid }, ticks: { callback: function(v){return '$' + (v/1000).toFixed(1) + 'B';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+      document.getElementById('ch1Title').textContent = state.compare ? 'Monthly Recognized Revenue by Year ($M)' : 'Monthly Revenue ' + state.year + ' &middot; Billed vs Recognized ($M)';
+    }
+
+    function renderPrograms() {
+      var p = fdPalette();
+      // Sort by rev desc, take top 10
+      var rows = PROGRAMS_2024.slice().sort(function(a,b){return b.rev-a.rev;}).slice(0,10);
+      mk('chPrograms', {
+        type: 'bar',
+        data: {
+          labels: rows.map(function(r){return r.code;}),
+          datasets: [{
+            label: 'Revenue ($M)',
+            data: rows.map(function(r){return r.rev;}),
+            backgroundColor: p.primary,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { grid: { color: p.grid }, ticks: { callback: function(v){return '$' + (v/1000).toFixed(1) + 'B';} } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+
+    function renderAgencies() {
+      var p = fdPalette();
+      mk('chAgencies', {
+        type: 'bar',
+        data: {
+          labels: AGENCIES_2024.map(function(a){return a.short;}),
+          datasets: [{
+            label: 'Revenue ($M)',
+            data: AGENCIES_2024.map(function(a){return a.rev;}),
+            backgroundColor: AGENCIES_2024.map(function(a){return a.type==='DoD'?p.primary:p.secondary;}),
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { grid: { color: p.grid }, ticks: { callback: function(v){return '$' + (v/1000).toFixed(1) + 'B';} } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+
+    function renderDomain() {
+      var p = fdPalette();
+      mk('chDomain', {
+        type: 'bar',
+        data: {
+          labels: DOMAINS_2024.map(function(d){return d.d;}),
+          datasets: [{
+            label: 'Revenue ($M)',
+            data: DOMAINS_2024.map(function(d){return d.rev;}),
+            backgroundColor: p.primary,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display:false } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$' + (v/1000).toFixed(1) + 'B';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+
+    function renderTable() {
+      var rows = PROGRAMS_2024.slice().sort(function(a,b){return b.rev-a.rev;});
+      var body = document.querySelector('#tblPortfolio tbody');
+      var html = '';
+      var totRev = 0, totFee = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var health = (r.cpi>=1.0 && r.spi>=1.0) ? 'green' : ((r.cpi>=0.95 && r.spi>=0.95) ? 'yellow' : 'red');
+        var healthTxt = (r.cpi>=1.0 && r.spi>=1.0) ? 'Green' : ((r.cpi>=0.95 && r.spi>=0.95) ? 'Yellow' : 'Red');
+        html += '<tr>' +
+          '<td><strong>' + r.code + '</strong></td>' +
+          '<td>' + r.domain + '</td>' +
+          '<td class="num">' + String(fmtInt(r.rev)) + '</td>' +
+          '<td class="num">' + String(r.fee.toFixed(1)) + '</td>' +
+          '<td class="num">' + String(r.cpi.toFixed(3)) + '</td>' +
+          '<td class="num">' + String(r.spi.toFixed(3)) + '</td>' +
+          '<td><span class="pill ' + health + '">' + healthTxt + '</span></td>' +
+          '</tr>';
+        totRev += r.rev; totFee += r.fee;
+      }
+      html += '<tr class="tot-row">' +
+        '<td>Total (15 programs)</td><td>All domains</td>' +
+        '<td class="num">' + String(fmtInt(totRev)) + '</td>' +
+        '<td class="num">' + String(totFee.toFixed(1)) + '</td>' +
+        '<td class="num">0.970</td><td class="num">0.950</td>' +
+        '<td><span class="pill yellow">Yellow</span></td></tr>';
+      body.innerHTML = html;
+    }
+
+    function updateSubtitle() {
+      var txt = state.compare ? 'Reporting Period: 2020-2024 (All Years)' : 'Reporting Period: Jan-Dec ' + state.year;
+      document.getElementById('subtitle').textContent = txt;
+      document.getElementById('progSub').textContent = state.year.toString();
+      document.getElementById('agencySub').textContent = state.year + ' &middot; DoD-dominant portfolio';
+      document.getElementById('domainSub').textContent = state.year + ' &middot; 6 warfighting domains';
+    }
+
+    function applyFilters() {
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      if (state.compare) renderKPIsCompare(); else renderKPIsSingle(state.year);
+      renderMonthly();
+      renderPrograms();
+      renderAgencies();
+      renderDomain();
+      renderTable();
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

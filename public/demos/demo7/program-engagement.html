@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05 | Program & Member Engagement - Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .header-content h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+
+        .header-content p {
+            font-size: 14px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #E02B20;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: #c01f15;
+        }
+
+        .filters-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666666;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:hover,
+        .filter-group select:focus {
+            border-color: #E02B20;
+            outline: none;
+        }
+
+        .kpis-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-card .label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .kpi-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chart-container h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .chart-analysis {
+            border-left: 3px solid #E02B20;
+            padding: 15px;
+            background: #fafafa;
+            font-size: 13px;
+            color: #555;
+            margin-top: 15px;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .kpis-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>05 | Program & Member Engagement</h1>
+                <p>Falcon Auto B2B</p>
+            </div>
+            <a href="index.html" class="back-link">Back to Home</a>
+        </header>
+
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="yearFilter">Year</label>
+                    <select id="yearFilter">
+                        <option value="">All Time</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="programFilter">Program</label>
+                    <select id="programFilter">
+                        <option value="">All Programs</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="categoryFilter">Category Group</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpis-section">
+            <div class="kpi-card">
+                <div class="label">Total Enrollments</div>
+                <div class="value" id="kpiTotalEnrollments">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Active Enrollments</div>
+                <div class="value" id="kpiActiveEnrollments">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Total Activities</div>
+                <div class="value" id="kpiTotalActivities">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Activation Rate %</div>
+                <div class="value" id="kpiActivationRate">0%</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3>Enrollments by Program</h3>
+                <div class="chart-wrapper">
+                    <canvas id="enrollmentsByProgramChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis1"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Active vs Inactive by Program</h3>
+                <div class="chart-wrapper">
+                    <canvas id="activeInactiveChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis2"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Activity by Event Type</h3>
+                <div class="chart-wrapper">
+                    <canvas id="activityByEventChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis3"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Activity Volume by Year</h3>
+                <div class="chart-wrapper">
+                    <canvas id="activityByYearChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis4"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Dashboard generated on <span id="footerDate"></span>
+    </footer>
+
+    <script>
+        // Color palette
+        const chartColors = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        // Embedded data
+        const programByYear = [{"year":2023,"program":"Financial Services","categoryGroup":"Financial","enrollments":71,"active":65,"inactive":6},{"year":2023,"program":"Shop Equipment Leasing","categoryGroup":"Equipment","enrollments":70,"active":63,"inactive":7},{"year":2023,"program":"Safety & Compliance","categoryGroup":"Compliance","enrollments":67,"active":63,"inactive":4},{"year":2023,"program":"Utilities Optimization","categoryGroup":"Operations","enrollments":62,"active":60,"inactive":2},{"year":2023,"program":"Oil & Lubricants","categoryGroup":"Supply Chain","enrollments":44,"active":42,"inactive":2},{"year":2023,"program":"Waste & Recycling","categoryGroup":"Sustainability","enrollments":38,"active":35,"inactive":3},{"year":2023,"program":"Paint & Supplies Program","categoryGroup":"Supply Chain","enrollments":35,"active":32,"inactive":3},{"year":2023,"program":"Capital Equipment","categoryGroup":"Equipment","enrollments":34,"active":31,"inactive":3},{"year":2023,"program":"Security & Surveillance","categoryGroup":"Facility","enrollments":16,"active":16,"inactive":0},{"year":2023,"program":"Uniforms & Facility","categoryGroup":"Facility","enrollments":10,"active":10,"inactive":0},{"year":2024,"program":"Utilities Optimization","categoryGroup":"Operations","enrollments":50,"active":47,"inactive":3},{"year":2024,"program":"Safety & Compliance","categoryGroup":"Compliance","enrollments":50,"active":47,"inactive":3},{"year":2024,"program":"Financial Services","categoryGroup":"Financial","enrollments":39,"active":38,"inactive":1},{"year":2024,"program":"Shop Equipment Leasing","categoryGroup":"Equipment","enrollments":35,"active":32,"inactive":3},{"year":2024,"program":"Paint & Supplies Program","categoryGroup":"Supply Chain","enrollments":31,"active":27,"inactive":4},{"year":2024,"program":"Oil & Lubricants","categoryGroup":"Supply Chain","enrollments":24,"active":22,"inactive":2},{"year":2024,"program":"Capital Equipment","categoryGroup":"Equipment","enrollments":21,"active":20,"inactive":1},{"year":2024,"program":"Waste & Recycling","categoryGroup":"Sustainability","enrollments":17,"active":16,"inactive":1},{"year":2024,"program":"Uniforms & Facility","categoryGroup":"Facility","enrollments":11,"active":10,"inactive":1},{"year":2024,"program":"Security & Surveillance","categoryGroup":"Facility","enrollments":5,"active":4,"inactive":1},{"year":2025,"program":"Utilities Optimization","categoryGroup":"Operations","enrollments":20,"active":20,"inactive":0},{"year":2025,"program":"Safety & Compliance","categoryGroup":"Compliance","enrollments":19,"active":17,"inactive":2},{"year":2025,"program":"Shop Equipment Leasing","categoryGroup":"Equipment","enrollments":14,"active":14,"inactive":0},{"year":2025,"program":"Financial Services","categoryGroup":"Financial","enrollments":12,"active":11,"inactive":1},{"year":2025,"program":"Oil & Lubricants","categoryGroup":"Supply Chain","enrollments":10,"active":10,"inactive":0},{"year":2025,"program":"Waste & Recycling","categoryGroup":"Sustainability","enrollments":9,"active":9,"inactive":0},{"year":2025,"program":"Paint & Supplies Program","categoryGroup":"Supply Chain","enrollments":7,"active":7,"inactive":0},{"year":2025,"program":"Capital Equipment","categoryGroup":"Equipment","enrollments":3,"active":3,"inactive":0},{"year":2025,"program":"Uniforms & Facility","categoryGroup":"Facility","enrollments":2,"active":2,"inactive":0},{"year":2025,"program":"Security & Surveillance","categoryGroup":"Facility","enrollments":1,"active":1,"inactive":0}];
+
+        const activityByYear = [{"year":2023,"eventType":"login","eventGroup":"Engagement","count":143,"weight":143},{"year":2023,"eventType":"order_placed","eventGroup":"Transaction","count":110,"weight":550},{"year":2023,"eventType":"program_enrolled","eventGroup":"Transaction","count":51,"weight":153},{"year":2023,"eventType":"list_created","eventGroup":"Engagement","count":33,"weight":66},{"year":2023,"eventType":"cost_analysis_submitted","eventGroup":"Transaction","count":29,"weight":116},{"year":2023,"eventType":"rep_contact","eventGroup":"Admin","count":15,"weight":30},{"year":2024,"eventType":"login","eventGroup":"Engagement","count":473,"weight":473},{"year":2024,"eventType":"order_placed","eventGroup":"Transaction","count":392,"weight":1960},{"year":2024,"eventType":"program_enrolled","eventGroup":"Transaction","count":163,"weight":489},{"year":2024,"eventType":"list_created","eventGroup":"Engagement","count":126,"weight":252},{"year":2024,"eventType":"cost_analysis_submitted","eventGroup":"Transaction","count":104,"weight":416},{"year":2024,"eventType":"rep_contact","eventGroup":"Admin","count":50,"weight":100},{"year":2025,"eventType":"login","eventGroup":"Engagement","count":654,"weight":654},{"year":2025,"eventType":"order_placed","eventGroup":"Transaction","count":481,"weight":2405},{"year":2025,"eventType":"program_enrolled","eventGroup":"Transaction","count":206,"weight":618},{"year":2025,"eventType":"list_created","eventGroup":"Engagement","count":172,"weight":344},{"year":2025,"eventType":"cost_analysis_submitted","eventGroup":"Transaction","count":127,"weight":508},{"year":2025,"eventType":"rep_contact","eventGroup":"Admin","count":78,"weight":156}];
+
+        // Chart instances
+        let enrollmentsByProgramChart = null;
+        let activeInactiveChart = null;
+        let activityByEventChart = null;
+        let activityByYearChart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFilters();
+            setFooterDate();
+            updateCharts();
+
+            // Event listeners
+            document.getElementById('yearFilter').addEventListener('change', updateCharts);
+            document.getElementById('programFilter').addEventListener('change', updateCharts);
+            document.getElementById('categoryFilter').addEventListener('change', updateCharts);
+        });
+
+        function initializeFilters() {
+            const programs = new Set();
+            const categories = new Set();
+
+            programByYear.forEach(row => {
+                programs.add(row.program);
+                categories.add(row.categoryGroup);
+            });
+
+            const programSelect = document.getElementById('programFilter');
+            const categorySelect = document.getElementById('categoryFilter');
+
+            Array.from(programs).sort().forEach(prog => {
+                const option = document.createElement('option');
+                option.value = prog;
+                option.textContent = prog;
+                programSelect.appendChild(option);
+            });
+
+            Array.from(categories).sort().forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const program = document.getElementById('programFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+
+            let filtered = programByYear;
+
+            if (year) {
+                filtered = filtered.filter(row => row.year === parseInt(year));
+            }
+            if (program) {
+                filtered = filtered.filter(row => row.program === program);
+            }
+            if (category) {
+                filtered = filtered.filter(row => row.categoryGroup === category);
+            }
+
+            return filtered;
+        }
+
+        function getFilteredActivityData() {
+            const year = document.getElementById('yearFilter').value;
+
+            let filtered = activityByYear;
+
+            if (year) {
+                filtered = filtered.filter(row => row.year === parseInt(year));
+            }
+
+            return filtered;
+        }
+
+        function updateKPIs() {
+            const filteredProgram = getFilteredData();
+            const filteredActivity = getFilteredActivityData();
+
+            const totalEnrollments = filteredProgram.reduce((sum, row) => sum + row.enrollments, 0);
+            const activeEnrollments = filteredProgram.reduce((sum, row) => sum + row.active, 0);
+            const totalActivities = filteredActivity.reduce((sum, row) => sum + row.count, 0);
+            const activationRate = totalEnrollments > 0 ? Math.round((activeEnrollments / totalEnrollments) * 100) : 0;
+
+            document.getElementById('kpiTotalEnrollments').textContent = totalEnrollments.toLocaleString();
+            document.getElementById('kpiActiveEnrollments').textContent = activeEnrollments.toLocaleString();
+            document.getElementById('kpiTotalActivities').textContent = totalActivities.toLocaleString();
+            document.getElementById('kpiActivationRate').textContent = activationRate + '%';
+        }
+
+        function updateCharts() {
+            updateKPIs();
+            updateEnrollmentsByProgram();
+            updateActiveInactive();
+            updateActivityByEvent();
+            updateActivityByYear();
+        }
+
+        function updateEnrollmentsByProgram() {
+            const filtered = getFilteredData();
+
+            // Group by program and sum enrollments
+            const programData = {};
+            filtered.forEach(row => {
+                if (!programData[row.program]) {
+                    programData[row.program] = 0;
+                }
+                programData[row.program] += row.enrollments;
+            });
+
+            const labels = Object.keys(programData).sort((a, b) => programData[b] - programData[a]);
+            const data = labels.map(label => programData[label]);
+
+            const ctx = document.getElementById('enrollmentsByProgramChart').getContext('2d');
+
+            if (enrollmentsByProgramChart) {
+                enrollmentsByProgramChart.destroy();
+            }
+
+            enrollmentsByProgramChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Enrollments',
+                        data: data,
+                        backgroundColor: '#E02B20',
+                        borderColor: '#E02B20',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const totalEnrollments = data.reduce((a, b) => a + b, 0);
+            const topProgram = labels[0];
+            const topEnrollments = data[0];
+            document.getElementById('analysis1').innerHTML = `
+                Total enrollments across filtered programs: <strong>${totalEnrollments.toLocaleString()}</strong>.
+                <strong>${topProgram}</strong> leads with <strong>${topEnrollments}</strong> enrollments,
+                representing <strong>${Math.round((topEnrollments/totalEnrollments)*100)}%</strong> of all enrollments.
+            `;
+        }
+
+        function updateActiveInactive() {
+            const filtered = getFilteredData();
+
+            // Group by program
+            const programData = {};
+            filtered.forEach(row => {
+                if (!programData[row.program]) {
+                    programData[row.program] = { active: 0, inactive: 0 };
+                }
+                programData[row.program].active += row.active;
+                programData[row.program].inactive += row.inactive;
+            });
+
+            const labels = Object.keys(programData).sort();
+            const activeData = labels.map(label => programData[label].active);
+            const inactiveData = labels.map(label => programData[label].inactive);
+
+            const ctx = document.getElementById('activeInactiveChart').getContext('2d');
+
+            if (activeInactiveChart) {
+                activeInactiveChart.destroy();
+            }
+
+            activeInactiveChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Active',
+                            data: activeData,
+                            backgroundColor: '#E02B20',
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Inactive',
+                            data: inactiveData,
+                            backgroundColor: '#CCCCCC',
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const totalActive = activeData.reduce((a, b) => a + b, 0);
+            const totalInactive = inactiveData.reduce((a, b) => a + b, 0);
+            const totalMembers = totalActive + totalInactive;
+            const activationPct = totalMembers > 0 ? Math.round((totalActive / totalMembers) * 100) : 0;
+            document.getElementById('analysis2').innerHTML = `
+                Out of <strong>${totalMembers.toLocaleString()}</strong> enrolled members,
+                <strong>${totalActive.toLocaleString()}</strong> are active (<strong>${activationPct}%</strong>)
+                and <strong>${totalInactive.toLocaleString()}</strong> are inactive.
+                This demonstrates strong member engagement across the portfolio.
+            `;
+        }
+
+        function updateActivityByEvent() {
+            const filtered = getFilteredActivityData();
+
+            // Group by event type
+            const eventData = {};
+            filtered.forEach(row => {
+                if (!eventData[row.eventType]) {
+                    eventData[row.eventType] = 0;
+                }
+                eventData[row.eventType] += row.count;
+            });
+
+            const labels = Object.keys(eventData).sort((a, b) => eventData[b] - eventData[a]);
+            const data = labels.map(label => eventData[label]);
+
+            const ctx = document.getElementById('activityByEventChart').getContext('2d');
+
+            if (activityByEventChart) {
+                activityByEventChart.destroy();
+            }
+
+            activityByEventChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: chartColors.slice(0, labels.length),
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const totalEvents = data.reduce((a, b) => a + b, 0);
+            const topEvent = labels[0];
+            const topCount = data[0];
+            document.getElementById('analysis3').innerHTML = `
+                Total activity events: <strong>${totalEvents.toLocaleString()}</strong>.
+                <strong>${topEvent}</strong> is the most frequent activity with <strong>${topCount.toLocaleString()}</strong> occurrences
+                (<strong>${Math.round((topCount/totalEvents)*100)}%</strong> of all activity). This indicates strong user engagement
+                with core platform functionality.
+            `;
+        }
+
+        function updateActivityByYear() {
+            // Get all activity data, group by year and event type
+            const yearData = {};
+            activityByYear.forEach(row => {
+                if (!yearData[row.year]) {
+                    yearData[row.year] = {};
+                }
+                if (!yearData[row.year][row.eventType]) {
+                    yearData[row.year][row.eventType] = 0;
+                }
+                yearData[row.year][row.eventType] += row.count;
+            });
+
+            const years = Object.keys(yearData).sort().map(y => parseInt(y));
+            const eventTypes = new Set();
+            activityByYear.forEach(row => eventTypes.add(row.eventType));
+            const eventTypeArray = Array.from(eventTypes).sort();
+
+            const datasets = eventTypeArray.map((event, idx) => ({
+                label: event,
+                data: years.map(year => yearData[year][event] || 0),
+                backgroundColor: chartColors[idx % chartColors.length],
+                borderColor: chartColors[idx % chartColors.length],
+                borderWidth: 0
+            }));
+
+            const ctx = document.getElementById('activityByYearChart').getContext('2d');
+
+            if (activityByYearChart) {
+                activityByYearChart.destroy();
+            }
+
+            activityByYearChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: years.map(y => y.toString()),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: false,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            stacked: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const all2025 = activityByYear.filter(row => row.year === 2025);
+            const total2025 = all2025.reduce((sum, row) => sum + row.count, 0);
+            const all2024 = activityByYear.filter(row => row.year === 2024);
+            const total2024 = all2024.reduce((sum, row) => sum + row.count, 0);
+            const growth = total2024 > 0 ? Math.round(((total2025 - total2024) / total2024) * 100) : 0;
+            document.getElementById('analysis4').innerHTML = `
+                Year-over-year activity growth is significant. Activity in 2025 reached <strong>${total2025.toLocaleString()}</strong> events
+                compared to <strong>${total2024.toLocaleString()}</strong> in 2024,
+                representing <strong>${growth > 0 ? '+' : ''}${growth}%</strong> growth.
+                This upward trend reflects increasing member participation and platform adoption.
+            `;
+        }
+
+        function setFooterDate() {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date().toLocaleDateString('en-US', options);
+            document.getElementById('footerDate').textContent = today;
+        }
+    </script>
+</body>
+</html>

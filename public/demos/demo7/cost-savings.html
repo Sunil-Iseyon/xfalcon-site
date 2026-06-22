@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cost Analysis & Savings - Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #FFFFFF;
+            padding: 30px;
+            border-bottom: 3px solid #E02B20;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            color: #1A1A1A;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-subtitle {
+            color: #E02B20;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 16px;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: #E02B20;
+        }
+
+        .filters-section {
+            background-color: #FFFFFF;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .filters {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1A1A1A;
+            background-color: #FFFFFF;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E02B20;
+            box-shadow: 0 0 0 3px rgba(224, 43, 32, 0.1);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper canvas {
+            max-height: 350px;
+        }
+
+        .no-data-message {
+            display: none;
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            background-color: #fafafa;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .no-data-message.active {
+            display: block;
+        }
+
+        .chart-analysis {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fafafa;
+            border-left: 3px solid #E02B20;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        footer {
+            background-color: #FFFFFF;
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-group select {
+                width: 100%;
+            }
+
+            header h1 {
+                font-size: 24px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+
+        <header>
+            <h1>Cost Analysis & Savings</h1>
+            <div class="dashboard-subtitle">07 | Cost Analysis & Savings Dashboard for Falcon Auto B2B</div>
+        </header>
+
+        <div class="filters-section">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="yearFilter">Year</label>
+                    <select id="yearFilter">
+                        <option value="all">All Time</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter">
+                        <option value="all">All</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_review">In Review</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Submissions</div>
+                <div class="kpi-value" id="kpiSubmissions">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Annual Spend</div>
+                <div class="kpi-value" id="kpiSpend">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Est. Savings</div>
+                <div class="kpi-value" id="kpiSavings">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Savings %</div>
+                <div class="kpi-value" id="kpiAvgPct">0%</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Submissions by Status</div>
+                <div class="chart-wrapper">
+                    <canvas id="submissionStatusChart"></canvas>
+                </div>
+                <div class="chart-analysis">
+                    This doughnut chart shows the distribution of submissions across all statuses. It provides a quick overview of how many deals are completed, pending review, or still in progress. The relative size of each segment indicates the proportion of submissions in each status category.
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Annual Spend by Status</div>
+                <div class="chart-wrapper">
+                    <canvas id="spendByStatusChart"></canvas>
+                </div>
+                <div class="chart-analysis">
+                    This horizontal bar chart displays the total annual spend across different submission statuses. It helps identify how much spend is associated with completed deals versus those still in review or pending. This is crucial for understanding cash flow and committed versus projected savings.
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Top 10 Organizations by Estimated Savings</div>
+                <div class="no-data-message" id="noDataChart3">No savings data calculated yet</div>
+                <div class="chart-wrapper">
+                    <canvas id="topSavingsChart"></canvas>
+                </div>
+                <div class="chart-analysis">
+                    This horizontal bar chart highlights the top 10 organizations that have realized the greatest estimated savings. These leaders demonstrate strong procurement optimization and effective use of Falcon Auto B2B's services. Studying their practices can provide insights for other organizations.
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Savings % by Organization (Top 10)</div>
+                <div class="no-data-message" id="noDataChart4">No savings data calculated yet</div>
+                <div class="chart-wrapper">
+                    <canvas id="savingsPercentChart"></canvas>
+                </div>
+                <div class="chart-analysis">
+                    This horizontal bar chart shows the savings percentage achieved by the top 10 organizations. Unlike absolute savings, this metric normalizes results by organization size, revealing which partners achieve the most efficient procurement gains. Higher percentages indicate better optimization relative to spend volume.
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Dashboard generated on <span id="currentDate"></span>
+        </footer>
+    </div>
+
+    <script>
+        // Embedded Data
+        const statusByYear = [
+            {"year":2023,"status":"completed","count":4,"spend":2484533.12,"savings":432531.44,"avgPct":17.40},
+            {"year":2024,"status":"completed","count":29,"spend":12358752.94,"savings":2246711.29,"avgPct":17.41},
+            {"year":2024,"status":"in_review","count":4,"spend":2722985.03,"savings":0,"avgPct":0},
+            {"year":2024,"status":"pending","count":3,"spend":1460711.54,"savings":0,"avgPct":0},
+            {"year":2025,"status":"completed","count":29,"spend":10771424.94,"savings":1922252.70,"avgPct":17.09},
+            {"year":2025,"status":"in_review","count":5,"spend":2590943.83,"savings":0,"avgPct":0},
+            {"year":2025,"status":"pending","count":7,"spend":3113459.58,"savings":0,"avgPct":0}
+        ];
+
+        const topSavingsData = [
+            {"year":2025,"name":"Atkins Paint & Body","spend":790627.50,"savings":203981.89,"pct":25.80},
+            {"year":2025,"name":"QuickLube South Staceyberg","spend":797859.31,"savings":186778.86,"pct":23.41},
+            {"year":2024,"name":"Thompsonburgh Car Dealership","spend":770411.03,"savings":180892.51,"pct":23.48},
+            {"year":2024,"name":"Rose Paint & Body","spend":774580.75,"savings":180167.48,"pct":23.26},
+            {"year":2024,"name":"Hayeston Auto Refinish","spend":657726.24,"savings":166996.69,"pct":25.39},
+            {"year":2024,"name":"Edwards Auto Body","spend":667128.23,"savings":166048.22,"pct":24.89},
+            {"year":2025,"name":"West Bobby Auto Care","spend":669159.95,"savings":160531.47,"pct":23.99},
+            {"year":2025,"name":"Lake Virginia Auto Group","spend":701188.76,"savings":158188.18,"pct":22.56},
+            {"year":2024,"name":"Campbell Auto Body","spend":798751.35,"savings":153759.63,"pct":19.25},
+            {"year":2023,"name":"Smallberg Auto Group","spend":703598.14,"savings":148459.21,"pct":21.10},
+            {"year":2024,"name":"Watsonside Car Dealership","spend":570300.19,"savings":141092.27,"pct":24.74},
+            {"year":2025,"name":"QuickLube West Pamelaborough","spend":715458.99,"savings":140229.96,"pct":19.60},
+            {"year":2024,"name":"Roberts Auto Group","spend":767850.46,"savings":134604.19,"pct":17.53},
+            {"year":2023,"name":"Lake Thomasview Automotive Gro","spend":560778.43,"savings":134138.20,"pct":23.92},
+            {"year":2024,"name":"Pittsberg Collision Works","spend":602987.85,"savings":126868.64,"pct":21.04},
+            {"year":2024,"name":"Swanson Auto Body","spend":509277.34,"savings":121615.43,"pct":23.88},
+            {"year":2025,"name":"South Jennifer Auto Care","spend":522069.32,"savings":107441.87,"pct":20.58},
+            {"year":2025,"name":"Malone Collision","spend":475789.26,"savings":100296.38,"pct":21.08},
+            {"year":2025,"name":"South Wendy Service Center","spend":731245.27,"savings":90235.67,"pct":12.34},
+            {"year":2025,"name":"New Julia Auto Group","spend":449312.13,"savings":89637.77,"pct":19.95},
+            {"year":2024,"name":"North Jillfort Auto Care","spend":361442.42,"savings":85264.27,"pct":23.59},
+            {"year":2023,"name":"Smith Bodyworks","spend":668083.57,"savings":81973.85,"pct":12.27},
+            {"year":2024,"name":"South Brentshire Auto Group","spend":600338.07,"savings":79604.83,"pct":13.26},
+            {"year":2025,"name":"Rios Auto Group","spend":418400.79,"savings":71672.06,"pct":17.13},
+            {"year":2023,"name":"Mendezhaven Collision Works","spend":552072.98,"savings":67960.18,"pct":12.31},
+            {"year":2024,"name":"Lake Richard Auto Care","spend":643502.75,"savings":67503.44,"pct":10.49},
+            {"year":2025,"name":"North Ericton Collision Works","spend":761652.09,"savings":65045.09,"pct":8.54},
+            {"year":2025,"name":"South Jasmineside Automotive G","spend":252689.87,"savings":64309.57,"pct":25.45},
+            {"year":2024,"name":"Guzman Auto Body","spend":272837.41,"savings":64307.78,"pct":23.57},
+            {"year":2025,"name":"Smith Auto Repair","spend":335450.55,"savings":63467.24,"pct":18.92}
+        ];
+
+        const chartColors = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        let charts = {};
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        // Get filtered data based on year and status
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = statusByYear.filter(item => {
+                const yearMatch = year === 'all' || item.year.toString() === year;
+                const statusMatch = status === 'all' || item.status === status;
+                return yearMatch && statusMatch;
+            });
+
+            return filtered;
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            const filtered = getFilteredData();
+
+            const totalSubmissions = filtered.reduce((sum, item) => sum + item.count, 0);
+            const totalSpend = filtered.reduce((sum, item) => sum + item.spend, 0);
+            const totalSavings = filtered.reduce((sum, item) => sum + item.savings, 0);
+
+            let avgSavingsPct = 0;
+            const completedItems = filtered.filter(item => item.status === 'completed');
+            if (completedItems.length > 0) {
+                const totalCompletedSpend = completedItems.reduce((sum, item) => sum + item.spend, 0);
+                avgSavingsPct = totalCompletedSpend > 0 ? (totalSavings / totalCompletedSpend) * 100 : 0;
+            }
+
+            document.getElementById('kpiSubmissions').textContent = totalSubmissions;
+            document.getElementById('kpiSpend').textContent = formatCurrency(totalSpend);
+            document.getElementById('kpiSavings').textContent = formatCurrency(totalSavings);
+            document.getElementById('kpiAvgPct').textContent = avgSavingsPct.toFixed(2) + '%';
+        }
+
+        // Destroy existing chart if it exists
+        function destroyChart(chartId) {
+            if (charts[chartId]) {
+                charts[chartId].destroy();
+                delete charts[chartId];
+            }
+        }
+
+        // Chart 1: Submissions by Status (Doughnut)
+        function updateSubmissionStatusChart() {
+            destroyChart('submissionStatus');
+
+            const filtered = getFilteredData();
+            const statuses = {};
+
+            filtered.forEach(item => {
+                if (!statuses[item.status]) {
+                    statuses[item.status] = 0;
+                }
+                statuses[item.status] += item.count;
+            });
+
+            const labels = Object.keys(statuses).map(s => s.charAt(0).toUpperCase() + s.slice(1));
+            const data = Object.values(statuses);
+
+            const ctx = document.getElementById('submissionStatusChart').getContext('2d');
+            charts['submissionStatus'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: chartColors.slice(0, labels.length),
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12 },
+                                color: '#666666',
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Annual Spend by Status (Horizontal Bar)
+        function updateSpendByStatusChart() {
+            destroyChart('spendByStatus');
+
+            const filtered = getFilteredData();
+            const statuses = {};
+
+            filtered.forEach(item => {
+                if (!statuses[item.status]) {
+                    statuses[item.status] = 0;
+                }
+                statuses[item.status] += item.spend;
+            });
+
+            const labels = Object.keys(statuses).map(s => s.charAt(0).toUpperCase() + s.slice(1));
+            const data = Object.values(statuses);
+
+            const ctx = document.getElementById('spendByStatusChart').getContext('2d');
+            charts['spendByStatus'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Annual Spend',
+                        data: data,
+                        backgroundColor: chartColors[0],
+                        borderColor: chartColors[0],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                },
+                                color: '#666666'
+                            },
+                            grid: {
+                                color: '#eee'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#666666',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: Top 10 Organizations by Estimated Savings
+        function updateTopSavingsChart() {
+            destroyChart('topSavings');
+
+            const year = document.getElementById('yearFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            // Filter topSavingsData for completed items only
+            let filtered = topSavingsData.filter(item => {
+                const yearMatch = year === 'all' || item.year.toString() === year;
+                return yearMatch;
+            });
+
+            // Check if we have completed status selected (or all)
+            const statusByYearData = getFilteredData();
+            const hasCompletedData = statusByYearData.some(item => item.status === 'completed' && item.savings > 0);
+
+            const noDataDiv = document.getElementById('noDataChart3');
+            const canvas = document.getElementById('topSavingsChart');
+
+            if (!hasCompletedData) {
+                noDataDiv.classList.add('active');
+                canvas.style.display = 'none';
+                return;
+            } else {
+                noDataDiv.classList.remove('active');
+                canvas.style.display = 'block';
+            }
+
+            // Sort by savings and get top 10
+            filtered.sort((a, b) => b.savings - a.savings);
+            filtered = filtered.slice(0, 10);
+
+            const labels = filtered.map(item => item.name);
+            const data = filtered.map(item => item.savings);
+
+            const ctx = document.getElementById('topSavingsChart').getContext('2d');
+            charts['topSavings'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Estimated Savings',
+                        data: data,
+                        backgroundColor: chartColors[2],
+                        borderColor: chartColors[2],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                },
+                                color: '#666666'
+                            },
+                            grid: {
+                                color: '#eee'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#666666',
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 4: Savings % by Organization (Top 10)
+        function updateSavingsPercentChart() {
+            destroyChart('savingsPercent');
+
+            const year = document.getElementById('yearFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            // Filter topSavingsData for completed items only
+            let filtered = topSavingsData.filter(item => {
+                const yearMatch = year === 'all' || item.year.toString() === year;
+                return yearMatch;
+            });
+
+            // Check if we have completed status selected (or all)
+            const statusByYearData = getFilteredData();
+            const hasCompletedData = statusByYearData.some(item => item.status === 'completed' && item.savings > 0);
+
+            const noDataDiv = document.getElementById('noDataChart4');
+            const canvas = document.getElementById('savingsPercentChart');
+
+            if (!hasCompletedData) {
+                noDataDiv.classList.add('active');
+                canvas.style.display = 'none';
+                return;
+            } else {
+                noDataDiv.classList.remove('active');
+                canvas.style.display = 'block';
+            }
+
+            // Sort by percentage and get top 10
+            filtered.sort((a, b) => b.pct - a.pct);
+            filtered = filtered.slice(0, 10);
+
+            const labels = filtered.map(item => item.name);
+            const data = filtered.map(item => item.pct);
+
+            const ctx = document.getElementById('savingsPercentChart').getContext('2d');
+            charts['savingsPercent'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Savings %',
+                        data: data,
+                        backgroundColor: chartColors[5],
+                        borderColor: chartColors[5],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 30,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                },
+                                color: '#666666'
+                            },
+                            grid: {
+                                color: '#eee'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#666666',
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update all charts and KPIs
+        function updateDashboard() {
+            updateKPIs();
+            updateSubmissionStatusChart();
+            updateSpendByStatusChart();
+            updateTopSavingsChart();
+            updateSavingsPercentChart();
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date in footer
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('currentDate').textContent = dateStr;
+
+            // Initialize dashboard
+            updateDashboard();
+
+            // Add filter event listeners
+            document.getElementById('yearFilter').addEventListener('change', updateDashboard);
+            document.getElementById('statusFilter').addEventListener('change', updateDashboard);
+        });
+    </script>
+</body>
+</html>

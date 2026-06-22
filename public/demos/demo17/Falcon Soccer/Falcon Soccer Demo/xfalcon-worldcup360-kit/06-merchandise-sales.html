@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Falcon World Cup 360 / 6. Merchandise Sales</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo-x {
+            color: #66BB6A;
+        }
+
+        .logo-f {
+            color: #FFD600;
+        }
+
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .topbar-title .main {
+            font-size: 18px;
+            font-weight: 600;
+            color: #F1FAE5;
+        }
+
+        .topbar-title .subtitle {
+            font-size: 13px;
+            color: #FFD600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .back-link {
+            color: #FFD600;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .back-link:hover {
+            background-color: rgba(255, 214, 0, 0.1);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* KPIs Section */
+        .kpis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-top: 3px solid #FFD600;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2E7D32;
+            line-height: 1.2;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2E7D32;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Table Section */
+        .table-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 16px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            height: 600px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table thead {
+            position: sticky;
+            top: 0;
+            background-color: #2E7D32;
+            color: #FFFFFF;
+            z-index: 10;
+        }
+
+        table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #1B5E20;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid #E2E8F0;
+            transition: background-color 0.2s;
+        }
+
+        table tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        table td {
+            padding: 12px 16px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .delta-positive {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .delta-negative {
+            color: #D32F2F;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpis-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .topbar-left {
+                width: 100%;
+            }
+
+            .topbar-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">
+                <span class="logo-x">x</span><span class="logo-f">F</span>
+            </div>
+            <div class="topbar-title">
+                <div class="main">Falcon World Cup 360</div>
+                <div class="subtitle">6. Merchandise Sales</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- KPIs -->
+        <div class="kpis-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value" id="kpi1">$1.11B</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Units Sold</div>
+                <div class="kpi-value" id="kpi2">12.5M</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Gross Margin</div>
+                <div class="kpi-value" id="kpi3">$720M</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Margin %</div>
+                <div class="kpi-value" id="kpi4">65.0%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Unit Price</div>
+                <div class="kpi-value" id="kpi5">$88.40</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Revenue Growth</div>
+                <div class="kpi-value" id="kpi6">6.7x</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Category</div>
+                <div class="kpi-value" id="kpi7">Apparel</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Channel</div>
+                <div class="kpi-value" id="kpi8">Licensed</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Chart 1: Revenue Trend by Year -->
+            <div class="chart-card">
+                <div class="chart-title">Revenue Trend by Year</div>
+                <div class="chart-container">
+                    <canvas id="chart1"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Revenue by Category -->
+            <div class="chart-card">
+                <div class="chart-title">Revenue by Category</div>
+                <div class="chart-container">
+                    <canvas id="chart2"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Revenue by Channel -->
+            <div class="chart-card">
+                <div class="chart-title">Revenue by Channel</div>
+                <div class="chart-container">
+                    <canvas id="chart3"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Margin % Trend -->
+            <div class="chart-card">
+                <div class="chart-title">Margin % Trend</div>
+                <div class="chart-container">
+                    <canvas id="chart4"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 5: Units Sold Trend -->
+            <div class="chart-card">
+                <div class="chart-title">Units Sold Trend</div>
+                <div class="chart-container">
+                    <canvas id="chart5"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 6: Channel Type Mix -->
+            <div class="chart-card">
+                <div class="chart-title">Channel Type Mix</div>
+                <div class="chart-container">
+                    <canvas id="chart6"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-card">
+            <div class="table-title">Historical Sales Data (20 Tournaments)</div>
+            <div class="table-wrapper">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th class="text-right">Revenue</th>
+                            <th class="text-right">Units</th>
+                            <th class="text-right">COGS</th>
+                            <th class="text-right">Margin</th>
+                            <th class="text-right">Margin %</th>
+                            <th class="text-right">Avg Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        var YEARLY = [
+            {year:1930, revenue:15046310, units:625821, margin:9784598},
+            {year:1934, revenue:15051616, units:627620, margin:9779724},
+            {year:1938, revenue:14988078, units:628196, margin:9746059},
+            {year:1950, revenue:24677529, units:625352, margin:16007982},
+            {year:1954, revenue:29565864, units:625107, margin:19192300},
+            {year:1958, revenue:33892564, units:620993, margin:21983863},
+            {year:1962, revenue:39143558, units:628183, margin:25440431},
+            {year:1966, revenue:43759127, units:628554, margin:28399486},
+            {year:1970, revenue:48334130, units:625283, margin:31428028},
+            {year:1974, revenue:52896637, units:629101, margin:34345947},
+            {year:1978, revenue:57562902, units:624650, margin:37389421},
+            {year:1982, revenue:62141712, units:624127, margin:40419164},
+            {year:1986, revenue:67807304, units:630896, margin:44111152},
+            {year:1990, revenue:71333000, units:622843, margin:46327009},
+            {year:1994, revenue:77232079, units:627887, margin:50223694},
+            {year:1998, revenue:80982729, units:626622, margin:52556929},
+            {year:2002, revenue:86350431, units:626454, margin:56145550},
+            {year:2006, revenue:90146598, units:623762, margin:58613275},
+            {year:2010, revenue:95293922, units:623678, margin:62088143},
+            {year:2014, revenue:100867787, units:627822, margin:65609789}
+        ];
+
+        var CATEGORIES = [
+            {name:'Apparel', revenue:382312528, units:4323945, margin:248383132, marginPct:65.0},
+            {name:'Collectibles', revenue:276778010, units:3133124, margin:179917726, marginPct:65.0},
+            {name:'Accessories', revenue:276675804, units:3126797, margin:179856570, marginPct:65.0},
+            {name:'Equipment', revenue:170492667, units:1895613, margin:110582271, marginPct:64.9}
+        ];
+
+        var CHANNELS = [
+            {name:'Licensed Retailer', type:'Retail', revenue:139675934, units:1584908},
+            {name:'Airport Retail', type:'Retail', revenue:139289142, units:1570018},
+            {name:'Stadium Store', type:'Stadium', revenue:138554132, units:1566421},
+            {name:'Wholesale Partner', type:'Wholesale', revenue:138123060, units:1559013},
+            {name:'Amazon', type:'Online', revenue:138114593, units:1560710},
+            {name:'Club Shop', type:'Retail', revenue:138086703, units:1560748},
+            {name:'Official Website', type:'Online', revenue:138056315, units:1562267},
+            {name:'Fan Zone Store', type:'Stadium', revenue:137173997, units:1558866}
+        ];
+
+        // Utility functions
+        function mk(value, decimals) {
+            if (value >= 1000000000) return (value / 1000000000).toFixed(decimals || 2) + 'B';
+            if (value >= 1000000) return (value / 1000000).toFixed(decimals || 2) + 'M';
+            if (value >= 1000) return (value / 1000).toFixed(decimals || 1) + 'K';
+            return value.toString();
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                if (el.textContent.length > 15) {
+                    el.style.fontSize = '24px';
+                } else if (el.textContent.length > 12) {
+                    el.style.fontSize = '26px';
+                }
+            });
+        }
+
+        // Populate KPIs
+        function populateKpis() {
+            var totalRevenue = YEARLY.reduce(function(sum, row) { return sum + row.revenue; }, 0);
+            var totalUnits = YEARLY.reduce(function(sum, row) { return sum + row.units; }, 0);
+            var totalMargin = YEARLY.reduce(function(sum, row) { return sum + row.margin; }, 0);
+            var marginPct = (totalMargin / totalRevenue * 100).toFixed(1);
+            var avgPrice = (totalRevenue / totalUnits).toFixed(2);
+            var growthMultiple = (YEARLY[YEARLY.length - 1].revenue / YEARLY[0].revenue).toFixed(1);
+
+            document.getElementById('kpi1').textContent = '$' + mk(totalRevenue);
+            document.getElementById('kpi2').textContent = mk(totalUnits) + 'M';
+            document.getElementById('kpi3').textContent = '$' + mk(totalMargin);
+            document.getElementById('kpi4').textContent = marginPct + '%';
+            document.getElementById('kpi5').textContent = '$' + avgPrice;
+            document.getElementById('kpi6').textContent = growthMultiple + 'x';
+            document.getElementById('kpi7').textContent = 'Apparel';
+            document.getElementById('kpi8').textContent = 'Licensed';
+
+            fitKpiText();
+        }
+
+        // Populate table
+        function populateTable() {
+            var tbody = document.getElementById('tableBody');
+            YEARLY.forEach(function(row) {
+                var cogs = row.revenue - row.margin;
+                var marginPct = (row.margin / row.revenue * 100).toFixed(1);
+                var avgPrice = (row.revenue / row.units).toFixed(2);
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.year + '</td>' +
+                    '<td class="text-right">$' + mk(row.revenue) + '</td>' +
+                    '<td class="text-right">' + mk(row.units) + 'K</td>' +
+                    '<td class="text-right">$' + mk(cogs) + '</td>' +
+                    '<td class="text-right">$' + mk(row.margin) + '</td>' +
+                    '<td class="text-right">' + marginPct + '%</td>' +
+                    '<td class="text-right">$' + avgPrice + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            var ctx1 = document.getElementById('chart1').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: YEARLY.map(function(r) { return r.year.toString(); }),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: YEARLY.map(function(r) { return r.revenue; }),
+                        borderColor: '#2E7D32',
+                        backgroundColor: 'rgba(255, 214, 0, 0.2)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2E7D32',
+                        pointBorderColor: '#FFF',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + mk(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var ctx2 = document.getElementById('chart2').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: CATEGORIES.map(function(c) { return c.name; }),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: CATEGORIES.map(function(c) { return c.revenue; }),
+                        backgroundColor: '#2E7D32',
+                        borderColor: '#1B5E20',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + mk(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var ctx3 = document.getElementById('chart3').getContext('2d');
+            new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: CHANNELS.map(function(c) { return c.name; }),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: CHANNELS.map(function(c) { return c.revenue; }),
+                        backgroundColor: '#C8A415',
+                        borderColor: '#997A0C',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + mk(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var ctx4 = document.getElementById('chart4').getContext('2d');
+            new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: YEARLY.map(function(r) { return r.year.toString(); }),
+                    datasets: [{
+                        label: 'Margin %',
+                        data: YEARLY.map(function(r) { return (r.margin / r.revenue * 100).toFixed(2); }),
+                        borderColor: '#2E7D32',
+                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2E7D32',
+                        pointBorderColor: '#FFF',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            min: 60,
+                            max: 70,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var ctx5 = document.getElementById('chart5').getContext('2d');
+            new Chart(ctx5, {
+                type: 'bar',
+                data: {
+                    labels: YEARLY.map(function(r) { return r.year.toString(); }),
+                    datasets: [{
+                        label: 'Units',
+                        data: YEARLY.map(function(r) { return r.units; }),
+                        backgroundColor: '#94A3B8',
+                        borderColor: '#64748B',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return mk(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var channelTypeData = {};
+            CHANNELS.forEach(function(c) {
+                if (!channelTypeData[c.type]) {
+                    channelTypeData[c.type] = 0;
+                }
+                channelTypeData[c.type] += c.revenue;
+            });
+
+            var ctx6 = document.getElementById('chart6').getContext('2d');
+            new Chart(ctx6, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(channelTypeData),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: Object.values(channelTypeData),
+                        backgroundColor: '#FFD600',
+                        borderColor: '#C8A415',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + mk(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            populateKpis();
+            populateTable();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

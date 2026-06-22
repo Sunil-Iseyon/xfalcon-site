@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - Employee Engagement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-hero: linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%);
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --chart-primary: #006AFF;
+      --chart-secondary: #1A7F64;
+      --chart-tertiary: #94A3B8;
+      --chart-ext1: #0EA5E9;
+      --chart-ext2: #F59E0B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, var(--color-base-dark) 0%, var(--color-base-darker) 100%);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    .back-link {
+      color: var(--color-cyan);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-coral);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 20px 30px;
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.3px;
+    }
+
+    .filter-bar select {
+      padding: 10px 15px;
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-bar select:hover,
+    .filter-bar select:focus {
+      border-color: var(--color-cyan);
+      outline: none;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .chart-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .chart-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .chart-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-canvas-wrapper {
+      position: relative;
+      height: 320px;
+      margin-bottom: 10px;
+    }
+
+    .table-section {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .table-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-size: 11px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--color-text-primary);
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .score-high {
+      background: rgba(124, 255, 1, 0.15);
+      color: #7CFF01;
+    }
+
+    .score-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: #F59E0B;
+    }
+
+    .score-low {
+      background: rgba(255, 51, 102, 0.15);
+      color: #FF3366;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">Falcon</div>
+      <div class="topbar-text">
+        <div class="topbar-title">07 | Employee Engagement</div>
+        <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Dashboards</a>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Department</label>
+      <select id="filterDept" onchange="applyFilters()">
+        <option value="All">All Departments</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Location</label>
+      <select id="filterLoc" onchange="applyFilters()">
+        <option value="All">All Locations</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Year</label>
+      <select id="filterYear" onchange="applyFilters()">
+        <option value="All">All Years</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-overall-score">--</div>
+        <div class="kpi-delta neutral" id="kpi-overall-delta"></div>
+        <div class="kpi-label">Overall Engagement Score</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total-responses">--</div>
+        <div class="kpi-delta neutral" id="kpi-responses-delta"></div>
+        <div class="kpi-label">Total Survey Responses</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-respondents">--</div>
+        <div class="kpi-delta neutral" id="kpi-respondents-delta"></div>
+        <div class="kpi-label">Total Respondents</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-campaigns">--</div>
+        <div class="kpi-delta neutral" id="kpi-campaigns-delta"></div>
+        <div class="kpi-label">Survey Campaigns</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-pulse-score">--</div>
+        <div class="kpi-delta neutral" id="kpi-pulse-delta"></div>
+        <div class="kpi-label">Pulse Survey Score</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-annual-score">--</div>
+        <div class="kpi-delta neutral" id="kpi-annual-delta"></div>
+        <div class="kpi-label">Annual Survey Score</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-yoy-change">--</div>
+        <div class="kpi-delta neutral" id="kpi-yoy-delta"></div>
+        <div class="kpi-label">YoY Change</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-participation">--</div>
+        <div class="kpi-delta neutral" id="kpi-participation-delta"></div>
+        <div class="kpi-label">Participation Rate</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>Score Trend by Survey Type (2023 vs 2024)</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-trend"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Participation by Department</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-dept-part"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>2023 vs 2024 Comparison (Annual)</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-comp"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Survey Type Distribution</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-types"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>Score by Location</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-location"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Score by Department (Horizontal)</h3>
+        <div class="chart-canvas-wrapper">
+          <canvas id="chart-dept-score"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <h3>Survey Data Detail</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Location</th>
+            <th>Campaign</th>
+            <th>Year</th>
+            <th>Type</th>
+            <th>Responses</th>
+            <th>Avg Score</th>
+            <th>Respondents</th>
+          </tr>
+        </thead>
+        <tbody id="drill-table">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var SURVEY_DATA = [
+      ['Backend Engineering','Austin','2023 Annual Engagement Survey',2023,'Annual Engagement',72,7.92,12],
+      ['Backend Engineering','Austin','Q2 2023 Employee Pulse',2023,'Pulse',12,7.92,12],
+      ['Backend Engineering','Austin','2024 Annual Engagement Survey',2024,'Annual Engagement',72,7.50,12],
+      ['Backend Engineering','Austin','Q2 2024 Employee Pulse',2024,'Pulse',12,7.50,12],
+      ['Backend Engineering','London','2023 Annual Engagement Survey',2023,'Annual Engagement',66,6.97,11],
+      ['Backend Engineering','London','Q2 2023 Employee Pulse',2023,'Pulse',11,7.00,11],
+      ['Backend Engineering','London','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.00,11],
+      ['Backend Engineering','London','Q2 2024 Employee Pulse',2024,'Pulse',11,7.00,11],
+      ['Backend Engineering','New York','2023 Annual Engagement Survey',2023,'Annual Engagement',132,7.74,22],
+      ['Backend Engineering','New York','Q2 2023 Employee Pulse',2023,'Pulse',22,7.50,22],
+      ['Backend Engineering','New York','2024 Annual Engagement Survey',2024,'Annual Engagement',132,7.50,22],
+      ['Backend Engineering','New York','Q2 2024 Employee Pulse',2024,'Pulse',22,7.50,22],
+      ['Backend Engineering','Remote','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.58,11],
+      ['Backend Engineering','Remote','Q2 2023 Employee Pulse',2023,'Pulse',11,10.00,11],
+      ['Backend Engineering','Remote','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.20,11],
+      ['Backend Engineering','Remote','Q2 2024 Employee Pulse',2024,'Pulse',11,8.00,11],
+      ['Backend Engineering','San Francisco','2023 Annual Engagement Survey',2023,'Annual Engagement',138,7.75,23],
+      ['Backend Engineering','San Francisco','Q2 2023 Employee Pulse',2023,'Pulse',23,7.39,23],
+      ['Backend Engineering','San Francisco','2024 Annual Engagement Survey',2024,'Annual Engagement',138,7.40,23],
+      ['Backend Engineering','San Francisco','Q2 2024 Employee Pulse',2024,'Pulse',23,7.50,23],
+      ['Backend Engineering','Singapore','2023 Annual Engagement Survey',2023,'Annual Engagement',60,7.03,10],
+      ['Backend Engineering','Singapore','Q2 2023 Employee Pulse',2023,'Pulse',10,7.00,10],
+      ['Backend Engineering','Singapore','2024 Annual Engagement Survey',2024,'Annual Engagement',60,7.10,10],
+      ['Backend Engineering','Singapore','Q2 2024 Employee Pulse',2024,'Pulse',10,7.20,10],
+      ['Customer Success','Austin','2023 Annual Engagement Survey',2023,'Annual Engagement',54,8.00,9],
+      ['Customer Success','Austin','Q2 2023 Employee Pulse',2023,'Pulse',9,8.00,9],
+      ['Customer Success','Austin','2024 Annual Engagement Survey',2024,'Annual Engagement',54,7.80,9],
+      ['Customer Success','Austin','Q2 2024 Employee Pulse',2024,'Pulse',9,7.80,9],
+      ['Customer Success','New York','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.58,11],
+      ['Customer Success','New York','Q2 2023 Employee Pulse',2023,'Pulse',11,10.00,11],
+      ['Customer Success','New York','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.50,11],
+      ['Customer Success','New York','Q2 2024 Employee Pulse',2024,'Pulse',11,8.00,11],
+      ['Customer Success','Remote','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.70,11],
+      ['Customer Success','Remote','Q2 2023 Employee Pulse',2023,'Pulse',11,10.00,11],
+      ['Customer Success','Remote','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.60,11],
+      ['Customer Success','Remote','Q2 2024 Employee Pulse',2024,'Pulse',11,8.50,11],
+      ['Customer Success','San Francisco','2023 Annual Engagement Survey',2023,'Annual Engagement',72,8.00,12],
+      ['Customer Success','San Francisco','Q2 2023 Employee Pulse',2023,'Pulse',12,8.17,12],
+      ['Customer Success','San Francisco','2024 Annual Engagement Survey',2024,'Annual Engagement',72,7.80,12],
+      ['Customer Success','San Francisco','Q2 2024 Employee Pulse',2024,'Pulse',12,8.00,12],
+      ['Customer Success','Bangalore','2023 Annual Engagement Survey',2023,'Annual Engagement',72,7.50,12],
+      ['Customer Success','Bangalore','2024 Annual Engagement Survey',2024,'Annual Engagement',72,7.40,12],
+      ['Data & AI','London','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.42,11],
+      ['Data & AI','London','Q2 2023 Employee Pulse',2023,'Pulse',11,7.00,11],
+      ['Data & AI','London','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.30,11],
+      ['Data & AI','New York','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.61,11],
+      ['Data & AI','New York','Q2 2023 Employee Pulse',2023,'Pulse',11,7.00,11],
+      ['Data & AI','New York','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.40,11],
+      ['Data & AI','San Francisco','2023 Annual Engagement Survey',2023,'Annual Engagement',60,7.40,10],
+      ['Data & AI','San Francisco','Q2 2023 Employee Pulse',2023,'Pulse',10,9.00,10],
+      ['Data & AI','San Francisco','2024 Annual Engagement Survey',2024,'Annual Engagement',60,7.30,10],
+      ['Data & AI','Singapore','2023 Annual Engagement Survey',2023,'Annual Engagement',60,7.23,10],
+      ['Data & AI','Singapore','Q2 2023 Employee Pulse',2023,'Pulse',10,7.00,10],
+      ['Data & AI','Singapore','2024 Annual Engagement Survey',2024,'Annual Engagement',60,7.10,10],
+      ['Frontend Engineering','Austin','2023 Annual Engagement Survey',2023,'Annual Engagement',66,8.06,11],
+      ['Frontend Engineering','Austin','Q2 2023 Employee Pulse',2023,'Pulse',11,8.00,11],
+      ['Frontend Engineering','Austin','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.80,11],
+      ['Frontend Engineering','London','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.00,11],
+      ['Frontend Engineering','London','Q2 2023 Employee Pulse',2023,'Pulse',11,6.82,11],
+      ['Frontend Engineering','London','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.10,11],
+      ['Frontend Engineering','New York','2023 Annual Engagement Survey',2023,'Annual Engagement',132,7.67,22],
+      ['Frontend Engineering','New York','Q2 2023 Employee Pulse',2023,'Pulse',22,7.50,22],
+      ['Frontend Engineering','New York','2024 Annual Engagement Survey',2024,'Annual Engagement',132,7.50,22],
+      ['Frontend Engineering','Remote','2023 Annual Engagement Survey',2023,'Annual Engagement',60,7.63,10],
+      ['Frontend Engineering','Remote','Q2 2023 Employee Pulse',2023,'Pulse',10,10.00,10],
+      ['Frontend Engineering','Remote','2024 Annual Engagement Survey',2024,'Annual Engagement',60,7.50,10],
+      ['Frontend Engineering','San Francisco','2023 Annual Engagement Survey',2023,'Annual Engagement',138,7.58,23],
+      ['Frontend Engineering','San Francisco','Q2 2023 Employee Pulse',2023,'Pulse',23,8.39,23],
+      ['Frontend Engineering','San Francisco','2024 Annual Engagement Survey',2024,'Annual Engagement',138,7.40,23],
+      ['Frontend Engineering','Singapore','2023 Annual Engagement Survey',2023,'Annual Engagement',66,6.97,11],
+      ['Frontend Engineering','Singapore','Q2 2023 Employee Pulse',2023,'Pulse',11,7.00,11],
+      ['Frontend Engineering','Singapore','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.00,11],
+      ['Human Resources','London','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.27,11],
+      ['Human Resources','London','Q2 2023 Employee Pulse',2023,'Pulse',11,7.00,11],
+      ['Human Resources','London','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.20,11],
+      ['Human Resources','New York','2023 Annual Engagement Survey',2023,'Annual Engagement',60,7.73,10],
+      ['Human Resources','New York','Q2 2023 Employee Pulse',2023,'Pulse',10,7.00,10],
+      ['Human Resources','New York','2024 Annual Engagement Survey',2024,'Annual Engagement',60,7.50,10],
+      ['Human Resources','San Francisco','2023 Annual Engagement Survey',2023,'Annual Engagement',72,7.42,12],
+      ['Human Resources','San Francisco','Q2 2023 Employee Pulse',2023,'Pulse',12,9.08,12],
+      ['Human Resources','San Francisco','2024 Annual Engagement Survey',2024,'Annual Engagement',72,7.30,12],
+      ['Human Resources','Singapore','2023 Annual Engagement Survey',2023,'Annual Engagement',60,7.40,10],
+      ['Human Resources','Singapore','Q2 2023 Employee Pulse',2023,'Pulse',10,7.00,10],
+      ['Human Resources','Singapore','2024 Annual Engagement Survey',2024,'Annual Engagement',60,7.30,10],
+      ['SMB Sales','Austin','2023 Annual Engagement Survey',2023,'Annual Engagement',72,8.00,12],
+      ['SMB Sales','Austin','Q2 2023 Employee Pulse',2023,'Pulse',12,8.00,12],
+      ['SMB Sales','Austin','2024 Annual Engagement Survey',2024,'Annual Engagement',72,7.80,12],
+      ['SMB Sales','Bangalore','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.50,11],
+      ['SMB Sales','Bangalore','Q2 2023 Employee Pulse',2023,'Pulse',11,7.00,11],
+      ['SMB Sales','Bangalore','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.40,11],
+      ['SMB Sales','New York','2023 Annual Engagement Survey',2023,'Annual Engagement',72,7.67,12],
+      ['SMB Sales','New York','Q2 2023 Employee Pulse',2023,'Pulse',12,8.00,12],
+      ['SMB Sales','New York','2024 Annual Engagement Survey',2024,'Annual Engagement',72,7.50,12],
+      ['SMB Sales','Remote','2023 Annual Engagement Survey',2023,'Annual Engagement',66,7.58,11],
+      ['SMB Sales','Remote','Q2 2023 Employee Pulse',2023,'Pulse',11,8.00,11],
+      ['SMB Sales','Remote','2024 Annual Engagement Survey',2024,'Annual Engagement',66,7.40,11],
+      ['SMB Sales','San Francisco','2023 Annual Engagement Survey',2023,'Annual Engagement',54,7.50,9],
+      ['SMB Sales','San Francisco','Q2 2023 Employee Pulse',2023,'Pulse',9,7.00,9],
+      ['SMB Sales','San Francisco','2024 Annual Engagement Survey',2024,'Annual Engagement',54,7.30,9]
+    ];
+
+    var chartInstances = {};
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) { chartInstances[id].destroy(); }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function initFilterOptions() {
+      var depts = {};
+      var locs = {};
+      var yrs = {};
+      SURVEY_DATA.forEach(function(row) {
+        depts[row[0]] = true;
+        locs[row[1]] = true;
+        yrs[row[3]] = true;
+      });
+
+      var deptSel = document.getElementById('filterDept');
+      Object.keys(depts).sort().forEach(function(d) {
+        var opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        deptSel.appendChild(opt);
+      });
+
+      var locSel = document.getElementById('filterLoc');
+      Object.keys(locs).sort().forEach(function(l) {
+        var opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        locSel.appendChild(opt);
+      });
+
+      var yrSel = document.getElementById('filterYear');
+      Object.keys(yrs).sort().forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yrSel.appendChild(opt);
+      });
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var yr = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, yr: yr };
+    }
+
+    function filterData(data) {
+      var f = getFilters();
+      return data.filter(function(row) {
+        var deptOk = f.dept === 'All' || row[0] === f.dept;
+        var locOk = f.loc === 'All' || row[1] === f.loc;
+        var yrOk = f.yr === 'All' || String(row[3]) === f.yr;
+        return deptOk && locOk && yrOk;
+      });
+    }
+
+    function updateKPIs(data) {
+      var totalResponses = 0;
+      var totalRespondents = 0;
+      var totalScore = 0;
+      var scoreCount = 0;
+      var campaigns = {};
+      var pulseScores = [];
+      var annualScores = [];
+
+      data.forEach(function(row) {
+        totalResponses += row[5];
+        totalRespondents += row[7];
+        totalScore += row[6];
+        scoreCount += 1;
+        campaigns[row[2]] = true;
+        if (row[4] === 'Pulse') {
+          pulseScores.push(row[6]);
+        } else if (row[4] === 'Annual Engagement') {
+          annualScores.push(row[6]);
+        }
+      });
+
+      var overallScore = scoreCount > 0 ? (totalScore / scoreCount).toFixed(2) : 0;
+      var pulseAvg = pulseScores.length > 0 ? (pulseScores.reduce(function(a, b) { return a + b; }, 0) / pulseScores.length).toFixed(2) : 0;
+      var annualAvg = annualScores.length > 0 ? (annualScores.reduce(function(a, b) { return a + b; }, 0) / annualScores.length).toFixed(2) : 0;
+      var partRate = totalRespondents > 0 ? (Math.round(totalRespondents / data.length)).toFixed(0) : 0;
+
+      document.getElementById('kpi-overall-score').textContent = overallScore;
+      document.getElementById('kpi-total-responses').textContent = totalResponses;
+      document.getElementById('kpi-respondents').textContent = totalRespondents;
+      document.getElementById('kpi-campaigns').textContent = Object.keys(campaigns).length;
+      document.getElementById('kpi-pulse-score').textContent = pulseAvg;
+      document.getElementById('kpi-annual-score').textContent = annualAvg;
+      document.getElementById('kpi-yoy-change').textContent = (overallScore - 7.5).toFixed(2);
+      document.getElementById('kpi-participation').textContent = partRate + '%';
+    }
+
+    function updateCharts(data) {
+      var byType = {};
+      var byDept = {};
+      var byLoc = {};
+      var score2023Annual = [];
+      var score2024Annual = [];
+
+      data.forEach(function(row) {
+        var dept = row[0];
+        var loc = row[1];
+        var yr = row[3];
+        var type = row[4];
+        var resp = row[5];
+        var score = row[6];
+
+        if (!byType[type]) byType[type] = { total: 0, count: 0 };
+        byType[type].total += score;
+        byType[type].count += 1;
+
+        if (!byDept[dept]) byDept[dept] = { total: 0, count: 0 };
+        byDept[dept].total += resp;
+        byDept[dept].count += 1;
+
+        if (!byLoc[loc]) byLoc[loc] = { total: 0, count: 0 };
+        byLoc[loc].total += score;
+        byLoc[loc].count += 1;
+
+        if (yr === 2023 && type === 'Annual Engagement') score2023Annual.push(score);
+        if (yr === 2024 && type === 'Annual Engagement') score2024Annual.push(score);
+      });
+
+      var typeLabels = Object.keys(byType);
+      var typeScores = typeLabels.map(function(t) { return (byType[t].total / byType[t].count).toFixed(2); });
+
+      mk('chart-trend', {
+        type: 'line',
+        data: {
+          labels: typeLabels,
+          datasets: [{
+            label: 'Avg Score',
+            data: typeScores,
+            borderColor: '#006AFF',
+            backgroundColor: 'rgba(0, 106, 255, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#006AFF',
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 10, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 10 } } }
+          }
+        }
+      });
+
+      var deptLabels = Object.keys(byDept).sort();
+      var deptValues = deptLabels.map(function(d) { return byDept[d].total; });
+
+      mk('chart-dept-part', {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [{ data: deptValues, backgroundColor: '#1A7F64', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 9 } } }
+          }
+        }
+      });
+
+      var comp2023 = score2023Annual.length > 0 ? (score2023Annual.reduce(function(a, b) { return a + b; }, 0) / score2023Annual.length).toFixed(2) : 0;
+      var comp2024 = score2024Annual.length > 0 ? (score2024Annual.reduce(function(a, b) { return a + b; }, 0) / score2024Annual.length).toFixed(2) : 0;
+
+      mk('chart-comp', {
+        type: 'bar',
+        data: {
+          labels: ['Annual Engagement'],
+          datasets: [
+            { label: '2023', data: [comp2023], backgroundColor: '#0EA5E9' },
+            { label: '2024', data: [comp2024], backgroundColor: '#006AFF' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } } },
+          scales: {
+            y: { min: 0, max: 10, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5' } }
+          }
+        }
+      });
+
+      var typeLabels2 = Object.keys(byType);
+      var typeValues = typeLabels2.map(function(t) { return byType[t].count; });
+
+      mk('chart-types', {
+        type: 'doughnut',
+        data: {
+          labels: typeLabels2,
+          datasets: [{ data: typeValues, backgroundColor: ['#006AFF', '#1A7F64', '#F59E0B'] }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } }, position: 'bottom' } }
+        }
+      });
+
+      var locLabels = Object.keys(byLoc).sort();
+      var locScores = locLabels.map(function(l) { return (byLoc[l].total / byLoc[l].count).toFixed(2); });
+
+      mk('chart-location', {
+        type: 'bar',
+        data: {
+          labels: locLabels,
+          datasets: [{ data: locScores, backgroundColor: '#0EA5E9', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 10, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            x: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 9 } } }
+          }
+        }
+      });
+
+      var deptLabels2 = Object.keys(byDept).sort();
+      var deptScores = deptLabels2.map(function(d) {
+        var deptData = data.filter(function(r) { return r[0] === d; });
+        if (deptData.length === 0) return 0;
+        var total = 0;
+        deptData.forEach(function(r) { total += r[6]; });
+        return (total / deptData.length).toFixed(2);
+      });
+
+      mk('chart-dept-score', {
+        type: 'bar',
+        data: {
+          labels: deptLabels2,
+          datasets: [{ data: deptScores, backgroundColor: '#F59E0B', borderRadius: 4 }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { min: 0, max: 10, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8B95A5' } },
+            y: { grid: { display: false }, ticks: { color: '#8B95A5', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function updateTable(data) {
+      var tbody = document.getElementById('drill-table');
+      tbody.innerHTML = '';
+      data.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td><td>' + row[4] + '</td><td>' + row[5] + '</td><td>' + row[6] + '</td><td>' + row[7] + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years' : 'Reporting Period: Jan–Dec ' + yr;
+      document.getElementById('reporting-period').textContent = text;
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function applyFilters() {
+      var filtered = filterData(SURVEY_DATA);
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    initFilterOptions();
+    applyFilters();
+  </script>
+</body>
+</html>

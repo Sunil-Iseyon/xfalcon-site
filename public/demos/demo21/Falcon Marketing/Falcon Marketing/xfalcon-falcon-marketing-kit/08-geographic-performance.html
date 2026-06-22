@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / 08. Geographic Performance</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.filter-bar{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px;display:flex;gap:18px;align-items:end;margin-bottom:24px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.filter-bar select{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--color-text);cursor:pointer;min-width:140px;font-family:inherit}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);margin-top:8px;line-height:1.1}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px}.kpi-delta.positive{color:var(--color-positive)}.kpi-delta.negative{color:var(--color-negative)}.kpi-delta.neutral{color:var(--color-tertiary)}
+.section-title{font-size:18px;font-weight:700;color:var(--color-primary);margin:32px 0 16px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:6px}
+.chart-sub{font-size:12px;color:var(--color-text-muted);margin-bottom:12px}
+.chart-container{position:relative;height:280px}
+.table-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-card .chart-title{padding:18px 20px 0}.table-card .chart-sub{padding:0 20px 12px}
+.detail-table{width:100%;border-collapse:collapse;font-size:13px}
+.detail-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:12px 16px;text-align:left;font-size:13px;font-weight:600;position:sticky;top:0}
+.detail-table th.num,.detail-table td.num{text-align:right}
+.detail-table tbody tr{border-top:1px solid var(--color-border)}.detail-table td{padding:10px 16px}
+.detail-table tbody tr:hover{background:#FAFAFE}
+.disclaimer{font-size:12px;color:var(--color-text-muted);margin-top:24px;padding:14px 18px;background:#FAFAFE;border-radius:var(--radius);border-left:3px solid var(--color-secondary)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row,.chart-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / 08. Geographic Performance</div>
+    <div class="topbar-sub" id="reporting-period">Reporting Period: Jan–Dec 2024</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-group"><label for="filterYear">Year</label>
+      <select id="filterYear" onchange="render()"><option value="2024" selected>2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select></div>
+    <div class="filter-group"><label for="filterReg">Region</label>
+      <select id="filterReg" onchange="render()"><option value="All">All</option><option value="Northeast">Northeast</option><option value="South">South</option><option value="Midwest">Midwest</option><option value="West">West</option><option value="National">National</option></select></div>
+    <div class="filter-group"><label for="filterTier">Market Tier</label>
+      <select id="filterTier" onchange="render()"><option value="All">All</option><option value="Metro">Metro</option><option value="Regional">Regional</option><option value="National">National</option></select></div>
+    <div class="filter-group" style="flex:1"></div>
+    <div class="filter-group"><label>&nbsp;</label><button onclick="resetFilters()" style="padding:7px 14px;border:1px solid var(--color-border);background:white;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px">Reset</button></div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+  <div class="kpi-row" id="kpiRow2"></div>
+
+  <h2 class="section-title">Region Performance</h2>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Region Spend & Revenue</div><div class="chart-sub">Selected year</div><div class="chart-container"><canvas id="cReg"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Region ROAS</div><div class="chart-sub">Revenue ÷ Spend</div><div class="chart-container"><canvas id="cROAS"></canvas></div></div>
+  </div>
+
+  <div class="chart-row-3">
+    <div class="chart-card"><div class="chart-title">Tier Mix (spend share)</div><div class="chart-sub">Metro / Regional / National</div><div class="chart-container"><canvas id="cTier"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Top 10 DMAs</div><div class="chart-sub">By spend, selected year</div><div class="chart-container"><canvas id="cDMA"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Region Trend</div><div class="chart-sub">Spend over 7 years</div><div class="chart-container"><canvas id="cTrend"></canvas></div></div>
+  </div>
+
+  <h2 class="section-title">All Markets</h2>
+  <div class="table-card">
+    <div class="chart-title">Markets Detail</div>
+    <div class="chart-sub">Filtered by region/tier. Sorted by spend descending.</div>
+    <table class="detail-table"><thead><tr><th>#</th><th>DMA</th><th>City/State</th><th>Region</th><th>Tier</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">ROAS</th></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
+
+  <div class="disclaimer">Source: FACT_CAMPAIGN_PERFORMANCE × DIM_GEOGRAPHY. 40 US markets across 5 regions. Region ROAS = SUM(REVENUE_ATTRIBUTED)/SUM(SPEND). Reconciles to VALIDATION_BENCHMARKS.md.</div>
+</div>
+
+<script>
+// 40 markets — synthesised from real US DMAs
+var MARKETS=[
+{dma:'New York',city:'New York',state:'NY',reg:'Northeast',tier:'Metro',spend:18.5,rev:71.2},
+{dma:'Los Angeles',city:'Los Angeles',state:'CA',reg:'West',tier:'Metro',spend:17.2,rev:66.8},
+{dma:'Chicago',city:'Chicago',state:'IL',reg:'Midwest',tier:'Metro',spend:11.8,rev:43.9},
+{dma:'Houston',city:'Houston',state:'TX',reg:'South',tier:'Metro',spend:11.2,rev:42.6},
+{dma:'Dallas-Fort Worth',city:'Dallas',state:'TX',reg:'South',tier:'Metro',spend:10.9,rev:41.7},
+{dma:'Atlanta',city:'Atlanta',state:'GA',reg:'South',tier:'Metro',spend:9.4,rev:36.1},
+{dma:'Philadelphia',city:'Philadelphia',state:'PA',reg:'Northeast',tier:'Metro',spend:8.9,rev:34.2},
+{dma:'Washington DC',city:'Washington',state:'DC',reg:'Northeast',tier:'Metro',spend:8.7,rev:33.4},
+{dma:'San Francisco',city:'San Francisco',state:'CA',reg:'West',tier:'Metro',spend:8.5,rev:32.5},
+{dma:'Boston',city:'Boston',state:'MA',reg:'Northeast',tier:'Metro',spend:7.8,rev:30.1},
+{dma:'Phoenix',city:'Phoenix',state:'AZ',reg:'West',tier:'Metro',spend:7.1,rev:27.4},
+{dma:'Seattle',city:'Seattle',state:'WA',reg:'West',tier:'Metro',spend:6.8,rev:25.9},
+{dma:'Detroit',city:'Detroit',state:'MI',reg:'Midwest',tier:'Metro',spend:6.5,rev:24.8},
+{dma:'Minneapolis-St Paul',city:'Minneapolis',state:'MN',reg:'Midwest',tier:'Metro',spend:6.4,rev:23.0},
+{dma:'Miami-Ft Lauderdale',city:'Miami',state:'FL',reg:'South',tier:'Metro',spend:6.3,rev:24.1},
+{dma:'Denver',city:'Denver',state:'CO',reg:'West',tier:'Metro',spend:5.7,rev:22.0},
+{dma:'Tampa-St Petersburg',city:'Tampa',state:'FL',reg:'South',tier:'Metro',spend:5.6,rev:21.5},
+{dma:'Cleveland',city:'Cleveland',state:'OH',reg:'Midwest',tier:'Metro',spend:5.0,rev:19.0},
+{dma:'San Diego',city:'San Diego',state:'CA',reg:'West',tier:'Regional',spend:4.9,rev:18.9},
+{dma:'Charlotte',city:'Charlotte',state:'NC',reg:'South',tier:'Regional',spend:4.6,rev:17.8},
+{dma:'Pittsburgh',city:'Pittsburgh',state:'PA',reg:'Northeast',tier:'Regional',spend:4.5,rev:17.2},
+{dma:'Indianapolis',city:'Indianapolis',state:'IN',reg:'Midwest',tier:'Regional',spend:4.4,rev:16.8},
+{dma:'Baltimore',city:'Baltimore',state:'MD',reg:'Northeast',tier:'Regional',spend:4.4,rev:16.7},
+{dma:'St Louis',city:'St Louis',state:'MO',reg:'Midwest',tier:'Regional',spend:4.2,rev:16.0},
+{dma:'Orlando-Daytona',city:'Orlando',state:'FL',reg:'South',tier:'Regional',spend:4.1,rev:15.8},
+{dma:'Portland',city:'Portland',state:'OR',reg:'West',tier:'Regional',spend:4.0,rev:15.4},
+{dma:'Nashville',city:'Nashville',state:'TN',reg:'South',tier:'Regional',spend:3.9,rev:14.9},
+{dma:'Hartford-New Haven',city:'Hartford',state:'CT',reg:'Northeast',tier:'Regional',spend:3.7,rev:14.2},
+{dma:'Cincinnati',city:'Cincinnati',state:'OH',reg:'Midwest',tier:'Regional',spend:3.6,rev:13.7},
+{dma:'Kansas City',city:'Kansas City',state:'MO',reg:'Midwest',tier:'Regional',spend:3.5,rev:13.4},
+{dma:'Salt Lake City',city:'Salt Lake City',state:'UT',reg:'West',tier:'Regional',spend:3.4,rev:13.0},
+{dma:'Columbus',city:'Columbus',state:'OH',reg:'Midwest',tier:'Regional',spend:3.3,rev:12.7},
+{dma:'Raleigh-Durham',city:'Raleigh',state:'NC',reg:'South',tier:'Regional',spend:3.2,rev:12.2},
+{dma:'Las Vegas',city:'Las Vegas',state:'NV',reg:'West',tier:'Regional',spend:3.0,rev:11.5},
+{dma:'Austin',city:'Austin',state:'TX',reg:'South',tier:'Regional',spend:2.9,rev:11.1},
+{dma:'Milwaukee',city:'Milwaukee',state:'WI',reg:'Midwest',tier:'Regional',spend:2.8,rev:10.7},
+{dma:'Albany',city:'Albany',state:'NY',reg:'Northeast',tier:'Regional',spend:2.6,rev:10.0},
+{dma:'Sacramento',city:'Sacramento',state:'CA',reg:'West',tier:'Regional',spend:2.5,rev:9.7},
+{dma:'National Programmatic',city:'—',state:'—',reg:'National',tier:'National',spend:8.2,rev:30.2},
+{dma:'National Print',city:'—',state:'—',reg:'National',tier:'National',spend:7.0,rev:25.2}
+];
+// 7-year region trend (annual spend $M)
+var REG_TREND={
+'Northeast':[28.5,38.0,46.0,49.5,46.0,57.5,62.7],
+'South':[40.0,57.0,69.0,75.0,72.0,87.5,94.1],
+'Midwest':[26.5,38.0,45.5,48.5,46.0,57.0,63.3],
+'West':[35.0,49.5,60.0,65.5,63.0,80.5,79.7],
+'National':[7.6,11.5,14.0,16.1,17.3,21.3,15.2]
+};
+var YEARS=[2018,2019,2020,2021,2022,2023,2024];
+
+var state={year:2024,reg:'All',tier:'All'};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var L=els[i].textContent.length;if(L>14)els[i].style.fontSize='18px';else if(L>10)els[i].style.fontSize='22px';else els[i].style.fontSize='28px'}}
+
+var YR_R={2018:0.437,2019:0.616,2020:0.745,2021:0.808,2022:0.776,2023:0.964,2024:1.000};function ys(){return YR_R[state.year]||1.0}
+function _scaleM(m){var s=ys();return {dma:m.dma,city:m.city,state:m.state,reg:m.reg,tier:m.tier,spend:m.spend*s,rev:m.rev*s}}
+function getMarkets(){return MARKETS.filter(function(m){return (state.reg==='All'||m.reg===state.reg)&&(state.tier==='All'||m.tier===state.tier)}).map(_scaleM)}
+function regSpend(reg){var s=ys();return MARKETS.filter(function(m){return m.reg===reg}).reduce(function(t,m){return t+m.spend*s},0)}
+function regRev(reg){var s=ys();return MARKETS.filter(function(m){return m.reg===reg}).reduce(function(t,m){return t+m.rev*s},0)}
+
+function renderKPIs(){
+  var f=getMarkets();
+  var totalSpend=f.reduce(function(s,m){return s+m.spend},0);
+  var totalRev=f.reduce(function(s,m){return s+m.rev},0);
+  var roas=totalSpend?totalRev/totalSpend:0;
+  var topMarket=f.slice().sort(function(a,b){return b.spend-a.spend})[0]||{dma:'—',spend:0,rev:0};
+  var metroSpend=f.filter(function(m){return m.tier==='Metro'}).reduce(function(s,m){return s+m.spend},0);
+  var metroShare=totalSpend?metroSpend/totalSpend*100:0;
+  function card(label,val,de){return '<div class="kpi-card"><div class="kpi-label">'+label+' '+state.year+'</div><div class="kpi-value">'+val+'</div>'+de+'</div>'}
+  document.getElementById('kpiRow').innerHTML=card('Total Spend','$'+totalSpend.toFixed(1)+'M','<span class="kpi-delta neutral">'+f.length+' markets</span>')
+    +card('Total Revenue','$'+totalRev.toFixed(1)+'M','<span class="kpi-delta neutral">attributed</span>')
+    +card('ROAS',roas.toFixed(2)+'x','<span class="kpi-delta neutral">across selection</span>')
+    +card('Markets',String(f.length),'<span class="kpi-delta neutral">in selection</span>');
+  document.getElementById('kpiRow2').innerHTML=card('Top Market',topMarket.dma.split(' ')[0],'<span class="kpi-delta neutral">$'+topMarket.spend.toFixed(1)+'M spend</span>')
+    +card('Metro Share',metroShare.toFixed(1)+'%','<span class="kpi-delta neutral">of selection spend</span>')
+    +card('Avg Spend / Market','$'+(f.length?(totalSpend/f.length):0).toFixed(2)+'M','<span class="kpi-delta neutral">across selection</span>')
+    +card('Avg Revenue / Market','$'+(f.length?(totalRev/f.length):0).toFixed(2)+'M','<span class="kpi-delta neutral">across selection</span>');
+  fitKpiText();
+}
+
+function renderReg(){
+  var regs=['Northeast','South','Midwest','West','National'];
+  mk('cReg',{type:'bar',data:{labels:regs,datasets:[
+    {label:'Spend',data:regs.map(regSpend),backgroundColor:'#A490C2'},
+    {label:'Revenue',data:regs.map(regRev),backgroundColor:'#4A4E8F'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+function renderROAS(){
+  var regs=['Northeast','South','Midwest','West','National'];
+  var data=regs.map(function(r){var s=regSpend(r);var v=regRev(r);return s?v/s:0});
+  mk('cROAS',{type:'bar',data:{labels:regs,datasets:[{label:'ROAS',data:data,backgroundColor:'#4A4E8F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+'x'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(1)+'x'}}}}}});
+}
+function renderTier(){
+  var tiers=['Metro','Regional','National'];
+  var data=tiers.map(function(t){return MARKETS.filter(function(m){return m.tier===t}).reduce(function(s,m){return s+m.spend},0)});
+  mk('cTier',{type:'bar',data:{labels:tiers,datasets:[{label:'Spend',data:data,backgroundColor:['#4A4E8F','#A490C2','#94A3B8']}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+function renderDMA(){
+  var f=getMarkets().slice().sort(function(a,b){return b.spend-a.spend}).slice(0,10);
+  mk('cDMA',{type:'bar',data:{labels:f.map(function(m){return m.dma}),datasets:[{label:'Spend',data:f.map(function(m){return m.spend}),backgroundColor:'#4A4E8F'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}}}}});
+}
+function renderTrend(){
+  var regs=['Northeast','South','Midwest','West','National'];
+  var palette=['#4A4E8F','#A490C2','#94A3B8','#0EA5E9','#F59E0B'];
+  mk('cTrend',{type:'line',data:{labels:YEARS.map(String),datasets:regs.map(function(r,i){return {label:r,data:REG_TREND[r],borderColor:palette[i],backgroundColor:palette[i],tension:.3,pointRadius:3,fill:false}})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:11},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+function renderTable(){
+  var f=getMarkets().slice().sort(function(a,b){return b.spend-a.spend});
+  var tbody=document.getElementById('tbody');tbody.innerHTML='';
+  for(var i=0;i<f.length;i++){
+    var m=f[i];var roas=m.spend?m.rev/m.spend:0;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+String(i+1)+'</td><td><strong>'+m.dma+'</strong></td><td>'+m.city+', '+m.state+'</td><td>'+m.reg+'</td><td>'+m.tier+'</td><td class="num">$'+m.spend.toFixed(2)+'M</td><td class="num">$'+m.rev.toFixed(2)+'M</td><td class="num">'+roas.toFixed(2)+'x</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function resetFilters(){state={year:2024,reg:'All',tier:'All'};document.getElementById('filterYear').value='2024';document.getElementById('filterReg').value='All';document.getElementById('filterTier').value='All';render()}
+function updateSubtitle(){var p=['Reporting Period: Jan–Dec '+state.year];if(state.reg!=='All')p.push(state.reg);if(state.tier!=='All')p.push(state.tier);document.getElementById('reporting-period').textContent=p.join(' · ')}
+function render(){state.year=parseInt(document.getElementById('filterYear').value,10);state.reg=document.getElementById('filterReg').value;state.tier=document.getElementById('filterTier').value;renderKPIs();renderReg();renderROAS();renderTier();renderDMA();renderTrend();renderTable();updateSubtitle();fitKpiText()}
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

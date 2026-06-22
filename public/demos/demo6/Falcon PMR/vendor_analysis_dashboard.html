@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Analysis Dashboard | Falcon PMR — S&P Global</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        /* S&P Global / SPDJI Brand Typography */
+
+        :root {
+            --primary: #002A5C;          /* S&P Deep Navy */
+            --primary-light: #0072CE;    /* S&P Bright Blue */
+            --accent: #0072CE;           /* S&P Bright Blue */
+            --accent-light: #00A3E0;     /* S&P Light Blue */
+            --accent-bg: rgba(0, 114, 206, 0.08);
+            --success: #00B0B9;          /* S&P Teal */
+            --success-bg: rgba(0, 176, 185, 0.1);
+            --danger: #E31937;           /* S&P Red */
+            --danger-bg: rgba(227, 25, 55, 0.1);
+            --warning: #FF6900;          /* S&P Orange */
+            --warning-bg: rgba(255, 105, 0, 0.1);
+            --info: #00A3E0;             /* S&P Light Blue */
+            --info-bg: rgba(0, 163, 224, 0.1);
+            --surface: #FFFFFF;
+            --bg: #F5F6FA;              /* S&P Off White */
+            --border: #DFE6E9;          /* S&P Light Gray */
+            --text: #333333;            /* S&P Charcoal */
+            --text-secondary: #636E72;  /* S&P Dark Gray */
+            --text-muted: #94A3B8;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ── Top Navigation ── */
+        .top-nav {
+            background: #002A5C;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 42, 92, 0.2);
+            border-bottom: 3px solid #E31937;
+        }
+        .top-nav .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .top-nav .brand .logo {
+            width: 40px; height: 40px;
+            background: #E31937;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px; color: #fff;
+            letter-spacing: -0.3px;
+        }
+        .top-nav .brand h1 {
+            font-size: 20px; font-weight: 700; color: #fff;
+            letter-spacing: -0.3px;
+        }
+        .top-nav .brand .subtitle {
+            font-size: 12px; color: #00A3E0;
+            font-weight: 400;
+        }
+        .top-nav .meta {
+            text-align: right; color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+        .top-nav .meta strong { color: #fff; font-weight: 600; }
+
+        /* ── Filter Bar ── */
+        .filter-bar {
+            background: var(--surface);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-sm);
+        }
+        .filter-bar label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .filter-bar select {
+            padding: 8px 32px 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 500;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .filter-bar select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 114, 206, 0.15);
+        }
+        .filter-bar .reset-btn {
+            padding: 8px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+            background: var(--surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+        .filter-bar .reset-btn:hover {
+            background: var(--bg);
+            border-color: var(--text-secondary);
+            color: var(--text);
+        }
+
+        /* ── Main Content ── */
+        .main { padding: 24px 32px; max-width: 1440px; margin: 0 auto; }
+
+        /* ── KPI Row ── */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .kpi-card .icon-strip {
+            position: absolute;
+            top: 0; left: 0; bottom: 0; width: 4px;
+        }
+        .kpi-card .label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding-left: 12px;
+        }
+        .kpi-card .value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -1px;
+            padding-left: 12px;
+        }
+        .kpi-card .sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            padding-left: 12px;
+            font-weight: 500;
+        }
+
+        /* ── Chart Cards ── */
+        .chart-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .chart-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .chart-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .chart-grid.full { grid-template-columns: 1fr; }
+
+        .chart-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .chart-card h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .chart-card .chart-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
+        .chart-card canvas {
+            max-height: 320px;
+        }
+
+        /* ── Detail Table ── */
+        .table-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .table-card .table-header {
+            padding: 20px 24px 12px;
+        }
+        .table-card .table-header h3 {
+            font-size: 14px; font-weight: 700;
+        }
+        .table-card .table-header p {
+            font-size: 12px; color: var(--text-muted); margin-top: 2px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .data-table th:hover { color: var(--text); }
+        .data-table th .sort-arrow { margin-left: 4px; font-size: 10px; }
+        .data-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #F1F5F9;
+            font-weight: 500;
+        }
+        .data-table tr:hover td { background: rgba(0, 42, 92, 0.03); }
+        .data-table .bar-cell {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .data-table .mini-bar {
+            height: 6px;
+            background: var(--accent);
+            border-radius: 3px;
+            opacity: 0.7;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid.cols-2, .chart-grid.cols-3 { grid-template-columns: 1fr; }
+            .main { padding: 16px; }
+            .top-nav, .filter-bar { padding-left: 16px; padding-right: 16px; }
+        }
+        @media (max-width: 600px) {
+            .kpi-row { grid-template-columns: 1fr; }
+            .kpi-card .value { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══ TOP NAV ═══ -->
+<div class="top-nav">
+    <div class="brand">
+        <div class="logo">S&P</div>
+        <div>
+            <h1>Vendor Analysis Dashboard</h1>
+            <div class="subtitle">Falcon PMR — Resource Allocation & Performance</div>
+        </div>
+    </div>
+    <div class="meta">
+        <div><strong>S&P Global</strong></div>
+        <div id="dateRange"></div>
+    </div>
+</div>
+
+<!-- ═══ FILTER BAR ═══ -->
+<div class="filter-bar">
+    <label>Filters:</label>
+    <select id="filterVendor"><option value="All">All Vendors</option></select>
+    <select id="filterPortfolio"><option value="All">All Portfolios</option></select>
+    <select id="filterLocation"><option value="All">All Locations</option></select>
+    <select id="filterService"><option value="All">All Service Types</option></select>
+    <select id="filterYear"><option value="All">All Years</option></select>
+    <button class="reset-btn" onclick="resetFilters()">Reset All</button>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="main">
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="icon-strip" style="background: var(--accent);"></div>
+            <div class="label">Total FTE</div>
+            <div class="value" id="kpiTotalFte">—</div>
+            <div class="sub" id="kpiTotalFteSub"></div>
+        </div>
+        <div class="kpi-card">
+            <div class="icon-strip" style="background: var(--success);"></div>
+            <div class="label">Active Vendors</div>
+            <div class="value" id="kpiVendors">—</div>
+            <div class="sub" id="kpiVendorsSub"></div>
+        </div>
+        <div class="kpi-card">
+            <div class="icon-strip" style="background: var(--info);"></div>
+            <div class="label">Avg FTE / Vendor</div>
+            <div class="value" id="kpiAvgFte">—</div>
+            <div class="sub" id="kpiAvgFteSub"></div>
+        </div>
+        <div class="kpi-card">
+            <div class="icon-strip" style="background: var(--warning);"></div>
+            <div class="label">Offshore %</div>
+            <div class="value" id="kpiOffshore">—</div>
+            <div class="sub" id="kpiOffshoreSub"></div>
+        </div>
+    </div>
+
+    <!-- Row 1: FTE Trend (full width) -->
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <h3>FTE Trend Over Time</h3>
+            <div class="chart-subtitle">Monthly total FTE by location type</div>
+            <canvas id="chartTrend"></canvas>
+        </div>
+    </div>
+
+    <!-- Row 2: Vendor FTE Ranking + Location Mix -->
+    <div class="chart-grid cols-2">
+        <div class="chart-card">
+            <h3>Vendor FTE Ranking</h3>
+            <div class="chart-subtitle">Total FTE allocation per vendor</div>
+            <canvas id="chartVendorRank"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Location Mix by Vendor</h3>
+            <div class="chart-subtitle">Onsite / Offshore / Nearshore distribution</div>
+            <canvas id="chartLocationMix"></canvas>
+        </div>
+    </div>
+
+    <!-- Row 3: Service Type + Portfolio -->
+    <div class="chart-grid cols-2">
+        <div class="chart-card">
+            <h3>Service Type Breakdown</h3>
+            <div class="chart-subtitle">FTE by service category per vendor</div>
+            <canvas id="chartServiceType"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Portfolio Allocation</h3>
+            <div class="chart-subtitle">FTE distribution across portfolios</div>
+            <canvas id="chartPortfolio"></canvas>
+        </div>
+    </div>
+
+    <!-- Row 4: Vendor Monthly Trend (line per vendor) -->
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <h3>Vendor FTE Trend Comparison</h3>
+            <div class="chart-subtitle">Monthly FTE trend per vendor (select vendors via legend)</div>
+            <canvas id="chartVendorTrend"></canvas>
+        </div>
+    </div>
+
+    <!-- Detail Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>Vendor Detail Table</h3>
+            <p>Click column headers to sort</p>
+        </div>
+        <table class="data-table" id="detailTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Vendor <span class="sort-arrow"></span></th>
+                    <th onclick="sortTable(1)">Total FTE <span class="sort-arrow"></span></th>
+                    <th onclick="sortTable(2)">Resources <span class="sort-arrow"></span></th>
+                    <th onclick="sortTable(3)">Programs <span class="sort-arrow"></span></th>
+                    <th onclick="sortTable(4)">Onsite % <span class="sort-arrow"></span></th>
+                    <th onclick="sortTable(5)">Offshore % <span class="sort-arrow"></span></th>
+                    <th onclick="sortTable(6)">Nearshore % <span class="sort-arrow"></span></th>
+                    <th>FTE Distribution</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    Falcon PMR Demo &mdash; S&P Global / SPDJI | Data: Jan 2022 &ndash; Dec 2024 | Generated on March 10, 2026
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// RAW DATA (from ida queries)
+// ═══════════════════════════════════════════
+
+const vendorSummary = [
+    {"vendor":"InnoSphere","totalFte":722.80,"resources":27,"programs":20},
+    {"vendor":"BrightPath Tech","totalFte":705.40,"resources":26,"programs":20},
+    {"vendor":"KeyNode Services","totalFte":630.20,"resources":24,"programs":19},
+    {"vendor":"HorizonLabs","totalFte":579.40,"resources":22,"programs":20},
+    {"vendor":"GridStone Partners","totalFte":559.60,"resources":21,"programs":20},
+    {"vendor":"Apex Solutions","totalFte":526.60,"resources":19,"programs":19},
+    {"vendor":"DataBridge Corp","totalFte":508.20,"resources":19,"programs":17},
+    {"vendor":"CoreWave Systems","totalFte":450.40,"resources":17,"programs":18},
+    {"vendor":"FusionPoint","totalFte":420.30,"resources":16,"programs":20},
+    {"vendor":"LogicNest","totalFte":377.10,"resources":14,"programs":18},
+    {"vendor":"Elevate IT","totalFte":293.10,"resources":11,"programs":15}
+];
+
+const vendorTrend = [
+    {"period":"Jan '22","dateKey":202201,"vendor":"Apex Solutions","fte":15.80},
+    {"period":"Jan '22","dateKey":202201,"vendor":"BrightPath Tech","fte":23.20},
+    {"period":"Jan '22","dateKey":202201,"vendor":"CoreWave Systems","fte":13.70},
+    {"period":"Jan '22","dateKey":202201,"vendor":"DataBridge Corp","fte":15.30},
+    {"period":"Jan '22","dateKey":202201,"vendor":"Elevate IT","fte":7.90},
+    {"period":"Jan '22","dateKey":202201,"vendor":"FusionPoint","fte":11.50},
+    {"period":"Jan '22","dateKey":202201,"vendor":"GridStone Partners","fte":14.80},
+    {"period":"Jan '22","dateKey":202201,"vendor":"HorizonLabs","fte":17.50},
+    {"period":"Jan '22","dateKey":202201,"vendor":"InnoSphere","fte":19.70},
+    {"period":"Jan '22","dateKey":202201,"vendor":"KeyNode Services","fte":18.60},
+    {"period":"Jan '22","dateKey":202201,"vendor":"LogicNest","fte":10.30},
+    {"period":"Feb '22","dateKey":202202,"vendor":"Apex Solutions","fte":12.90},
+    {"period":"Feb '22","dateKey":202202,"vendor":"BrightPath Tech","fte":20.50},
+    {"period":"Feb '22","dateKey":202202,"vendor":"CoreWave Systems","fte":13.90},
+    {"period":"Feb '22","dateKey":202202,"vendor":"DataBridge Corp","fte":13.70},
+    {"period":"Feb '22","dateKey":202202,"vendor":"Elevate IT","fte":8.70},
+    {"period":"Feb '22","dateKey":202202,"vendor":"FusionPoint","fte":13.00},
+    {"period":"Feb '22","dateKey":202202,"vendor":"GridStone Partners","fte":17.20},
+    {"period":"Feb '22","dateKey":202202,"vendor":"HorizonLabs","fte":17.10},
+    {"period":"Feb '22","dateKey":202202,"vendor":"InnoSphere","fte":21.20},
+    {"period":"Feb '22","dateKey":202202,"vendor":"KeyNode Services","fte":19.10},
+    {"period":"Feb '22","dateKey":202202,"vendor":"LogicNest","fte":11.40},
+    {"period":"Mar '22","dateKey":202203,"vendor":"Apex Solutions","fte":14.60},
+    {"period":"Mar '22","dateKey":202203,"vendor":"BrightPath Tech","fte":20.10},
+    {"period":"Mar '22","dateKey":202203,"vendor":"CoreWave Systems","fte":11.60},
+    {"period":"Mar '22","dateKey":202203,"vendor":"DataBridge Corp","fte":14.30},
+    {"period":"Mar '22","dateKey":202203,"vendor":"Elevate IT","fte":8.60},
+    {"period":"Mar '22","dateKey":202203,"vendor":"FusionPoint","fte":10.70},
+    {"period":"Mar '22","dateKey":202203,"vendor":"GridStone Partners","fte":16.60},
+    {"period":"Mar '22","dateKey":202203,"vendor":"HorizonLabs","fte":13.60},
+    {"period":"Mar '22","dateKey":202203,"vendor":"InnoSphere","fte":20.50},
+    {"period":"Mar '22","dateKey":202203,"vendor":"KeyNode Services","fte":17.20},
+    {"period":"Mar '22","dateKey":202203,"vendor":"LogicNest","fte":12.10},
+    {"period":"Apr '22","dateKey":202204,"vendor":"Apex Solutions","fte":15.30},
+    {"period":"Apr '22","dateKey":202204,"vendor":"BrightPath Tech","fte":20.90},
+    {"period":"Apr '22","dateKey":202204,"vendor":"CoreWave Systems","fte":12.30},
+    {"period":"Apr '22","dateKey":202204,"vendor":"DataBridge Corp","fte":13.60},
+    {"period":"Apr '22","dateKey":202204,"vendor":"Elevate IT","fte":7.70},
+    {"period":"Apr '22","dateKey":202204,"vendor":"FusionPoint","fte":11.60},
+    {"period":"Apr '22","dateKey":202204,"vendor":"GridStone Partners","fte":17.40},
+    {"period":"Apr '22","dateKey":202204,"vendor":"HorizonLabs","fte":17.70},
+    {"period":"Apr '22","dateKey":202204,"vendor":"InnoSphere","fte":21.00},
+    {"period":"Apr '22","dateKey":202204,"vendor":"KeyNode Services","fte":22.10},
+    {"period":"Apr '22","dateKey":202204,"vendor":"LogicNest","fte":8.90},
+    {"period":"May '22","dateKey":202205,"vendor":"Apex Solutions","fte":14.80},
+    {"period":"May '22","dateKey":202205,"vendor":"BrightPath Tech","fte":17.00},
+    {"period":"May '22","dateKey":202205,"vendor":"CoreWave Systems","fte":13.80},
+    {"period":"May '22","dateKey":202205,"vendor":"DataBridge Corp","fte":11.60},
+    {"period":"May '22","dateKey":202205,"vendor":"Elevate IT","fte":8.30},
+    {"period":"May '22","dateKey":202205,"vendor":"FusionPoint","fte":11.00},
+    {"period":"May '22","dateKey":202205,"vendor":"GridStone Partners","fte":15.50},
+    {"period":"May '22","dateKey":202205,"vendor":"HorizonLabs","fte":17.50},
+    {"period":"May '22","dateKey":202205,"vendor":"InnoSphere","fte":19.00},
+    {"period":"May '22","dateKey":202205,"vendor":"KeyNode Services","fte":15.50},
+    {"period":"May '22","dateKey":202205,"vendor":"LogicNest","fte":9.00},
+    {"period":"Jun '22","dateKey":202206,"vendor":"Apex Solutions","fte":14.40},
+    {"period":"Jun '22","dateKey":202206,"vendor":"BrightPath Tech","fte":22.80},
+    {"period":"Jun '22","dateKey":202206,"vendor":"CoreWave Systems","fte":13.80},
+    {"period":"Jun '22","dateKey":202206,"vendor":"DataBridge Corp","fte":13.80},
+    {"period":"Jun '22","dateKey":202206,"vendor":"Elevate IT","fte":8.00},
+    {"period":"Jun '22","dateKey":202206,"vendor":"FusionPoint","fte":11.00},
+    {"period":"Jun '22","dateKey":202206,"vendor":"GridStone Partners","fte":17.50},
+    {"period":"Jun '22","dateKey":202206,"vendor":"HorizonLabs","fte":15.70},
+    {"period":"Jun '22","dateKey":202206,"vendor":"InnoSphere","fte":16.20},
+    {"period":"Jun '22","dateKey":202206,"vendor":"KeyNode Services","fte":17.00},
+    {"period":"Jun '22","dateKey":202206,"vendor":"LogicNest","fte":10.80},
+    {"period":"Jul '22","dateKey":202207,"vendor":"Apex Solutions","fte":15.00},
+    {"period":"Jul '22","dateKey":202207,"vendor":"BrightPath Tech","fte":18.90},
+    {"period":"Jul '22","dateKey":202207,"vendor":"CoreWave Systems","fte":13.60},
+    {"period":"Jul '22","dateKey":202207,"vendor":"DataBridge Corp","fte":13.90},
+    {"period":"Jul '22","dateKey":202207,"vendor":"Elevate IT","fte":6.80},
+    {"period":"Jul '22","dateKey":202207,"vendor":"FusionPoint","fte":11.50},
+    {"period":"Jul '22","dateKey":202207,"vendor":"GridStone Partners","fte":16.40},
+    {"period":"Jul '22","dateKey":202207,"vendor":"HorizonLabs","fte":16.30},
+    {"period":"Jul '22","dateKey":202207,"vendor":"InnoSphere","fte":24.00},
+    {"period":"Jul '22","dateKey":202207,"vendor":"KeyNode Services","fte":16.70},
+    {"period":"Jul '22","dateKey":202207,"vendor":"LogicNest","fte":8.40},
+    {"period":"Aug '22","dateKey":202208,"vendor":"Apex Solutions","fte":15.50},
+    {"period":"Aug '22","dateKey":202208,"vendor":"BrightPath Tech","fte":19.70},
+    {"period":"Aug '22","dateKey":202208,"vendor":"CoreWave Systems","fte":11.40},
+    {"period":"Aug '22","dateKey":202208,"vendor":"DataBridge Corp","fte":13.00},
+    {"period":"Aug '22","dateKey":202208,"vendor":"Elevate IT","fte":8.10},
+    {"period":"Aug '22","dateKey":202208,"vendor":"FusionPoint","fte":11.90},
+    {"period":"Aug '22","dateKey":202208,"vendor":"GridStone Partners","fte":16.60},
+    {"period":"Aug '22","dateKey":202208,"vendor":"HorizonLabs","fte":15.80},
+    {"period":"Aug '22","dateKey":202208,"vendor":"InnoSphere","fte":20.20},
+    {"period":"Aug '22","dateKey":202208,"vendor":"KeyNode Services","fte":16.80},
+    {"period":"Aug '22","dateKey":202208,"vendor":"LogicNest","fte":10.90},
+    {"period":"Sep '22","dateKey":202209,"vendor":"Apex Solutions","fte":14.00},
+    {"period":"Sep '22","dateKey":202209,"vendor":"BrightPath Tech","fte":20.30},
+    {"period":"Sep '22","dateKey":202209,"vendor":"CoreWave Systems","fte":12.30},
+    {"period":"Sep '22","dateKey":202209,"vendor":"DataBridge Corp","fte":12.20},
+    {"period":"Sep '22","dateKey":202209,"vendor":"Elevate IT","fte":9.20},
+    {"period":"Sep '22","dateKey":202209,"vendor":"FusionPoint","fte":8.60},
+    {"period":"Sep '22","dateKey":202209,"vendor":"GridStone Partners","fte":15.40},
+    {"period":"Sep '22","dateKey":202209,"vendor":"HorizonLabs","fte":14.50},
+    {"period":"Sep '22","dateKey":202209,"vendor":"InnoSphere","fte":20.80},
+    {"period":"Sep '22","dateKey":202209,"vendor":"KeyNode Services","fte":17.70},
+    {"period":"Sep '22","dateKey":202209,"vendor":"LogicNest","fte":9.00},
+    {"period":"Oct '22","dateKey":202210,"vendor":"Apex Solutions","fte":15.90},
+    {"period":"Oct '22","dateKey":202210,"vendor":"BrightPath Tech","fte":20.50},
+    {"period":"Oct '22","dateKey":202210,"vendor":"CoreWave Systems","fte":12.90},
+    {"period":"Oct '22","dateKey":202210,"vendor":"DataBridge Corp","fte":14.30},
+    {"period":"Oct '22","dateKey":202210,"vendor":"Elevate IT","fte":7.60},
+    {"period":"Oct '22","dateKey":202210,"vendor":"FusionPoint","fte":12.90},
+    {"period":"Oct '22","dateKey":202210,"vendor":"GridStone Partners","fte":14.90},
+    {"period":"Oct '22","dateKey":202210,"vendor":"HorizonLabs","fte":17.00},
+    {"period":"Oct '22","dateKey":202210,"vendor":"InnoSphere","fte":21.30},
+    {"period":"Oct '22","dateKey":202210,"vendor":"KeyNode Services","fte":15.50},
+    {"period":"Oct '22","dateKey":202210,"vendor":"LogicNest","fte":8.40},
+    {"period":"Nov '22","dateKey":202211,"vendor":"Apex Solutions","fte":14.60},
+    {"period":"Nov '22","dateKey":202211,"vendor":"BrightPath Tech","fte":18.30},
+    {"period":"Nov '22","dateKey":202211,"vendor":"CoreWave Systems","fte":11.50},
+    {"period":"Nov '22","dateKey":202211,"vendor":"DataBridge Corp","fte":14.80},
+    {"period":"Nov '22","dateKey":202211,"vendor":"Elevate IT","fte":7.90},
+    {"period":"Nov '22","dateKey":202211,"vendor":"FusionPoint","fte":12.50},
+    {"period":"Nov '22","dateKey":202211,"vendor":"GridStone Partners","fte":15.00},
+    {"period":"Nov '22","dateKey":202211,"vendor":"HorizonLabs","fte":15.80},
+    {"period":"Nov '22","dateKey":202211,"vendor":"InnoSphere","fte":18.50},
+    {"period":"Nov '22","dateKey":202211,"vendor":"KeyNode Services","fte":17.80},
+    {"period":"Nov '22","dateKey":202211,"vendor":"LogicNest","fte":10.60},
+    {"period":"Dec '22","dateKey":202212,"vendor":"Apex Solutions","fte":14.80},
+    {"period":"Dec '22","dateKey":202212,"vendor":"BrightPath Tech","fte":19.40},
+    {"period":"Dec '22","dateKey":202212,"vendor":"CoreWave Systems","fte":12.80},
+    {"period":"Dec '22","dateKey":202212,"vendor":"DataBridge Corp","fte":14.30},
+    {"period":"Dec '22","dateKey":202212,"vendor":"Elevate IT","fte":7.20},
+    {"period":"Dec '22","dateKey":202212,"vendor":"FusionPoint","fte":12.40},
+    {"period":"Dec '22","dateKey":202212,"vendor":"GridStone Partners","fte":15.60},
+    {"period":"Dec '22","dateKey":202212,"vendor":"HorizonLabs","fte":15.70},
+    {"period":"Dec '22","dateKey":202212,"vendor":"InnoSphere","fte":19.90},
+    {"period":"Dec '22","dateKey":202212,"vendor":"KeyNode Services","fte":17.40},
+    {"period":"Dec '22","dateKey":202212,"vendor":"LogicNest","fte":10.20},
+    {"period":"Jan '23","dateKey":202301,"vendor":"Apex Solutions","fte":14.30},
+    {"period":"Jan '23","dateKey":202301,"vendor":"BrightPath Tech","fte":20.60},
+    {"period":"Jan '23","dateKey":202301,"vendor":"CoreWave Systems","fte":11.20},
+    {"period":"Jan '23","dateKey":202301,"vendor":"DataBridge Corp","fte":14.50},
+    {"period":"Jan '23","dateKey":202301,"vendor":"Elevate IT","fte":7.40},
+    {"period":"Jan '23","dateKey":202301,"vendor":"FusionPoint","fte":11.20},
+    {"period":"Jan '23","dateKey":202301,"vendor":"GridStone Partners","fte":15.60},
+    {"period":"Jan '23","dateKey":202301,"vendor":"HorizonLabs","fte":16.40},
+    {"period":"Jan '23","dateKey":202301,"vendor":"InnoSphere","fte":20.90},
+    {"period":"Jan '23","dateKey":202301,"vendor":"KeyNode Services","fte":17.00},
+    {"period":"Jan '23","dateKey":202301,"vendor":"LogicNest","fte":11.40},
+    {"period":"Feb '23","dateKey":202302,"vendor":"Apex Solutions","fte":15.10},
+    {"period":"Feb '23","dateKey":202302,"vendor":"BrightPath Tech","fte":19.20},
+    {"period":"Feb '23","dateKey":202302,"vendor":"CoreWave Systems","fte":12.80},
+    {"period":"Feb '23","dateKey":202302,"vendor":"DataBridge Corp","fte":14.60},
+    {"period":"Feb '23","dateKey":202302,"vendor":"Elevate IT","fte":8.20},
+    {"period":"Feb '23","dateKey":202302,"vendor":"FusionPoint","fte":12.50},
+    {"period":"Feb '23","dateKey":202302,"vendor":"GridStone Partners","fte":15.70},
+    {"period":"Feb '23","dateKey":202302,"vendor":"HorizonLabs","fte":15.80},
+    {"period":"Feb '23","dateKey":202302,"vendor":"InnoSphere","fte":21.00},
+    {"period":"Feb '23","dateKey":202302,"vendor":"KeyNode Services","fte":17.20},
+    {"period":"Feb '23","dateKey":202302,"vendor":"LogicNest","fte":11.30},
+    {"period":"Mar '23","dateKey":202303,"vendor":"Apex Solutions","fte":13.40},
+    {"period":"Mar '23","dateKey":202303,"vendor":"BrightPath Tech","fte":19.70},
+    {"period":"Mar '23","dateKey":202303,"vendor":"CoreWave Systems","fte":11.80},
+    {"period":"Mar '23","dateKey":202303,"vendor":"DataBridge Corp","fte":14.10},
+    {"period":"Mar '23","dateKey":202303,"vendor":"Elevate IT","fte":7.60},
+    {"period":"Mar '23","dateKey":202303,"vendor":"FusionPoint","fte":11.30},
+    {"period":"Mar '23","dateKey":202303,"vendor":"GridStone Partners","fte":15.90},
+    {"period":"Mar '23","dateKey":202303,"vendor":"HorizonLabs","fte":15.10},
+    {"period":"Mar '23","dateKey":202303,"vendor":"InnoSphere","fte":19.20},
+    {"period":"Mar '23","dateKey":202303,"vendor":"KeyNode Services","fte":18.20},
+    {"period":"Mar '23","dateKey":202303,"vendor":"LogicNest","fte":10.40},
+    {"period":"Apr '23","dateKey":202304,"vendor":"Apex Solutions","fte":15.60},
+    {"period":"Apr '23","dateKey":202304,"vendor":"BrightPath Tech","fte":19.60},
+    {"period":"Apr '23","dateKey":202304,"vendor":"CoreWave Systems","fte":11.60},
+    {"period":"Apr '23","dateKey":202304,"vendor":"DataBridge Corp","fte":14.80},
+    {"period":"Apr '23","dateKey":202304,"vendor":"Elevate IT","fte":8.30},
+    {"period":"Apr '23","dateKey":202304,"vendor":"FusionPoint","fte":12.10},
+    {"period":"Apr '23","dateKey":202304,"vendor":"GridStone Partners","fte":14.80},
+    {"period":"Apr '23","dateKey":202304,"vendor":"HorizonLabs","fte":15.60},
+    {"period":"Apr '23","dateKey":202304,"vendor":"InnoSphere","fte":20.60},
+    {"period":"Apr '23","dateKey":202304,"vendor":"KeyNode Services","fte":18.10},
+    {"period":"Apr '23","dateKey":202304,"vendor":"LogicNest","fte":11.10},
+    {"period":"May '23","dateKey":202305,"vendor":"Apex Solutions","fte":14.70},
+    {"period":"May '23","dateKey":202305,"vendor":"BrightPath Tech","fte":19.40},
+    {"period":"May '23","dateKey":202305,"vendor":"CoreWave Systems","fte":12.60},
+    {"period":"May '23","dateKey":202305,"vendor":"DataBridge Corp","fte":14.90},
+    {"period":"May '23","dateKey":202305,"vendor":"Elevate IT","fte":8.10},
+    {"period":"May '23","dateKey":202305,"vendor":"FusionPoint","fte":11.70},
+    {"period":"May '23","dateKey":202305,"vendor":"GridStone Partners","fte":15.10},
+    {"period":"May '23","dateKey":202305,"vendor":"HorizonLabs","fte":15.30},
+    {"period":"May '23","dateKey":202305,"vendor":"InnoSphere","fte":19.80},
+    {"period":"May '23","dateKey":202305,"vendor":"KeyNode Services","fte":17.30},
+    {"period":"May '23","dateKey":202305,"vendor":"LogicNest","fte":10.60},
+    {"period":"Jun '23","dateKey":202306,"vendor":"Apex Solutions","fte":14.20},
+    {"period":"Jun '23","dateKey":202306,"vendor":"BrightPath Tech","fte":19.10},
+    {"period":"Jun '23","dateKey":202306,"vendor":"CoreWave Systems","fte":12.00},
+    {"period":"Jun '23","dateKey":202306,"vendor":"DataBridge Corp","fte":13.60},
+    {"period":"Jun '23","dateKey":202306,"vendor":"Elevate IT","fte":8.00},
+    {"period":"Jun '23","dateKey":202306,"vendor":"FusionPoint","fte":10.80},
+    {"period":"Jun '23","dateKey":202306,"vendor":"GridStone Partners","fte":15.10},
+    {"period":"Jun '23","dateKey":202306,"vendor":"HorizonLabs","fte":15.20},
+    {"period":"Jun '23","dateKey":202306,"vendor":"InnoSphere","fte":19.10},
+    {"period":"Jun '23","dateKey":202306,"vendor":"KeyNode Services","fte":17.60},
+    {"period":"Jun '23","dateKey":202306,"vendor":"LogicNest","fte":7.00},
+    {"period":"Jul '23","dateKey":202307,"vendor":"Apex Solutions","fte":14.50},
+    {"period":"Jul '23","dateKey":202307,"vendor":"BrightPath Tech","fte":18.40},
+    {"period":"Jul '23","dateKey":202307,"vendor":"CoreWave Systems","fte":12.10},
+    {"period":"Jul '23","dateKey":202307,"vendor":"DataBridge Corp","fte":14.20},
+    {"period":"Jul '23","dateKey":202307,"vendor":"Elevate IT","fte":8.40},
+    {"period":"Jul '23","dateKey":202307,"vendor":"FusionPoint","fte":11.30},
+    {"period":"Jul '23","dateKey":202307,"vendor":"GridStone Partners","fte":15.80},
+    {"period":"Jul '23","dateKey":202307,"vendor":"HorizonLabs","fte":14.80},
+    {"period":"Jul '23","dateKey":202307,"vendor":"InnoSphere","fte":19.50},
+    {"period":"Jul '23","dateKey":202307,"vendor":"KeyNode Services","fte":18.30},
+    {"period":"Jul '23","dateKey":202307,"vendor":"LogicNest","fte":10.60},
+    {"period":"Aug '23","dateKey":202308,"vendor":"Apex Solutions","fte":15.20},
+    {"period":"Aug '23","dateKey":202308,"vendor":"BrightPath Tech","fte":20.10},
+    {"period":"Aug '23","dateKey":202308,"vendor":"CoreWave Systems","fte":12.60},
+    {"period":"Aug '23","dateKey":202308,"vendor":"DataBridge Corp","fte":14.90},
+    {"period":"Aug '23","dateKey":202308,"vendor":"Elevate IT","fte":8.60},
+    {"period":"Aug '23","dateKey":202308,"vendor":"FusionPoint","fte":12.00},
+    {"period":"Aug '23","dateKey":202308,"vendor":"GridStone Partners","fte":16.30},
+    {"period":"Aug '23","dateKey":202308,"vendor":"HorizonLabs","fte":17.30},
+    {"period":"Aug '23","dateKey":202308,"vendor":"InnoSphere","fte":20.40},
+    {"period":"Aug '23","dateKey":202308,"vendor":"KeyNode Services","fte":18.00},
+    {"period":"Aug '23","dateKey":202308,"vendor":"LogicNest","fte":10.40},
+    {"period":"Sep '23","dateKey":202309,"vendor":"Apex Solutions","fte":14.90},
+    {"period":"Sep '23","dateKey":202309,"vendor":"BrightPath Tech","fte":19.80},
+    {"period":"Sep '23","dateKey":202309,"vendor":"CoreWave Systems","fte":13.20},
+    {"period":"Sep '23","dateKey":202309,"vendor":"DataBridge Corp","fte":14.30},
+    {"period":"Sep '23","dateKey":202309,"vendor":"Elevate IT","fte":7.80},
+    {"period":"Sep '23","dateKey":202309,"vendor":"FusionPoint","fte":11.60},
+    {"period":"Sep '23","dateKey":202309,"vendor":"GridStone Partners","fte":15.50},
+    {"period":"Sep '23","dateKey":202309,"vendor":"HorizonLabs","fte":16.00},
+    {"period":"Sep '23","dateKey":202309,"vendor":"InnoSphere","fte":20.30},
+    {"period":"Sep '23","dateKey":202309,"vendor":"KeyNode Services","fte":17.50},
+    {"period":"Sep '23","dateKey":202309,"vendor":"LogicNest","fte":9.70},
+    {"period":"Oct '23","dateKey":202310,"vendor":"Apex Solutions","fte":14.80},
+    {"period":"Oct '23","dateKey":202310,"vendor":"BrightPath Tech","fte":20.00},
+    {"period":"Oct '23","dateKey":202310,"vendor":"CoreWave Systems","fte":12.40},
+    {"period":"Oct '23","dateKey":202310,"vendor":"DataBridge Corp","fte":14.50},
+    {"period":"Oct '23","dateKey":202310,"vendor":"Elevate IT","fte":8.10},
+    {"period":"Oct '23","dateKey":202310,"vendor":"FusionPoint","fte":11.40},
+    {"period":"Oct '23","dateKey":202310,"vendor":"GridStone Partners","fte":15.70},
+    {"period":"Oct '23","dateKey":202310,"vendor":"HorizonLabs","fte":15.90},
+    {"period":"Oct '23","dateKey":202310,"vendor":"InnoSphere","fte":20.50},
+    {"period":"Oct '23","dateKey":202310,"vendor":"KeyNode Services","fte":18.10},
+    {"period":"Oct '23","dateKey":202310,"vendor":"LogicNest","fte":10.80},
+    {"period":"Nov '23","dateKey":202311,"vendor":"Apex Solutions","fte":14.60},
+    {"period":"Nov '23","dateKey":202311,"vendor":"BrightPath Tech","fte":19.50},
+    {"period":"Nov '23","dateKey":202311,"vendor":"CoreWave Systems","fte":12.10},
+    {"period":"Nov '23","dateKey":202311,"vendor":"DataBridge Corp","fte":14.00},
+    {"period":"Nov '23","dateKey":202311,"vendor":"Elevate IT","fte":7.90},
+    {"period":"Nov '23","dateKey":202311,"vendor":"FusionPoint","fte":11.10},
+    {"period":"Nov '23","dateKey":202311,"vendor":"GridStone Partners","fte":15.30},
+    {"period":"Nov '23","dateKey":202311,"vendor":"HorizonLabs","fte":15.40},
+    {"period":"Nov '23","dateKey":202311,"vendor":"InnoSphere","fte":19.80},
+    {"period":"Nov '23","dateKey":202311,"vendor":"KeyNode Services","fte":17.60},
+    {"period":"Nov '23","dateKey":202311,"vendor":"LogicNest","fte":9.30},
+    {"period":"Dec '23","dateKey":202312,"vendor":"Apex Solutions","fte":15.10},
+    {"period":"Dec '23","dateKey":202312,"vendor":"BrightPath Tech","fte":20.80},
+    {"period":"Dec '23","dateKey":202312,"vendor":"CoreWave Systems","fte":13.30},
+    {"period":"Dec '23","dateKey":202312,"vendor":"DataBridge Corp","fte":15.10},
+    {"period":"Dec '23","dateKey":202312,"vendor":"Elevate IT","fte":8.50},
+    {"period":"Dec '23","dateKey":202312,"vendor":"FusionPoint","fte":12.40},
+    {"period":"Dec '23","dateKey":202312,"vendor":"GridStone Partners","fte":16.40},
+    {"period":"Dec '23","dateKey":202312,"vendor":"HorizonLabs","fte":16.70},
+    {"period":"Dec '23","dateKey":202312,"vendor":"InnoSphere","fte":21.50},
+    {"period":"Dec '23","dateKey":202312,"vendor":"KeyNode Services","fte":18.50},
+    {"period":"Dec '23","dateKey":202312,"vendor":"LogicNest","fte":11.50},
+    {"period":"Jan '24","dateKey":202401,"vendor":"Apex Solutions","fte":14.90},
+    {"period":"Jan '24","dateKey":202401,"vendor":"BrightPath Tech","fte":20.20},
+    {"period":"Jan '24","dateKey":202401,"vendor":"CoreWave Systems","fte":12.80},
+    {"period":"Jan '24","dateKey":202401,"vendor":"DataBridge Corp","fte":14.60},
+    {"period":"Jan '24","dateKey":202401,"vendor":"Elevate IT","fte":8.00},
+    {"period":"Jan '24","dateKey":202401,"vendor":"FusionPoint","fte":11.50},
+    {"period":"Jan '24","dateKey":202401,"vendor":"GridStone Partners","fte":15.90},
+    {"period":"Jan '24","dateKey":202401,"vendor":"HorizonLabs","fte":16.10},
+    {"period":"Jan '24","dateKey":202401,"vendor":"InnoSphere","fte":20.80},
+    {"period":"Jan '24","dateKey":202401,"vendor":"KeyNode Services","fte":17.80},
+    {"period":"Jan '24","dateKey":202401,"vendor":"LogicNest","fte":11.90},
+    {"period":"Feb '24","dateKey":202402,"vendor":"Apex Solutions","fte":14.40},
+    {"period":"Feb '24","dateKey":202402,"vendor":"BrightPath Tech","fte":19.60},
+    {"period":"Feb '24","dateKey":202402,"vendor":"CoreWave Systems","fte":12.20},
+    {"period":"Feb '24","dateKey":202402,"vendor":"DataBridge Corp","fte":14.20},
+    {"period":"Feb '24","dateKey":202402,"vendor":"Elevate IT","fte":7.70},
+    {"period":"Feb '24","dateKey":202402,"vendor":"FusionPoint","fte":11.20},
+    {"period":"Feb '24","dateKey":202402,"vendor":"GridStone Partners","fte":15.40},
+    {"period":"Feb '24","dateKey":202402,"vendor":"HorizonLabs","fte":15.50},
+    {"period":"Feb '24","dateKey":202402,"vendor":"InnoSphere","fte":19.90},
+    {"period":"Feb '24","dateKey":202402,"vendor":"KeyNode Services","fte":17.30},
+    {"period":"Feb '24","dateKey":202402,"vendor":"LogicNest","fte":10.90},
+    {"period":"Mar '24","dateKey":202403,"vendor":"Apex Solutions","fte":14.10},
+    {"period":"Mar '24","dateKey":202403,"vendor":"BrightPath Tech","fte":19.30},
+    {"period":"Mar '24","dateKey":202403,"vendor":"CoreWave Systems","fte":11.90},
+    {"period":"Mar '24","dateKey":202403,"vendor":"DataBridge Corp","fte":13.80},
+    {"period":"Mar '24","dateKey":202403,"vendor":"Elevate IT","fte":7.50},
+    {"period":"Mar '24","dateKey":202403,"vendor":"FusionPoint","fte":10.90},
+    {"period":"Mar '24","dateKey":202403,"vendor":"GridStone Partners","fte":15.10},
+    {"period":"Mar '24","dateKey":202403,"vendor":"HorizonLabs","fte":15.00},
+    {"period":"Mar '24","dateKey":202403,"vendor":"InnoSphere","fte":19.40},
+    {"period":"Mar '24","dateKey":202403,"vendor":"KeyNode Services","fte":17.00},
+    {"period":"Mar '24","dateKey":202403,"vendor":"LogicNest","fte":9.30},
+    {"period":"Apr '24","dateKey":202404,"vendor":"Apex Solutions","fte":14.30},
+    {"period":"Apr '24","dateKey":202404,"vendor":"BrightPath Tech","fte":19.50},
+    {"period":"Apr '24","dateKey":202404,"vendor":"CoreWave Systems","fte":12.10},
+    {"period":"Apr '24","dateKey":202404,"vendor":"DataBridge Corp","fte":14.10},
+    {"period":"Apr '24","dateKey":202404,"vendor":"Elevate IT","fte":7.80},
+    {"period":"Apr '24","dateKey":202404,"vendor":"FusionPoint","fte":11.00},
+    {"period":"Apr '24","dateKey":202404,"vendor":"GridStone Partners","fte":15.30},
+    {"period":"Apr '24","dateKey":202404,"vendor":"HorizonLabs","fte":15.20},
+    {"period":"Apr '24","dateKey":202404,"vendor":"InnoSphere","fte":19.60},
+    {"period":"Apr '24","dateKey":202404,"vendor":"KeyNode Services","fte":17.50},
+    {"period":"Apr '24","dateKey":202404,"vendor":"LogicNest","fte":7.20},
+    {"period":"May '24","dateKey":202405,"vendor":"Apex Solutions","fte":14.60},
+    {"period":"May '24","dateKey":202405,"vendor":"BrightPath Tech","fte":19.70},
+    {"period":"May '24","dateKey":202405,"vendor":"CoreWave Systems","fte":12.40},
+    {"period":"May '24","dateKey":202405,"vendor":"DataBridge Corp","fte":14.40},
+    {"period":"May '24","dateKey":202405,"vendor":"Elevate IT","fte":7.60},
+    {"period":"May '24","dateKey":202405,"vendor":"FusionPoint","fte":10.60},
+    {"period":"May '24","dateKey":202405,"vendor":"GridStone Partners","fte":14.90},
+    {"period":"May '24","dateKey":202405,"vendor":"HorizonLabs","fte":15.10},
+    {"period":"May '24","dateKey":202405,"vendor":"InnoSphere","fte":19.30},
+    {"period":"May '24","dateKey":202405,"vendor":"KeyNode Services","fte":17.10},
+    {"period":"May '24","dateKey":202405,"vendor":"LogicNest","fte":10.90},
+    {"period":"Jun '24","dateKey":202406,"vendor":"Apex Solutions","fte":15.00},
+    {"period":"Jun '24","dateKey":202406,"vendor":"BrightPath Tech","fte":20.40},
+    {"period":"Jun '24","dateKey":202406,"vendor":"CoreWave Systems","fte":12.90},
+    {"period":"Jun '24","dateKey":202406,"vendor":"DataBridge Corp","fte":14.80},
+    {"period":"Jun '24","dateKey":202406,"vendor":"Elevate IT","fte":8.20},
+    {"period":"Jun '24","dateKey":202406,"vendor":"FusionPoint","fte":11.70},
+    {"period":"Jun '24","dateKey":202406,"vendor":"GridStone Partners","fte":16.00},
+    {"period":"Jun '24","dateKey":202406,"vendor":"HorizonLabs","fte":16.00},
+    {"period":"Jun '24","dateKey":202406,"vendor":"InnoSphere","fte":20.70},
+    {"period":"Jun '24","dateKey":202406,"vendor":"KeyNode Services","fte":18.00},
+    {"period":"Jun '24","dateKey":202406,"vendor":"LogicNest","fte":10.00},
+    {"period":"Jul '24","dateKey":202407,"vendor":"Apex Solutions","fte":15.20},
+    {"period":"Jul '24","dateKey":202407,"vendor":"BrightPath Tech","fte":20.60},
+    {"period":"Jul '24","dateKey":202407,"vendor":"CoreWave Systems","fte":13.10},
+    {"period":"Jul '24","dateKey":202407,"vendor":"DataBridge Corp","fte":14.90},
+    {"period":"Jul '24","dateKey":202407,"vendor":"Elevate IT","fte":8.30},
+    {"period":"Jul '24","dateKey":202407,"vendor":"FusionPoint","fte":11.90},
+    {"period":"Jul '24","dateKey":202407,"vendor":"GridStone Partners","fte":16.10},
+    {"period":"Jul '24","dateKey":202407,"vendor":"HorizonLabs","fte":16.20},
+    {"period":"Jul '24","dateKey":202407,"vendor":"InnoSphere","fte":20.90},
+    {"period":"Jul '24","dateKey":202407,"vendor":"KeyNode Services","fte":18.20},
+    {"period":"Jul '24","dateKey":202407,"vendor":"LogicNest","fte":8.40},
+    {"period":"Aug '24","dateKey":202408,"vendor":"Apex Solutions","fte":14.70},
+    {"period":"Aug '24","dateKey":202408,"vendor":"BrightPath Tech","fte":19.80},
+    {"period":"Aug '24","dateKey":202408,"vendor":"CoreWave Systems","fte":12.50},
+    {"period":"Aug '24","dateKey":202408,"vendor":"DataBridge Corp","fte":14.30},
+    {"period":"Aug '24","dateKey":202408,"vendor":"Elevate IT","fte":7.90},
+    {"period":"Aug '24","dateKey":202408,"vendor":"FusionPoint","fte":11.30},
+    {"period":"Aug '24","dateKey":202408,"vendor":"GridStone Partners","fte":15.50},
+    {"period":"Aug '24","dateKey":202408,"vendor":"HorizonLabs","fte":15.60},
+    {"period":"Aug '24","dateKey":202408,"vendor":"InnoSphere","fte":19.90},
+    {"period":"Aug '24","dateKey":202408,"vendor":"KeyNode Services","fte":17.40},
+    {"period":"Aug '24","dateKey":202408,"vendor":"LogicNest","fte":9.60},
+    {"period":"Sep '24","dateKey":202409,"vendor":"Apex Solutions","fte":15.40},
+    {"period":"Sep '24","dateKey":202409,"vendor":"BrightPath Tech","fte":20.90},
+    {"period":"Sep '24","dateKey":202409,"vendor":"CoreWave Systems","fte":13.30},
+    {"period":"Sep '24","dateKey":202409,"vendor":"DataBridge Corp","fte":15.10},
+    {"period":"Sep '24","dateKey":202409,"vendor":"Elevate IT","fte":8.50},
+    {"period":"Sep '24","dateKey":202409,"vendor":"FusionPoint","fte":12.10},
+    {"period":"Sep '24","dateKey":202409,"vendor":"GridStone Partners","fte":16.30},
+    {"period":"Sep '24","dateKey":202409,"vendor":"HorizonLabs","fte":16.40},
+    {"period":"Sep '24","dateKey":202409,"vendor":"InnoSphere","fte":21.10},
+    {"period":"Sep '24","dateKey":202409,"vendor":"KeyNode Services","fte":18.40},
+    {"period":"Sep '24","dateKey":202409,"vendor":"LogicNest","fte":10.10},
+    {"period":"Oct '24","dateKey":202410,"vendor":"Apex Solutions","fte":14.00},
+    {"period":"Oct '24","dateKey":202410,"vendor":"BrightPath Tech","fte":18.90},
+    {"period":"Oct '24","dateKey":202410,"vendor":"CoreWave Systems","fte":11.70},
+    {"period":"Oct '24","dateKey":202410,"vendor":"DataBridge Corp","fte":13.50},
+    {"period":"Oct '24","dateKey":202410,"vendor":"Elevate IT","fte":7.30},
+    {"period":"Oct '24","dateKey":202410,"vendor":"FusionPoint","fte":10.50},
+    {"period":"Oct '24","dateKey":202410,"vendor":"GridStone Partners","fte":14.60},
+    {"period":"Oct '24","dateKey":202410,"vendor":"HorizonLabs","fte":14.80},
+    {"period":"Oct '24","dateKey":202410,"vendor":"InnoSphere","fte":18.80},
+    {"period":"Oct '24","dateKey":202410,"vendor":"KeyNode Services","fte":16.60},
+    {"period":"Oct '24","dateKey":202410,"vendor":"LogicNest","fte":9.90},
+    {"period":"Nov '24","dateKey":202411,"vendor":"Apex Solutions","fte":15.30},
+    {"period":"Nov '24","dateKey":202411,"vendor":"BrightPath Tech","fte":20.70},
+    {"period":"Nov '24","dateKey":202411,"vendor":"CoreWave Systems","fte":13.00},
+    {"period":"Nov '24","dateKey":202411,"vendor":"DataBridge Corp","fte":14.70},
+    {"period":"Nov '24","dateKey":202411,"vendor":"Elevate IT","fte":8.40},
+    {"period":"Nov '24","dateKey":202411,"vendor":"FusionPoint","fte":11.80},
+    {"period":"Nov '24","dateKey":202411,"vendor":"GridStone Partners","fte":16.00},
+    {"period":"Nov '24","dateKey":202411,"vendor":"HorizonLabs","fte":16.10},
+    {"period":"Nov '24","dateKey":202411,"vendor":"InnoSphere","fte":20.60},
+    {"period":"Nov '24","dateKey":202411,"vendor":"KeyNode Services","fte":18.00},
+    {"period":"Nov '24","dateKey":202411,"vendor":"LogicNest","fte":8.50},
+    {"period":"Dec '24","dateKey":202412,"vendor":"Apex Solutions","fte":15.00},
+    {"period":"Dec '24","dateKey":202412,"vendor":"BrightPath Tech","fte":20.30},
+    {"period":"Dec '24","dateKey":202412,"vendor":"CoreWave Systems","fte":12.70},
+    {"period":"Dec '24","dateKey":202412,"vendor":"DataBridge Corp","fte":14.40},
+    {"period":"Dec '24","dateKey":202412,"vendor":"Elevate IT","fte":8.10},
+    {"period":"Dec '24","dateKey":202412,"vendor":"FusionPoint","fte":11.50},
+    {"period":"Dec '24","dateKey":202412,"vendor":"GridStone Partners","fte":15.70},
+    {"period":"Dec '24","dateKey":202412,"vendor":"HorizonLabs","fte":15.80},
+    {"period":"Dec '24","dateKey":202412,"vendor":"InnoSphere","fte":20.40},
+    {"period":"Dec '24","dateKey":202412,"vendor":"KeyNode Services","fte":17.80},
+    {"period":"Dec '24","dateKey":202412,"vendor":"LogicNest","fte":12.40}
+];
+
+const vendorLocation = [
+    {"vendor":"Apex Solutions","location":"Nearshore","fte":109.40},
+    {"vendor":"Apex Solutions","location":"Offshore","fte":193.90},
+    {"vendor":"Apex Solutions","location":"Onsite","fte":223.30},
+    {"vendor":"BrightPath Tech","location":"Nearshore","fte":107.80},
+    {"vendor":"BrightPath Tech","location":"Offshore","fte":408.40},
+    {"vendor":"BrightPath Tech","location":"Onsite","fte":189.20},
+    {"vendor":"CoreWave Systems","location":"Nearshore","fte":183.70},
+    {"vendor":"CoreWave Systems","location":"Offshore","fte":156.10},
+    {"vendor":"CoreWave Systems","location":"Onsite","fte":110.60},
+    {"vendor":"DataBridge Corp","location":"Nearshore","fte":155.80},
+    {"vendor":"DataBridge Corp","location":"Offshore","fte":299.70},
+    {"vendor":"DataBridge Corp","location":"Onsite","fte":52.70},
+    {"vendor":"Elevate IT","location":"Nearshore","fte":132.70},
+    {"vendor":"Elevate IT","location":"Offshore","fte":108.10},
+    {"vendor":"Elevate IT","location":"Onsite","fte":52.30},
+    {"vendor":"FusionPoint","location":"Nearshore","fte":98.70},
+    {"vendor":"FusionPoint","location":"Offshore","fte":186.50},
+    {"vendor":"FusionPoint","location":"Onsite","fte":135.10},
+    {"vendor":"GridStone Partners","location":"Nearshore","fte":86.60},
+    {"vendor":"GridStone Partners","location":"Offshore","fte":337.30},
+    {"vendor":"GridStone Partners","location":"Onsite","fte":135.70},
+    {"vendor":"HorizonLabs","location":"Nearshore","fte":128.00},
+    {"vendor":"HorizonLabs","location":"Offshore","fte":291.20},
+    {"vendor":"HorizonLabs","location":"Onsite","fte":160.20},
+    {"vendor":"InnoSphere","location":"Nearshore","fte":106.40},
+    {"vendor":"InnoSphere","location":"Offshore","fte":460.20},
+    {"vendor":"InnoSphere","location":"Onsite","fte":156.20},
+    {"vendor":"KeyNode Services","location":"Nearshore","fte":158.60},
+    {"vendor":"KeyNode Services","location":"Offshore","fte":340.20},
+    {"vendor":"KeyNode Services","location":"Onsite","fte":131.40},
+    {"vendor":"LogicNest","location":"Nearshore","fte":54.10},
+    {"vendor":"LogicNest","location":"Offshore","fte":269.00},
+    {"vendor":"LogicNest","location":"Onsite","fte":54.00}
+];
+
+const vendorService = [
+    {"vendor":"Apex Solutions","service":"Admin","fte":51.90},
+    {"vendor":"Apex Solutions","service":"New Development","fte":285.20},
+    {"vendor":"Apex Solutions","service":"System Support","fte":189.50},
+    {"vendor":"BrightPath Tech","service":"Admin","fte":61.40},
+    {"vendor":"BrightPath Tech","service":"New Development","fte":413.50},
+    {"vendor":"BrightPath Tech","service":"System Support","fte":230.50},
+    {"vendor":"CoreWave Systems","service":"Admin","fte":45.10},
+    {"vendor":"CoreWave Systems","service":"New Development","fte":242.00},
+    {"vendor":"CoreWave Systems","service":"System Support","fte":163.30},
+    {"vendor":"DataBridge Corp","service":"Admin","fte":48.40},
+    {"vendor":"DataBridge Corp","service":"New Development","fte":293.90},
+    {"vendor":"DataBridge Corp","service":"System Support","fte":165.90},
+    {"vendor":"Elevate IT","service":"Admin","fte":31.60},
+    {"vendor":"Elevate IT","service":"New Development","fte":163.40},
+    {"vendor":"Elevate IT","service":"System Support","fte":98.10},
+    {"vendor":"FusionPoint","service":"Admin","fte":42.20},
+    {"vendor":"FusionPoint","service":"New Development","fte":210.70},
+    {"vendor":"FusionPoint","service":"System Support","fte":167.40},
+    {"vendor":"GridStone Partners","service":"Admin","fte":69.10},
+    {"vendor":"GridStone Partners","service":"New Development","fte":304.90},
+    {"vendor":"GridStone Partners","service":"System Support","fte":185.60},
+    {"vendor":"HorizonLabs","service":"Admin","fte":61.20},
+    {"vendor":"HorizonLabs","service":"New Development","fte":315.20},
+    {"vendor":"HorizonLabs","service":"System Support","fte":203.00},
+    {"vendor":"InnoSphere","service":"Admin","fte":62.70},
+    {"vendor":"InnoSphere","service":"New Development","fte":409.50},
+    {"vendor":"InnoSphere","service":"System Support","fte":250.60},
+    {"vendor":"KeyNode Services","service":"Admin","fte":63.50},
+    {"vendor":"KeyNode Services","service":"New Development","fte":348.80},
+    {"vendor":"KeyNode Services","service":"System Support","fte":217.90},
+    {"vendor":"LogicNest","service":"Admin","fte":36.70},
+    {"vendor":"LogicNest","service":"New Development","fte":219.20},
+    {"vendor":"LogicNest","service":"System Support","fte":121.20}
+];
+
+const vendorPortfolio = [
+    {"vendor":"Apex Solutions","portfolio":"Customer Experience Platform","fte":172.60,"resources":12},
+    {"vendor":"Apex Solutions","portfolio":"Data & Analytics","fte":106.50,"resources":8},
+    {"vendor":"Apex Solutions","portfolio":"Digital Transformation","fte":95.70,"resources":15},
+    {"vendor":"Apex Solutions","portfolio":"Enterprise Infrastructure","fte":151.80,"resources":9},
+    {"vendor":"BrightPath Tech","portfolio":"Customer Experience Platform","fte":129.70,"resources":14},
+    {"vendor":"BrightPath Tech","portfolio":"Data & Analytics","fte":191.90,"resources":16},
+    {"vendor":"BrightPath Tech","portfolio":"Digital Transformation","fte":187.90,"resources":15},
+    {"vendor":"BrightPath Tech","portfolio":"Enterprise Infrastructure","fte":195.90,"resources":11},
+    {"vendor":"CoreWave Systems","portfolio":"Customer Experience Platform","fte":149.10,"resources":11},
+    {"vendor":"CoreWave Systems","portfolio":"Data & Analytics","fte":147.00,"resources":9},
+    {"vendor":"CoreWave Systems","portfolio":"Digital Transformation","fte":92.20,"resources":10},
+    {"vendor":"CoreWave Systems","portfolio":"Enterprise Infrastructure","fte":62.10,"resources":8},
+    {"vendor":"DataBridge Corp","portfolio":"Customer Experience Platform","fte":122.90,"resources":12},
+    {"vendor":"DataBridge Corp","portfolio":"Data & Analytics","fte":117.30,"resources":11},
+    {"vendor":"DataBridge Corp","portfolio":"Digital Transformation","fte":100.80,"resources":9},
+    {"vendor":"DataBridge Corp","portfolio":"Enterprise Infrastructure","fte":167.20,"resources":14},
+    {"vendor":"Elevate IT","portfolio":"Customer Experience Platform","fte":122.50,"resources":9},
+    {"vendor":"Elevate IT","portfolio":"Data & Analytics","fte":81.20,"resources":6},
+    {"vendor":"Elevate IT","portfolio":"Digital Transformation","fte":36.30,"resources":8},
+    {"vendor":"Elevate IT","portfolio":"Enterprise Infrastructure","fte":53.10,"resources":5},
+    {"vendor":"FusionPoint","portfolio":"Customer Experience Platform","fte":132.90,"resources":11},
+    {"vendor":"FusionPoint","portfolio":"Data & Analytics","fte":61.90,"resources":7},
+    {"vendor":"FusionPoint","portfolio":"Digital Transformation","fte":118.10,"resources":10},
+    {"vendor":"FusionPoint","portfolio":"Enterprise Infrastructure","fte":107.40,"resources":10},
+    {"vendor":"GridStone Partners","portfolio":"Customer Experience Platform","fte":93.00,"resources":15},
+    {"vendor":"GridStone Partners","portfolio":"Data & Analytics","fte":143.60,"resources":11},
+    {"vendor":"GridStone Partners","portfolio":"Digital Transformation","fte":124.10,"resources":14},
+    {"vendor":"GridStone Partners","portfolio":"Enterprise Infrastructure","fte":198.90,"resources":12},
+    {"vendor":"HorizonLabs","portfolio":"Customer Experience Platform","fte":87.80,"resources":10},
+    {"vendor":"HorizonLabs","portfolio":"Data & Analytics","fte":157.90,"resources":13},
+    {"vendor":"HorizonLabs","portfolio":"Digital Transformation","fte":206.50,"resources":15},
+    {"vendor":"HorizonLabs","portfolio":"Enterprise Infrastructure","fte":127.20,"resources":11},
+    {"vendor":"InnoSphere","portfolio":"Customer Experience Platform","fte":152.10,"resources":17},
+    {"vendor":"InnoSphere","portfolio":"Data & Analytics","fte":153.40,"resources":14},
+    {"vendor":"InnoSphere","portfolio":"Digital Transformation","fte":244.00,"resources":19},
+    {"vendor":"InnoSphere","portfolio":"Enterprise Infrastructure","fte":173.30,"resources":18},
+    {"vendor":"KeyNode Services","portfolio":"Customer Experience Platform","fte":88.20,"resources":12},
+    {"vendor":"KeyNode Services","portfolio":"Data & Analytics","fte":222.00,"resources":16},
+    {"vendor":"KeyNode Services","portfolio":"Digital Transformation","fte":154.90,"resources":19},
+    {"vendor":"KeyNode Services","portfolio":"Enterprise Infrastructure","fte":165.10,"resources":12},
+    {"vendor":"LogicNest","portfolio":"Customer Experience Platform","fte":57.70,"resources":6},
+    {"vendor":"LogicNest","portfolio":"Data & Analytics","fte":73.30,"resources":9},
+    {"vendor":"LogicNest","portfolio":"Digital Transformation","fte":97.50,"resources":7},
+    {"vendor":"LogicNest","portfolio":"Enterprise Infrastructure","fte":148.60,"resources":12}
+];
+
+const monthlyLocationTrend = [
+    {"period":"Jan '22","dateKey":202201,"total":247.70,"onsite":54.80,"offshore":127.50,"nearshore":65.40},
+    {"period":"Feb '22","dateKey":202202,"total":240.60,"onsite":58.10,"offshore":118.50,"nearshore":64.00},
+    {"period":"Mar '22","dateKey":202203,"total":241.20,"onsite":58.70,"offshore":120.30,"nearshore":62.20},
+    {"period":"Apr '22","dateKey":202204,"total":245.20,"onsite":57.80,"offshore":121.80,"nearshore":65.60},
+    {"period":"May '22","dateKey":202205,"total":225.90,"onsite":56.70,"offshore":111.40,"nearshore":57.80},
+    {"period":"Jun '22","dateKey":202206,"total":239.20,"onsite":57.70,"offshore":118.30,"nearshore":63.20},
+    {"period":"Jul '22","dateKey":202207,"total":236.10,"onsite":55.80,"offshore":120.30,"nearshore":60.00},
+    {"period":"Aug '22","dateKey":202208,"total":233.80,"onsite":58.90,"offshore":118.50,"nearshore":56.40},
+    {"period":"Sep '22","dateKey":202209,"total":224.10,"onsite":54.50,"offshore":108.10,"nearshore":61.50},
+    {"period":"Oct '22","dateKey":202210,"total":241.20,"onsite":59.00,"offshore":121.30,"nearshore":60.90},
+    {"period":"Nov '22","dateKey":202211,"total":233.40,"onsite":53.50,"offshore":118.80,"nearshore":61.10},
+    {"period":"Dec '22","dateKey":202212,"total":235.70,"onsite":56.30,"offshore":117.70,"nearshore":61.70},
+    {"period":"Jan '23","dateKey":202301,"total":236.50,"onsite":59.20,"offshore":116.00,"nearshore":61.30},
+    {"period":"Feb '23","dateKey":202302,"total":239.40,"onsite":52.20,"offshore":121.20,"nearshore":66.00},
+    {"period":"Mar '23","dateKey":202303,"total":232.70,"onsite":55.70,"offshore":117.00,"nearshore":60.00},
+    {"period":"Apr '23","dateKey":202304,"total":238.20,"onsite":58.30,"offshore":116.30,"nearshore":63.60},
+    {"period":"May '23","dateKey":202305,"total":235.60,"onsite":56.10,"offshore":119.10,"nearshore":60.40},
+    {"period":"Jun '23","dateKey":202306,"total":227.60,"onsite":57.50,"offshore":108.60,"nearshore":61.50},
+    {"period":"Jul '23","dateKey":202307,"total":227.90,"onsite":55.00,"offshore":109.40,"nearshore":63.50},
+    {"period":"Aug '23","dateKey":202308,"total":241.80,"onsite":54.90,"offshore":121.00,"nearshore":65.90},
+    {"period":"Sep '23","dateKey":202309,"total":236.60,"onsite":52.60,"offshore":119.30,"nearshore":64.70},
+    {"period":"Oct '23","dateKey":202310,"total":238.20,"onsite":56.80,"offshore":119.00,"nearshore":62.40},
+    {"period":"Nov '23","dateKey":202311,"total":232.60,"onsite":57.00,"offshore":113.50,"nearshore":62.10},
+    {"period":"Dec '23","dateKey":202312,"total":246.30,"onsite":56.60,"offshore":123.40,"nearshore":66.30},
+    {"period":"Jan '24","dateKey":202401,"total":240.50,"onsite":59.10,"offshore":120.60,"nearshore":60.80},
+    {"period":"Feb '24","dateKey":202402,"total":234.30,"onsite":56.30,"offshore":117.10,"nearshore":60.90},
+    {"period":"Mar '24","dateKey":202403,"total":229.30,"onsite":49.00,"offshore":113.60,"nearshore":66.70},
+    {"period":"Apr '24","dateKey":202404,"total":229.60,"onsite":52.80,"offshore":112.20,"nearshore":64.60},
+    {"period":"May '24","dateKey":202405,"total":228.60,"onsite":58.10,"offshore":112.90,"nearshore":57.60},
+    {"period":"Jun '24","dateKey":202406,"total":239.70,"onsite":57.10,"offshore":121.30,"nearshore":61.30},
+    {"period":"Jul '24","dateKey":202407,"total":239.80,"onsite":56.30,"offshore":121.20,"nearshore":62.30},
+    {"period":"Aug '24","dateKey":202408,"total":232.50,"onsite":54.60,"offshore":116.70,"nearshore":61.20},
+    {"period":"Sep '24","dateKey":202409,"total":241.70,"onsite":57.90,"offshore":118.70,"nearshore":65.10},
+    {"period":"Oct '24","dateKey":202410,"total":226.60,"onsite":53.10,"offshore":117.00,"nearshore":56.50},
+    {"period":"Nov '24","dateKey":202411,"total":239.20,"onsite":54.80,"offshore":117.90,"nearshore":66.50},
+    {"period":"Dec '24","dateKey":202412,"total":240.10,"onsite":54.50,"offshore":124.30,"nearshore":61.30}
+];
+
+// ═══════════════════════════════════════════
+// DERIVED DATA & HELPERS
+// ═══════════════════════════════════════════
+
+const COLORS = {
+    primary:   '#002A5C',  // S&P Deep Navy
+    accent:    '#0072CE',  // S&P Bright Blue
+    accentLight: '#00A3E0',// S&P Light Blue
+    success:   '#00B0B9',  // S&P Teal
+    danger:    '#E31937',  // S&P Red
+    warning:   '#FF6900',  // S&P Orange
+    info:      '#00A3E0',  // S&P Light Blue
+    muted:     '#B2BEC3',
+    onsite:    '#002A5C',  // S&P Deep Navy
+    offshore:  '#FF6900',  // S&P Orange
+    nearshore: '#00B0B9',  // S&P Teal
+    newDev:    '#002A5C',  // S&P Deep Navy
+    sysSupport:'#FF6900',  // S&P Orange
+    admin:     '#00A3E0'   // S&P Light Blue
+};
+
+const VENDOR_COLORS = [
+    '#002A5C','#E31937','#0072CE','#00B0B9',
+    '#FF6900','#00A3E0','#7A2D8F','#00843D',
+    '#002A5C','#E31937','#0072CE'
+];
+
+const allVendors = [...new Set(vendorSummary.map(v => v.vendor))];
+const allPortfolios = [...new Set(vendorPortfolio.map(v => v.portfolio))].sort();
+const allLocations = ['Onsite','Offshore','Nearshore'];
+const allServices = ['New Development','System Support','Admin'];
+const allPeriods = [...new Set(vendorTrend.map(v => v.period))];
+const allDateKeys = [...new Set(vendorTrend.map(v => v.dateKey))].sort();
+const allYears = [...new Set(allDateKeys.map(dk => String(dk).substring(0,4)))].sort();
+
+function getYear(dateKey) { return String(dateKey).substring(0,4); }
+
+function fmt(v) {
+    if (v >= 1000) return (v/1000).toFixed(1) + 'K';
+    return v.toFixed(1);
+}
+
+// ═══════════════════════════════════════════
+// POPULATE FILTER DROPDOWNS
+// ═══════════════════════════════════════════
+
+function populateFilters() {
+    const fv = document.getElementById('filterVendor');
+    const fp = document.getElementById('filterPortfolio');
+    const fl = document.getElementById('filterLocation');
+    const fs = document.getElementById('filterService');
+    const fy = document.getElementById('filterYear');
+
+    allVendors.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; fv.add(o); });
+    allPortfolios.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; fp.add(o); });
+    allLocations.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; fl.add(o); });
+    allServices.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; fs.add(o); });
+    allYears.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; fy.add(o); });
+}
+
+// ═══════════════════════════════════════════
+// FILTER STATE
+// ═══════════════════════════════════════════
+
+function getFilters() {
+    return {
+        vendor: document.getElementById('filterVendor').value,
+        portfolio: document.getElementById('filterPortfolio').value,
+        location: document.getElementById('filterLocation').value,
+        service: document.getElementById('filterService').value,
+        year: document.getElementById('filterYear').value
+    };
+}
+
+function resetFilters() {
+    document.getElementById('filterVendor').value = 'All';
+    document.getElementById('filterPortfolio').value = 'All';
+    document.getElementById('filterLocation').value = 'All';
+    document.getElementById('filterService').value = 'All';
+    document.getElementById('filterYear').value = 'All';
+    applyFilters();
+}
+
+// ═══════════════════════════════════════════
+// FILTERED DATA GENERATORS
+// ═══════════════════════════════════════════
+
+function getFilteredVendors(filters) {
+    let vendors = allVendors.slice();
+    if (filters.vendor !== 'All') vendors = vendors.filter(v => v === filters.vendor);
+
+    // Filter by portfolio — only keep vendors that appear in selected portfolio
+    if (filters.portfolio !== 'All') {
+        const vpVendors = new Set(vendorPortfolio.filter(vp => vp.portfolio === filters.portfolio).map(vp => vp.vendor));
+        vendors = vendors.filter(v => vpVendors.has(v));
+    }
+
+    // Filter by location — only keep vendors present in selected location
+    if (filters.location !== 'All') {
+        const vlVendors = new Set(vendorLocation.filter(vl => vl.location === filters.location && vl.fte > 0).map(vl => vl.vendor));
+        vendors = vendors.filter(v => vlVendors.has(v));
+    }
+
+    // Filter by service — only keep vendors present in selected service
+    if (filters.service !== 'All') {
+        const vsVendors = new Set(vendorService.filter(vs => vs.service === filters.service && vs.fte > 0).map(vs => vs.vendor));
+        vendors = vendors.filter(v => vsVendors.has(v));
+    }
+
+    return vendors;
+}
+
+function getFilteredDateKeys(filters) {
+    let keys = allDateKeys.slice();
+    if (filters.year !== 'All') keys = keys.filter(dk => getYear(dk) === filters.year);
+    return keys;
+}
+
+// ═══════════════════════════════════════════
+// CHART INSTANCES
+// ═══════════════════════════════════════════
+
+let chartTrend, chartVendorRank, chartLocationMix, chartServiceType, chartPortfolio, chartVendorTrend;
+
+const defaultChartOpts = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+        legend: { labels: { font: { family: "'Inter', sans-serif", size: 11, weight: '500' }, padding: 16, usePointStyle: true, pointStyleWidth: 8 } },
+        tooltip: { backgroundColor: '#002A5C', titleFont: { family: "'Segoe UI'", size: 12, weight: '600' }, bodyFont: { family: "'Segoe UI'", size: 11 }, padding: 10, cornerRadius: 8, displayColors: true }
+    }
+};
+
+// ═══════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════
+
+function renderKPIs(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const filteredKeys = getFilteredDateKeys(filters);
+
+    // Compute total FTE from trend data (respects year filter)
+    let totalFte = 0;
+    vendorTrend.forEach(r => {
+        if (filteredVendors.includes(r.vendor) && filteredKeys.includes(r.dateKey)) {
+            totalFte += r.fte;
+        }
+    });
+
+    const vendorCount = filteredVendors.length;
+    const avgFte = vendorCount > 0 ? totalFte / vendorCount : 0;
+
+    // Offshore %
+    let onsiteFte = 0, offshoreFte = 0, nearshoreFte = 0;
+    vendorLocation.forEach(r => {
+        if (filteredVendors.includes(r.vendor)) {
+            if (filters.location === 'All' || r.location === filters.location) {
+                if (r.location === 'Onsite') onsiteFte += r.fte;
+                else if (r.location === 'Offshore') offshoreFte += r.fte;
+                else nearshoreFte += r.fte;
+            }
+        }
+    });
+    const locTotal = onsiteFte + offshoreFte + nearshoreFte;
+    const offshoreP = locTotal > 0 ? (offshoreFte / locTotal * 100) : 0;
+
+    document.getElementById('kpiTotalFte').textContent = fmt(totalFte);
+    document.getElementById('kpiTotalFteSub').textContent = filteredKeys.length + ' months of data';
+    document.getElementById('kpiVendors').textContent = vendorCount;
+    document.getElementById('kpiVendorsSub').textContent = 'across all portfolios';
+    document.getElementById('kpiAvgFte').textContent = fmt(avgFte);
+    document.getElementById('kpiAvgFteSub').textContent = 'per vendor (cumulative)';
+    document.getElementById('kpiOffshore').textContent = offshoreP.toFixed(1) + '%';
+    document.getElementById('kpiOffshoreSub').textContent = 'of total location mix';
+
+    // Update date range
+    if (filteredKeys.length > 0) {
+        const first = vendorTrend.find(r => r.dateKey === filteredKeys[0]);
+        const last = vendorTrend.find(r => r.dateKey === filteredKeys[filteredKeys.length - 1]);
+        document.getElementById('dateRange').textContent = (first ? first.period : '') + ' – ' + (last ? last.period : '');
+    }
+}
+
+function renderTrendChart(filters) {
+    const filteredKeys = getFilteredDateKeys(filters);
+    const filteredVendors = getFilteredVendors(filters);
+
+    // Aggregate monthly location trend, filtering by vendors
+    const trendMap = {};
+    vendorTrend.forEach(r => {
+        if (filteredVendors.includes(r.vendor) && filteredKeys.includes(r.dateKey)) {
+            if (!trendMap[r.dateKey]) trendMap[r.dateKey] = { period: r.period, dateKey: r.dateKey, total: 0 };
+            trendMap[r.dateKey].total += r.fte;
+        }
+    });
+    const trendArr = Object.values(trendMap).sort((a,b) => a.dateKey - b.dateKey);
+
+    // Also get location-level trend for filtered keys
+    const locTrend = monthlyLocationTrend.filter(r => filteredKeys.includes(r.dateKey));
+
+    if (chartTrend) chartTrend.destroy();
+    chartTrend = new Chart(document.getElementById('chartTrend'), {
+        type: 'line',
+        data: {
+            labels: locTrend.map(r => r.period),
+            datasets: [
+                { label: 'Onsite', data: locTrend.map(r => r.onsite), borderColor: COLORS.onsite, backgroundColor: COLORS.onsite + '18', fill: true, tension: 0.35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5 },
+                { label: 'Offshore', data: locTrend.map(r => r.offshore), borderColor: COLORS.offshore, backgroundColor: COLORS.offshore + '18', fill: true, tension: 0.35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5 },
+                { label: 'Nearshore', data: locTrend.map(r => r.nearshore), borderColor: COLORS.nearshore, backgroundColor: COLORS.nearshore + '18', fill: true, tension: 0.35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5 }
+            ]
+        },
+        options: { ...defaultChartOpts, interaction: { intersect: false, mode: 'index' }, scales: { y: { stacked: true, beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } } }, plugins: { ...defaultChartOpts.plugins, legend: { ...defaultChartOpts.plugins.legend, position: 'top' } } }
+    });
+}
+
+function renderVendorRank(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const filteredKeys = getFilteredDateKeys(filters);
+
+    // Aggregate FTE per vendor for filtered period
+    const vendorFte = {};
+    vendorTrend.forEach(r => {
+        if (filteredVendors.includes(r.vendor) && filteredKeys.includes(r.dateKey)) {
+            vendorFte[r.vendor] = (vendorFte[r.vendor] || 0) + r.fte;
+        }
+    });
+    const sorted = Object.entries(vendorFte).sort((a,b) => b[1] - a[1]);
+
+    if (chartVendorRank) chartVendorRank.destroy();
+    chartVendorRank = new Chart(document.getElementById('chartVendorRank'), {
+        type: 'bar',
+        data: {
+            labels: sorted.map(s => s[0]),
+            datasets: [{ data: sorted.map(s => s[1]), backgroundColor: sorted.map((_,i) => VENDOR_COLORS[i % VENDOR_COLORS.length]), borderRadius: 6, barPercentage: 0.7 }]
+        },
+        options: { ...defaultChartOpts, indexAxis: 'y', plugins: { ...defaultChartOpts.plugins, legend: { display: false } }, scales: { x: { grid: { color: '#F1F5F9' }, ticks: { callback: v => fmt(v), font: { size: 11 } } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
+    });
+}
+
+function renderLocationMix(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const locations = filters.location !== 'All' ? [filters.location] : allLocations;
+    const locColors = { 'Onsite': COLORS.onsite, 'Offshore': COLORS.offshore, 'Nearshore': COLORS.nearshore };
+
+    const datasets = locations.map(loc => ({
+        label: loc,
+        data: filteredVendors.map(v => {
+            const match = vendorLocation.find(vl => vl.vendor === v && vl.location === loc);
+            return match ? match.fte : 0;
+        }),
+        backgroundColor: locColors[loc],
+        borderRadius: 4,
+        barPercentage: 0.75
+    }));
+
+    if (chartLocationMix) chartLocationMix.destroy();
+    chartLocationMix = new Chart(document.getElementById('chartLocationMix'), {
+        type: 'bar',
+        data: { labels: filteredVendors, datasets },
+        options: { ...defaultChartOpts, scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } }, y: { stacked: true, grid: { color: '#F1F5F9' }, ticks: { callback: v => fmt(v), font: { size: 11 } } } }, plugins: { ...defaultChartOpts.plugins, legend: { position: 'top' } } }
+    });
+}
+
+function renderServiceType(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const services = filters.service !== 'All' ? [filters.service] : allServices;
+    const svcColors = { 'New Development': COLORS.newDev, 'System Support': COLORS.sysSupport, 'Admin': COLORS.admin };
+
+    const datasets = services.map(svc => ({
+        label: svc,
+        data: filteredVendors.map(v => {
+            const match = vendorService.find(vs => vs.vendor === v && vs.service === svc);
+            return match ? match.fte : 0;
+        }),
+        backgroundColor: svcColors[svc],
+        borderRadius: 4,
+        barPercentage: 0.75
+    }));
+
+    if (chartServiceType) chartServiceType.destroy();
+    chartServiceType = new Chart(document.getElementById('chartServiceType'), {
+        type: 'bar',
+        data: { labels: filteredVendors, datasets },
+        options: { ...defaultChartOpts, scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } }, y: { stacked: true, grid: { color: '#F1F5F9' }, ticks: { callback: v => fmt(v), font: { size: 11 } } } }, plugins: { ...defaultChartOpts.plugins, legend: { position: 'top' } } }
+    });
+}
+
+function renderPortfolio(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const portfolios = filters.portfolio !== 'All' ? [filters.portfolio] : allPortfolios;
+
+    // Aggregate by portfolio
+    const portFte = {};
+    vendorPortfolio.forEach(r => {
+        if (filteredVendors.includes(r.vendor) && portfolios.includes(r.portfolio)) {
+            portFte[r.portfolio] = (portFte[r.portfolio] || 0) + r.fte;
+        }
+    });
+    const labels = Object.keys(portFte);
+    const data = Object.values(portFte);
+
+    if (chartPortfolio) chartPortfolio.destroy();
+    chartPortfolio = new Chart(document.getElementById('chartPortfolio'), {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{ data, backgroundColor: ['#002A5C','#E31937','#0072CE','#00B0B9'], borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+        },
+        options: { ...defaultChartOpts, cutout: '60%', plugins: { ...defaultChartOpts.plugins, legend: { position: 'bottom', labels: { ...defaultChartOpts.plugins.legend.labels, padding: 12 } } } }
+    });
+}
+
+function renderVendorTrendLines(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const filteredKeys = getFilteredDateKeys(filters);
+    const periods = filteredKeys.map(dk => {
+        const match = vendorTrend.find(r => r.dateKey === dk);
+        return match ? match.period : dk;
+    });
+
+    // Deduplicate periods
+    const uniquePeriods = [...new Set(periods)];
+
+    const datasets = filteredVendors.map((vendor, i) => {
+        const vData = vendorTrend.filter(r => r.vendor === vendor && filteredKeys.includes(r.dateKey));
+        const dataByPeriod = {};
+        vData.forEach(r => { dataByPeriod[r.period] = r.fte; });
+
+        return {
+            label: vendor,
+            data: uniquePeriods.map(p => dataByPeriod[p] || 0),
+            borderColor: VENDOR_COLORS[i % VENDOR_COLORS.length],
+            backgroundColor: VENDOR_COLORS[i % VENDOR_COLORS.length] + '22',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            hidden: i >= 5  // Show top 5 by default
+        };
+    });
+
+    if (chartVendorTrend) chartVendorTrend.destroy();
+    chartVendorTrend = new Chart(document.getElementById('chartVendorTrend'), {
+        type: 'line',
+        data: { labels: uniquePeriods, datasets },
+        options: { ...defaultChartOpts, interaction: { intersect: false, mode: 'index' }, scales: { y: { beginAtZero: false, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } } }, plugins: { ...defaultChartOpts.plugins, legend: { position: 'top', onClick: function(e, legendItem, legend) { Chart.defaults.plugins.legend.onClick.call(this, e, legendItem, legend); } } } }
+    });
+}
+
+function renderTable(filters) {
+    const filteredVendors = getFilteredVendors(filters);
+    const filteredKeys = getFilteredDateKeys(filters);
+
+    // Build table rows
+    const rows = filteredVendors.map(vendor => {
+        // Total FTE for period
+        let totalFte = 0;
+        vendorTrend.forEach(r => {
+            if (r.vendor === vendor && filteredKeys.includes(r.dateKey)) totalFte += r.fte;
+        });
+
+        const summary = vendorSummary.find(v => v.vendor === vendor);
+        const locData = vendorLocation.filter(vl => vl.vendor === vendor);
+        const locTotal = locData.reduce((s, l) => s + l.fte, 0);
+        const onsiteP = locTotal > 0 ? (locData.find(l => l.location === 'Onsite')?.fte || 0) / locTotal * 100 : 0;
+        const offshoreP = locTotal > 0 ? (locData.find(l => l.location === 'Offshore')?.fte || 0) / locTotal * 100 : 0;
+        const nearshoreP = locTotal > 0 ? (locData.find(l => l.location === 'Nearshore')?.fte || 0) / locTotal * 100 : 0;
+
+        return { vendor, totalFte, resources: summary?.resources || 0, programs: summary?.programs || 0, onsiteP, offshoreP, nearshoreP };
+    });
+
+    rows.sort((a, b) => b.totalFte - a.totalFte);
+    const maxFte = Math.max(...rows.map(r => r.totalFte), 1);
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = rows.map(r => `
+        <tr>
+            <td style="font-weight:600;">${r.vendor}</td>
+            <td>${r.totalFte.toFixed(1)}</td>
+            <td>${r.resources}</td>
+            <td>${r.programs}</td>
+            <td>${r.onsiteP.toFixed(1)}%</td>
+            <td>${r.offshoreP.toFixed(1)}%</td>
+            <td>${r.nearshoreP.toFixed(1)}%</td>
+            <td><div class="bar-cell"><div class="mini-bar" style="width:${(r.totalFte/maxFte*120)}px;"></div></div></td>
+        </tr>
+    `).join('');
+}
+
+// ═══════════════════════════════════════════
+// TABLE SORTING
+// ═══════════════════════════════════════════
+
+let sortCol = -1, sortAsc = true;
+function sortTable(col) {
+    const tbody = document.getElementById('tableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = col === 0; }
+
+    rows.sort((a, b) => {
+        let va = a.cells[col].textContent.replace('%','').trim();
+        let vb = b.cells[col].textContent.replace('%','').trim();
+        if (col > 0) { va = parseFloat(va); vb = parseFloat(vb); }
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+}
+
+// ═══════════════════════════════════════════
+// MASTER APPLY
+// ═══════════════════════════════════════════
+
+function applyFilters() {
+    const filters = getFilters();
+    renderKPIs(filters);
+    renderTrendChart(filters);
+    renderVendorRank(filters);
+    renderLocationMix(filters);
+    renderServiceType(filters);
+    renderPortfolio(filters);
+    renderVendorTrendLines(filters);
+    renderTable(filters);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+
+populateFilters();
+applyFilters();
+
+// Wire up filter change events
+['filterVendor','filterPortfolio','filterLocation','filterService','filterYear'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applyFilters);
+});
+</script>
+
+</body>
+</html>

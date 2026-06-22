@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotion Effectiveness & Campaign ROI - Falcon Retail</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:linear-gradient(135deg,#1A1A1A 0%,#0F0F0F 100%); color:#F5F0E8; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; min-height:100vh; padding:20px; line-height:1.6; }
+        .container { max-width:1600px; margin:0 auto; }
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; padding:20px; background:rgba(45,45,45,0.5); border:1px solid #8B6F3A; border-radius:8px; backdrop-filter:blur(10px); }
+        .logo { font-size:24px; font-weight:700; letter-spacing:2px; color:#C9A84C; font-family:'Playfair Display',serif; }
+        .back-link { color:#C9A84C; text-decoration:none; font-size:14px; padding:8px 16px; border:1px solid #8B6F3A; border-radius:4px; transition:all 0.3s ease; }
+        .back-link:hover { background:rgba(201,168,76,0.1); border-color:#C9A84C; }
+        .page-title { text-align:center; font-size:34px; font-weight:700; margin-bottom:8px; color:#C9A84C; font-family:'Playfair Display',serif; letter-spacing:1px; }
+        .page-subtitle { text-align:center; font-size:14px; color:#9A9590; margin-bottom:30px; letter-spacing:0.5px; }
+
+        /* KPI Bar */
+        .kpi-bar { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; margin-bottom:30px; }
+        .kpi-card { background:#2D2D2D; border:1px solid #8B6F3A; border-radius:8px; padding:18px; position:relative; transition:all 0.3s ease; }
+        .kpi-card:hover { box-shadow:0 0 20px rgba(201,168,76,0.15); border-color:#C9A84C; }
+        .kpi-card::before { content:''; position:absolute; left:0; top:0; height:3px; width:100%; background:linear-gradient(90deg,#C9A84C 0%,transparent 100%); border-radius:8px 8px 0 0; }
+        .kpi-label { font-size:11px; color:#9A9590; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; font-weight:600; }
+        .kpi-value { font-size:24px; font-weight:700; color:#C9A84C; margin-bottom:3px; font-family:'Playfair Display',serif; }
+        .kpi-secondary { font-size:12px; color:#9A9590; }
+
+        /* Tabs */
+        .tab-buttons { display:flex; gap:4px; margin-bottom:24px; border-bottom:2px solid #8B6F3A; padding-bottom:0; flex-wrap:wrap; }
+        .tab-btn { background:none; border:none; color:#9A9590; padding:10px 18px; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.3s ease; }
+        .tab-btn:hover { color:#C9A84C; }
+        .tab-btn.active { color:#C9A84C; border-bottom-color:#C9A84C; }
+        .tab-content { display:none; animation:fadeIn 0.3s ease; }
+        .tab-content.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Charts & Tables */
+        .chart-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; margin-bottom:24px; }
+        .chart-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:24px; }
+        .chart-container { background:#2D2D2D; border:1px solid #8B6F3A; border-radius:8px; padding:22px; }
+        .chart-full { grid-column:1/-1; }
+        .chart-title { font-size:14px; font-weight:700; color:#C9A84C; margin-bottom:16px; text-transform:uppercase; letter-spacing:0.8px; font-family:'Playfair Display',serif; }
+        .chart-wrapper { position:relative; height:320px; }
+        .chart-wrapper-lg { height:400px; }
+        .table-container { background:#2D2D2D; border:1px solid #8B6F3A; border-radius:8px; padding:22px; overflow-x:auto; margin-bottom:24px; }
+        .table-title { font-size:14px; font-weight:700; color:#C9A84C; margin-bottom:16px; text-transform:uppercase; letter-spacing:0.8px; font-family:'Playfair Display',serif; }
+        table { width:100%; border-collapse:collapse; font-size:12px; }
+        th { background:rgba(201,168,76,0.1); color:#C9A84C; padding:10px 12px; text-align:right; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border-bottom:2px solid #8B6F3A; font-size:11px; }
+        th:first-child { text-align:left; }
+        td { padding:10px 12px; border-bottom:1px solid rgba(139,111,58,0.2); text-align:right; }
+        td:first-child { text-align:left; font-weight:600; }
+        tr:hover { background:rgba(201,168,76,0.04); }
+        tr.total-row { background:rgba(201,168,76,0.08); font-weight:700; }
+        tr.total-row td { border-top:2px solid #8B6F3A; }
+        .var-pos { color:#4CAF50; font-weight:600; }
+        .var-neg { color:#E74C3C; font-weight:600; }
+        .var-warn { color:#E8913A; font-weight:600; }
+
+        /* Insight Box */
+        .insight-box { background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.3); border-radius:8px; padding:16px 20px; margin-bottom:24px; display:flex; gap:12px; align-items:flex-start; }
+        .insight-icon { font-size:20px; flex-shrink:0; margin-top:2px; }
+        .insight-text { font-size:13px; color:#F5F0E8; line-height:1.6; }
+        .insight-text strong { color:#C9A84C; }
+
+        /* Stat cards */
+        .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+        .stat-card { background:#2D2D2D; border:1px solid #8B6F3A; border-radius:8px; padding:20px; text-align:center; }
+        .stat-label { font-size:11px; color:#9A9590; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .stat-value { font-size:28px; font-weight:700; font-family:'Playfair Display',serif; margin-bottom:4px; }
+        .stat-sub { font-size:12px; color:#9A9590; }
+
+        /* Badge */
+        .badge { display:inline-block; padding:3px 10px; border-radius:4px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .badge-high { background:rgba(76,175,80,0.2); color:#4CAF50; }
+        .badge-medium { background:rgba(232,145,58,0.2); color:#E8913A; }
+        .badge-low { background:rgba(231,76,60,0.2); color:#E74C3C; }
+        .badge-info { background:rgba(106,155,195,0.2); color:#6A9BC3; }
+
+        /* Promo catalog */
+        .promo-type-row { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(0,0,0,0.15); border-radius:6px; margin-bottom:8px; border-left:3px solid #C9A84C; }
+        .promo-type-label { min-width:140px; font-weight:700; color:#C9A84C; font-size:13px; }
+        .promo-type-bar { flex:1; height:28px; border-radius:4px; display:flex; align-items:center; padding:0 12px; font-size:11px; font-weight:700; color:#1A1A1A; }
+        .promo-type-count { min-width:60px; text-align:right; font-size:12px; color:#9A9590; }
+
+        .footer { text-align:center; padding:30px; border-top:1px solid #8B6F3A; color:#9A9590; font-size:12px; margin-top:40px; }
+        @media (max-width:1200px) { .chart-grid,.chart-grid-3,.stat-grid { grid-template-columns:1fr; } .kpi-bar { grid-template-columns:repeat(3,1fr); } }
+        @media (max-width:768px) { .kpi-bar { grid-template-columns:repeat(2,1fr); } .header { flex-direction:column; gap:12px; } .tab-btn { padding:8px 12px; font-size:11px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <div class="logo">FALCON RETAIL</div>
+        <a href="index.html" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+    <h1 class="page-title">Promotion Effectiveness & Campaign ROI</h1>
+    <p class="page-subtitle">Advanced Promotional Analytics &bull; FY2026 &bull; 108 Promotions &times; 9 Types &bull; Data through March 16, 2026</p>
+
+    <!-- KPI Bar -->
+    <div class="kpi-bar">
+        <div class="kpi-card">
+            <div class="kpi-label">Promo Penetration</div>
+            <div class="kpi-value">0.61%</div>
+            <div class="kpi-secondary">3,249 of 533,374 transactions</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Promo Revenue</div>
+            <div class="kpi-value">$1.35M</div>
+            <div class="kpi-secondary">0.59% of total revenue</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Promo Margin</div>
+            <div class="kpi-value">$563K</div>
+            <div class="kpi-secondary">41.6% margin rate</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Discount Given</div>
+            <div class="kpi-value">$66.4K</div>
+            <div class="kpi-secondary">Avg $20.43 / transaction</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Margin-Adjusted ROI</div>
+            <div class="kpi-value">8.5x</div>
+            <div class="kpi-secondary">Margin ÷ Discount Cost</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Stacked Promo Txns</div>
+            <div class="kpi-value">5</div>
+            <div class="kpi-secondary">+48% deeper discount depth</div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab(0)">Promo Penetration</button>
+        <button class="tab-btn" onclick="switchTab(1)">Stacked Promos</button>
+        <button class="tab-btn" onclick="switchTab(2)">Margin-Adjusted Uplift</button>
+        <button class="tab-btn" onclick="switchTab(3)">Channel &amp; Category</button>
+        <button class="tab-btn" onclick="switchTab(4)">Promo Catalog</button>
+        <button class="tab-btn" onclick="switchTab(5)">ROI Deep Dive</button>
+    </div>
+
+    <!-- ============ TAB 0: PROMO PENETRATION ============ -->
+    <div class="tab-content active" id="tab0">
+        <div class="insight-box">
+            <div class="insight-icon">&#128269;</div>
+            <div class="insight-text">
+                <strong>Key Finding:</strong> Only <strong>0.61%</strong> of FY2026 transactions (3,249 of 533,374) include a tracked promotion.
+                This exceptionally low penetration means promotions are highly targeted rather than mass-market. Promo transactions generate
+                a <strong>+0.6% AOV lift</strong> ($389.15 vs $386.85 non-promo) but with a slight margin compression of <strong>-0.2pp</strong>
+                (41.6% vs 41.8%). The bridge table only tracks 3 of 9 promo types (Clearance, Percentage Off, Flash Sale) &mdash; BOGO, Bundle,
+                Free Shipping, Friends &amp; Family, Loyalty Bonus, Seasonal, and VIP Early Access are defined but have no linked transactions.
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Transaction Composition: Promo vs Non-Promo</div>
+                <div class="chart-wrapper"><canvas id="chart_penetration_doughnut"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Promo vs Non-Promo: Per-Transaction Metrics</div>
+                <div class="chart-wrapper"><canvas id="chart_promo_vs_nonpromo"></canvas></div>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-label">Non-Promo AOV</div>
+                <div class="stat-value" style="color:#6A9BC3">$386.85</div>
+                <div class="stat-sub">530,125 transactions &bull; 99.39%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Promo AOV</div>
+                <div class="stat-value" style="color:#C9A84C">$389.15</div>
+                <div class="stat-sub">3,249 transactions &bull; <span class="var-pos">+0.6%</span> lift</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Promo Margin Rate</div>
+                <div class="stat-value" style="color:#5BA67D">41.6%</div>
+                <div class="stat-sub">vs 41.8% non-promo &bull; <span class="var-neg">-0.2pp</span></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Promo vs Non-Promo Detailed Comparison</div>
+            <table>
+                <thead><tr><th>Segment</th><th>Transactions</th><th>Share</th><th>Net Sales</th><th>Gross Sales</th><th>Discount</th><th>Margin</th><th>Margin %</th><th>Units</th><th>AOV</th><th>UPT</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Non-Promo</strong></td>
+                        <td>530,125</td><td>99.39%</td>
+                        <td>$227.1M</td><td>$237.8M</td><td>$10.74M</td>
+                        <td>$95.0M</td><td>41.8%</td>
+                        <td>1,465,535</td><td>$386.85</td><td>2.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Promo</strong></td>
+                        <td>3,249</td><td>0.61%</td>
+                        <td>$1.35M</td><td>$1.42M</td><td>$66.4K</td>
+                        <td>$563K</td><td>41.6%</td>
+                        <td>8,705</td><td>$389.15</td><td>2.50</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL</strong></td>
+                        <td>533,374</td><td>100%</td>
+                        <td>$228.5M</td><td>$239.3M</td><td>$10.80M</td>
+                        <td>$95.6M</td><td>41.8%</td>
+                        <td>1,474,240</td><td>$386.87</td><td>2.50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============ TAB 1: STACKED PROMOS ============ -->
+    <div class="tab-content" id="tab1">
+        <div class="insight-box">
+            <div class="insight-icon">&#128200;</div>
+            <div class="insight-text">
+                <strong>Stacking Analysis:</strong> Only <strong>5 transactions</strong> in FY2026 had 2 stacked promotions. These stacked-promo
+                transactions show a <strong>+48% deeper discount rate</strong> (6.43% vs 4.34% baseline) and <strong>+$4.43 higher avg discount</strong>
+                ($24.68 vs $20.25). However, stacked transactions also show a significantly higher AOV of <strong>$598.72</strong> &mdash; a
+                <strong>+54.8% lift</strong> over non-promo, suggesting stacking attracts higher-value purchases. The incremental discount from
+                1&rarr;2 promos is <strong>+$2.81/txn (+12.8%)</strong>, but the volume is too small for statistical significance.
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Average Discount per Transaction by Promo Count</div>
+                <div class="chart-wrapper"><canvas id="chart_stack_discount"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Average Discount Rate (%) by Promo Count</div>
+                <div class="chart-wrapper"><canvas id="chart_stack_rate"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Average Order Value by Promo Count</div>
+                <div class="chart-wrapper"><canvas id="chart_stack_aov"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Transaction Volume by Promo Count (Log Scale)</div>
+                <div class="chart-wrapper"><canvas id="chart_stack_volume"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Stacked Promotion Impact Analysis</div>
+            <table>
+                <thead><tr><th>Promo Count</th><th>Transactions</th><th>Share</th><th>Avg Discount ($)</th><th>Avg Disc Rate (%)</th><th>Avg AOV ($)</th><th>Incremental Disc (vs 0)</th><th>Incremental AOV (vs 0)</th><th>Stat. Sig.</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>0 Promos (Baseline)</strong></td>
+                        <td>530,125</td><td>99.39%</td>
+                        <td>$20.25</td><td>4.34%</td><td>$428.19</td>
+                        <td>&mdash;</td><td>&mdash;</td>
+                        <td><span class="badge badge-info">Baseline</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>1 Promo</strong></td>
+                        <td>3,244</td><td>0.608%</td>
+                        <td>$21.87</td><td>4.50%</td><td>$449.45</td>
+                        <td class="var-neg">+$1.62 (+8.0%)</td>
+                        <td class="var-pos">+$21.26 (+5.0%)</td>
+                        <td><span class="badge badge-high">Yes (n=3,244)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2 Promos (Stacked)</strong></td>
+                        <td>5</td><td>0.001%</td>
+                        <td>$24.68</td><td>6.43%</td><td>$598.72</td>
+                        <td class="var-neg">+$4.43 (+21.9%)</td>
+                        <td class="var-pos">+$170.53 (+39.8%)</td>
+                        <td><span class="badge badge-low">No (n=5)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="insight-box">
+            <div class="insight-icon">&#9888;&#65039;</div>
+            <div class="insight-text">
+                <strong>Caveat:</strong> With only 5 stacked-promo transactions, the incremental impact numbers are directional only.
+                Among the 108 promotions in the catalog, <strong>54 are marked stackable</strong> (IS_STACKABLE=1), yet actual stacking
+                is negligible. This suggests either operational constraints prevent stacking or customers rarely encounter overlapping eligible promos.
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 2: MARGIN-ADJUSTED UPLIFT ============ -->
+    <div class="tab-content" id="tab2">
+        <div class="insight-box">
+            <div class="insight-icon">&#128176;</div>
+            <div class="insight-text">
+                <strong>Margin-Adjusted ROI:</strong> When measured by <strong>margin generated per dollar of discount given</strong>,
+                <strong>Percentage Off</strong> leads at <strong>$8.74</strong> margin per $1 discount, followed by Clearance at <strong>$8.49</strong>
+                and Flash Sale at <strong>$7.78</strong>. However, Clearance generates the highest <strong>absolute margin ($292K)</strong> due to
+                greater volume. Flash Sale achieves the best raw margin rate (<strong>42.5%</strong>) but at smallest scale.
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Margin-Adjusted ROI: Margin per $1 Discount</div>
+                <div class="chart-wrapper"><canvas id="chart_margin_roi"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Revenue vs Margin vs Discount by Type</div>
+                <div class="chart-wrapper"><canvas id="chart_rev_margin_disc"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Margin Rate: Promo Type vs Non-Promo Baseline</div>
+                <div class="chart-wrapper"><canvas id="chart_margin_rate_compare"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Efficiency Scatter: Margin Rate vs Avg Discount %</div>
+                <div class="chart-wrapper"><canvas id="chart_efficiency_bubble"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Comprehensive Margin-Adjusted Uplift by Promotion Type</div>
+            <table>
+                <thead><tr><th>Promo Type</th><th># Promos</th><th>Line Items</th><th>Revenue</th><th>Discount</th><th>Margin ($)</th><th>Margin %</th><th>vs Non-Promo</th><th>Avg Disc %</th><th>Margin/$1 Disc</th><th>Revenue/$1 Disc</th><th>Rating</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Clearance</strong></td>
+                        <td>3</td><td>1,792</td>
+                        <td>$693,430</td><td>$34,363</td>
+                        <td>$291,776</td><td>42.1%</td>
+                        <td class="var-pos">+0.3pp</td>
+                        <td>32.6%</td>
+                        <td class="var-pos">$8.49</td><td>$20.2x</td>
+                        <td><span class="badge badge-high">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Percentage Off</strong></td>
+                        <td>2</td><td>1,286</td>
+                        <td>$495,671</td><td>$23,091</td>
+                        <td>$201,965</td><td>40.8%</td>
+                        <td class="var-neg">-1.0pp</td>
+                        <td>27.2%</td>
+                        <td class="var-pos">$8.74</td><td>$21.5x</td>
+                        <td><span class="badge badge-high">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flash Sale</strong></td>
+                        <td>1</td><td>398</td>
+                        <td>$163,569</td><td>$8,922</td>
+                        <td>$69,452</td><td>42.5%</td>
+                        <td class="var-pos">+0.7pp</td>
+                        <td>29.0%</td>
+                        <td class="var-pos">$7.78</td><td>$18.3x</td>
+                        <td><span class="badge badge-medium">Good</span></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>ALL PROMO</strong></td>
+                        <td>6</td><td>3,476</td>
+                        <td>$1,352,670</td><td>$66,376</td>
+                        <td>$563,193</td><td>41.6%</td>
+                        <td class="var-neg">-0.2pp</td>
+                        <td>30.0%</td>
+                        <td>$8.48</td><td>$20.4x</td>
+                        <td><span class="badge badge-high">Strong</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="insight-box">
+            <div class="insight-icon">&#128161;</div>
+            <div class="insight-text">
+                <strong>Recommendation:</strong> <strong>Percentage Off</strong> delivers the best margin-adjusted ROI ($8.74 per $1 discount)
+                despite the lowest discount depth (27.2%). Consider expanding this promo type. <strong>Flash Sale</strong> achieves the highest
+                raw margin rate (42.5%) but at small scale &mdash; test scaling it to validate if margin holds. <strong>Clearance</strong> generates
+                the most absolute margin and is most reliable for inventory clearing.
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 3: CHANNEL & CATEGORY ============ -->
+    <div class="tab-content" id="tab3">
+        <div class="insight-box">
+            <div class="insight-icon">&#128301;</div>
+            <div class="insight-text">
+                <strong>Channel Analysis:</strong> <strong>E-Commerce</strong> has the highest promo penetration at <strong>0.63%</strong> (731 promo txns),
+                while <strong>Mobile App</strong> has the lowest at <strong>0.55%</strong> (633 txns). Among categories, <strong>Tops</strong> captures the
+                most promo revenue (<strong>$188K</strong>), followed by Footwear ($177K). <strong>Activewear</strong> has the lowest promo sales ($152K)
+                but also the lowest promo discount, suggesting room to deploy targeted promotions.
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Promo Penetration by Channel (%)</div>
+                <div class="chart-wrapper"><canvas id="chart_channel_penetration"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Promo Revenue by Category ($K)</div>
+                <div class="chart-wrapper"><canvas id="chart_category_promo_rev"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Category Promo Margin Rate vs Overall Margin Rate</div>
+                <div class="chart-wrapper"><canvas id="chart_cat_margin_compare"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Promo Sales as % of Total Sales by Category</div>
+                <div class="chart-wrapper"><canvas id="chart_cat_promo_share"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Promotional Impact by Category</div>
+            <table>
+                <thead><tr><th>Category</th><th>Total Txns</th><th>Promo Txns</th><th>Penetration</th><th>Promo Sales</th><th>Promo Disc</th><th>Promo Margin</th><th>Promo Margin %</th><th>Overall Margin %</th><th>Margin Delta</th></tr></thead>
+                <tbody id="tbl_category"></tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Promotional Penetration by Channel</div>
+            <table>
+                <thead><tr><th>Channel</th><th>Total Txns</th><th>Promo Txns</th><th>Penetration</th><th>Promo Sales</th><th>Total Sales</th><th>Promo Sales %</th></tr></thead>
+                <tbody id="tbl_channel"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============ TAB 4: PROMO CATALOG ============ -->
+    <div class="tab-content" id="tab4">
+        <div class="insight-box">
+            <div class="insight-icon">&#128218;</div>
+            <div class="insight-text">
+                <strong>Promotion Catalog:</strong> Falcon Retail operates <strong>108 promotions</strong> across <strong>9 types</strong>.
+                Only 3 types (Clearance, Percentage Off, Flash Sale) have discount-percentage-based mechanics linked to the transaction bridge table.
+                The remaining 6 types (BOGO, Bundle, Free Shipping, Friends &amp; Family, Loyalty Bonus, Seasonal, VIP Early Access) are defined
+                in the promotion dimension but have <strong>no linked transactions in the bridge table</strong> &mdash; this represents a
+                <strong>tracking gap</strong> that limits full promotional ROI measurement.
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Promotions by Type (Total Count)</div>
+                <div class="chart-wrapper"><canvas id="chart_catalog_bar"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Tracked vs Untracked Promo Types</div>
+                <div class="chart-wrapper"><canvas id="chart_tracked_doughnut"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Full Promotion Type Catalog</div>
+            <table>
+                <thead><tr><th>Promo Type</th><th># Promos</th><th>Avg Disc %</th><th>Stackable</th><th>Tracked Txns</th><th>Revenue Impact</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Clearance</strong></td><td>15</td><td>32.6%</td><td>8 of 15</td><td>1,675</td><td>$693K</td><td><span class="badge badge-high">Tracked</span></td></tr>
+                    <tr><td><strong>Flash Sale</strong></td><td>13</td><td>29.0%</td><td>7 of 13</td><td>377</td><td>$164K</td><td><span class="badge badge-high">Tracked</span></td></tr>
+                    <tr><td><strong>Seasonal</strong></td><td>13</td><td>0%</td><td>5 of 13</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr><td><strong>Loyalty Bonus</strong></td><td>14</td><td>0%</td><td>7 of 14</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr><td><strong>Bundle</strong></td><td>12</td><td>0%</td><td>7 of 12</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr><td><strong>Percentage Off</strong></td><td>8</td><td>27.2%</td><td>2 of 8</td><td>1,197</td><td>$496K</td><td><span class="badge badge-high">Tracked</span></td></tr>
+                    <tr><td><strong>VIP Early Access</strong></td><td>8</td><td>0%</td><td>4 of 8</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr><td><strong>BOGO</strong></td><td>7</td><td>0%</td><td>4 of 7</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr><td><strong>Friends &amp; Family</strong></td><td>7</td><td>0%</td><td>2 of 7</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr><td><strong>Free Shipping</strong></td><td>6</td><td>0%</td><td>3 of 6</td><td>0</td><td>&mdash;</td><td><span class="badge badge-low">Untracked</span></td></tr>
+                    <tr class="total-row"><td><strong>ALL TYPES</strong></td><td>108</td><td>&mdash;</td><td>54 of 108</td><td>3,249</td><td>$1.35M</td><td><span class="badge badge-medium">33% Tracked</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="insight-box">
+            <div class="insight-icon">&#9888;&#65039;</div>
+            <div class="insight-text">
+                <strong>Data Gap Alert:</strong> 6 of 9 promotion types (<strong>67%</strong>) have no transaction-level tracking.
+                This means the true promotional revenue could be <strong>significantly higher</strong> than the $1.35M currently tracked.
+                Recommendation: Implement bridge table linkage for BOGO, Bundle, Loyalty Bonus, Seasonal, Friends &amp; Family, Free Shipping,
+                and VIP Early Access promo types to enable complete ROI measurement.
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 5: ROI DEEP DIVE ============ -->
+    <div class="tab-content" id="tab5">
+        <div class="insight-box">
+            <div class="insight-icon">&#128202;</div>
+            <div class="insight-text">
+                <strong>ROI Summary:</strong> Every $1 of promotional discount generates <strong>$20.4 in revenue</strong> and <strong>$8.48 in gross margin</strong>.
+                Clearance achieves the highest volume with $693K revenue from 3 campaigns. Percentage Off is the most efficient, generating
+                $8.74 margin per discount dollar. The <strong>discount contribution</strong> from the bridge table ($138K total) represents
+                the promo-attributed portion of the discount, while the transaction-level discount ($66K) reflects what customers actually received.
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Revenue ROI Multiple by Promo Type</div>
+                <div class="chart-wrapper"><canvas id="chart_roi_multiple"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Discount Contribution Breakdown ($K)</div>
+                <div class="chart-wrapper"><canvas id="chart_disc_contribution"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Revenue per Promo Campaign</div>
+                <div class="chart-wrapper"><canvas id="chart_rev_per_campaign"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Units per Promo Line Item</div>
+                <div class="chart-wrapper"><canvas id="chart_units_per_item"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Individual FY2026 Campaign Performance</div>
+            <table>
+                <thead><tr><th>Campaign</th><th>Type</th><th>Category</th><th>Disc %</th><th>Channel</th><th>Stackable</th><th>Dates</th><th>Duration</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>2026 Clearance</strong></td><td>Clearance</td><td>Bottoms</td><td>32%</td><td>In-Store</td><td>Yes</td><td>Feb 18 - Feb 23</td><td>5 days</td></tr>
+                    <tr><td><strong>2026 Clearance</strong></td><td>Clearance</td><td>Denim</td><td>48%</td><td>In-Store</td><td>No</td><td>Nov 13 - Nov 20</td><td>7 days</td></tr>
+                    <tr><td><strong>2026 Percentage Off</strong></td><td>Percentage Off</td><td>Footwear</td><td>16%</td><td>In-Store</td><td>Yes</td><td>Jun 9 - Jun 28</td><td>19 days</td></tr>
+                    <tr><td><strong>2026 Flash Sale</strong></td><td>Flash Sale</td><td>Tops</td><td>29%</td><td>Online</td><td>Yes</td><td>Sep 5 - Sep 26</td><td>21 days</td></tr>
+                    <tr><td><strong>2026 Bundle</strong></td><td>Bundle</td><td>Footwear</td><td>0%</td><td>Both</td><td>No</td><td>Sep 8 - Sep 27</td><td>19 days</td></tr>
+                    <tr><td><strong>2026 Bundle</strong></td><td>Bundle</td><td>Denim</td><td>0%</td><td>Both</td><td>No</td><td>Aug 10 - Aug 23</td><td>13 days</td></tr>
+                    <tr><td><strong>2026 Seasonal</strong></td><td>Seasonal</td><td>Tops</td><td>0%</td><td>In-Store</td><td>Yes</td><td>Jun 17 - Jul 8</td><td>21 days</td></tr>
+                    <tr><td><strong>2026 Free Shipping</strong></td><td>Free Shipping</td><td>Bottoms</td><td>0%</td><td>Online</td><td>No</td><td>Jun 4 - Jun 7</td><td>3 days</td></tr>
+                    <tr><td><strong>2026 Loyalty Bonus</strong></td><td>Loyalty Bonus</td><td>Bottoms</td><td>0%</td><td>Both</td><td>No</td><td>Mar 4 - Mar 17</td><td>13 days</td></tr>
+                    <tr><td><strong>2026 Loyalty Bonus</strong></td><td>Loyalty Bonus</td><td>Footwear</td><td>0%</td><td>In-Store</td><td>Yes</td><td>Feb 5 - Feb 25</td><td>20 days</td></tr>
+                    <tr><td><strong>2026 VIP Early Access</strong></td><td>VIP Early Access</td><td>Tops</td><td>0%</td><td>Both</td><td>Yes</td><td>Mar 4 - Mar 20</td><td>16 days</td></tr>
+                    <tr><td><strong>2026 Seasonal</strong></td><td>Seasonal</td><td>Footwear</td><td>0%</td><td>Online</td><td>No</td><td>Jan 14 - Jan 28</td><td>14 days</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated March 16, 2026 &bull; Data as of March 16, 2026 &bull; Falcon Retail Confidential<br>
+        <span style="font-size:11px;color:#6B6560;">Note: Only Clearance, Percentage Off, and Flash Sale promo types have transaction-level bridge table tracking. Other types are defined but unlinked.</span>
+    </div>
+</div>
+
+<script>
+const CC = ['#C9A84C','#6A9BC3','#5BA67D','#E8913A','#C75B5B','#8E6BBF','#4ECDC4','#D4A843'];
+Chart.defaults.color = '#9A9590';
+Chart.defaults.borderColor = 'rgba(139,111,58,0.15)';
+
+function switchTab(i) {
+    document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+    document.querySelectorAll('.tab-content').forEach((c,j) => c.classList.toggle('active', j===i));
+    setTimeout(() => Object.values(Chart.instances).forEach(c => c.resize()), 120);
+}
+
+// =================== TAB 0: PENETRATION ===================
+new Chart(document.getElementById('chart_penetration_doughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Non-Promo (99.39%)','Promo (0.61%)'],
+        datasets: [{data:[530125,3249],backgroundColor:['#6A9BC3','#C9A84C'],borderColor:'#1A1A1A',borderWidth:3}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,cutout:'60%',
+        plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{weight:'bold'},padding:16}}}}
+});
+
+new Chart(document.getElementById('chart_promo_vs_nonpromo'), {
+    type: 'bar',
+    data: {
+        labels: ['AOV ($)','Avg Discount ($)','Margin Rate (%)','Disc Rate (%)'],
+        datasets: [
+            {label:'Non-Promo',data:[386.85,20.25,41.8,4.34],backgroundColor:'#6A9BC3',borderRadius:4},
+            {label:'Promo',data:[389.15,20.43,41.6,4.68],backgroundColor:'#C9A84C',borderRadius:4}
+        ]
+    },
+    options: {responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{y:{grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+// =================== TAB 1: STACKED ===================
+new Chart(document.getElementById('chart_stack_discount'), {
+    type: 'bar',
+    data: {
+        labels: ['0 Promos','1 Promo','2 Promos (Stacked)'],
+        datasets: [{label:'Avg Discount ($)',data:[20.25,21.87,24.68],backgroundColor:[CC[1],CC[0],CC[3]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>'$'+v.toFixed(2)},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_stack_rate'), {
+    type: 'bar',
+    data: {
+        labels: ['0 Promos','1 Promo','2 Promos (Stacked)'],
+        datasets: [{label:'Disc Rate %',data:[4.34,4.50,6.43],backgroundColor:[CC[1],CC[0],CC[3]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>v.toFixed(1)+'%'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_stack_aov'), {
+    type: 'bar',
+    data: {
+        labels: ['0 Promos','1 Promo','2 Promos (Stacked)'],
+        datasets: [{label:'Avg AOV ($)',data:[428.19,449.45,598.72],backgroundColor:[CC[1],CC[0],CC[3]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_stack_volume'), {
+    type: 'bar',
+    data: {
+        labels: ['0 Promos','1 Promo','2 Promos'],
+        datasets: [{label:'Transactions',data:[530125,3244,5],backgroundColor:[CC[1],CC[0],CC[3]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{type:'logarithmic',grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+// =================== TAB 2: MARGIN UPLIFT ===================
+new Chart(document.getElementById('chart_margin_roi'), {
+    type: 'bar',
+    data: {
+        labels: ['Percentage Off','Clearance','Flash Sale'],
+        datasets: [{label:'Margin per $1 Discount',data:[8.74,8.49,7.78],backgroundColor:[CC[0],CC[2],CC[3]],borderRadius:4}]
+    },
+    options: {indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{callback:v=>'$'+v.toFixed(2)},grid:{color:'rgba(139,111,58,0.1)'}},y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_rev_margin_disc'), {
+    type: 'bar',
+    data: {
+        labels: ['Clearance','Percentage Off','Flash Sale'],
+        datasets: [
+            {label:'Revenue ($K)',data:[693.4,495.7,163.6],backgroundColor:CC[0],borderRadius:4},
+            {label:'Margin ($K)',data:[291.8,202.0,69.5],backgroundColor:CC[2],borderRadius:4},
+            {label:'Discount ($K)',data:[34.4,23.1,8.9],backgroundColor:CC[4],borderRadius:4}
+        ]
+    },
+    options: {responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{y:{ticks:{callback:v=>'$'+v+'K'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_margin_rate_compare'), {
+    type: 'bar',
+    data: {
+        labels: ['Flash Sale','Clearance','Non-Promo Baseline','Percentage Off','Overall Promo'],
+        datasets: [{label:'Margin %',data:[42.5,42.1,41.8,40.8,41.6],
+            backgroundColor:['#E8913A','#5BA67D','#6A9BC3','#C9A84C','#8E6BBF'],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{min:39,max:43,ticks:{callback:v=>v+'%'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_efficiency_bubble'), {
+    type: 'bubble',
+    data: {
+        datasets: [
+            {label:'Clearance',data:[{x:32.6,y:42.1,r:18}],backgroundColor:CC[2]+'99',borderColor:CC[2],borderWidth:2},
+            {label:'% Off',data:[{x:27.2,y:40.8,r:14}],backgroundColor:CC[0]+'99',borderColor:CC[0],borderWidth:2},
+            {label:'Flash Sale',data:[{x:29.0,y:42.5,r:8}],backgroundColor:CC[3]+'99',borderColor:CC[3],borderWidth:2}
+        ]
+    },
+    options: {responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            x:{title:{display:true,text:'Avg Discount %',color:'#F5F0E8'},grid:{color:'rgba(139,111,58,0.1)'}},
+            y:{title:{display:true,text:'Margin Rate %',color:'#F5F0E8'},grid:{color:'rgba(139,111,58,0.1)'},min:39,max:44}
+        }}
+});
+
+// =================== TAB 3: CHANNEL & CATEGORY ===================
+const channelData = [
+    {name:'E-Commerce',total:116364,promo:731,promoSales:282629,totalSales:45901565},
+    {name:'Curbside',total:115558,promo:698,promoSales:285436,totalSales:45799104},
+    {name:'In-Store',total:115449,promo:690,promoSales:270678,totalSales:45599000},
+    {name:'BOPIS',total:116038,promo:681,promoSales:274885,totalSales:45839790},
+    {name:'Mobile App',total:115077,promo:633,promoSales:239042,totalSales:45317653}
+];
+
+const catData = [
+    {name:'Tops',total:74883,promo:455,promoSales:188024,promoDisc:9716,promoMargin:80632,totalSales:29398977,totalDisc:1377842,totalMargin:12330486},
+    {name:'Footwear',total:74704,promo:433,promoSales:177296,promoDisc:8220,promoMargin:72389,totalSales:29278892,totalDisc:1409160,totalMargin:12155072},
+    {name:'Loungewear',total:69176,promo:425,promoSales:173504,promoDisc:7866,promoMargin:76737,totalSales:27019879,totalDisc:1285603,totalMargin:11300213},
+    {name:'Bottoms',total:76579,promo:464,promoSales:169215,promoDisc:9380,promoMargin:64669,totalSales:30063118,totalDisc:1407781,totalMargin:12636100},
+    {name:'Outerwear',total:76433,promo:423,promoSales:167357,promoDisc:6970,promoMargin:74154,totalSales:29987202,totalDisc:1430895,totalMargin:12545447},
+    {name:'Denim',total:70930,promo:400,promoSales:165156,promoDisc:8964,promoMargin:70881,totalSales:27953135,totalDisc:1313915,totalMargin:11805909},
+    {name:'Accessories',total:72959,promo:439,promoSales:160298,promoDisc:8544,promoMargin:62334,totalSales:28389447,totalDisc:1339151,totalMargin:11792899},
+    {name:'Activewear',total:67447,promo:401,promoSales:151820,promoDisc:6716,promoMargin:61396,totalSales:26366462,totalDisc:1239702,totalMargin:11018708}
+];
+
+new Chart(document.getElementById('chart_channel_penetration'), {
+    type: 'bar',
+    data: {
+        labels: channelData.map(c=>c.name),
+        datasets: [{label:'Penetration %',data:channelData.map(c=>c.promo/c.total*100),backgroundColor:CC.slice(0,5),borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{min:0.5,max:0.7,ticks:{callback:v=>v.toFixed(2)+'%'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_category_promo_rev'), {
+    type: 'bar',
+    data: {
+        labels: catData.map(c=>c.name),
+        datasets: [{label:'Promo Revenue ($K)',data:catData.map(c=>c.promoSales/1000),backgroundColor:CC,borderRadius:4}]
+    },
+    options: {indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{callback:v=>'$'+v+'K'},grid:{color:'rgba(139,111,58,0.1)'}},y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_cat_margin_compare'), {
+    type: 'bar',
+    data: {
+        labels: catData.map(c=>c.name),
+        datasets: [
+            {label:'Promo Margin %',data:catData.map(c=>c.promoMargin/c.promoSales*100),backgroundColor:CC[0],borderRadius:4},
+            {label:'Overall Margin %',data:catData.map(c=>c.totalMargin/c.totalSales*100),backgroundColor:CC[1],borderRadius:4}
+        ]
+    },
+    options: {responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{y:{min:38,max:46,ticks:{callback:v=>v+'%'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_cat_promo_share'), {
+    type: 'bar',
+    data: {
+        labels: catData.map(c=>c.name),
+        datasets: [{label:'Promo Sales %',data:catData.map(c=>c.promoSales/c.totalSales*100),backgroundColor:CC[2],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>v.toFixed(2)+'%'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+// Populate category table
+(function(){
+    const tbody = document.getElementById('tbl_category');
+    let h = '';
+    catData.forEach(c => {
+        const pen = (c.promo/c.total*100).toFixed(2);
+        const pMgn = (c.promoMargin/c.promoSales*100).toFixed(1);
+        const oMgn = (c.totalMargin/c.totalSales*100).toFixed(1);
+        const delta = (pMgn - oMgn).toFixed(1);
+        h += `<tr><td><strong>${c.name}</strong></td><td>${c.total.toLocaleString()}</td><td>${c.promo.toLocaleString()}</td>
+            <td>${pen}%</td><td>$${(c.promoSales/1000).toFixed(0)}K</td><td>$${(c.promoDisc/1000).toFixed(1)}K</td>
+            <td>$${(c.promoMargin/1000).toFixed(0)}K</td><td>${pMgn}%</td><td>${oMgn}%</td>
+            <td class="${delta>=0?'var-pos':'var-neg'}">${delta>=0?'+':''}${delta}pp</td></tr>`;
+    });
+    tbody.innerHTML = h;
+})();
+
+// Populate channel table
+(function(){
+    const tbody = document.getElementById('tbl_channel');
+    let h = '';
+    channelData.forEach(c => {
+        const pen = (c.promo/c.total*100).toFixed(2);
+        const share = (c.promoSales/c.totalSales*100).toFixed(3);
+        h += `<tr><td><strong>${c.name}</strong></td><td>${c.total.toLocaleString()}</td><td>${c.promo.toLocaleString()}</td>
+            <td>${pen}%</td><td>$${(c.promoSales/1000).toFixed(0)}K</td><td>$${(c.totalSales/1e6).toFixed(1)}M</td><td>${share}%</td></tr>`;
+    });
+    tbody.innerHTML = h;
+})();
+
+// =================== TAB 4: CATALOG ===================
+const promoTypes = ['Clearance','Loyalty Bonus','Flash Sale','Seasonal','Bundle','Percentage Off','VIP Early Access','BOGO','Friends & Family','Free Shipping'];
+const promoCounts = [15,14,13,13,12,8,8,7,7,6];
+const promoTracked = [true,false,true,false,false,true,false,false,false,false];
+
+new Chart(document.getElementById('chart_catalog_bar'), {
+    type: 'bar',
+    data: {
+        labels: promoTypes,
+        datasets: [{label:'# Promotions',data:promoCounts,
+            backgroundColor:promoTypes.map((_,i)=>promoTracked[i]?CC[2]:CC[4]),borderRadius:4}]
+    },
+    options: {indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'rgba(139,111,58,0.1)'}},y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_tracked_doughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Tracked (3 types, 36 promos)','Untracked (6 types, 67 promos)','Tracked but inactive (5 promos)'],
+        datasets: [{data:[36,67,5],backgroundColor:[CC[2],CC[4],CC[1]],borderColor:'#1A1A1A',borderWidth:3}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,cutout:'55%',
+        plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{weight:'bold'},padding:14}}}}
+});
+
+// =================== TAB 5: ROI DEEP DIVE ===================
+new Chart(document.getElementById('chart_roi_multiple'), {
+    type: 'bar',
+    data: {
+        labels: ['Percentage Off','Clearance','Flash Sale'],
+        datasets: [{label:'Revenue ROI (x)',data:[21.5,20.2,18.3],backgroundColor:[CC[0],CC[2],CC[3]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>v+'x'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_disc_contribution'), {
+    type: 'bar',
+    data: {
+        labels: ['Clearance','Percentage Off','Flash Sale'],
+        datasets: [
+            {label:'Bridge Disc Contribution',data:[74.5,48.7,14.9],backgroundColor:CC[0],borderRadius:4},
+            {label:'Transaction Discount',data:[34.4,23.1,8.9],backgroundColor:CC[3],borderRadius:4}
+        ]
+    },
+    options: {responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{y:{ticks:{callback:v=>'$'+v+'K'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_rev_per_campaign'), {
+    type: 'bar',
+    data: {
+        labels: ['Percentage Off','Clearance','Flash Sale'],
+        datasets: [{label:'Revenue per Campaign ($K)',data:[247.8,231.1,163.6],backgroundColor:[CC[0],CC[2],CC[3]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>'$'+v+'K'},grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart_units_per_item'), {
+    type: 'bar',
+    data: {
+        labels: ['Flash Sale','Clearance','Percentage Off'],
+        datasets: [{label:'Units/Line Item',data:[2.59,2.49,2.50],backgroundColor:[CC[3],CC[2],CC[0]],borderRadius:4}]
+    },
+    options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{min:2.4,max:2.65,grid:{color:'rgba(139,111,58,0.1)'}},x:{grid:{display:false}}}}
+});
+</script>
+</body>
+</html>

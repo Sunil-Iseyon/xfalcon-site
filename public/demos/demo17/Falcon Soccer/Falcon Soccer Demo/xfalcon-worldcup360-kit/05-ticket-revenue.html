@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Falcon World Cup 360 | 5. Ticket Revenue</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo-x {
+            color: #66BB6A;
+        }
+
+        .logo-f {
+            color: #FFD600;
+        }
+
+        .topbar-titles {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #F1FAE5;
+        }
+
+        .topbar-subtitle {
+            font-size: 12px;
+            color: #FFD600;
+            font-weight: 600;
+        }
+
+        .topbar-back {
+            color: #FFD600;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .topbar-back:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            border-top: 3px solid #FFD600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .data-table-section {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 20px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #2E7D32;
+            color: #FFFFFF;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #FFD600;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .delta-positive {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .delta-negative {
+            color: #D32F2F;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">
+                <span class="logo-x">x</span><span class="logo-f">F</span>
+            </div>
+            <div class="topbar-titles">
+                <div class="topbar-title">Falcon World Cup 360</div>
+                <div class="topbar-subtitle">5. Ticket Revenue</div>
+            </div>
+        </div>
+        <a href="index.html" class="topbar-back">← Back</a>
+    </div>
+
+    <div class="container">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">$3.24B</div>
+                <div class="kpi-label">Total Revenue</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">28.0M</div>
+                <div class="kpi-label">Total Tickets</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$88.48</div>
+                <div class="kpi-label">Avg Ticket Price</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$548M</div>
+                <div class="kpi-label">Highest Revenue Year</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$124.8</div>
+                <div class="kpi-label">Highest Avg Price</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">4.4M</div>
+                <div class="kpi-label">Most Tickets Sold</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$369.5</div>
+                <div class="kpi-label">Top Tier Avg Price</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">13.7x</div>
+                <div class="kpi-label">Revenue Growth 1930→2014</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-title">Ticket Revenue by Year</div>
+                <div class="chart-container">
+                    <canvas id="revenueByYearChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Avg Ticket Price Trend</div>
+                <div class="chart-container">
+                    <canvas id="avgPriceTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Revenue by Price Tier</div>
+                <div class="chart-container">
+                    <canvas id="revenueByTierChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Tickets Sold by Year</div>
+                <div class="chart-container">
+                    <canvas id="ticketsSoldByYearChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Revenue Share by Tier</div>
+                <div class="chart-container">
+                    <canvas id="revenueShareByTierChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Demand Index by Tier</div>
+                <div class="chart-container">
+                    <canvas id="demandIndexChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="data-table-section">
+            <div class="table-title">Historical Revenue Data by Year</div>
+            <div class="table-wrapper">
+                <table id="revenueTable">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Revenue</th>
+                            <th>Tickets Sold</th>
+                            <th>Avg Price</th>
+                            <th>Growth %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        var YEARLY = [
+            {year:1930, revenue:39924595, tickets:592739, avgPrice:67.4},
+            {year:1934, revenue:26833164, tickets:361330, avgPrice:74.3},
+            {year:1938, revenue:28190602, tickets:368932, avgPrice:76.4},
+            {year:1950, revenue:52824205, tickets:1032662, avgPrice:51.2},
+            {year:1954, revenue:50231665, tickets:762948, avgPrice:65.9},
+            {year:1958, revenue:50760727, tickets:820995, avgPrice:61.8},
+            {year:1962, revenue:57272522, tickets:912103, avgPrice:62.8},
+            {year:1966, revenue:96959929, tickets:1559010, avgPrice:62.2},
+            {year:1970, revenue:91846884, tickets:1519516, avgPrice:60.4},
+            {year:1974, revenue:96261094, tickets:1727899, avgPrice:55.7},
+            {year:1978, revenue:97652191, tickets:1534984, avgPrice:63.6},
+            {year:1982, revenue:146798128, tickets:2090854, avgPrice:70.2},
+            {year:1986, revenue:199029886, tickets:2369367, avgPrice:84.0},
+            {year:1990, revenue:221027063, tickets:2528626, avgPrice:87.4},
+            {year:1994, revenue:327695568, tickets:3632040, avgPrice:90.2},
+            {year:1998, revenue:269254173, tickets:2795108, avgPrice:96.3},
+            {year:2002, revenue:248651200, tickets:2446364, avgPrice:101.6},
+            {year:2006, revenue:355733959, tickets:3367646, avgPrice:105.6},
+            {year:2010, revenue:358539471, tickets:3208672, avgPrice:111.7},
+            {year:2014, revenue:547930522, tickets:4390430, avgPrice:124.8}
+        ];
+
+        var TIERS = [
+            {tier:'Hospitality', revenue:519348483, tickets:1405213, avgPrice:369.5, demand:1.12},
+            {tier:'Category_1', revenue:429820228, tickets:2800530, avgPrice:153.5, demand:1.13},
+            {tier:'Category_2', revenue:531626497, tickets:5699628, avgPrice:93.3, demand:1.12},
+            {tier:'Category_3', revenue:494096490, tickets:8635452, avgPrice:57.2, demand:1.12},
+            {tier:'Category_4', revenue:265797355, tickets:8621241, avgPrice:30.8, demand:1.12},
+            {tier:'Complimentary', revenue:0, tickets:1360161, avgPrice:0, demand:1.11}
+        ];
+
+        // Utility functions
+        function mk() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 12 },
+                            color: '#64748B',
+                            usePointStyle: true,
+                            padding: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#64748B' },
+                        grid: { color: '#E2E8F0', drawBorder: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#64748B' },
+                        grid: { color: '#E2E8F0', drawBorder: false },
+                        border: { display: false }
+                    }
+                }
+            };
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                while (el.offsetHeight > 40 && parseInt(window.getComputedStyle(el).fontSize) > 18) {
+                    var currentSize = parseInt(window.getComputedStyle(el).fontSize);
+                    el.style.fontSize = (currentSize - 1) + 'px';
+                }
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // 1. Revenue by Year (bar)
+            var ctx1 = document.getElementById('revenueByYearChart').getContext('2d');
+            var revenueByYearChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: YEARLY.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: YEARLY.map(function(d) { return d.revenue; }),
+                        backgroundColor: '#2E7D32',
+                        borderColor: '#1B5E20',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: (function() {
+                    var opts = mk();
+                    opts.scales.y.ticks.callback = function(val) {
+                        return '$' + (val / 1000000).toFixed(0) + 'M';
+                    };
+                    return opts;
+                })()
+            });
+
+            // 2. Avg Ticket Price Trend (line)
+            var ctx2 = document.getElementById('avgPriceTrendChart').getContext('2d');
+            var avgPriceTrendChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: YEARLY.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Avg Price ($)',
+                        data: YEARLY.map(function(d) { return d.avgPrice; }),
+                        borderColor: '#C8A415',
+                        backgroundColor: 'rgba(200, 164, 21, 0.05)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#C8A415',
+                        pointBorderColor: '#FFD600',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: (function() {
+                    var opts = mk();
+                    opts.scales.y.ticks.callback = function(val) {
+                        return '$' + val.toFixed(0);
+                    };
+                    return opts;
+                })()
+            });
+
+            // 3. Revenue by Price Tier (horizontal bar)
+            var ctx3 = document.getElementById('revenueByTierChart').getContext('2d');
+            var revenueByTierChart = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: TIERS.map(function(d) { return d.tier.replace(/_/g, ' '); }),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: TIERS.map(function(d) { return d.revenue; }),
+                        backgroundColor: '#2E7D32',
+                        borderColor: '#1B5E20',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: (function() {
+                    var opts = mk();
+                    opts.indexAxis = 'y';
+                    opts.scales.x.ticks.callback = function(val) {
+                        return '$' + (val / 1000000).toFixed(0) + 'M';
+                    };
+                    return opts;
+                })()
+            });
+
+            // 4. Tickets Sold by Year (bar)
+            var ctx4 = document.getElementById('ticketsSoldByYearChart').getContext('2d');
+            var ticketsSoldByYearChart = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: YEARLY.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Tickets Sold',
+                        data: YEARLY.map(function(d) { return d.tickets; }),
+                        backgroundColor: '#C8A415',
+                        borderColor: '#B8920D',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: (function() {
+                    var opts = mk();
+                    opts.scales.y.ticks.callback = function(val) {
+                        return (val / 1000000).toFixed(1) + 'M';
+                    };
+                    return opts;
+                })()
+            });
+
+            // 5. Revenue Share by Tier (stacked bar)
+            var ctx5 = document.getElementById('revenueShareByTierChart').getContext('2d');
+            var colors = ['#2E7D32', '#66BB6A', '#81C784', '#A5D6A7', '#C8E6C9', '#E8F5E9'];
+            var revenueShareByTierChart = new Chart(ctx5, {
+                type: 'bar',
+                data: {
+                    labels: YEARLY.map(function(d) { return d.year; }),
+                    datasets: TIERS.map(function(tier, idx) {
+                        return {
+                            label: tier.tier.replace(/_/g, ' '),
+                            data: YEARLY.map(function() {
+                                return tier.revenue / YEARLY.length;
+                            }),
+                            backgroundColor: colors[idx],
+                            borderColor: colors[idx],
+                            borderWidth: 0
+                        };
+                    })
+                },
+                options: (function() {
+                    var opts = mk();
+                    opts.scales.x.stacked = true;
+                    opts.scales.y.stacked = true;
+                    opts.scales.y.ticks.callback = function(val) {
+                        return '$' + (val / 1000000).toFixed(0) + 'M';
+                    };
+                    return opts;
+                })()
+            });
+
+            // 6. Demand Index by Tier (horizontal bar)
+            var ctx6 = document.getElementById('demandIndexChart').getContext('2d');
+            var demandIndexChart = new Chart(ctx6, {
+                type: 'bar',
+                data: {
+                    labels: TIERS.map(function(d) { return d.tier.replace(/_/g, ' '); }),
+                    datasets: [{
+                        label: 'Demand Index',
+                        data: TIERS.map(function(d) { return d.demand; }),
+                        backgroundColor: '#94A3B8',
+                        borderColor: '#78909C',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: (function() {
+                    var opts = mk();
+                    opts.indexAxis = 'y';
+                    opts.scales.x.min = 1.0;
+                    opts.scales.x.max = 1.2;
+                    return opts;
+                })()
+            });
+        }
+
+        // Populate data table
+        function populateTable() {
+            var tbody = document.querySelector('#revenueTable tbody');
+            YEARLY.forEach(function(row, idx) {
+                var tr = document.createElement('tr');
+                var growth = idx === 0 ? '-' : (((row.revenue - YEARLY[idx-1].revenue) / YEARLY[idx-1].revenue) * 100).toFixed(1) + '%';
+                var growthClass = idx === 0 ? '' : (row.revenue > YEARLY[idx-1].revenue ? 'delta-positive' : 'delta-negative');
+
+                tr.innerHTML =
+                    '<td>' + row.year + '</td>' +
+                    '<td>$' + (row.revenue / 1000000).toFixed(2) + 'M</td>' +
+                    '<td>' + (row.tickets / 1000000).toFixed(2) + 'M</td>' +
+                    '<td>$' + row.avgPrice.toFixed(2) + '</td>' +
+                    '<td class="' + growthClass + '">' + growth + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            initCharts();
+            populateTable();
+            fitKpiText();
+        });
+
+        window.addEventListener('resize', fitKpiText);
+    </script>
+</body>
+</html>

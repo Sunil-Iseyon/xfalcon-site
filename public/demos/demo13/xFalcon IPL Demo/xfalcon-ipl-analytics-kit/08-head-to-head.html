@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xFalcon IPL Analytics Hub / 8. Head-to-Head</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F5F6F8;
+            color: #1A1A1A;
+        }
+
+        .topbar {
+            background: #1A1A1A;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .logo span:first-child { color: #4ECDC4; }
+        .logo span:last-child { color: #F7946B; }
+
+        .topbar-title {
+            flex: 1;
+            margin-left: 30px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: #4ECDC4;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            color: #F7946B;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            background: #1A1A1A;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #4ECDC4;
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: #64748B;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .kpi-subtext {
+            font-size: 12px;
+            color: #64748B;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 10px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table thead {
+            background: #1A1A1A;
+            color: white;
+        }
+
+        .data-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #E2E8F0;
+            text-align: center;
+        }
+
+        .data-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table tbody tr:hover {
+            background: #F5F6F8;
+        }
+
+        .h2h-table td {
+            padding: 10px 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .h2h-cell {
+            background: #F0F0F0;
+            border-radius: 3px;
+            min-width: 45px;
+        }
+
+        .h2h-cell.high {
+            background: #4ECDC4;
+            color: white;
+        }
+
+        .h2h-cell.medium {
+            background: #F7946B;
+            color: white;
+        }
+
+        .h2h-cell.low {
+            background: #E2E8F0;
+        }
+
+        .footer {
+            background: #1A1A1A;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .topbar-title {
+                margin-left: 0;
+            }
+
+            .h2h-table {
+                font-size: 10px;
+            }
+
+            .h2h-cell {
+                min-width: 35px;
+                padding: 6px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo">
+                <span>x</span><span>F</span>
+            </div>
+            <div class="topbar-title">xFalcon IPL Analytics Hub / 8. Head-to-Head</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="section-title">Key Performance Indicators</div>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Most Dominant Rivalry</div>
+                <div class="kpi-value">CSK vs MI</div>
+                <div class="kpi-subtext">CSK leads 18-21</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Closest Rivalry</div>
+                <div class="kpi-value">MI vs DC</div>
+                <div class="kpi-subtext">MI leads 21-16</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total H2H Matches</div>
+                <div class="kpi-value">1,247</div>
+                <div class="kpi-subtext">All Teams Combined</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Most Wins (Overall)</div>
+                <div class="kpi-value">CSK</div>
+                <div class="kpi-subtext">117 Wins</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Highest Win Rate</div>
+                <div class="kpi-value">57.1%</div>
+                <div class="kpi-subtext">MI (130/228)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Teams Analyzed</div>
+                <div class="kpi-value">10</div>
+                <div class="kpi-subtext">IPL Franchises</div>
+            </div>
+        </div>
+
+        <div class="section-title">Head-to-Head Analysis</div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">Top 10 Dominant Rivalries (Wins)</div>
+                <div class="chart-container">
+                    <canvas id="dominantChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Rivalry Balance Analysis</div>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">H2H Matrix: Wins by Team (Row vs Column)</div>
+        <div class="table-card">
+            <table class="data-table h2h-table">
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th title="vs RCB">RCB</th>
+                        <th title="vs MI">MI</th>
+                        <th title="vs CSK">CSK</th>
+                        <th title="vs KKR">KKR</th>
+                        <th title="vs RR">RR</th>
+                        <th title="vs DC">DC</th>
+                        <th title="vs SRH">SRH</th>
+                        <th title="vs PBKS">PBKS</th>
+                        <th title="vs GT">GT</th>
+                        <th title="vs LSG">LSG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CSK</td>
+                        <td><div class="h2h-cell high">21</div></td>
+                        <td><div class="h2h-cell medium">18</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell high">20</div></td>
+                        <td><div class="h2h-cell high">16</div></td>
+                        <td><div class="h2h-cell medium">19</div></td>
+                        <td><div class="h2h-cell medium">15</div></td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                    </tr>
+                    <tr>
+                        <td>DC</td>
+                        <td><div class="h2h-cell medium">12</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">14</div></td>
+                        <td><div class="h2h-cell medium">14</div></td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">11</div></td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                    </tr>
+                    <tr>
+                        <td>GT</td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">5</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                    </tr>
+                    <tr>
+                        <td>KKR</td>
+                        <td><div class="h2h-cell medium">20</div></td>
+                        <td><div class="h2h-cell medium">19</div></td>
+                        <td><div class="h2h-cell medium">1</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">19</div></td>
+                        <td><div class="h2h-cell medium">19</div></td>
+                        <td><div class="h2h-cell high">21</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                    </tr>
+                    <tr>
+                        <td>LSG</td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                    </tr>
+                    <tr>
+                        <td>MI</td>
+                        <td><div class="h2h-cell high">21</div></td>
+                        <td><div class="h2h-cell high">21</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell high">24</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">14</div></td>
+                        <td><div class="h2h-cell medium">17</div></td>
+                        <td><div class="h2h-cell medium">5</div></td>
+                        <td><div class="h2h-cell medium">6</div></td>
+                    </tr>
+                    <tr>
+                        <td>PBKS</td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">17</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">13</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">12</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                    </tr>
+                    <tr>
+                        <td>RCB</td>
+                        <td><div class="h2h-cell high">21</div></td>
+                        <td><div class="h2h-cell medium">19</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell high">20</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                        <td><div class="h2h-cell medium">14</div></td>
+                        <td><div class="h2h-cell medium">11</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                        <td><div class="h2h-cell medium">3</div></td>
+                    </tr>
+                    <tr>
+                        <td>RR</td>
+                        <td><div class="h2h-cell medium">16</div></td>
+                        <td><div class="h2h-cell medium">15</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                        <td><div class="h2h-cell medium">12</div></td>
+                        <td><div class="h2h-cell medium">4</div></td>
+                        <td><div class="h2h-cell medium">14</div></td>
+                        <td><div class="h2h-cell medium">9</div></td>
+                        <td><div class="h2h-cell medium">17</div></td>
+                        <td>-</td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                    </tr>
+                    <tr>
+                        <td>SRH</td>
+                        <td><div class="h2h-cell medium">15</div></td>
+                        <td><div class="h2h-cell medium">13</div></td>
+                        <td><div class="h2h-cell medium">1</div></td>
+                        <td><div class="h2h-cell medium">10</div></td>
+                        <td><div class="h2h-cell medium">2</div></td>
+                        <td><div class="h2h-cell medium">10</div></td>
+                        <td><div class="h2h-cell medium">17</div></td>
+                        <td><div class="h2h-cell medium">13</div></td>
+                        <td><div class="h2h-cell medium">12</div></td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-title">Complete H2H Record</div>
+        <div class="table-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Team 1</th>
+                        <th>Team 2</th>
+                        <th>Team 1 Wins</th>
+                        <th>Team 2 Wins</th>
+                        <th>Total Matches</th>
+                        <th>Win Rate (T1)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CSK</td>
+                        <td>MI</td>
+                        <td>18</td>
+                        <td>21</td>
+                        <td>39</td>
+                        <td>46.2%</td>
+                    </tr>
+                    <tr>
+                        <td>MI</td>
+                        <td>KKR</td>
+                        <td>24</td>
+                        <td>11</td>
+                        <td>35</td>
+                        <td>68.6%</td>
+                    </tr>
+                    <tr>
+                        <td>CSK</td>
+                        <td>RCB</td>
+                        <td>21</td>
+                        <td>13</td>
+                        <td>34</td>
+                        <td>61.8%</td>
+                    </tr>
+                    <tr>
+                        <td>CSK</td>
+                        <td>KKR</td>
+                        <td>20</td>
+                        <td>11</td>
+                        <td>31</td>
+                        <td>64.5%</td>
+                    </tr>
+                    <tr>
+                        <td>MI</td>
+                        <td>DC</td>
+                        <td>21</td>
+                        <td>16</td>
+                        <td>37</td>
+                        <td>56.8%</td>
+                    </tr>
+                    <tr>
+                        <td>CSK</td>
+                        <td>RR</td>
+                        <td>16</td>
+                        <td>15</td>
+                        <td>31</td>
+                        <td>51.6%</td>
+                    </tr>
+                    <tr>
+                        <td>KKR</td>
+                        <td>RCB</td>
+                        <td>20</td>
+                        <td>15</td>
+                        <td>35</td>
+                        <td>57.1%</td>
+                    </tr>
+                    <tr>
+                        <td>DC</td>
+                        <td>PBKS</td>
+                        <td>16</td>
+                        <td>17</td>
+                        <td>33</td>
+                        <td>48.5%</td>
+                    </tr>
+                    <tr>
+                        <td>MI</td>
+                        <td>PBKS</td>
+                        <td>17</td>
+                        <td>16</td>
+                        <td>33</td>
+                        <td>51.5%</td>
+                    </tr>
+                    <tr>
+                        <td>PBKS</td>
+                        <td>RCB</td>
+                        <td>18</td>
+                        <td>20</td>
+                        <td>38</td>
+                        <td>47.4%</td>
+                    </tr>
+                    <tr>
+                        <td>CSK</td>
+                        <td>DC</td>
+                        <td>19</td>
+                        <td>12</td>
+                        <td>31</td>
+                        <td>61.3%</td>
+                    </tr>
+                    <tr>
+                        <td>RR</td>
+                        <td>RCB</td>
+                        <td>17</td>
+                        <td>14</td>
+                        <td>31</td>
+                        <td>54.8%</td>
+                    </tr>
+                    <tr>
+                        <td>KKR</td>
+                        <td>DC</td>
+                        <td>19</td>
+                        <td>14</td>
+                        <td>33</td>
+                        <td>57.6%</td>
+                    </tr>
+                    <tr>
+                        <td>RR</td>
+                        <td>KKR</td>
+                        <td>12</td>
+                        <td>16</td>
+                        <td>28</td>
+                        <td>42.9%</td>
+                    </tr>
+                    <tr>
+                        <td>MI</td>
+                        <td>RR</td>
+                        <td>14</td>
+                        <td>15</td>
+                        <td>29</td>
+                        <td>48.3%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        xFalcon IPL Analytics Kit &copy; 2025 | Powered by Chart.js
+    </div>
+
+    <script>
+        var chartInstances = {};
+
+        function mk(canvasId, config) {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            chartInstances[canvasId] = new Chart(ctx, config);
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(elem) {
+                var text = elem.textContent;
+                if (text.length > 12) {
+                    elem.style.fontSize = '22px';
+                } else if (text.length > 8) {
+                    elem.style.fontSize = '24px';
+                }
+            });
+        }
+
+        var rivalries = ['CSK vs MI', 'MI vs KKR', 'CSK vs RCB', 'CSK vs KKR', 'MI vs DC', 'CSK vs RR', 'KKR vs RCB', 'DC vs PBKS', 'MI vs PBKS', 'PBKS vs RCB'];
+        var wins = [21, 24, 21, 20, 21, 16, 21, 16, 17, 18];
+
+        mk('dominantChart', {
+            type: 'bar',
+            data: {
+                labels: rivalries,
+                datasets: [{
+                    label: 'Wins (Leading Team)',
+                    data: wins,
+                    backgroundColor: '#4ECDC4',
+                    borderColor: '#4ECDC4',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#E2E8F0' } }
+                }
+            }
+        });
+
+        var balanceTeams = ['MI vs DC', 'MI vs KKR', 'CSK vs MI', 'CSK vs RCB', 'KKR vs RCB', 'RCB vs PBKS', 'DC vs PBKS', 'DC vs RR'];
+        var team1Wins = [21, 24, 21, 21, 20, 18, 16, 14];
+        var team2Wins = [16, 11, 18, 13, 15, 20, 17, 15];
+
+        mk('balanceChart', {
+            type: 'bar',
+            data: {
+                labels: balanceTeams,
+                datasets: [
+                    {
+                        label: 'Team 1 Wins',
+                        data: team1Wins,
+                        backgroundColor: '#4ECDC4',
+                        borderColor: '#4ECDC4',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Team 2 Wins',
+                        data: team2Wins,
+                        backgroundColor: '#F7946B',
+                        borderColor: '#F7946B',
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    x: { stacked: false, grid: { color: '#E2E8F0' } },
+                    y: { stacked: false, grid: { color: '#E2E8F0' } }
+                }
+            }
+        });
+
+        fitKpiText();
+    </script>
+</body>
+</html>

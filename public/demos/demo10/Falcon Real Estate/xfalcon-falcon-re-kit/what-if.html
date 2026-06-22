@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What-If Scenario Analysis | Falcon Real Estate</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            color: #1f2937;
+            line-height: 1.5;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .xf-logo {
+            width: 32px;
+            height: 32px;
+            background: #006AFF;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .topbar-right a {
+            color: #006AFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .topbar-right a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .kpi-delta {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .delta-positive {
+            color: #2E7D32;
+        }
+
+        .delta-negative {
+            color: #D32F2F;
+        }
+
+        .delta-neutral {
+            color: #6b7280;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .scenario-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            border-top: 3px solid #006AFF;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .slider-group {
+            margin-bottom: 24px;
+        }
+
+        .slider-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-label-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .slider-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #006AFF;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .slider-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #e5e7eb 0%, #e5e7eb 50%, #e5e7eb 100%);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #006AFF;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 106, 255, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #006AFF;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 106, 255, 0.3);
+        }
+
+        .reset-btn {
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .reset-all-btn {
+            width: 100%;
+            padding: 12px;
+            background: #006AFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .reset-all-btn:hover {
+            background: #0050cc;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            height: 400px;
+        }
+
+        .full-width-chart {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            position: relative;
+            height: 350px;
+        }
+
+        .sensitivity-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .sensitivity-table th,
+        .sensitivity-table td {
+            padding: 12px;
+            text-align: right;
+            border: 1px solid #e5e7eb;
+        }
+
+        .sensitivity-table th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .sensitivity-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            background: #f3f4f6;
+        }
+
+        .sensitivity-value {
+            font-weight: 600;
+        }
+
+        .sensitivity-positive {
+            color: #2E7D32;
+        }
+
+        .sensitivity-negative {
+            color: #D32F2F;
+        }
+
+        .methodology {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #9ca3af;
+            font-size: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="xf-logo">xF</div>
+            <div class="topbar-title">Falcon Real Estate / What-If Scenario Analysis</div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html">← Back to Portal</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">Baseline KPI Cards (2025)</div>
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Current Revenue</div>
+                <div class="kpi-value" id="baselineRevenue">$528.2M</div>
+                <div class="kpi-delta delta-neutral">Baseline</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Current NOI</div>
+                <div class="kpi-value" id="baselineNOI">$334.0M</div>
+                <div class="kpi-delta delta-neutral">Baseline</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Current Margin</div>
+                <div class="kpi-value" id="baselineMargin">60.6%</div>
+                <div class="kpi-delta delta-neutral">Baseline</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Current Occupancy</div>
+                <div class="kpi-value" id="baselineOccupancy">89.0%</div>
+                <div class="kpi-delta delta-neutral">Baseline</div>
+            </div>
+        </div>
+
+        <div class="section-title">Scenario Input Panel</div>
+        <div class="scenario-card">
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span class="slider-label-text">Rent Change</span>
+                    <div class="slider-controls">
+                        <span class="slider-value" id="rentValue">0%</span>
+                        <button class="reset-btn" onclick="resetRent()">Reset</button>
+                    </div>
+                </div>
+                <input type="range" id="rentSlider" min="-20" max="20" value="0" step="1" oninput="updateScenario()">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span class="slider-label-text">Occupancy Change (percentage points)</span>
+                    <div class="slider-controls">
+                        <span class="slider-value" id="occValue">0 pp</span>
+                        <button class="reset-btn" onclick="resetOcc()">Reset</button>
+                    </div>
+                </div>
+                <input type="range" id="occSlider" min="-10" max="10" value="0" step="0.5" oninput="updateScenario()">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span class="slider-label-text">OpEx Change</span>
+                    <div class="slider-controls">
+                        <span class="slider-value" id="opexValue">0%</span>
+                        <button class="reset-btn" onclick="resetOpEx()">Reset</button>
+                    </div>
+                </div>
+                <input type="range" id="opexSlider" min="-20" max="20" value="0" step="1" oninput="updateScenario()">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span class="slider-label-text">Renewal Rate Adjustment</span>
+                    <div class="slider-controls">
+                        <span class="slider-value" id="renewalValue">0 pp</span>
+                        <button class="reset-btn" onclick="resetRenewal()">Reset</button>
+                    </div>
+                </div>
+                <input type="range" id="renewalSlider" min="-30" max="30" value="0" step="5" oninput="updateScenario()">
+            </div>
+
+            <button class="reset-all-btn" onclick="resetAll()">Reset All Scenarios</button>
+        </div>
+
+        <div class="section-title">Scenario Impact KPI Cards</div>
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Projected Revenue</div>
+                <div class="kpi-value" id="projRevenue">$528.2M</div>
+                <div class="kpi-delta" id="projRevenueD">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Projected NOI</div>
+                <div class="kpi-value" id="projNOI">$334.0M</div>
+                <div class="kpi-delta" id="projNOID">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Projected Margin</div>
+                <div class="kpi-value" id="projMargin">60.6%</div>
+                <div class="kpi-delta" id="projMarginD">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">NOI Impact</div>
+                <div class="kpi-value" id="noiImpact">$0</div>
+                <div class="kpi-delta" id="noiImpactD">—</div>
+            </div>
+        </div>
+
+        <div class="section-title">Scenario Impact by Asset Class</div>
+        <div class="full-width-chart">
+            <canvas id="assetClassChart"></canvas>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="section-title">Revenue Waterfall</div>
+                <div class="chart-container">
+                    <canvas id="waterfallChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="section-title">NOI Sensitivity Matrix</div>
+                <div class="chart-container" style="height: auto; padding: 16px;">
+                    <table class="sensitivity-table" id="sensitivityTable"></table>
+                </div>
+            </div>
+        </div>
+
+        <div class="methodology">
+            <strong>Calculation Logic:</strong><br>
+            Projected Revenue = Baseline Revenue × (1 + Rent Change %) × (1 + (Occupancy Change / Baseline Occupancy))<br>
+            Projected OpEx = Baseline OpEx × (1 + OpEx Change %)<br>
+            Projected NOI = Projected Revenue - Projected OpEx<br>
+            Lease renewal impact uses rent expiring in 12M and renewal rate adjustments to estimate vacancy costs.
+            All changes apply proportionally across asset classes.
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated by xFalcon RetailEdge | Data as of 2025-12-31
+    </div>
+
+    <script>
+        var baseline = {
+            revenue: 528162816.09,
+            noi: 334014993.06,
+            opex: 194147823.03,
+            occupancy: 89.0,
+            rentExpiring12m: 40064773.01,
+            avgRenewalProb: 66.6432142857142857,
+            assetClasses: [
+                { name: 'Office', noi: 108119002.09, revenue: 170975357.65, opex: 62856355.56, occupancy: 71.0 },
+                { name: 'Industrial', noi: 88257538.75, revenue: 120109171.67, opex: 31851632.92, occupancy: 97.5 },
+                { name: 'Data Center', noi: 57009355.61, revenue: 86067439.44, opex: 29058083.83, occupancy: 92.0 },
+                { name: 'Retail', noi: 39280900.38, revenue: 61703869.48, opex: 22422969.10, occupancy: 89.5 },
+                { name: 'Residential', noi: 28653490.61, revenue: 65971770.15, opex: 37318279.54, occupancy: 91.9 },
+                { name: 'Healthcare', noi: 7967906.60, revenue: 18144990.55, opex: 10177083.95, occupancy: 86.2 },
+                { name: 'Telecom Tower', noi: 4726799.02, revenue: 5190217.15, opex: 463418.13, occupancy: 82.2 }
+            ]
+        };
+
+        var charts = {};
+
+        function formatCurrency(val) {
+            if (val >= 1000000000) return '$' + (val / 1000000000).toFixed(1) + 'B';
+            if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
+            return '$' + val.toFixed(0);
+        }
+
+        function formatPercent(val) {
+            return val.toFixed(1) + '%';
+        }
+
+        function updateScenario() {
+            var rent = parseFloat(document.getElementById('rentSlider').value);
+            var occ = parseFloat(document.getElementById('occSlider').value);
+            var opex = parseFloat(document.getElementById('opexSlider').value);
+            var renewal = parseFloat(document.getElementById('renewalSlider').value);
+
+            document.getElementById('rentValue').textContent = rent + '%';
+            document.getElementById('occValue').textContent = occ + ' pp';
+            document.getElementById('opexValue').textContent = opex + '%';
+            document.getElementById('renewalValue').textContent = renewal + ' pp';
+
+            var projRevenue = baseline.revenue * (1 + rent / 100) * (1 + occ / baseline.occupancy);
+            var projOpex = baseline.opex * (1 + opex / 100);
+            var projNOI = projRevenue - projOpex;
+            var projMargin = (projNOI / projRevenue) * 100;
+            var noiDelta = projNOI - baseline.noi;
+
+            document.getElementById('projRevenue').textContent = formatCurrency(projRevenue);
+            document.getElementById('projNOI').textContent = formatCurrency(projNOI);
+            document.getElementById('projMargin').textContent = formatPercent(projMargin);
+            document.getElementById('noiImpact').textContent = formatCurrency(noiDelta);
+
+            var deltaClass = noiDelta > 0 ? 'delta-positive' : (noiDelta < 0 ? 'delta-negative' : 'delta-neutral');
+            var deltaText = noiDelta > 0 ? '+' + formatCurrency(noiDelta) : formatCurrency(noiDelta);
+
+            document.getElementById('projRevenueD').textContent = '+' + formatCurrency(projRevenue - baseline.revenue);
+            document.getElementById('projRevenueD').className = 'kpi-delta ' + (projRevenue >= baseline.revenue ? 'delta-positive' : 'delta-negative');
+
+            document.getElementById('projNOID').textContent = deltaText;
+            document.getElementById('projNOID').className = 'kpi-delta ' + deltaClass;
+
+            document.getElementById('projMarginD').textContent = (projMargin - 60.6).toFixed(1) + ' pp';
+            document.getElementById('projMarginD').className = 'kpi-delta ' + (projMargin >= 60.6 ? 'delta-positive' : 'delta-negative');
+
+            document.getElementById('noiImpactD').textContent = (noiDelta > 0 ? '+' : '') + formatPercent((noiDelta / baseline.noi) * 100);
+            document.getElementById('noiImpactD').className = 'kpi-delta ' + deltaClass;
+
+            updateAssetClassChart(rent, occ, opex);
+            updateWaterfallChart(projRevenue, projOpex, baseline.opex, rent, occ);
+            updateSensitivityTable();
+        }
+
+        function updateAssetClassChart(rent, occ, opex) {
+            var labels = baseline.assetClasses.map(function(ac) { return ac.name; });
+            var baselineNOI = baseline.assetClasses.map(function(ac) { return ac.noi; });
+            var scenarioNOI = baseline.assetClasses.map(function(ac) {
+                var projRev = ac.revenue * (1 + rent / 100) * (1 + occ / ac.occupancy);
+                var projOpex = ac.opex * (1 + opex / 100);
+                return projRev - projOpex;
+            });
+
+            if (charts.assetClass) {
+                charts.assetClass.data.datasets[0].data = baselineNOI;
+                charts.assetClass.data.datasets[1].data = scenarioNOI;
+                charts.assetClass.update();
+            } else {
+                var ctx = document.getElementById('assetClassChart').getContext('2d');
+                charts.assetClass = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Baseline NOI',
+                                data: baselineNOI,
+                                backgroundColor: '#94A3B8',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Scenario NOI',
+                                data: scenarioNOI,
+                                backgroundColor: '#006AFF',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { font: { size: 12, weight: '500' }, usePointStyle: true } }
+                        },
+                        scales: {
+                            x: { ticks: { callback: function(val) { return '$' + (val / 1000000).toFixed(0) + 'M'; } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateWaterfallChart(projRev, projOpex, baselineOpex, rent, occ) {
+            var rentImpact = baseline.revenue * (rent / 100);
+            var occImpact = baseline.revenue * (occ / baseline.occupancy);
+            var opexImpact = projOpex - baselineOpex;
+
+            if (charts.waterfall) {
+                charts.waterfall.data.datasets[0].data = [baseline.revenue, rentImpact, occImpact, opexImpact * -1, projRev];
+                charts.waterfall.update();
+            } else {
+                var ctx = document.getElementById('waterfallChart').getContext('2d');
+                charts.waterfall = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Baseline', 'Rent Impact', 'Occupancy', 'OpEx', 'Projected'],
+                        datasets: [{
+                            label: 'Revenue Impact',
+                            data: [baseline.revenue, rentImpact, occImpact, opexImpact * -1, projRev],
+                            backgroundColor: ['#94A3B8', '#0EA5E9', '#0EA5E9', '#F59E0B', '#006AFF'],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'x',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { ticks: { callback: function(val) { return '$' + (val / 1000000).toFixed(0) + 'M'; } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateSensitivityTable() {
+            var rent = parseFloat(document.getElementById('rentSlider').value);
+            var occ = parseFloat(document.getElementById('occSlider').value);
+            var opex = parseFloat(document.getElementById('opexSlider').value);
+
+            var rentRange = [-10, -5, 0, 5, 10];
+            var occRange = [-5, -2.5, 0, 2.5, 5];
+
+            var table = document.getElementById('sensitivityTable');
+            table.innerHTML = '';
+
+            var headerRow = table.insertRow();
+            var headerCell = headerRow.insertCell();
+            headerCell.textContent = 'Rent/Occ';
+            headerCell.style.fontWeight = '600';
+
+            occRange.forEach(function(occVal) {
+                var cell = headerRow.insertCell();
+                cell.textContent = occVal + ' pp';
+            });
+
+            rentRange.forEach(function(rentVal) {
+                var row = table.insertRow();
+                var cell = row.insertCell();
+                cell.textContent = rentVal + '%';
+                cell.style.fontWeight = '600';
+
+                occRange.forEach(function(occVal) {
+                    var projRev = baseline.revenue * (1 + rentVal / 100) * (1 + occVal / baseline.occupancy);
+                    var projOpex = baseline.opex * (1 + opex / 100);
+                    var projNOI = projRev - projOpex;
+                    var delta = projNOI - baseline.noi;
+
+                    var cell = row.insertCell();
+                    cell.textContent = (delta / 1000000).toFixed(0) + 'M';
+                    cell.className = 'sensitivity-value ' + (delta > 0 ? 'sensitivity-positive' : (delta < 0 ? 'sensitivity-negative' : ''));
+                });
+            });
+        }
+
+        function resetRent() { document.getElementById('rentSlider').value = '0'; updateScenario(); }
+        function resetOcc() { document.getElementById('occSlider').value = '0'; updateScenario(); }
+        function resetOpEx() { document.getElementById('opexSlider').value = '0'; updateScenario(); }
+        function resetRenewal() { document.getElementById('renewalSlider').value = '0'; updateScenario(); }
+
+        function resetAll() {
+            document.getElementById('rentSlider').value = '0';
+            document.getElementById('occSlider').value = '0';
+            document.getElementById('opexSlider').value = '0';
+            document.getElementById('renewalSlider').value = '0';
+            updateScenario();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('baselineRevenue').textContent = formatCurrency(baseline.revenue);
+            document.getElementById('baselineNOI').textContent = formatCurrency(baseline.noi);
+            document.getElementById('baselineMargin').textContent = formatPercent(60.6);
+            document.getElementById('baselineOccupancy').textContent = formatPercent(baseline.occupancy);
+
+            updateScenario();
+        });
+    </script>
+</body>
+</html>

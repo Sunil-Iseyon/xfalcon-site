@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 11. Weekly Business Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.5px}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-family:inherit;font-size:13px;color:var(--tx);min-width:140px;cursor:pointer}
+.fg select:focus{outline:none;border-color:var(--p)}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer}.rst:hover{background:#237373}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:20px 0 10px;border-bottom:2px solid var(--p);padding-bottom:4px}
+.summary{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--p);border-radius:6px;padding:14px 18px;margin-bottom:16px;font-size:13px;line-height:1.6}
+.summary strong{color:var(--p)}.summary .hl{color:var(--wrn);font-weight:600}
+.tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;position:relative}
+.tile::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.6}
+.tile-lbl{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--txm);letter-spacing:.4px;margin-bottom:2px}
+.tile-val{font-size:18px;font-weight:700;color:var(--p);line-height:1.2}
+.tile-d{font-size:11px;margin-top:2px;font-weight:500}
+.tile-d.pos{color:var(--pos)}.tile-d.neg{color:var(--neg)}.tile-d.neu{color:var(--t)}.tile-d.warn{color:var(--wrn)}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}.row.four{grid-template-columns:repeat(4,1fr)}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px}
+.ct{font-size:13px;font-weight:700;color:var(--p);margin-bottom:10px}
+.cw{position:relative;height:220px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:16px}
+.tbl-h{padding:12px 16px 8px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:13px;font-weight:700;color:var(--p)}
+table{width:100%;border-collapse:collapse}thead th{background:var(--tb);color:var(--txd);padding:9px 12px;text-align:left;font-size:11px;font-weight:600}
+th.num,td.num{text-align:right}td{padding:8px 12px;font-size:12px;border-top:1px solid var(--bd)}tr:hover td{background:#F8FAFB}
+.pos{color:var(--pos);font-weight:500}.neg{color:var(--neg);font-weight:500}
+.chip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:500}.chip.pos{background:rgba(5,150,105,.12);color:var(--pos)}.chip.neg{background:rgba(211,47,47,.12);color:var(--neg)}.chip.neu{background:#F1F5F9;color:var(--txm)}.chip.wrn{background:rgba(217,119,6,.12);color:var(--wrn)}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.alert-box{padding:8px 10px;margin-bottom:8px;font-size:12px;border-radius:3px;line-height:1.55}
+.alert-box.r{border-left:3px solid var(--wrn);background:rgba(217,119,6,.05)}
+.alert-box.g{border-left:3px solid var(--pos);background:rgba(5,150,105,.05)}
+.alert-box strong{color:var(--tx)}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+@media(max-width:1100px){.row.two,.row.three,.row.four{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 11. Weekly Business Review</div>
+<div class="topbar-subtitle" id="wkLabel">Week ending 2026-04-19 · Wk 16 CY · FY26 Q3</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Week</label><select id="wk" onchange="apply()"></select></div>
+<div class="fg"><label>Compare</label><select id="comp" onchange="apply()"><option value="PW">vs Prior Week</option><option value="LY">vs Last Year (same Wk FY25)</option></select></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>WBR scope:</strong> Single-page Monday snapshot across revenue, bookings, shipments, inventory, fab ops, and channel. Comparisons use Prior Week (PW) or Last-Year same-week (LY). <strong>vs-Plan comparisons are unavailable</strong> — forecast/plan tables are not present in the warehouse. Weeks use ISO Monday-Sunday convention.</div>
+
+<!-- Section 1: Overall Performance -->
+<div class="sec">1. Overall Business Performance</div>
+<div class="summary" id="summaryBox"></div>
+
+<div class="tile-grid" id="tiles"></div>
+
+<!-- Section 2: Bookings & Shipments -->
+<div class="sec">2. Bookings, Shipments & Backlog</div>
+<div class="row three">
+<div class="ch"><div class="ct">Weekly Revenue Trend (last 8 wks)</div><div class="cw"><canvas id="c1"></canvas></div>
+<div class="csub">$M per week. Current week highlighted.</div></div>
+<div class="ch"><div class="ct">Weekly Bookings (last 8 wks)</div><div class="cw"><canvas id="c2"></canvas></div>
+<div class="csub">Order value excluding Sample type.</div></div>
+<div class="ch"><div class="ct">B:B Ratio (last 8 wks)</div><div class="cw"><canvas id="c3"></canvas></div>
+<div class="csub">Orange line = 1.0 parity. >1 = expansion.</div></div>
+</div>
+
+<!-- Section 2b: Current vs LY Side-by-side -->
+<div class="row two">
+<div class="ch"><div class="ct" id="c9t">Revenue: Current Week vs Same-Week FY25</div><div class="cw"><canvas id="c9"></canvas></div>
+<div class="csub">Side-by-side weekly comparison to surface any YoY softness week-over-week.</div></div>
+<div class="ch"><div class="ct">Design-Win Pulse — New Records This Week</div><div class="cw"><canvas id="c10"></canvas></div>
+<div class="csub">Forward-pipeline momentum: new records entering each stage in the current week.</div></div>
+</div>
+
+<!-- Section 3: Channel + End Market + Category -->
+<div class="sec">3. Channel, End Market & Category</div>
+<div class="row three">
+<div class="ch"><div class="ct" id="c4t">Revenue by Channel — W16</div><div class="cw"><canvas id="c4"></canvas></div>
+<div class="csub">DISTI leads at 46% — in-line with trailing trend.</div></div>
+<div class="ch"><div class="ct" id="c5t">Revenue by End Market — W16</div><div class="cw"><canvas id="c5"></canvas></div>
+<div class="csub">Auto rising; COMM soft vs PW.</div></div>
+<div class="ch"><div class="ct" id="c6t">Revenue by Category — W16</div><div class="cw"><canvas id="c6"></canvas></div>
+<div class="csub">MCU holds 82%; PWR up slightly.</div></div>
+</div>
+
+<!-- Section 4: Inventory & Fab -->
+<div class="sec">4. Inventory & Fab Operations</div>
+<div class="row two">
+<div class="ch"><div class="ct">Inventory WoS by Channel — W16</div><div class="cw"><canvas id="c7"></canvas></div>
+<div class="csub">All channels in 8-10 WoS healthy band (vs 4 low / 12 high flags).</div></div>
+<div class="ch"><div class="ct">Fab Utilization (last 8 wks)</div><div class="cw"><canvas id="c8"></canvas></div>
+<div class="csub">Stable 82-84% band. No hot spots.</div></div>
+</div>
+
+<!-- Section 5: Top Customers -->
+<div class="tbl"><div class="tbl-h"><div class="tbl-t" id="custT">5. Top 10 Customers — Week 16</div></div>
+<table><thead><tr><th>#</th><th>Customer</th><th>Segment</th><th class="num">W Rev ($K)</th><th class="num">vs PW</th><th class="num">vs LY</th><th>Status</th></tr></thead>
+<tbody id="tbC"></tbody></table></div>
+
+<!-- Section 6: Alerts -->
+<div class="sec">6. Alerts & Action Items</div>
+<div class="row two">
+<div class="ch"><div class="ct" style="color:var(--wrn)">Risk Flags</div>
+<div style="padding:6px 0">
+<div class="alert-box r"><strong>Automotive concentration:</strong> Auto share rose to 50.1% (vs 48.8% FY25 avg, 28% target). Continue diversification initiatives — see Action 1a/1b in AutoExplore memo.</div>
+<div class="alert-box r"><strong>Stellar Dynamics exposure:</strong> Single customer = 22% of revenue. W16 showed -5% vs PW — monitor for softening and engage account executive.</div>
+<div class="alert-box r"><strong>External fab reliance:</strong> 84% of shipped revenue from foundries. No disruptions this week but geopolitical concern remains strategic.</div>
+</div></div>
+<div class="ch"><div class="ct" style="color:var(--pos)">Positive Signals</div>
+<div style="padding:6px 0">
+<div class="alert-box g"><strong>B:B recovery sustained:</strong> W16 B:B = 1.09, consistent with FY25's recovery trajectory. Forward demand healthy.</div>
+<div class="alert-box g"><strong>Design-win pipeline momentum:</strong> Weighted pipeline at $1.24B; 5 new Design-In stage records this week.</div>
+<div class="alert-box g"><strong>GM% steady at 50.3%:</strong> No margin erosion despite ASP pressure in select categories.</div>
+</div></div>
+</div>
+
+<div class="ft">Weekly Business Review · xFalcon AnalyticsPro · Falcon Semiconductor kit · Generated 2026-04-23</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',wrn:'#D97706',pos:'#059669',neg:'#D32F2F',gr:'#D8E2DD'};
+var WEEKS=['W9','W10','W11','W12','W13','W14','W15','W16'];
+var WK_REV=[72.1,73.4,74.2,73.8,74.9,75.1,74.4,76.8];
+var WK_BOOK=[78.0,79.5,80.2,80.0,81.1,81.8,81.0,83.9];
+var WK_BB=[1.08,1.08,1.08,1.09,1.08,1.09,1.09,1.09];
+var WK_REV_LY=[66.8,68.1,69.0,68.5,69.4,69.8,69.1,71.5]; // same 8 weeks FY25
+// Per-week snapshot data indexed by week key
+var WK_DATA={
+ 'W16':{rev:76.8,book:83.9,bb:1.09,units:18.2,gm:50.3,fab:83.4,wos:9.1,pd:42,topCust:16.9,auto:50.1,dw:5,actCust:847,pwRev:3.2,lyRev:7.4,pwBook:3.6,lyBook:8.3,pwBB:0.0,lyBB:-0.01},
+ 'W15':{rev:74.4,book:81.0,bb:1.09,units:17.5,gm:50.3,fab:83.0,wos:9.2,pd:45,topCust:17.8,auto:48.9,dw:3,actCust:841,pwRev:-0.9,lyRev:7.7,pwBook:-1.0,lyBook:8.0,pwBB:0.0,lyBB:-0.01},
+ 'W14':{rev:75.1,book:81.8,bb:1.09,units:17.7,gm:50.4,fab:83.1,wos:9.0,pd:48,topCust:18.1,auto:49.2,dw:4,actCust:838,pwRev:0.3,lyRev:7.6,pwBook:0.9,lyBook:8.1,pwBB:0.01,lyBB:0.0},
+ 'W13':{rev:74.9,book:81.1,bb:1.08,units:17.6,gm:50.3,fab:82.9,wos:9.1,pd:51,topCust:17.5,auto:48.8,dw:3,actCust:835,pwRev:1.5,lyRev:7.2,pwBook:1.4,lyBook:7.8,pwBB:-0.01,lyBB:-0.02}
+};
+var CH_MIX=[{c:'DISTI',v:35.3,ly:32.8},{c:'DIRECT',v:26.5,ly:24.6},{c:'OEM',v:11.4,ly:10.6},{c:'ONLINE',v:3.6,ly:3.3}];
+var EM_MIX=[{n:'Automotive',v:38.5,ly:34.1},{n:'Computing',v:10.3,ly:9.5},{n:'Industrial',v:9.1,ly:9.3},{n:'Consumer',v:6.8,ly:6.2},{n:'Comm',v:5.4,ly:5.6},{n:'IoT',v:3.9,ly:3.3},{n:'Mil',v:2.3,ly:2.1},{n:'Med',v:0.5,ly:0.4}];
+var CAT_MIX=[{c:'MCU',v:63.3,ly:58.4},{c:'PWR',v:4.4,ly:4.0},{c:'RF',v:2.9,ly:2.6},{c:'MEM',v:1.7,ly:1.5},{c:'ANA',v:1.5,ly:1.3},{c:'FPGA',v:1.2,ly:1.1},{c:'SEN',v:0.7,ly:0.6},{c:'INT',v:0.7,ly:0.7},{c:'OPT',v:0.3,ly:0.3},{c:'DIS',v:0.2,ly:0.2}];
+var WOS=[{n:'Arrow',v:9.5},{n:'Digi-Key',v:8.4},{n:'Avnet',v:9.1},{n:'Direct',v:9.3}];
+var FAB_WKS=[82.1,82.8,83.0,82.5,82.9,83.1,83.0,83.4];
+// Design-win pulse by stage — current week
+var DW_STAGES=[{s:'Prospect',n:2},{s:'Engage',n:3},{s:'Eval',n:4},{s:'Design',n:5},{s:'Qual',n:2},{s:'Prod',n:1}];
+var TOP_CUST=[
+ {n:'Stellar Dynamics',s:'Tier 1 OEM',r:16890,pw:-5.2,ly:8.1},
+ {n:'Onyx Devices',s:'Tier 1 OEM',r:7560,pw:2.3,ly:12.4},
+ {n:'Orion Dynamics',s:'Startup',r:4450,pw:7.8,ly:18.2},
+ {n:'Nexus Devices',s:'Startup',r:3040,pw:1.1,ly:9.5},
+ {n:'Titan Devices',s:'Tier 2 OEM',r:2600,pw:-1.4,ly:6.7},
+ {n:'Lynx Manufacturing',s:'Tier 1 OEM',r:2050,pw:3.5,ly:5.2},
+ {n:'Omega Technologies',s:'Design House',r:1710,pw:0.2,ly:14.8},
+ {n:'Vortex Solutions',s:'Tier 2 OEM',r:1470,pw:4.1,ly:7.1},
+ {n:'Vortex Systems',s:'Tier 1 OEM',r:1085,pw:-2.3,ly:3.8},
+ {n:'Kappa Devices',s:'Tier 2 OEM',r:670,pw:1.0,ly:4.2}];
+var st={wk:'W16',comp:'PW'};var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function pct(v){return (v>=0?'+':'')+v.toFixed(1)+'%'}
+function init(){var y=document.getElementById('wk');y.innerHTML='';[['W16','W16 (Apr 13-19)'],['W15','W15 (Apr 6-12)'],['W14','W14 (Mar 30-Apr 5)'],['W13','W13 (Mar 23-29)']].forEach(function(v){var o=document.createElement('option');o.value=v[0];o.textContent=v[1];if(v[0]==='W16')o.selected=true;y.appendChild(o)})}
+function rst(){document.getElementById('wk').value='W16';document.getElementById('comp').value='PW';apply()}
+function apply(){st.wk=document.getElementById('wk').value;st.comp=document.getElementById('comp').value;
+ var wkNum=st.wk.replace('W','');
+ document.getElementById('wkLabel').textContent='Week '+wkNum+' · Comparison: '+(st.comp==='PW'?'vs Prior Week':'vs Same-Week FY25');
+ document.getElementById('custT').textContent='5. Top 10 Customers — Week '+wkNum;
+ document.getElementById('c4t').textContent='Revenue by Channel — W'+wkNum;
+ document.getElementById('c5t').textContent='Revenue by End Market — W'+wkNum;
+ document.getElementById('c6t').textContent='Revenue by Category — W'+wkNum;
+ summary();tiles();c1();c2();c3();c4();c5();c6();c7();c8();c9();c10();custTbl()}
+function summary(){var el=document.getElementById('summaryBox');var d=WK_DATA[st.wk];var base=st.comp==='PW'?d.pwRev:d.lyRev;var signWord=base>0?'grew':'softened';
+ el.innerHTML='<strong>Week '+st.wk.replace('W','')+' FY26:</strong> Revenue '+signWord+' to $'+d.rev.toFixed(1)+'M ('+pct(base)+' '+(st.comp==='PW'?'vs PW':'vs LY')+'), bookings $'+d.book.toFixed(1)+'M. B:B ratio at '+d.bb.toFixed(2)+' signals continuing expansion. Fab utilization '+d.fab.toFixed(1)+'% — healthy. <span class="hl">Watch:</span> Automotive share this week '+d.auto.toFixed(1)+'% — extending the overconcentration trend flagged in end-market analysis.'}
+function tiles(){var el=document.getElementById('tiles');el.innerHTML='';var d=WK_DATA[st.wk];var cmp=st.comp;var base=cmp==='PW'?'vs PW':'vs LY';
+ var ts=[
+  {l:'Revenue W'+st.wk.replace('W',''),v:'$'+d.rev.toFixed(1)+'M',d:pct(cmp==='PW'?d.pwRev:d.lyRev)+' '+base,c:(cmp==='PW'?d.pwRev:d.lyRev)>=0?'pos':'neg'},
+  {l:'Bookings W'+st.wk.replace('W',''),v:'$'+d.book.toFixed(1)+'M',d:pct(cmp==='PW'?d.pwBook:d.lyBook)+' '+base,c:(cmp==='PW'?d.pwBook:d.lyBook)>=0?'pos':'neg'},
+  {l:'B:B Ratio',v:d.bb.toFixed(2),d:((cmp==='PW'?d.pwBB:d.lyBB)===0?'▬ flat ':((cmp==='PW'?d.pwBB:d.lyBB)>0?'▲ +':'▼ ')+Math.abs(cmp==='PW'?d.pwBB:d.lyBB).toFixed(2)+' ')+base,c:(cmp==='PW'?d.pwBB:d.lyBB)>=0?'pos':'neu'},
+  {l:'Units Shipped',v:d.units.toFixed(1)+'M',d:'+'+(d.units/17.0*100-100).toFixed(1)+'% '+base,c:'pos'},
+  {l:'GM %',v:d.gm.toFixed(1)+'%',d:'▬ flat '+base,c:'neu'},
+  {l:'Fab Util',v:d.fab.toFixed(1)+'%',d:(d.fab>=83?'▲':'▼')+' '+base,c:d.fab>=83?'pos':'warn'},
+  {l:'WoS Avg',v:d.wos.toFixed(1)+'wk',d:'Healthy 8-10 band',c:'pos'},
+  {l:'Past-Due Units',v:d.pd+'K',d:(d.pd<50?'▼':'▲')+' '+base,c:d.pd<50?'pos':'warn'},
+  {l:'Top Cust Rev',v:'$'+d.topCust.toFixed(1)+'M',d:'Stellar Dynamics',c:'neu'},
+  {l:'Auto Share',v:d.auto.toFixed(1)+'%',d:'▲ '+(d.auto-48.8).toFixed(1)+'pt vs FY25 avg',c:'warn'},
+  {l:'New Design Wins',v:d.dw,d:'Design-In stage entries',c:'pos'},
+  {l:'Active Customers',v:d.actCust,d:'Unique buyers this wk',c:'neu'}];
+ ts.forEach(function(t){var d2=document.createElement('div');d2.className='tile';d2.innerHTML='<div class="tile-lbl">'+t.l+'</div><div class="tile-val">'+t.v+'</div><div class="tile-d '+t.c+'">'+t.d+'</div>';el.appendChild(d2)})}
+function c1(){mk('c1',{type:'bar',data:{labels:WEEKS,datasets:[{label:'Revenue ($M)',data:WK_REV,backgroundColor:WEEKS.map(function(w){return w===st.wk?C.p:C.sd}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,min:70,ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c2(){mk('c2',{type:'bar',data:{labels:WEEKS,datasets:[{label:'Bookings ($M)',data:WK_BOOK,backgroundColor:WEEKS.map(function(w){return w===st.wk?C.p:C.sd}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,min:75,ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c3(){mk('c3',{type:'line',data:{labels:WEEKS,datasets:[{label:'B:B',data:WK_BB,borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:C.p}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1.0,max:1.15,ticks:{callback:function(v){return v.toFixed(2)}},grid:{color:function(ctx){return ctx.tick.value===1?C.wrn:C.gr}}},x:{grid:{display:false}}}}})}
+function c4(){var data=CH_MIX.map(function(r){return st.comp==='LY'?r.ly:r.v});mk('c4',{type:'bar',data:{labels:CH_MIX.map(function(r){return r.c}),datasets:[{label:'$M',data:data,backgroundColor:[C.p,C.sd,C.s,C.t],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c5(){var filtered=EM_MIX;var data=filtered.map(function(r){return st.comp==='LY'?r.ly:r.v});mk('c5',{type:'bar',data:{labels:filtered.map(function(r){return r.n}),datasets:[{label:'$M',data:data,backgroundColor:filtered.map(function(r){return r.n==='Automotive'?C.wrn:C.p}),borderRadius:2}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c6(){var data=CAT_MIX.map(function(r){return st.comp==='LY'?r.ly:r.v});mk('c6',{type:'bar',data:{labels:CAT_MIX.map(function(r){return r.c}),datasets:[{label:'$M',data:data,backgroundColor:CAT_MIX.map(function(r,i){return i===0?C.p:i<3?C.sd:C.s}),borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{type:'logarithmic',ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c7(){mk('c7',{type:'bar',data:{labels:WOS.map(function(r){return r.n}),datasets:[{label:'WoS',data:WOS.map(function(r){return r.v}),backgroundColor:C.p,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:14,ticks:{callback:function(v){return v+'wk'}},grid:{color:function(ctx){return ctx.tick.value===4||ctx.tick.value===12?C.wrn:C.gr}}},x:{grid:{display:false}}}}})}
+function c8(){mk('c8',{type:'line',data:{labels:WEEKS,datasets:[{label:'Util %',data:FAB_WKS,borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:C.p}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:80,max:88,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c9(){mk('c9',{type:'bar',data:{labels:WEEKS,datasets:[
+ {label:'FY26',data:WK_REV,backgroundColor:C.p,borderRadius:3},
+ {label:'FY25',data:WK_REV_LY,backgroundColor:C.t,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{y:{beginAtZero:false,min:60,ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c10(){mk('c10',{type:'bar',data:{labels:DW_STAGES.map(function(r){return r.s}),datasets:[
+ {label:'New records',data:DW_STAGES.map(function(r){return r.n}),backgroundColor:['#94A3B8','#A8DADC','#5EABAB','#2D8B8B','#2D8B8B','#5EABAB'],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:11}}}}}})}
+function custTbl(){var b=document.getElementById('tbC');b.innerHTML='';TOP_CUST.forEach(function(r,i){var statusCls=r.pw>3?'pos':r.pw<-3?'wrn':'neu';var status=r.pw>3?'Strong':r.pw<-3?'Soft':'Steady';
+ b.innerHTML+='<tr><td>'+String(i+1)+'</td><td><strong>'+r.n+'</strong></td><td><span class="chip neu">'+r.s+'</span></td><td class="num">$'+r.r.toLocaleString()+'K</td><td class="num '+(r.pw>=0?'pos':'neg')+'">'+(r.pw>=0?'+':'')+r.pw.toFixed(1)+'%</td><td class="num '+(r.ly>=0?'pos':'neg')+'">'+(r.ly>=0?'+':'')+r.ly.toFixed(1)+'%</td><td><span class="chip '+statusCls+'">'+status+'</span></td></tr>'})}
+init();apply();
+</script></body></html>

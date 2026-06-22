@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 2: Busiest Departments & Volume Shifts</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; color: #2d3436; padding: 24px; }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .header .subtitle { font-size: 14px; color: #636e72; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .kpi-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; margin-bottom: 8px; }
+        .kpi-card .value { font-size: 26px; font-weight: 700; }
+        .kpi-card .sub { font-size: 12px; color: #636e72; margin-top: 4px; }
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #2d3436; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #dfe6e9; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f2f6; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .heatmap-container { overflow-x: auto; }
+        .heatmap { border-collapse: collapse; font-size: 12px; width: 100%; }
+        .heatmap th { padding: 8px 10px; text-align: center; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #636e72; border-bottom: 2px solid #dfe6e9; }
+        .heatmap th:first-child { text-align: left; }
+        .heatmap td { padding: 8px 10px; text-align: center; font-weight: 600; border-radius: 4px; }
+        .heatmap td:first-child { text-align: left; font-weight: 500; color: #2d3436; }
+        .bar-inline { display: inline-block; height: 8px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+        .generated-note { text-align: center; font-size: 11px; color: #b2bec3; margin-top: 32px; padding-top: 16px; border-top: 1px solid #dfe6e9; }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Area 2: Busiest Departments & Volume Shifts</h1>
+    <div class="subtitle">17 Active Departments | Jan 2023 – Dec 2025 | Generated March 11, 2026</div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="label">Busiest Department</div>
+        <div class="value" style="font-size:20px">Laboratory</div>
+        <div class="sub">293 encounters (19.6%)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Highest Revenue Dept</div>
+        <div class="value" style="font-size:20px">Internal Medicine</div>
+        <div class="sub">$1.59M total billed</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Highest Avg Billed</div>
+        <div class="value" style="font-size:20px">General Surgery</div>
+        <div class="sub">$73,554 per encounter</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Longest Avg Stay</div>
+        <div class="value" style="font-size:20px">General Surgery</div>
+        <div class="sub">5.8 days avg LOS</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Active Departments</div>
+        <div class="value">17</div>
+        <div class="sub">3 types: Clinical, Ancillary, Surgical</div>
+    </div>
+</div>
+
+<!-- Volume Ranking + Department Type -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Department Volume Ranking (All Years)</h3>
+        <div class="chart-wrap h400">
+            <canvas id="volumeRankChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Encounters by Department Type</h3>
+        <div class="chart-wrap h300">
+            <canvas id="deptTypeChart"></canvas>
+        </div>
+        <div style="margin-top:16px; font-size:12px; color:#636e72;">
+            <div style="margin-bottom:6px;"><span class="bar-inline" style="background:#2C5F8A; width:60px;"></span><strong>Clinical:</strong> 1,194 encounters — $9,264 avg billed</div>
+            <div style="margin-bottom:6px;"><span class="bar-inline" style="background:#E8913A; width:30px;"></span><strong>Ancillary:</strong> 293 encounters — $453 avg billed</div>
+            <div><span class="bar-inline" style="background:#5BA67D; width:10px;"></span><strong>Surgical:</strong> 10 encounters — $73,554 avg billed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Year-over-Year Top 5 + Revenue vs Volume -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Year-over-Year Volume — Top 5 Departments</h3>
+        <div class="chart-wrap h300">
+            <canvas id="yoyDeptChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Revenue vs Volume by Department</h3>
+        <div class="chart-wrap h300">
+            <canvas id="scatterChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Heatmap: Day of Week x Department -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Day-of-Week Volume Heatmap — Top 5 Departments</h3>
+        <div class="heatmap-container">
+            <table class="heatmap" id="heatmapTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Table -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Department Detail Grid</h3>
+        <div style="overflow-x: auto;">
+            <table class="data-table" id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Type</th>
+                        <th>Specialty</th>
+                        <th>Facility</th>
+                        <th class="num">Encounters</th>
+                        <th class="num">Unique Patients</th>
+                        <th class="num">Total Billed</th>
+                        <th class="num">Total Paid</th>
+                        <th class="num">Avg Billed</th>
+                        <th class="num">Avg LOS</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="generated-note">
+    Generated by IDA | Healthcare Department Analysis | Data: Jan 2023 – Dec 2025
+</div>
+
+<script>
+const COLORS = { primary:'#2C5F8A', secondary:'#E8913A', success:'#5BA67D', danger:'#C75B5B', warning:'#D4A843', info:'#6A9BC3', purple:'#8E6BBF', teal:'#4ECDC4', muted:'#B2BEC3' };
+const CHART_COLORS = ['#2C5F8A','#E8913A','#5BA67D','#C75B5B','#D4A843','#6A9BC3','#8E6BBF','#4ECDC4','#B2BEC3','#e17055','#00cec9','#fdcb6e','#6c5ce7','#55a3e8','#fab1a0','#81ecec','#a29bfe'];
+
+function formatDollars(v) {
+    if (Math.abs(v) >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
+    if (Math.abs(v) >= 1000) return '$' + (v/1000).toFixed(0) + 'K';
+    return '$' + v.toFixed(0);
+}
+
+// === DATA ===
+const deptData = [
+    {name:"Laboratory",type:"Ancillary",specialty:"Laboratory",facility:"Main Hospital",encounters:293,billed:132630,paid:50540,avgBilled:453,los:0,patients:226},
+    {name:"Family Medicine",type:"Clinical",specialty:"Family Medicine",facility:"Primary Care Clinic",encounters:229,billed:237966,paid:126040,avgBilled:1039,los:0,patients:189},
+    {name:"Pediatrics",type:"Clinical",specialty:"Pediatrics",facility:"Primary Care Clinic",encounters:142,billed:48729,paid:32750,avgBilled:343,los:0,patients:120},
+    {name:"Emergency Medicine",type:"Clinical",specialty:"Emergency Medicine",facility:"Main Hospital",encounters:121,billed:949642,paid:441748,avgBilled:7848,los:0,patients:113},
+    {name:"Internal Medicine",type:"Clinical",specialty:"Internal Medicine",facility:"Main Hospital",encounters:99,billed:1594003,paid:697632,avgBilled:16101,los:0.76,patients:85},
+    {name:"Neurology",type:"Clinical",specialty:"Neurology",facility:"Main Hospital",encounters:85,billed:815654,paid:363824,avgBilled:9596,los:0.41,patients:78},
+    {name:"Cardiology",type:"Clinical",specialty:"Cardiology",facility:"Main Hospital",encounters:83,billed:1000116,paid:409168,avgBilled:12050,los:0.80,patients:79},
+    {name:"Gastroenterology",type:"Clinical",specialty:"Gastroenterology",facility:"Main Hospital",encounters:83,billed:939982,paid:402194,avgBilled:11325,los:1.07,patients:79},
+    {name:"Orthopedics",type:"Clinical",specialty:"Orthopedic Surgery",facility:"Main Hospital",encounters:80,billed:847602,paid:355899,avgBilled:10595,los:0.83,patients:72},
+    {name:"Psychiatry",type:"Clinical",specialty:"Psychiatry",facility:"Behavioral Health",encounters:74,billed:178945,paid:86554,avgBilled:2418,los:0,patients:73},
+    {name:"Physical Therapy",type:"Clinical",specialty:"Physical Medicine",facility:"Rehab Center",encounters:68,billed:142983,paid:66529,avgBilled:2103,los:0,patients:65},
+    {name:"OB/GYN",type:"Clinical",specialty:"OB/GYN",facility:"Main Hospital",encounters:67,billed:187291,paid:87998,avgBilled:2795,los:0,patients:62},
+    {name:"Nephrology",type:"Clinical",specialty:"Nephrology",facility:"Main Hospital",encounters:17,billed:1105448,paid:426891,avgBilled:65026,los:4.0,patients:17},
+    {name:"Oncology",type:"Clinical",specialty:"Oncology",facility:"Main Hospital",encounters:17,billed:1203195,paid:462996,avgBilled:70776,los:3.12,patients:17},
+    {name:"ICU",type:"Clinical",specialty:"Critical Care",facility:"Main Hospital",encounters:15,billed:909806,paid:369337,avgBilled:60654,los:3.4,patients:15},
+    {name:"Pulmonology",type:"Clinical",specialty:"Pulmonology",facility:"Main Hospital",encounters:14,billed:900195,paid:348391,avgBilled:64300,los:2.29,patients:14},
+    {name:"General Surgery",type:"Surgical",specialty:"General Surgery",facility:"Main Hospital",encounters:10,billed:735540,paid:321968,avgBilled:73554,los:5.8,patients:10}
+];
+
+const yoyData = [
+    {name:"Laboratory",y2023:109,y2024:86,y2025:98},
+    {name:"Family Medicine",y2023:72,y2024:82,y2025:75},
+    {name:"Pediatrics",y2023:38,y2024:53,y2025:51},
+    {name:"Emergency Medicine",y2023:40,y2024:43,y2025:38},
+    {name:"Internal Medicine",y2023:35,y2024:35,y2025:29},
+    {name:"Neurology",y2023:24,y2024:25,y2025:36},
+    {name:"Cardiology",y2023:37,y2024:26,y2025:20},
+    {name:"Gastroenterology",y2023:30,y2024:26,y2025:27},
+    {name:"Orthopedics",y2023:29,y2024:24,y2025:27},
+    {name:"Psychiatry",y2023:25,y2024:27,y2025:22},
+    {name:"Physical Therapy",y2023:21,y2024:26,y2025:21},
+    {name:"OB/GYN",y2023:22,y2024:30,y2025:15},
+    {name:"Nephrology",y2023:2,y2024:7,y2025:8},
+    {name:"Oncology",y2023:7,y2024:4,y2025:6},
+    {name:"ICU",y2023:4,y2024:5,y2025:6},
+    {name:"Pulmonology",y2023:2,y2024:7,y2025:5},
+    {name:"General Surgery",y2023:2,y2024:5,y2025:3}
+];
+
+const heatmapData = [
+    {name:"Laboratory",days:[51,37,40,35,47,47,36]},
+    {name:"Family Medicine",days:[31,44,31,28,38,34,23]},
+    {name:"Pediatrics",days:[22,20,21,24,15,22,18]},
+    {name:"Emergency Medicine",days:[19,19,17,15,21,13,17]},
+    {name:"Internal Medicine",days:[12,14,12,12,23,17,9]}
+];
+
+// === Chart 1: Volume Ranking (horizontal bar) ===
+new Chart(document.getElementById('volumeRankChart'), {
+    type: 'bar',
+    data: {
+        labels: deptData.map(d => d.name),
+        datasets: [{
+            data: deptData.map(d => d.encounters),
+            backgroundColor: deptData.map((d,i) => CHART_COLORS[i % CHART_COLORS.length]),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    afterLabel: ctx => {
+                        const d = deptData[ctx.dataIndex];
+                        return `Avg Billed: ${formatDollars(d.avgBilled)}\nPatients: ${d.patients}`;
+                    }
+                }
+            }
+        },
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 2: Department Type (doughnut) ===
+new Chart(document.getElementById('deptTypeChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Clinical (1,194)', 'Ancillary (293)', 'Surgical (10)'],
+        datasets: [{ data: [1194, 293, 10], backgroundColor: [COLORS.primary, COLORS.secondary, COLORS.success], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+
+// === Chart 3: YoY Top 5 (grouped bar) ===
+const top5 = yoyData.slice(0, 5);
+new Chart(document.getElementById('yoyDeptChart'), {
+    type: 'bar',
+    data: {
+        labels: top5.map(d => d.name),
+        datasets: [
+            { label: '2023', data: top5.map(d => d.y2023), backgroundColor: COLORS.muted, borderRadius: 4 },
+            { label: '2024', data: top5.map(d => d.y2024), backgroundColor: COLORS.info, borderRadius: 4 },
+            { label: '2025', data: top5.map(d => d.y2025), backgroundColor: COLORS.primary, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 4: Revenue vs Volume Scatter ===
+new Chart(document.getElementById('scatterChart'), {
+    type: 'bubble',
+    data: {
+        datasets: deptData.map((d, i) => ({
+            label: d.name,
+            data: [{ x: d.encounters, y: d.billed, r: Math.max(4, Math.sqrt(d.avgBilled / 100)) }],
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length] + 'AA'
+        }))
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => {
+                        const d = deptData[ctx.datasetIndex];
+                        return `${d.name}: ${d.encounters} enc, ${formatDollars(d.billed)} billed`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { title: { display: true, text: 'Encounter Count' } },
+            y: { title: { display: true, text: 'Total Billed ($)' }, ticks: { callback: v => formatDollars(v) } }
+        }
+    }
+});
+
+// === Heatmap Table ===
+(function buildHeatmap() {
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const allVals = heatmapData.flatMap(d => d.days);
+    const minVal = Math.min(...allVals);
+    const maxVal = Math.max(...allVals);
+    function heatColor(val) {
+        const t = (val - minVal) / (maxVal - minVal);
+        const r = Math.round(44 + (255-44) * (1-t));
+        const g = Math.round(95 + (255-95) * (1-t));
+        const b = Math.round(138 + (255-138) * (1-t));
+        return `rgb(${r},${g},${b})`;
+    }
+    function textColor(val) {
+        const t = (val - minVal) / (maxVal - minVal);
+        return t > 0.5 ? '#fff' : '#2d3436';
+    }
+    const table = document.getElementById('heatmapTable');
+    let html = '<thead><tr><th style="min-width:150px">Department</th>';
+    days.forEach(d => html += `<th>${d}</th>`);
+    html += '<th>Total</th></tr></thead><tbody>';
+    heatmapData.forEach(dept => {
+        const total = dept.days.reduce((a,b) => a+b, 0);
+        html += `<tr><td>${dept.name}</td>`;
+        dept.days.forEach(v => {
+            html += `<td style="background:${heatColor(v)};color:${textColor(v)}">${v}</td>`;
+        });
+        html += `<td style="font-weight:700">${total}</td></tr>`;
+    });
+    html += '</tbody>';
+    table.innerHTML = html;
+})();
+
+// === Detail Table ===
+(function buildTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = deptData.map(d => {
+        const collRate = d.billed > 0 ? ((d.paid/d.billed)*100).toFixed(1) + '%' : '—';
+        return `<tr>
+            <td><strong>${d.name}</strong></td>
+            <td>${d.type}</td>
+            <td>${d.specialty}</td>
+            <td>${d.facility}</td>
+            <td class="num">${d.encounters}</td>
+            <td class="num">${d.patients}</td>
+            <td class="num">${formatDollars(d.billed)}</td>
+            <td class="num">${formatDollars(d.paid)}</td>
+            <td class="num">${formatDollars(d.avgBilled)}</td>
+            <td class="num">${d.los.toFixed(2)}</td>
+        </tr>`;
+    }).join('');
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Retail - Daily Sales Flash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1A1A1A;
+            color: #F5F0E8;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #C9A84C;
+        }
+
+        .header-left {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #C9A84C;
+            letter-spacing: 2px;
+        }
+
+        .header-center {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #F5F0E8;
+            text-align: center;
+        }
+
+        .header-right a {
+            color: #C9A84C;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .header-right a:hover {
+            color: #D4A843;
+        }
+
+        /* PANELS */
+        .panel {
+            background-color: #2D2D2D;
+            border-top: 2px solid #C9A84C;
+            border-left: 1px solid #8B6F3A;
+            border-right: 1px solid #8B6F3A;
+            border-bottom: 1px solid #8B6F3A;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #C9A84C;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* EXECUTIVE SUMMARY TABLE */
+        .kpi-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .kpi-table th {
+            background-color: #1A1A1A;
+            color: #C9A84C;
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 2px solid #8B6F3A;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .kpi-table th:first-child {
+            text-align: left;
+            color: #F5F0E8;
+        }
+
+        .kpi-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #3D3D3D;
+            text-align: right;
+        }
+
+        .kpi-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #C9A84C;
+        }
+
+        .kpi-table tr:hover td {
+            background-color: #3D3D3D;
+        }
+
+        .kpi-table tr:last-child td {
+            font-weight: 700;
+            background-color: #1A1A1A;
+            border-top: 2px solid #C9A84C;
+        }
+
+        .variance-positive {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .variance-negative {
+            color: #E74C3C;
+            font-weight: 600;
+        }
+
+        /* CHART CONTAINER */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 10px;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #8B6F3A;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #9A9590;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:hover {
+            color: #C9A84C;
+        }
+
+        .tab-btn.active {
+            color: #C9A84C;
+            border-bottom-color: #C9A84C;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .data-table th {
+            background-color: #1A1A1A;
+            color: #C9A84C;
+            padding: 12px 10px;
+            text-align: right;
+            border-bottom: 2px solid #8B6F3A;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .data-table th:first-child {
+            text-align: left;
+            color: #F5F0E8;
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #3D3D3D;
+            text-align: right;
+        }
+
+        .data-table td:first-child {
+            text-align: left;
+            color: #C9A84C;
+            font-weight: 500;
+        }
+
+        .data-table tr:hover td {
+            background-color: #3D3D3D;
+        }
+
+        .data-table tr.total td {
+            font-weight: 700;
+            background-color: #1A1A1A;
+            border-top: 2px solid #C9A84C;
+        }
+
+        .data-table tr.region-header td {
+            font-weight: 700;
+            background-color: #242424;
+            border-top: 1px solid #8B6F3A;
+        }
+
+        .data-table tr.store-row td:first-child {
+            padding-left: 30px;
+            color: #F5F0E8;
+            font-weight: 400;
+        }
+
+        /* COLLAPSE BUTTON */
+        .collapse-btn {
+            background: none;
+            border: 1px solid #C9A84C;
+            color: #C9A84C;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 3px;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .collapse-btn:hover {
+            background-color: #C9A84C;
+            color: #1A1A1A;
+        }
+
+        .collapsible-section {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-section.collapsed {
+            max-height: 0;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            color: #9A9590;
+            font-size: 0.8rem;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #8B6F3A;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-left {
+                font-size: 1.5rem;
+            }
+
+            .header-center {
+                font-size: 1.1rem;
+            }
+
+            .kpi-table, .data-table {
+                font-size: 0.75rem;
+            }
+
+            .kpi-table th, .data-table th {
+                padding: 6px 4px;
+            }
+
+            .kpi-table td, .data-table td {
+                padding: 6px 4px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="header-left">FALCON RETAIL</div>
+            <div class="header-center">Daily Sales Flash — Monday, March 16, 2026</div>
+            <div class="header-right"><a href="index.html">← Back to Home</a></div>
+        </header>
+
+        <!-- SECTION 1: EXECUTIVE SUMMARY -->
+        <div class="panel">
+            <div class="panel-title">Executive Summary KPIs</div>
+            <table class="kpi-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Today TY</th>
+                        <th>Today LY</th>
+                        <th>Var%</th>
+                        <th>WTD TY</th>
+                        <th>WTD LY</th>
+                        <th>Var%</th>
+                        <th>MTD TY</th>
+                        <th>MTD LY</th>
+                        <th>Var%</th>
+                        <th>YTD TY</th>
+                        <th>YTD LY</th>
+                        <th>Var%</th>
+                    </tr>
+                </thead>
+                <tbody id="kpiTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 2: DAILY TREND CHART -->
+        <div class="panel">
+            <div class="panel-title">Daily Net Sales Trend (March 1-16)</div>
+            <div class="chart-container">
+                <canvas id="dailyTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- SECTION 3: TABBED HIERARCHY -->
+        <div class="panel">
+            <div class="panel-title">Sales Hierarchy Analysis</div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('region', this)">By Region / Store</button>
+                <button class="tab-btn" onclick="switchTab('category', this)">By Product Category</button>
+                <button class="tab-btn" onclick="switchTab('channel', this)">By Channel</button>
+            </div>
+
+            <!-- TAB 1: REGION -->
+            <div id="region" class="tab-content active">
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #C9A84C; margin-bottom: 15px; font-size: 1.1rem;">Region-Level Summary</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>MTD TY</th>
+                                <th>MTD LY</th>
+                                <th>Var%</th>
+                                <th>MTD Plan</th>
+                                <th>vs Plan%</th>
+                                <th>YTD TY</th>
+                                <th>YTD LY</th>
+                                <th>Var%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regionTable"></tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 style="color: #C9A84C; margin-bottom: 15px; font-size: 1.1rem;">Store-Level Detail</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Store</th>
+                                <th>MTD TY</th>
+                                <th>MTD LY</th>
+                                <th>Var%</th>
+                                <th>MTD Units</th>
+                                <th>MTD GM$</th>
+                                <th>YTD TY</th>
+                                <th>YTD LY</th>
+                                <th>Var%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="storeTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: CATEGORY -->
+            <div id="category" class="tab-content">
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #C9A84C; margin-bottom: 15px; font-size: 1.1rem;">Category Performance</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>MTD TY</th>
+                                <th>MTD LY</th>
+                                <th>Var%</th>
+                                <th>MTD Plan</th>
+                                <th>vs Plan%</th>
+                                <th>MTD GM%</th>
+                                <th>YTD TY</th>
+                                <th>YTD LY</th>
+                                <th>Var%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTable"></tbody>
+                    </table>
+                </div>
+
+                <div style="position: relative; height: 350px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- TAB 3: CHANNEL -->
+            <div id="channel" class="tab-content">
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #C9A84C; margin-bottom: 15px; font-size: 1.1rem;">Channel Performance</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Channel</th>
+                                <th>MTD TY</th>
+                                <th>MTD LY</th>
+                                <th>Var%</th>
+                                <th>YTD TY</th>
+                                <th>YTD LY</th>
+                                <th>Var%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="channelTable"></tbody>
+                    </table>
+                </div>
+
+                <div style="position: relative; height: 300px;">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: MTD DAILY DETAIL -->
+        <div class="panel">
+            <div class="panel-title">MTD Daily Detail</div>
+            <button class="collapse-btn" onclick="toggleCollapse()">▼ Hide Daily Detail</button>
+            <div class="collapsible-section" id="dailyDetail">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Net Sales</th>
+                            <th>Gross Sales</th>
+                            <th>Units</th>
+                            <th>Txns</th>
+                            <th>AOV</th>
+                            <th>Discount $</th>
+                            <th>Discount %</th>
+                            <th>Returns</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailyDetailTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            Generated March 16, 2026 | Data as of March 16, 2026 | Falcon Retail Analytics Suite
+        </footer>
+    </div>
+
+    <script>
+        // DATA
+        const kpiData = [
+            { metric: 'Net Sales', todayTy: 677300, todayLy: 677400, wtdTy: 4762673, wtdLy: 4804355, mtdTy: 10857579, mtdLy: 11061961, ytdTy: 51637914, ytdLy: 51900496 },
+            { metric: 'Gross Margin $', todayTy: 279700, todayLy: 275600, wtdTy: 1968695, wtdLy: 1972821, mtdTy: 4534006, mtdLy: 4623282, ytdTy: 21634779, ytdLy: 21798021 },
+            { metric: 'Gross Margin %', todayTy: 0.413, todayLy: 0.407, wtdTy: 0.4135, wtdLy: 0.4112, mtdTy: 0.418, mtdLy: 0.418, ytdTy: 0.419, ytdLy: 0.420 },
+            { metric: 'Units', todayTy: 4464, todayLy: 4462, wtdTy: 30915, wtdLy: 31084, mtdTy: 70629, mtdLy: 71584, ytdTy: 333482, ytdLy: 334333 },
+            { metric: 'Transactions', todayTy: 1775, todayLy: 1801, wtdTy: 12404, wtdLy: 12483, mtdTy: 28026, mtdLy: 28365, ytdTy: 130537, ytdLy: 130424 },
+            { metric: 'AUR', todayTy: 151.80, todayLy: 151.82, wtdTy: 154.05, wtdLy: 154.41, mtdTy: 153.72, mtdLy: 154.54, ytdTy: 154.87, ytdLy: 155.24 },
+            { metric: 'UPT', todayTy: 2.51, todayLy: 2.48, wtdTy: 2.50, wtdLy: 2.49, mtdTy: 2.52, mtdLy: 2.52, ytdTy: 2.55, ytdLy: 2.56 },
+            { metric: 'Discount Rate', todayTy: 0.046, todayLy: 0.046, wtdTy: 0.0465, wtdLy: 0.0461, mtdTy: 0.047, mtdLy: 0.046, ytdTy: 0.045, ytdLy: 0.045 }
+        ];
+
+        const regionData = [
+            { region: 'Southeast', mtdTy: 3037891, mtdLy: 3210288, mtdPlan: 3811737, ytdTy: 14460936, ytdLy: 14652860 },
+            { region: 'West', mtdTy: 2665301, mtdLy: 2614822, mtdPlan: 3367570, ytdTy: 12435950, ytdLy: 12417245 },
+            { region: 'Midwest', mtdTy: 1728955, mtdLy: 1786512, mtdPlan: 2105992, ytdTy: 8356945, ytdLy: 8319189 },
+            { region: 'Southwest', mtdTy: 1698067, mtdLy: 1752012, mtdPlan: 2118488, ytdTy: 8187013, ytdLy: 8353034 },
+            { region: 'Northeast', mtdTy: 1274912, mtdLy: 1257506, mtdPlan: 1781042, ytdTy: 6143213, ytdLy: 6098885 },
+            { region: 'Mountain', mtdTy: 452453, mtdLy: 440821, mtdPlan: 690825, ytdTy: 2053857, ytdLy: 2059283 }
+        ];
+
+        const storeData = [
+            { region: 'Midwest', store: 'Arcline St. Louis', mtdTy: 483510, mtdLy: 449025, mtdUnits: 2946, ytdTy: 2179162, ytdLy: 2097219, mtdCost: 273715 },
+            { region: 'Midwest', store: 'Arcline Detroit', mtdTy: 435707, mtdLy: 442753, mtdUnits: 2812, ytdTy: 2040957, ytdLy: 2074728, mtdCost: 249532 },
+            { region: 'Midwest', store: 'Arcline Chicago', mtdTy: 411349, mtdLy: 457410, mtdUnits: 2760, ytdTy: 2084177, ytdLy: 2096195, mtdCost: 241988 },
+            { region: 'Midwest', store: 'Arcline Minneapolis', mtdTy: 398389, mtdLy: 437324, mtdUnits: 2724, ytdTy: 2052648, ytdLy: 2051047, mtdCost: 238469 },
+            { region: 'Mountain', store: 'Arcline Denver', mtdTy: 452453, mtdLy: 440821, mtdUnits: 2838, ytdTy: 2053857, ytdLy: 2059283, mtdCost: 259411 },
+            { region: 'Northeast', store: 'Arcline New York', mtdTy: 433452, mtdLy: 403087, mtdUnits: 2780, ytdTy: 2083265, ytdLy: 2058960, mtdCost: 247999 },
+            { region: 'Northeast', store: 'Arcline Boston', mtdTy: 431671, mtdLy: 419765, mtdUnits: 2796, ytdTy: 2084014, ytdLy: 1992194, mtdCost: 247551 },
+            { region: 'Northeast', store: 'Arcline Philadelphia', mtdTy: 409790, mtdLy: 434654, mtdUnits: 2728, ytdTy: 1975934, ytdLy: 2047731, mtdCost: 239051 },
+            { region: 'Southeast', store: 'Arcline Tampa', mtdTy: 463623, mtdLy: 483654, mtdUnits: 2904, ytdTy: 2102263, ytdLy: 2116386, mtdCost: 266067 },
+            { region: 'Southeast', store: 'Arcline Miami', mtdTy: 444511, mtdLy: 472792, mtdUnits: 2840, ytdTy: 2066616, ytdLy: 2120199, mtdCost: 255849 },
+            { region: 'Southeast', store: 'Arcline Raleigh', mtdTy: 441075, mtdLy: 465300, mtdUnits: 2839, ytdTy: 2083441, ytdLy: 2050424, mtdCost: 251023 },
+            { region: 'Southeast', store: 'Arcline Charlotte', mtdTy: 437574, mtdLy: 443548, mtdUnits: 2753, ytdTy: 2093723, ytdLy: 2087130, mtdCost: 247237 },
+            { region: 'Southeast', store: 'Arcline Orlando', mtdTy: 423131, mtdLy: 441597, mtdUnits: 2896, ytdTy: 2048886, ytdLy: 2071148, mtdCost: 247848 },
+            { region: 'Southeast', store: 'Arcline Atlanta', mtdTy: 417613, mtdLy: 408128, mtdUnits: 2829, ytdTy: 2014252, ytdLy: 2035737, mtdCost: 255733 },
+            { region: 'Southeast', store: 'Arcline Nashville', mtdTy: 410364, mtdLy: 495268, mtdUnits: 2699, ytdTy: 2051755, ytdLy: 2171837, mtdCost: 239506 },
+            { region: 'Southwest', store: 'Arcline Dallas', mtdTy: 436453, mtdLy: 443463, mtdUnits: 2825, ytdTy: 2059295, ytdLy: 2064286, mtdCost: 253579 },
+            { region: 'Southwest', store: 'Arcline Houston', mtdTy: 432748, mtdLy: 428851, mtdUnits: 2905, ytdTy: 2120617, ytdLy: 2072447, mtdCost: 250210 },
+            { region: 'Southwest', store: 'Arcline Austin', mtdTy: 422377, mtdLy: 436289, mtdUnits: 2876, ytdTy: 1977639, ytdLy: 2105404, mtdCost: 257890 },
+            { region: 'Southwest', store: 'Arcline Phoenix', mtdTy: 406489, mtdLy: 443409, mtdUnits: 2720, ytdTy: 2029463, ytdLy: 2110898, mtdCost: 242456 },
+            { region: 'West', store: 'Arcline San Francisco', mtdTy: 460706, mtdLy: 429747, mtdUnits: 3015, ytdTy: 2054604, ytdLy: 2015948, mtdCost: 273153 },
+            { region: 'West', store: 'Arcline San Diego', mtdTy: 457375, mtdLy: 418895, mtdUnits: 2909, ytdTy: 2054777, ytdLy: 2074891, mtdCost: 267173 },
+            { region: 'West', store: 'Arcline Portland', mtdTy: 455907, mtdLy: 433910, mtdUnits: 2944, ytdTy: 2137588, ytdLy: 2024454, mtdCost: 271879 },
+            { region: 'West', store: 'Arcline Las Vegas', mtdTy: 436102, mtdLy: 433680, mtdUnits: 2827, ytdTy: 2029314, ytdLy: 2043037, mtdCost: 256773 },
+            { region: 'West', store: 'Arcline Seattle', mtdTy: 433350, mtdLy: 447988, mtdUnits: 2783, ytdTy: 2042327, ytdLy: 2104729, mtdCost: 248984 },
+            { region: 'West', store: 'Arcline Los Angeles', mtdTy: 421861, mtdLy: 450603, mtdUnits: 2681, ytdTy: 2117341, ytdLy: 2154187, mtdCost: 241191 }
+        ];
+
+        const categoryData = [
+            { category: 'Bottoms', mtdTy: 1439180, mtdLy: 1434400, mtdPlan: 1514798, mtdGm: 0.424, ytdTy: 6764006, ytdLy: 6813819 },
+            { category: 'Outerwear', mtdTy: 1401272, mtdLy: 1467271, mtdPlan: 2036578, mtdGm: 0.414, ytdTy: 6741918, ytdLy: 6787005 },
+            { category: 'Footwear', mtdTy: 1400414, mtdLy: 1396311, mtdPlan: 1813312, mtdGm: 0.415, ytdTy: 6698507, ytdLy: 6598334 },
+            { category: 'Tops', mtdTy: 1387119, mtdLy: 1402118, mtdPlan: 1968603, mtdGm: 0.419, ytdTy: 6693262, ytdLy: 6595842 },
+            { category: 'Accessories', mtdTy: 1366057, mtdLy: 1370855, mtdPlan: 1583206, mtdGm: 0.420, ytdTy: 6403903, ytdLy: 6534683 },
+            { category: 'Denim', mtdTy: 1328608, mtdLy: 1388348, mtdPlan: 1755317, mtdGm: 0.421, ytdTy: 6334880, ytdLy: 6423106 },
+            { category: 'Loungewear', mtdTy: 1279750, mtdLy: 1341866, mtdPlan: 1618958, mtdGm: 0.426, ytdTy: 6023652, ytdLy: 6233450 },
+            { category: 'Activewear', mtdTy: 1255179, mtdLy: 1260791, mtdPlan: 1584883, mtdGm: 0.400, ytdTy: 5977786, ytdLy: 5914258 }
+        ];
+
+        const channelData = [
+            { channel: 'In-Store', mtdTy: 2205235, mtdLy: 2149883, ytdTy: 10314382, ytdLy: 10386928 },
+            { channel: 'BOPIS', mtdTy: 2201291, mtdLy: 2278604, ytdTy: 10295021, ytdLy: 10418363 },
+            { channel: 'Curbside', mtdTy: 2164552, mtdLy: 2170004, ytdTy: 10417255, ytdLy: 10294748 },
+            { channel: 'E-Commerce', mtdTy: 2157641, mtdLy: 2286919, ytdTy: 10394057, ytdLy: 10400196 },
+            { channel: 'Mobile App', mtdTy: 2128860, mtdLy: 2176551, ytdTy: 10217198, ytdLy: 10400261 }
+        ];
+
+        const dailyData = [
+            { date: '3/1', day: 'Sun', net: 619763, gross: 651138, units: 4045, txns: 1637, disc: 31375, ret: 98 },
+            { date: '3/2', day: 'Mon', net: 648284, gross: 680565, units: 4317, txns: 1721, disc: 32281, ret: 94 },
+            { date: '3/3', day: 'Tue', net: 644785, gross: 674381, units: 4255, txns: 1684, disc: 29596, ret: 84 },
+            { date: '3/4', day: 'Wed', net: 682901, gross: 711846, units: 4442, txns: 1783, disc: 28945, ret: 87 },
+            { date: '3/5', day: 'Thu', net: 739656, gross: 773066, units: 4645, txns: 1819, disc: 33409, ret: 77 },
+            { date: '3/6', day: 'Fri', net: 662078, gross: 690784, units: 4484, txns: 1768, disc: 28706, ret: 111 },
+            { date: '3/7', day: 'Sat', net: 663639, gross: 695086, units: 4241, txns: 1703, disc: 31447, ret: 80 },
+            { date: '3/8', day: 'Sun', net: 700444, gross: 733058, units: 4474, txns: 1772, disc: 32614, ret: 90 },
+            { date: '3/9', day: 'Mon', net: 674493, gross: 704200, units: 4436, txns: 1762, disc: 29707, ret: 85 },
+            { date: '3/10', day: 'Tue', net: 699275, gross: 733950, units: 4483, txns: 1793, disc: 34675, ret: 74 },
+            { date: '3/11', day: 'Wed', net: 717209, gross: 749882, units: 4478, txns: 1765, disc: 32674, ret: 78 },
+            { date: '3/12', day: 'Thu', net: 663006, gross: 694817, units: 4317, txns: 1721, disc: 31811, ret: 93 },
+            { date: '3/13', day: 'Fri', net: 682970, gross: 712864, units: 4486, txns: 1801, disc: 29894, ret: 95 },
+            { date: '3/14', day: 'Sat', net: 692054, gross: 724541, units: 4537, txns: 1830, disc: 32487, ret: 95 },
+            { date: '3/15', day: 'Sun', net: 689717, gross: 724112, units: 4525, txns: 1824, disc: 34395, ret: 91 },
+            { date: '3/16', day: 'Mon', net: 677304, gross: 710260, units: 4464, txns: 1775, disc: 32956, ret: 94 }
+        ];
+
+        // UTILITY FUNCTIONS
+        function formatCurrency(num) {
+            if (typeof num === 'string') return num;
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function formatPercent(num) {
+            if (typeof num === 'number' && num < 1) {
+                return (num * 100).toFixed(1) + '%';
+            }
+            return num.toFixed(1) + '%';
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-US');
+        }
+
+        function calculateVariance(ty, ly) {
+            return ((ty - ly) / ly) * 100;
+        }
+
+        function getVarianceColor(variance) {
+            return variance >= 0 ? 'variance-positive' : 'variance-negative';
+        }
+
+        function getVarianceSign(variance) {
+            return variance >= 0 ? '+' : '';
+        }
+
+        // POPULATE KPI TABLE
+        function populateKpiTable() {
+            const tbody = document.getElementById('kpiTableBody');
+            let totalTy = 0, totalLy = 0;
+
+            kpiData.forEach(row => {
+                const varToday = calculateVariance(row.todayTy, row.todayLy);
+                const varWtd = calculateVariance(row.wtdTy, row.wtdLy);
+                const varMtd = calculateVariance(row.mtdTy, row.mtdLy);
+                const varYtd = calculateVariance(row.ytdTy, row.ytdLy);
+
+                let todayTyFormatted, todayLyFormatted, wtdTyFormatted, wtdLyFormatted, mtdTyFormatted, mtdLyFormatted, ytdTyFormatted, ytdLyFormatted;
+
+                if (row.metric.includes('%')) {
+                    todayTyFormatted = formatPercent(row.todayTy);
+                    todayLyFormatted = formatPercent(row.todayLy);
+                    wtdTyFormatted = formatPercent(row.wtdTy);
+                    wtdLyFormatted = formatPercent(row.wtdLy);
+                    mtdTyFormatted = formatPercent(row.mtdTy);
+                    mtdLyFormatted = formatPercent(row.mtdLy);
+                    ytdTyFormatted = formatPercent(row.ytdTy);
+                    ytdLyFormatted = formatPercent(row.ytdLy);
+                } else if (row.metric.includes('AUR') || row.metric.includes('UPT') || row.metric.includes('Discount')) {
+                    if (row.metric === 'AUR') {
+                        todayTyFormatted = '$' + row.todayTy.toFixed(2);
+                        todayLyFormatted = '$' + row.todayLy.toFixed(2);
+                        wtdTyFormatted = '$' + row.wtdTy.toFixed(2);
+                        wtdLyFormatted = '$' + row.wtdLy.toFixed(2);
+                        mtdTyFormatted = '$' + row.mtdTy.toFixed(2);
+                        mtdLyFormatted = '$' + row.mtdLy.toFixed(2);
+                        ytdTyFormatted = '$' + row.ytdTy.toFixed(2);
+                        ytdLyFormatted = '$' + row.ytdLy.toFixed(2);
+                    } else {
+                        todayTyFormatted = row.todayTy.toFixed(2);
+                        todayLyFormatted = row.todayLy.toFixed(2);
+                        wtdTyFormatted = row.wtdTy.toFixed(2);
+                        wtdLyFormatted = row.wtdLy.toFixed(2);
+                        mtdTyFormatted = row.mtdTy.toFixed(2);
+                        mtdLyFormatted = row.mtdLy.toFixed(2);
+                        ytdTyFormatted = row.ytdTy.toFixed(2);
+                        ytdLyFormatted = row.ytdLy.toFixed(2);
+                    }
+                } else {
+                    todayTyFormatted = formatCurrency(row.todayTy);
+                    todayLyFormatted = formatCurrency(row.todayLy);
+                    wtdTyFormatted = formatCurrency(row.wtdTy);
+                    wtdLyFormatted = formatCurrency(row.wtdLy);
+                    mtdTyFormatted = formatCurrency(row.mtdTy);
+                    mtdLyFormatted = formatCurrency(row.mtdLy);
+                    ytdTyFormatted = formatCurrency(row.ytdTy);
+                    ytdLyFormatted = formatCurrency(row.ytdLy);
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.metric}</td>
+                    <td>${todayTyFormatted}</td>
+                    <td>${todayLyFormatted}</td>
+                    <td class="${getVarianceColor(varToday)}">${getVarianceSign(varToday)}${varToday.toFixed(1)}%</td>
+                    <td>${wtdTyFormatted}</td>
+                    <td>${wtdLyFormatted}</td>
+                    <td class="${getVarianceColor(varWtd)}">${getVarianceSign(varWtd)}${varWtd.toFixed(1)}%</td>
+                    <td>${mtdTyFormatted}</td>
+                    <td>${mtdLyFormatted}</td>
+                    <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                    <td>${ytdTyFormatted}</td>
+                    <td>${ytdLyFormatted}</td>
+                    <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // DAILY TREND CHART
+        function createDailyTrendChart() {
+            const dates = dailyData.map(d => d.date);
+            const sales = dailyData.map(d => d.net);
+            const avgSales = sales.reduce((a, b) => a + b, 0) / sales.length;
+
+            const ctx = document.getElementById('dailyTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Daily Net Sales',
+                            data: sales,
+                            borderColor: '#C9A84C',
+                            backgroundColor: 'rgba(201, 168, 76, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#C9A84C',
+                            pointBorderColor: '#F5F0E8',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Average',
+                            data: Array(dates.length).fill(avgSales),
+                            borderColor: '#6A9BC3',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#F5F0E8', font: { size: 11 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                color: '#9A9590',
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: { color: '#3D3D3D' }
+                        },
+                        x: {
+                            ticks: { color: '#9A9590' },
+                            grid: { color: '#3D3D3D' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // POPULATE REGION TABLE
+        function populateRegionTable() {
+            const tbody = document.getElementById('regionTable');
+            let totalTy = 0, totalLy = 0, totalPlan = 0, totalYtdTy = 0, totalYtdLy = 0;
+
+            regionData.forEach(row => {
+                totalTy += row.mtdTy;
+                totalLy += row.mtdLy;
+                totalPlan += row.mtdPlan;
+                totalYtdTy += row.ytdTy;
+                totalYtdLy += row.ytdLy;
+
+                const varMtd = calculateVariance(row.mtdTy, row.mtdLy);
+                const varPlan = ((row.mtdTy - row.mtdPlan) / row.mtdPlan) * 100;
+                const varYtd = calculateVariance(row.ytdTy, row.ytdLy);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.region}</td>
+                    <td>${formatCurrency(row.mtdTy)}</td>
+                    <td>${formatCurrency(row.mtdLy)}</td>
+                    <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                    <td>${formatCurrency(row.mtdPlan)}</td>
+                    <td class="${getVarianceColor(varPlan)}">${getVarianceSign(varPlan)}${varPlan.toFixed(1)}%</td>
+                    <td>${formatCurrency(row.ytdTy)}</td>
+                    <td>${formatCurrency(row.ytdLy)}</td>
+                    <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const varMtd = calculateVariance(totalTy, totalLy);
+            const varPlan = ((totalTy - totalPlan) / totalPlan) * 100;
+            const varYtd = calculateVariance(totalYtdTy, totalYtdLy);
+
+            const tr = document.createElement('tr');
+            tr.className = 'total';
+            tr.innerHTML = `
+                <td>TOTAL</td>
+                <td>${formatCurrency(totalTy)}</td>
+                <td>${formatCurrency(totalLy)}</td>
+                <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                <td>${formatCurrency(totalPlan)}</td>
+                <td class="${getVarianceColor(varPlan)}">${getVarianceSign(varPlan)}${varPlan.toFixed(1)}%</td>
+                <td>${formatCurrency(totalYtdTy)}</td>
+                <td>${formatCurrency(totalYtdLy)}</td>
+                <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // POPULATE STORE TABLE
+        function populateStoreTable() {
+            const tbody = document.getElementById('storeTable');
+            let currentRegion = '';
+
+            storeData.forEach(store => {
+                if (store.region !== currentRegion) {
+                    currentRegion = store.region;
+                    const regionRow = document.createElement('tr');
+                    regionRow.className = 'region-header';
+                    regionRow.innerHTML = `<td colspan="9">${store.region}</td>`;
+                    tbody.appendChild(regionRow);
+                }
+
+                const varMtd = calculateVariance(store.mtdTy, store.mtdLy);
+                const varYtd = calculateVariance(store.ytdTy, store.ytdLy);
+                const mtdGm = store.mtdTy - store.mtdCost;
+
+                const tr = document.createElement('tr');
+                tr.className = 'store-row';
+                tr.innerHTML = `
+                    <td>${store.store}</td>
+                    <td>${formatCurrency(store.mtdTy)}</td>
+                    <td>${formatCurrency(store.mtdLy)}</td>
+                    <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                    <td>${formatNumber(store.mtdUnits)}</td>
+                    <td>${formatCurrency(mtdGm)}</td>
+                    <td>${formatCurrency(store.ytdTy)}</td>
+                    <td>${formatCurrency(store.ytdLy)}</td>
+                    <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // POPULATE CATEGORY TABLE
+        function populateCategoryTable() {
+            const tbody = document.getElementById('categoryTable');
+            let totalTy = 0, totalLy = 0, totalPlan = 0, totalYtdTy = 0, totalYtdLy = 0, totalGmDollars = 0;
+
+            categoryData.forEach(row => {
+                totalTy += row.mtdTy;
+                totalLy += row.mtdLy;
+                totalPlan += row.mtdPlan;
+                totalYtdTy += row.ytdTy;
+                totalYtdLy += row.ytdLy;
+                totalGmDollars += row.mtdTy * row.mtdGm;
+
+                const varMtd = calculateVariance(row.mtdTy, row.mtdLy);
+                const varPlan = ((row.mtdTy - row.mtdPlan) / row.mtdPlan) * 100;
+                const varYtd = calculateVariance(row.ytdTy, row.ytdLy);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.category}</td>
+                    <td>${formatCurrency(row.mtdTy)}</td>
+                    <td>${formatCurrency(row.mtdLy)}</td>
+                    <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                    <td>${formatCurrency(row.mtdPlan)}</td>
+                    <td class="${getVarianceColor(varPlan)}">${getVarianceSign(varPlan)}${varPlan.toFixed(1)}%</td>
+                    <td>${formatPercent(row.mtdGm)}</td>
+                    <td>${formatCurrency(row.ytdTy)}</td>
+                    <td>${formatCurrency(row.ytdLy)}</td>
+                    <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const varMtd = calculateVariance(totalTy, totalLy);
+            const varPlan = ((totalTy - totalPlan) / totalPlan) * 100;
+            const varYtd = calculateVariance(totalYtdTy, totalYtdLy);
+            const avgGm = (totalGmDollars / totalTy);
+
+            const tr = document.createElement('tr');
+            tr.className = 'total';
+            tr.innerHTML = `
+                <td>TOTAL</td>
+                <td>${formatCurrency(totalTy)}</td>
+                <td>${formatCurrency(totalLy)}</td>
+                <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                <td>${formatCurrency(totalPlan)}</td>
+                <td class="${getVarianceColor(varPlan)}">${getVarianceSign(varPlan)}${varPlan.toFixed(1)}%</td>
+                <td>${formatPercent(avgGm)}</td>
+                <td>${formatCurrency(totalYtdTy)}</td>
+                <td>${formatCurrency(totalYtdLy)}</td>
+                <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // CREATE CATEGORY CHART
+        function createCategoryChart() {
+            const categories = categoryData.map(c => c.category);
+            const mtdTy = categoryData.map(c => c.mtdTy);
+            const mtdLy = categoryData.map(c => c.mtdLy);
+            const mtdPlan = categoryData.map(c => c.mtdPlan);
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [
+                        {
+                            label: 'MTD TY',
+                            data: mtdTy,
+                            backgroundColor: '#C9A84C',
+                            borderColor: '#D4A843',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'MTD LY',
+                            data: mtdLy,
+                            backgroundColor: '#6A9BC3',
+                            borderColor: '#5B8FB0',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'MTD Plan',
+                            data: mtdPlan,
+                            backgroundColor: '#5BA67D',
+                            borderColor: '#4A9270',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#F5F0E8', font: { size: 11 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#9A9590',
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: { color: '#3D3D3D' }
+                        },
+                        x: {
+                            ticks: { color: '#9A9590', font: { size: 10 } },
+                            grid: { color: '#3D3D3D' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // POPULATE CHANNEL TABLE
+        function populateChannelTable() {
+            const tbody = document.getElementById('channelTable');
+            let totalTy = 0, totalLy = 0, totalYtdTy = 0, totalYtdLy = 0;
+
+            channelData.forEach(row => {
+                totalTy += row.mtdTy;
+                totalLy += row.mtdLy;
+                totalYtdTy += row.ytdTy;
+                totalYtdLy += row.ytdLy;
+
+                const varMtd = calculateVariance(row.mtdTy, row.mtdLy);
+                const varYtd = calculateVariance(row.ytdTy, row.ytdLy);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.channel}</td>
+                    <td>${formatCurrency(row.mtdTy)}</td>
+                    <td>${formatCurrency(row.mtdLy)}</td>
+                    <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                    <td>${formatCurrency(row.ytdTy)}</td>
+                    <td>${formatCurrency(row.ytdLy)}</td>
+                    <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const varMtd = calculateVariance(totalTy, totalLy);
+            const varYtd = calculateVariance(totalYtdTy, totalYtdLy);
+
+            const tr = document.createElement('tr');
+            tr.className = 'total';
+            tr.innerHTML = `
+                <td>TOTAL</td>
+                <td>${formatCurrency(totalTy)}</td>
+                <td>${formatCurrency(totalLy)}</td>
+                <td class="${getVarianceColor(varMtd)}">${getVarianceSign(varMtd)}${varMtd.toFixed(1)}%</td>
+                <td>${formatCurrency(totalYtdTy)}</td>
+                <td>${formatCurrency(totalYtdLy)}</td>
+                <td class="${getVarianceColor(varYtd)}">${getVarianceSign(varYtd)}${varYtd.toFixed(1)}%</td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // CREATE CHANNEL CHART
+        function createChannelChart() {
+            const channels = channelData.map(c => c.channel);
+            const mtdTy = channelData.map(c => c.mtdTy);
+
+            const ctx = document.getElementById('channelChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: channels,
+                    datasets: [{
+                        data: mtdTy,
+                        backgroundColor: ['#C9A84C', '#6A9BC3', '#5BA67D', '#E8913A', '#C75B5B'],
+                        borderColor: '#2D2D2D',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#F5F0E8', font: { size: 11 }, padding: 15 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // POPULATE DAILY DETAIL TABLE
+        function populateDailyDetailTable() {
+            const tbody = document.getElementById('dailyDetailTable');
+            let totalNet = 0, totalGross = 0, totalUnits = 0, totalTxns = 0, totalDisc = 0, totalRet = 0;
+
+            dailyData.forEach(row => {
+                totalNet += row.net;
+                totalGross += row.gross;
+                totalUnits += row.units;
+                totalTxns += row.txns;
+                totalDisc += row.disc;
+                totalRet += row.ret;
+
+                const aov = row.net / row.txns;
+                const discPct = (row.disc / row.gross) * 100;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.date}</td>
+                    <td>${row.day}</td>
+                    <td>${formatCurrency(row.net)}</td>
+                    <td>${formatCurrency(row.gross)}</td>
+                    <td>${formatNumber(row.units)}</td>
+                    <td>${formatNumber(row.txns)}</td>
+                    <td>$${aov.toFixed(2)}</td>
+                    <td>${formatCurrency(row.disc)}</td>
+                    <td>${discPct.toFixed(1)}%</td>
+                    <td>${row.ret}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const avgAov = totalNet / totalTxns;
+            const avgDiscPct = (totalDisc / totalGross) * 100;
+
+            const tr = document.createElement('tr');
+            tr.className = 'total';
+            tr.innerHTML = `
+                <td colspan="2">MTD TOTAL</td>
+                <td>${formatCurrency(totalNet)}</td>
+                <td>${formatCurrency(totalGross)}</td>
+                <td>${formatNumber(totalUnits)}</td>
+                <td>${formatNumber(totalTxns)}</td>
+                <td>$${avgAov.toFixed(2)}</td>
+                <td>${formatCurrency(totalDisc)}</td>
+                <td>${avgDiscPct.toFixed(1)}%</td>
+                <td>${totalRet}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // TAB SWITCHING
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // COLLAPSE TOGGLE
+        function toggleCollapse() {
+            const section = document.getElementById('dailyDetail');
+            const btn = document.querySelector('.collapse-btn');
+            section.classList.toggle('collapsed');
+            btn.textContent = section.classList.contains('collapsed') ? '▶ Show Daily Detail' : '▼ Hide Daily Detail';
+        }
+
+        // INITIALIZE ON LOAD
+        document.addEventListener('DOMContentLoaded', function() {
+            populateKpiTable();
+            createDailyTrendChart();
+            populateRegionTable();
+            populateStoreTable();
+            populateCategoryTable();
+            createCategoryChart();
+            populateChannelTable();
+            createChannelChart();
+            populateDailyDetailTable();
+        });
+    </script>
+</body>
+</html>

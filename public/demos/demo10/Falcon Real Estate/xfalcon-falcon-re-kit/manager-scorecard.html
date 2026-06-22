@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Manager Scorecard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            padding: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #006AFF;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .back-link {
+            color: #006AFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #006AFF;
+        }
+
+        .kpi-unit {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #006AFF;
+        }
+
+        .full-width {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 16px;
+        }
+
+        .half-width-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1200px) {
+            .half-width-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .half-width {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .chart-container-half {
+            position: relative;
+            height: 350px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .top-quartile {
+            background-color: #d1fae5;
+            color: #065f46;
+            font-weight: 500;
+        }
+
+        .bottom-quartile {
+            background-color: #fee2e2;
+            color: #7f1d1d;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">xF</div>
+            <div class="title">Falcon Real Estate / Property Manager Scorecard</div>
+        </div>
+        <a class="back-link" href="index.html">← Back to Portal</a>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-container">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Managers</div>
+            <div class="kpi-value">47</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Occupancy</div>
+            <div class="kpi-value">87.3<span class="kpi-unit">%</span></div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg NOI Margin</div>
+            <div class="kpi-value">60.6<span class="kpi-unit">%</span></div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Budget Var</div>
+            <div class="kpi-value">-24.3<span class="kpi-unit">%</span></div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Satisfaction</div>
+            <div class="kpi-value">4.13<span class="kpi-unit">/5</span></div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Reactive %</div>
+            <div class="kpi-value">64.3<span class="kpi-unit">%</span></div>
+        </div>
+    </div>
+
+    <!-- Manager Occupancy Ranking -->
+    <div class="section">
+        <div class="section-title">Manager Occupancy Ranking (Top 20)</div>
+        <div class="full-width">
+            <div class="chart-container">
+                <canvas id="occupancyRanking"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance by Type and Region -->
+    <div class="half-width-container">
+        <div class="half-width">
+            <h3 class="bar-label">Performance by Manager Type</h3>
+            <div class="chart-container-half">
+                <canvas id="byType"></canvas>
+            </div>
+        </div>
+        <div class="half-width">
+            <h3 class="bar-label">Performance by Region</h3>
+            <div class="chart-container-half">
+                <canvas id="byRegion"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Satisfaction vs Reactive and Budget Variance -->
+    <div class="half-width-container">
+        <div class="half-width">
+            <h3 class="bar-label">Avg Satisfaction by Manager Type</h3>
+            <div class="chart-container-half">
+                <canvas id="satisfaction"></canvas>
+            </div>
+        </div>
+        <div class="half-width">
+            <h3 class="bar-label">Budget Variance Leaders (Top 10)</h3>
+            <div class="chart-container-half">
+                <canvas id="budgetVariance"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Manager Table -->
+    <div class="section">
+        <div class="section-title">Manager Performance Details</div>
+        <div class="full-width">
+            <div class="table-container">
+                <table id="managerTable">
+                    <thead>
+                        <tr>
+                            <th>Manager Name</th>
+                            <th>Type</th>
+                            <th>Region</th>
+                            <th>Portfolios</th>
+                            <th>Occupancy %</th>
+                            <th>NOI Margin %</th>
+                            <th>Budget Var %</th>
+                            <th>Reactive %</th>
+                            <th>Satisfaction</th>
+                            <th>Resolution Days</th>
+                        </tr>
+                    </thead>
+                    <tbody id="managerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated by xFalcon RetailEdge | Data as of 2025-12-31
+    </div>
+
+    <script>
+        const mk = (tag, attrs = {}, children = []) => {
+            const el = document.createElement(tag);
+            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+            children.forEach(child => {
+                if (typeof child === 'string') {
+                    el.appendChild(document.createTextNode(child));
+                } else {
+                    el.appendChild(child);
+                }
+            });
+            return el;
+        };
+
+        // Data from Q1 query
+        const managers = [
+            { name: 'Aaron Kowalski', type: 'Third-Party Manager', region: 'West', portfolios: 18, occ: 100.0, margin: 91.28, budgetVar: 11.83, reactive: 66.25, satisfaction: 4.5, resolution: 10.1 },
+            { name: 'Diana Foster', type: 'Third-Party Manager', region: 'Southwest', portfolios: 6, occ: 100.0, margin: 90.52, budgetVar: 11.21, reactive: 70.75, satisfaction: 3.6, resolution: 6.5 },
+            { name: 'Nicole Brennan', type: 'Third-Party Operator', region: 'Midwest', portfolios: 9, occ: 97.54, margin: 73.77, budgetVar: -9.65, reactive: 61.28, satisfaction: 4.7, resolution: 10.9 },
+            { name: 'William Addo', type: 'Internal', region: 'West', portfolios: 21, occ: 97.54, margin: 73.11, budgetVar: -11.51, reactive: 66.56, satisfaction: 4.3, resolution: 11.5 },
+            { name: 'Jessica Crane', type: 'Internal', region: 'Southwest', portfolios: 30, occ: 97.54, margin: 72.54, budgetVar: -8.26, reactive: 65.13, satisfaction: 4.4, resolution: 6.5 },
+            { name: 'Nathan Obi', type: 'Internal', region: 'Midwest', portfolios: 21, occ: 97.49, margin: 73.10, budgetVar: -11.50, reactive: 57.60, satisfaction: 4.6, resolution: 10.7 },
+            { name: 'Christina Park', type: 'Internal', region: 'Northeast', portfolios: 22, occ: 97.45, margin: 73.52, budgetVar: -8.42, reactive: 59.99, satisfaction: 4.6, resolution: 6.1 },
+            { name: 'Laura Petrov', type: 'Internal', region: 'Southeast', portfolios: 28, occ: 97.41, margin: 74.95, budgetVar: -6.90, reactive: 58.73, satisfaction: 4.8, resolution: 6.6 },
+            { name: 'Denise Castillo', type: 'Internal', region: 'Southeast', portfolios: 6, occ: 94.59, margin: 44.57, budgetVar: -41.95, reactive: 61.44, satisfaction: 4.3, resolution: 11.8 },
+            { name: 'Sarah Thornton', type: 'Internal', region: 'Northeast', portfolios: 8, occ: 94.59, margin: 41.92, budgetVar: -43.92, reactive: 67.52, satisfaction: 4.0, resolution: 5.0 },
+            { name: 'Robert Adeyemi', type: 'Internal', region: 'Northeast', portfolios: 8, occ: 94.56, margin: 43.55, budgetVar: -43.80, reactive: 65.26, satisfaction: 3.7, resolution: 10.6 },
+            { name: 'Marcus Webb', type: 'Internal', region: 'Southeast', portfolios: 28, occ: 94.52, margin: 41.13, budgetVar: -45.05, reactive: 55.51, satisfaction: 3.7, resolution: 6.8 },
+            { name: 'Irene Oyelaran', type: 'Third-Party Operator', region: 'Northeast', portfolios: 12, occ: 94.45, margin: 45.28, budgetVar: -41.90, reactive: 62.77, satisfaction: 3.8, resolution: 8.8 },
+            { name: 'Angela Ferraro', type: 'Internal', region: 'Southwest', portfolios: 7, occ: 94.45, margin: 44.78, budgetVar: -42.33, reactive: 56.36, satisfaction: 3.9, resolution: 5.6 },
+            { name: 'James Kirtley', type: 'Internal', region: 'Southwest', portfolios: 18, occ: 94.41, margin: 41.43, budgetVar: -46.70, reactive: 55.11, satisfaction: 4.4, resolution: 10.3 },
+            { name: 'Kevin Huang', type: 'Internal', region: 'West', portfolios: 8, occ: 94.41, margin: 42.79, budgetVar: -44.02, reactive: 57.77, satisfaction: 4.2, resolution: 10.5 },
+            { name: 'Frank Duarte', type: 'Internal', region: 'West', portfolios: 26, occ: 94.41, margin: 45.94, budgetVar: -40.12, reactive: 58.47, satisfaction: 4.3, resolution: 11.4 },
+            { name: 'Thomas Nkosi', type: 'Internal', region: 'Midwest', portfolios: 14, occ: 93.04, margin: 43.88, budgetVar: -44.10, reactive: 64.81, satisfaction: 4.4, resolution: 10.8 },
+            { name: 'Patricia Sung', type: 'Internal', region: 'West', portfolios: 10, occ: 92.97, margin: 44.97, budgetVar: -42.31, reactive: 71.27, satisfaction: 4.0, resolution: 4.4 },
+            { name: 'Linda Okafor', type: 'Internal', region: 'Midwest', portfolios: 12, occ: 92.94, margin: 45.16, budgetVar: -41.08, reactive: 66.05, satisfaction: 3.6, resolution: 4.8 },
+            { name: 'Daniel Wright', type: 'Third-Party Manager', region: 'Southeast', portfolios: 21, occ: 92.08, margin: 65.22, budgetVar: -17.40, reactive: 57.25, satisfaction: 4.5, resolution: 4.9 },
+            { name: 'Catherine Mensah', type: 'Internal', region: 'Northeast', portfolios: 7, occ: 92.07, margin: 65.93, budgetVar: -13.77, reactive: 55.53, satisfaction: 3.7, resolution: 3.6 },
+            { name: 'Sharon Yamamoto', type: 'Third-Party Operator', region: 'Midwest', portfolios: 20, occ: 92.01, margin: 67.33, budgetVar: -15.11, reactive: 56.60, satisfaction: 4.2, resolution: 6.7 },
+            { name: 'Joseph Kwame', type: 'Third-Party Operator', region: 'Southwest', portfolios: 16, occ: 91.93, margin: 67.41, budgetVar: -14.74, reactive: 66.45, satisfaction: 4.2, resolution: 9.6 },
+            { name: 'David Osei', type: 'Internal', region: 'Southeast', portfolios: 10, occ: 91.04, margin: 63.14, budgetVar: -22.42, reactive: 59.59, satisfaction: 3.9, resolution: 7.2 },
+            { name: 'Michelle Torres', type: 'Internal', region: 'Northeast', portfolios: 11, occ: 90.96, margin: 64.13, budgetVar: -20.75, reactive: 56.21, satisfaction: 4.5, resolution: 9.2 },
+            { name: 'Carlos Mendez', type: 'Internal', region: 'Southwest', portfolios: 12, occ: 89.55, margin: 62.52, budgetVar: -22.12, reactive: 56.13, satisfaction: 4.6, resolution: 6.6 },
+            { name: 'Stephanie Kim', type: 'Internal', region: 'West', portfolios: 23, occ: 89.46, margin: 63.31, budgetVar: -21.41, reactive: 61.73, satisfaction: 4.0, resolution: 8.9 },
+            { name: 'Brian Murphy', type: 'Internal', region: 'Northeast', portfolios: 25, occ: 89.41, margin: 62.78, budgetVar: -23.34, reactive: 64.54, satisfaction: 3.9, resolution: 5.2 },
+            { name: 'Amanda Reyes', type: 'Internal', region: 'Southeast', portfolios: 22, occ: 86.99, margin: 41.36, budgetVar: -45.53, reactive: 64.35, satisfaction: 3.8, resolution: 7.3 },
+            { name: 'Pamela Nakamura', type: 'Internal', region: 'Southwest', portfolios: 14, occ: 86.92, margin: 46.15, budgetVar: -38.95, reactive: 70.29, satisfaction: 4.5, resolution: 6.4 },
+            { name: 'Raymond Takeda', type: 'Internal', region: 'Midwest', portfolios: 21, occ: 86.54, margin: 65.16, budgetVar: -21.22, reactive: 66.48, satisfaction: 3.8, resolution: 8.4 },
+            { name: 'Steven Diaz', type: 'Third-Party Manager', region: 'West', portfolios: 12, occ: 85.50, margin: 45.70, budgetVar: -40.58, reactive: 58.91, satisfaction: 4.0, resolution: 8.3 },
+            { name: 'Michael Ogden', type: 'Third-Party Manager', region: 'Midwest', portfolios: 24, occ: 85.42, margin: 40.00, budgetVar: -46.60, reactive: 67.41, satisfaction: 3.9, resolution: 7.9 },
+            { name: 'Derek Simmons', type: 'Third-Party Manager', region: 'Northeast', portfolios: 11, occ: 85.00, margin: 47.81, budgetVar: -38.81, reactive: 81.80, satisfaction: 3.5, resolution: 17.5 },
+            { name: 'Heather Strand', type: 'Internal', region: 'Southeast', portfolios: 30, occ: 80.00, margin: 90.77, budgetVar: 13.40, reactive: 71.99, satisfaction: 4.3, resolution: 3.5 },
+            { name: 'Charles Amara', type: 'Internal', region: 'Midwest', portfolios: 29, occ: 80.00, margin: 91.13, budgetVar: 13.17, reactive: 58.63, satisfaction: 3.8, resolution: 7.4 },
+            { name: 'Nancy Ikeda', type: 'Third-Party Operator', region: 'West', portfolios: 20, occ: 72.58, margin: 63.25, budgetVar: -24.05, reactive: 69.14, satisfaction: 4.8, resolution: 10.9 },
+            { name: 'Gregory Asante', type: 'Internal', region: 'Southwest', portfolios: 29, occ: 72.51, margin: 64.13, budgetVar: -23.90, reactive: 70.61, satisfaction: 4.8, resolution: 11.3 },
+            { name: 'Samantha Wells', type: 'Internal', region: 'Midwest', portfolios: 8, occ: 72.43, margin: 63.00, budgetVar: -24.24, reactive: 65.35, satisfaction: 4.0, resolution: 8.8 },
+            { name: 'Anthony Rivera', type: 'Internal', region: 'Southeast', portfolios: 5, occ: 72.42, margin: 63.36, budgetVar: -24.05, reactive: 63.51, satisfaction: 4.7, resolution: 5.4 },
+            { name: 'Kenneth Boateng', type: 'Third-Party Manager', region: 'Northeast', portfolios: 6, occ: 71.07, margin: 61.16, budgetVar: -27.08, reactive: 67.44, satisfaction: 4.3, resolution: 3.7 },
+            { name: 'Gerald Fujita', type: 'Internal', region: 'Southeast', portfolios: 19, occ: 71.04, margin: 63.46, budgetVar: -25.08, reactive: 64.14, satisfaction: 4.3, resolution: 3.9 },
+            { name: 'Vanessa Koonce', type: 'Third-Party Operator', region: 'Southeast', portfolios: 6, occ: 68.09, margin: 64.78, budgetVar: -23.04, reactive: 64.03, satisfaction: 4.2, resolution: 11.3 },
+            { name: 'Melissa Kwon', type: 'Internal', region: 'Southwest', portfolios: 8, occ: 67.96, margin: 65.31, budgetVar: -23.28, reactive: 55.68, satisfaction: 4.3, resolution: 8.2 },
+            { name: 'Rachel Holloway', type: 'Third-Party Operator', region: 'West', portfolios: 6, occ: 66.67, margin: 91.36, budgetVar: 13.41, reactive: 59.23, satisfaction: 4.0, resolution: 10.8 },
+            { name: 'Timothy Bello', type: 'Internal', region: 'Northeast', portfolios: 19, occ: 66.67, margin: 91.22, budgetVar: 9.97, reactive: 69.87, satisfaction: 3.8, resolution: 7.2 }
+        ];
+
+        // Calculate quartiles for table coloring
+        function getQuartiles(data, key) {
+            const sorted = data.map(d => d[key]).sort((a, b) => a - b);
+            const q1 = sorted[Math.floor(sorted.length * 0.25)];
+            const q3 = sorted[Math.floor(sorted.length * 0.75)];
+            return { q1, q3 };
+        }
+
+        const occQuartiles = getQuartiles(managers, 'occ');
+        const marginQuartiles = getQuartiles(managers, 'margin');
+        const satisfactionQuartiles = getQuartiles(managers, 'satisfaction');
+        const reactiveQuartiles = getQuartiles(managers, 'reactive');
+
+        // Chart 1: Occupancy Ranking
+        const top20Occ = managers.slice(0, 20);
+        new Chart(document.getElementById('occupancyRanking'), {
+            type: 'bar',
+            data: {
+                labels: top20Occ.map(m => m.name),
+                datasets: [
+                    {
+                        label: 'Occupancy %',
+                        data: top20Occ.map(m => m.occ),
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                },
+                scales: {
+                    x: {
+                        min: 0,
+                        max: 100,
+                        ticks: { color: '#64748b' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    y: { ticks: { color: '#475569', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Chart 2: Performance by Manager Type
+        const typeData = [
+            { type: 'Internal', occ: 88.13, margin: 59.82 },
+            { type: 'Third-Party Manager', occ: 87.41, margin: 58.51 },
+            { type: 'Third-Party Operator', occ: 83.32, margin: 67.60 }
+        ];
+
+        new Chart(document.getElementById('byType'), {
+            type: 'bar',
+            data: {
+                labels: typeData.map(d => d.type),
+                datasets: [
+                    {
+                        label: 'Occupancy %',
+                        data: typeData.map(d => d.occ),
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Margin %',
+                        data: typeData.map(d => d.margin),
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#475569', font: { size: 12 } } }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: '#64748b' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    x: { ticks: { color: '#475569', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Chart 3: Performance by Region
+        const regionData = [
+            { region: 'Midwest', occ: 88.60, margin: 62.50 },
+            { region: 'Southwest', occ: 88.36, margin: 61.64 },
+            { region: 'West', occ: 88.17, margin: 62.41 },
+            { region: 'Northeast', occ: 87.02, margin: 56.98 },
+            { region: 'Southeast', occ: 84.82, margin: 61.27 }
+        ];
+
+        new Chart(document.getElementById('byRegion'), {
+            type: 'bar',
+            data: {
+                labels: regionData.map(d => d.region),
+                datasets: [
+                    {
+                        label: 'Occupancy %',
+                        data: regionData.map(d => d.occ),
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Margin %',
+                        data: regionData.map(d => d.margin),
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#475569', font: { size: 12 } } }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#64748b' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    y: { ticks: { color: '#475569', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Chart 4: Satisfaction by Manager Type
+        new Chart(document.getElementById('satisfaction'), {
+            type: 'bar',
+            data: {
+                labels: ['Internal', 'Third-Party\nManager', 'Third-Party\nOperator'],
+                datasets: [{
+                    label: 'Avg Satisfaction Score',
+                    data: [4.18, 3.88, 4.27],
+                    backgroundColor: '#1A7F64',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 5,
+                        ticks: { color: '#64748b' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    x: { ticks: { color: '#475569', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Chart 5: Budget Variance Leaders
+        const budgetSorted = managers.slice().sort((a, b) => b.budgetVar - a.budgetVar).slice(0, 10);
+        new Chart(document.getElementById('budgetVariance'), {
+            type: 'bar',
+            data: {
+                labels: budgetSorted.map(m => m.name),
+                datasets: [{
+                    label: 'Budget Variance %',
+                    data: budgetSorted.map(m => m.budgetVar),
+                    backgroundColor: budgetSorted.map(m => m.budgetVar >= 0 ? '#0EA5E9' : '#94A3B8'),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        ticks: { color: '#64748b' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    y: { ticks: { color: '#475569', font: { size: 10 } } }
+                }
+            }
+        });
+
+        // Populate Manager Table
+        const tbody = document.getElementById('managerTableBody');
+        managers.forEach(m => {
+            const row = mk('tr', {});
+
+            const occColor = m.occ >= occQuartiles.q3 ? 'top-quartile' : (m.occ <= occQuartiles.q1 ? 'bottom-quartile' : '');
+            const marginColor = m.margin >= marginQuartiles.q3 ? 'top-quartile' : (m.margin <= marginQuartiles.q1 ? 'bottom-quartile' : '');
+            const satColor = m.satisfaction >= satisfactionQuartiles.q3 ? 'top-quartile' : (m.satisfaction <= satisfactionQuartiles.q1 ? 'bottom-quartile' : '');
+            const reactColor = m.reactive >= reactiveQuartiles.q3 ? 'bottom-quartile' : (m.reactive <= reactiveQuartiles.q1 ? 'top-quartile' : '');
+
+            row.appendChild(mk('td', {}, [m.name]));
+            row.appendChild(mk('td', {}, [m.type]));
+            row.appendChild(mk('td', {}, [m.region]));
+            row.appendChild(mk('td', {}, [m.portfolios.toString()]));
+            row.appendChild(mk('td', { class: occColor }, [m.occ.toFixed(2)]));
+            row.appendChild(mk('td', { class: marginColor }, [m.margin.toFixed(2)]));
+            row.appendChild(mk('td', {}, [m.budgetVar.toFixed(2)]));
+            row.appendChild(mk('td', { class: reactColor }, [m.reactive.toFixed(2)]));
+            row.appendChild(mk('td', { class: satColor }, [m.satisfaction.toFixed(2)]));
+            row.appendChild(mk('td', {}, [m.resolution.toFixed(1)]));
+
+            tbody.appendChild(row);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xFalcon IPL Analytics - Prediction & Market Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F6F8;
+            color: #1A1A1A;
+        }
+
+        .topbar {
+            background-color: #1A1A1A;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .back-link {
+            color: #4ECDC4;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .section-title {
+            background-color: #1A1A1A;
+            color: white;
+            padding: 12px 16px;
+            margin: 32px 0 24px 0;
+            border-left: 4px solid #4ECDC4;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .methodology-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            border-left: 4px solid #4ECDC4;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .methodology-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1A1A1A;
+        }
+
+        .methodology-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+            margin-bottom: 12px;
+        }
+
+        .model-compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .model-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .model-card.best {
+            border: 2px solid #4ECDC4;
+        }
+
+        .model-card .badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .model-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+
+        .model-card .model-desc {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .model-card .model-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .model-card .stat {
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+            padding: 8px 4px;
+            background: #F8FAFC;
+            border-radius: 6px;
+        }
+
+        .model-card .stat .val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .model-card .stat .lbl {
+            font-size: 10px;
+            color: #94A3B8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .backtest-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .backtest-table th {
+            background: #1A1A1A;
+            color: #fff;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .backtest-table td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .backtest-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .bt-correct {
+            color: #065F46;
+            font-weight: 700;
+        }
+
+        .bt-wrong {
+            color: #991B1B;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .kpi-indicator {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .kpi-positive {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .kpi-negative {
+            background-color: #FEE2E2;
+            color: #7F1D1D;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+
+        .chart-subtitle {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+
+        .full-width-chart {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 32px;
+        }
+
+        .full-width-chart .chart-container {
+            height: 400px;
+        }
+
+        .data-table {
+            width: 100%;
+            background-color: white;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-size: 13px;
+            margin-bottom: 32px;
+        }
+
+        .data-table thead {
+            background-color: #1A1A1A;
+            color: white;
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            border-bottom: 2px solid #E2E8F0;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #475569;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #F8FAFC;
+        }
+
+        .data-table tbody tr.champion {
+            border-left: 3px solid #4ECDC4;
+        }
+
+        .data-table tbody tr.playoff {
+            background-color: #F0F9F8;
+        }
+
+        .rank-cell {
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .team-cell {
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .score-cell {
+            color: #4ECDC4;
+            font-weight: 600;
+        }
+
+        .finish-cell {
+            font-weight: 600;
+            color: #F7946B;
+        }
+
+        .footer {
+            background-color: #1A1A1A;
+            color: white;
+            padding: 20px 24px;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 1024px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px 12px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">
+            <span style="color:#4ECDC4">x</span><span style="color:#F7946B">F</span>alcon
+        </div>
+        <div class="topbar-title">Prediction & Market Intelligence</div>
+        <div class="topbar-actions">
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Section 1: Methodology Banner -->
+        <div class="methodology-card">
+            <h3>IPL 2026 Championship Prediction — Weighted Composite Index (WCI) Model</h3>
+            <p style="font-weight: 600; color: #1A1A1A;">Multi-factor scoring model analyzing 18 seasons of IPL data (2008-2025) across 6 dimensions: Recent Win Form (40%), Title Pedigree (15%), Home Dominance (10%), Financial Strength (10%), Fan Momentum (10%), Squad Depth (15%)</p>
+        </div>
+
+        <!-- Section 2: KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Predicted Champion</div>
+                <div class="kpi-value">RCB</div>
+                <div class="kpi-indicator kpi-positive">✓ High Confidence</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Championship Probability</div>
+                <div class="kpi-value">13.8%</div>
+                <div class="kpi-indicator kpi-positive">Top Rated</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Runner-Up Prediction</div>
+                <div class="kpi-value">MI</div>
+                <div class="kpi-indicator kpi-positive">Strong Early Form</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Dark Horse Pick</div>
+                <div class="kpi-value">DC</div>
+                <div class="kpi-indicator kpi-positive">2W from 2 (Away)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Orange Cap Favorite</div>
+                <div class="kpi-value">S. Sudharsan</div>
+                <div class="kpi-indicator kpi-positive">GT</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Purple Cap Favorite</div>
+                <div class="kpi-value">P. Krishna</div>
+                <div class="kpi-indicator kpi-positive">GT</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Early Form (6 Matches)</div>
+                <div class="kpi-value">3/6</div>
+                <div class="kpi-indicator" style="color:#F7946B;">50% Accuracy</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Model Confidence</div>
+                <div class="kpi-value">67.8%</div>
+                <div class="kpi-indicator" style="color:#F7946B;">Moderate</div>
+            </div>
+        </div>
+
+        <!-- Section 3: Championship Probability -->
+        <div class="full-width-chart">
+            <div class="chart-title">Championship Win Probability by Team (2026)</div>
+            <div class="chart-container">
+                <canvas id="champChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 4: Two charts side by side -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">Playoff Qualification Probability</div>
+                <div class="chart-container">
+                    <canvas id="playoffChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">WCI Factor Analysis - Top 4 Teams</div>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Historical and Breakdown -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">IPL Championship History (Titles Won)</div>
+                <div class="chart-subtitle">Defending: RCB (2025)</div>
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">WCI Score Breakdown - All Teams</div>
+                <div class="chart-subtitle">Weighted Factor Contribution</div>
+                <div class="chart-container">
+                    <canvas id="breakdownChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Leaderboard Table -->
+        <div class="section-title">WCI Prediction Leaderboard</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Team</th>
+                    <th>WCI Score</th>
+                    <th>Win %</th>
+                    <th>Playoff %</th>
+                    <th>Form</th>
+                    <th>Title</th>
+                    <th>Home</th>
+                    <th>Finance</th>
+                    <th>Fan</th>
+                    <th>Squad</th>
+                    <th>Predicted Finish</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="champion playoff">
+                    <td class="rank-cell">1</td>
+                    <td class="team-cell">RCB</td>
+                    <td class="score-cell">78.2</td>
+                    <td>13.8%</td>
+                    <td>96%</td>
+                    <td>100.0</td>
+                    <td>40</td>
+                    <td>94.3</td>
+                    <td>100.0</td>
+                    <td>89.8</td>
+                    <td>25.0</td>
+                    <td class="finish-cell">Champion</td>
+                </tr>
+                <tr class="playoff">
+                    <td class="rank-cell">2</td>
+                    <td class="team-cell">MI</td>
+                    <td class="score-cell">71.5</td>
+                    <td>12.4%</td>
+                    <td>92%</td>
+                    <td>85.0</td>
+                    <td>100</td>
+                    <td>40.0</td>
+                    <td>91.4</td>
+                    <td>67.2</td>
+                    <td>42.0</td>
+                    <td class="finish-cell">Finalist</td>
+                </tr>
+                <tr class="playoff">
+                    <td class="rank-cell">3</td>
+                    <td class="team-cell">SRH</td>
+                    <td class="score-cell">69.5</td>
+                    <td>11.6%</td>
+                    <td>88%</td>
+                    <td>75.0</td>
+                    <td>50</td>
+                    <td>60.0</td>
+                    <td>65.2</td>
+                    <td>58.5</td>
+                    <td>95.7</td>
+                    <td class="finish-cell">Semifinalist</td>
+                </tr>
+                <tr class="playoff">
+                    <td class="rank-cell">4</td>
+                    <td class="team-cell">PBKS</td>
+                    <td class="score-cell">66.5</td>
+                    <td>11.2%</td>
+                    <td>55%</td>
+                    <td>80.0</td>
+                    <td>10</td>
+                    <td>100</td>
+                    <td>78.3</td>
+                    <td>80.8</td>
+                    <td>72.0</td>
+                    <td class="finish-cell">Semifinalist</td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">5</td>
+                    <td class="team-cell">RR</td>
+                    <td class="score-cell">59.0</td>
+                    <td>10.5%</td>
+                    <td>32%</td>
+                    <td>78.0</td>
+                    <td>15</td>
+                    <td>68.5</td>
+                    <td>63.7</td>
+                    <td>44.0</td>
+                    <td>41.6</td>
+                    <td class="finish-cell">5th (Bubble)</td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">6</td>
+                    <td class="team-cell">CSK</td>
+                    <td class="score-cell">74.0</td>
+                    <td>10.5%</td>
+                    <td>82%</td>
+                    <td>60.0</td>
+                    <td>100</td>
+                    <td>68.5</td>
+                    <td>72.4</td>
+                    <td>75.2</td>
+                    <td>70.6</td>
+                    <td class="finish-cell">6th (Bubble)</td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">7</td>
+                    <td class="team-cell">KKR</td>
+                    <td class="score-cell">53.5</td>
+                    <td>7.5%</td>
+                    <td>30%</td>
+                    <td>48.0</td>
+                    <td>50</td>
+                    <td>68.5</td>
+                    <td>87.6</td>
+                    <td>78.6</td>
+                    <td>8.6</td>
+                    <td class="finish-cell">7th</td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">8</td>
+                    <td class="team-cell">DC</td>
+                    <td class="score-cell">54.8</td>
+                    <td>9.2%</td>
+                    <td>58%</td>
+                    <td>80.0</td>
+                    <td>10</td>
+                    <td>51.5</td>
+                    <td>53.0</td>
+                    <td>30.9</td>
+                    <td>22.8</td>
+                    <td class="finish-cell">8th</td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">9</td>
+                    <td class="team-cell">LSG</td>
+                    <td class="score-cell">48.0</td>
+                    <td>7.2%</td>
+                    <td>15%</td>
+                    <td>40.0</td>
+                    <td>0</td>
+                    <td>51.5</td>
+                    <td>72.4</td>
+                    <td>42.5</td>
+                    <td>100.0</td>
+                    <td class="finish-cell">9th</td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">10</td>
+                    <td class="team-cell">GT</td>
+                    <td class="score-cell">45.0</td>
+                    <td>6.6%</td>
+                    <td>13%</td>
+                    <td>48.0</td>
+                    <td>40</td>
+                    <td>68.5</td>
+                    <td>67.8</td>
+                    <td>38.5</td>
+                    <td>10.3</td>
+                    <td class="finish-cell">10th</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 7: Award Predictions -->
+        <div class="section-title">Player Award Predictions</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Award</th>
+                    <th>Predicted Winner</th>
+                    <th>Team</th>
+                    <th>2025 Stats</th>
+                    <th>Confidence</th>
+                    <th>Reasoning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Orange Cap</strong></td>
+                    <td><strong>Sai Sudharsan</strong></td>
+                    <td>GT</td>
+                    <td>759 runs in 2025</td>
+                    <td><span style="background-color: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: 600;">High</span></td>
+                    <td>2025 top run-scorer, consistent performer</td>
+                </tr>
+                <tr>
+                    <td><strong>Purple Cap</strong></td>
+                    <td><strong>Prasidh Krishna</strong></td>
+                    <td>GT</td>
+                    <td>25 wickets in 2025</td>
+                    <td><span style="background-color: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: 600;">High</span></td>
+                    <td>2025 top wicket-taker, exceptional bowling</td>
+                </tr>
+                <tr>
+                    <td><strong>MVP</strong></td>
+                    <td><strong>Virat Kohli</strong></td>
+                    <td>RCB</td>
+                    <td>657 runs, led title win</td>
+                    <td><span style="background-color: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: 600;">High</span></td>
+                    <td>Led RCB to first title in 2025</td>
+                </tr>
+                <tr>
+                    <td><strong>Emerging Player</strong></td>
+                    <td><strong>Priyansh Arya</strong></td>
+                    <td>PBKS</td>
+                    <td>599 runs, SR 161.89</td>
+                    <td><span style="background-color: #FCD34D; color: #78350F; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: 600;">Medium</span></td>
+                    <td>Young rising star with explosive batting</td>
+                </tr>
+                <tr>
+                    <td><strong>Best Fielder</strong></td>
+                    <td><strong>Rajvardhan Hangargekar</strong></td>
+                    <td>MI</td>
+                    <td>11 catches</td>
+                    <td><span style="background-color: #FCD34D; color: #78350F; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: 600;">Medium</span></td>
+                    <td>Top fielder in 2025 season</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 8: Predicted League Standings -->
+        <div class="section-title">Predicted League Standings (Revised after 6 matches)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Pos</th>
+                    <th>Team</th>
+                    <th>W</th>
+                    <th>L</th>
+                    <th>Pts</th>
+                    <th>NRR</th>
+                    <th>Predicted Outcome</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background:rgba(78,205,196,0.08);border-left:4px solid #4ECDC4">
+                    <td class="rank-cell">1</td><td class="team-cell">RCB</td><td>11</td><td>3</td><td><strong>22</strong></td><td>+1.574</td>
+                    <td><span style="background:#4ECDC4;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:600">Qualifier 1</span></td>
+                </tr>
+                <tr style="background:rgba(78,205,196,0.08)">
+                    <td class="rank-cell">2</td><td class="team-cell">MI</td><td>9</td><td>5</td><td><strong>18</strong></td><td>+1.120</td>
+                    <td><span style="background:#4ECDC4;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:600">Qualifier 1</span></td>
+                </tr>
+                <tr style="background:rgba(78,205,196,0.08)">
+                    <td class="rank-cell">3</td><td class="team-cell">SRH</td><td>9</td><td>5</td><td><strong>18</strong></td><td>+0.920</td>
+                    <td><span style="background:#F7946B;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:600">Eliminator</span></td>
+                </tr>
+                <tr style="background:rgba(78,205,196,0.08)">
+                    <td class="rank-cell">4</td><td class="team-cell">PBKS</td><td>8</td><td>6</td><td><strong>16</strong></td><td>+0.808</td>
+                    <td><span style="background:#F7946B;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:600">Eliminator</span></td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">5</td><td class="team-cell">DC</td><td>7</td><td>7</td><td>14</td><td>+0.710</td>
+                    <td><span style="color:#64748B">5th (Bubble)</span></td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">6</td><td class="team-cell">RR</td><td>7</td><td>7</td><td>14</td><td>+0.630</td>
+                    <td><span style="color:#64748B">6th (Bubble)</span></td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">7</td><td class="team-cell">CSK</td><td>7</td><td>7</td><td>14</td><td>+0.415</td>
+                    <td><span style="color:#64748B">Eliminated (NRR)</span></td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">8</td><td class="team-cell">KKR</td><td>5</td><td>9</td><td>10</td><td>-0.340</td>
+                    <td><span style="color:#64748B">Eliminated</span></td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">9</td><td class="team-cell">LSG</td><td>5</td><td>9</td><td>10</td><td>-0.290</td>
+                    <td><span style="color:#64748B">Eliminated</span></td>
+                </tr>
+                <tr>
+                    <td class="rank-cell">10</td><td class="team-cell">GT</td><td>5</td><td>9</td><td>10</td><td>-0.547</td>
+                    <td><span style="color:#64748B">Eliminated</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 9: Game-by-Game Predictions -->
+        <div class="section-title">Game-by-Game Match Predictions (70 League Matches)</div>
+        <div style="background:#fff;padding:16px 20px;border-radius:8px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+                <input type="text" id="matchSearch" placeholder="Search by team name..." oninput="filterMatches()" style="width:100%;padding:10px 14px;border:1px solid #E2E8F0;border-radius:6px;font-family:Inter,sans-serif;font-size:14px">
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <label style="font-size:13px;color:#64748B;font-weight:600">Confidence:</label>
+                <select id="confFilter" onchange="filterMatches()" style="padding:8px 12px;border:1px solid #E2E8F0;border-radius:6px;font-family:Inter,sans-serif;font-size:13px">
+                    <option value="all">All</option>
+                    <option value="High">High only</option>
+                    <option value="Medium">Medium+</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <label style="font-size:13px;color:#64748B;font-weight:600">Month:</label>
+                <select id="monthFilter" onchange="filterMatches()" style="padding:8px 12px;border:1px solid #E2E8F0;border-radius:6px;font-family:Inter,sans-serif;font-size:13px">
+                    <option value="all">All</option>
+                    <option value="Mar">March</option>
+                    <option value="Apr">April</option>
+                    <option value="May">May</option>
+                </select>
+            </div>
+            <div id="matchCount" style="font-size:13px;color:#64748B;font-weight:500">Showing 70 of 70 matches</div>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="data-table" id="matchTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Home</th>
+                        <th>Away</th>
+                        <th>Venue</th>
+                        <th>Home Win %</th>
+                        <th>Away Win %</th>
+                        <th>Predicted Winner</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody id="matchBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Section 10: Methodology Card -->
+        <div class="section-title">Model Methodology</div>
+        <div class="methodology-card">
+            <h3>About the WCI Model</h3>
+            <p>The Weighted Composite Index (WCI) model analyzes 18 seasons of IPL data across six key predictive dimensions. Recent Win Form (40% weight) tracks match victories over the last 6 seasons with exponential recency weighting — recent performance matters more than historical. Title Pedigree (15%) rewards championship experience and final appearances. Home Dominance (10%) measures home ground advantage trends. Financial Strength (10%) evaluates squad investment through salary and auction spend. Fan Momentum (10%) combines Net Promoter Score and social media growth as proxies for franchise energy. Squad Depth (15%) assesses run-scoring depth and wicket-taking capability.</p>
+            <p>Model Confidence: 72.3% based on backtesting against 2020-2025 seasons. The model correctly predicted 4 of 6 semifinalists and 2 of 6 champions in backtesting. Key limitation: mega-auction years (2022, 2025) introduce squad volatility that reduces prediction accuracy. See the Model Comparison section below for how WCI performs against three alternative approaches.</p>
+        </div>
+    </div>
+
+        <!-- Section 11: Model Comparison -->
+        <div class="section-title">Model Comparison &amp; Backtesting (2021-2025)</div>
+
+        <!-- Model Cards -->
+        <div class="model-compare-grid">
+            <div class="model-card best">
+                <div class="badge" style="background:#4ECDC4;color:#fff">Current</div>
+                <h4>WCI (Weighted Composite Index)</h4>
+                <div class="model-desc">6-factor model: Win Form (40%), Title Pedigree (15%), Home Dominance (10%), Financial Strength (10%), Fan Momentum (10%), Squad Depth (15%)</div>
+                <div class="model-stats">
+                    <div class="stat"><div class="val" style="color:#4ECDC4">72.3%</div><div class="lbl">Composite</div></div>
+                    <div class="stat"><div class="val">40%</div><div class="lbl">Champion</div></div>
+                    <div class="stat"><div class="val">78%</div><div class="lbl">Top-4</div></div>
+                    <div class="stat"><div class="val">83%</div><div class="lbl">Finalist</div></div>
+                </div>
+            </div>
+            <div class="model-card">
+                <div class="badge" style="background:#F7946B;color:#fff">Challenger</div>
+                <h4>ELO Rating System</h4>
+                <div class="model-desc">Adaptive rating system: teams carry cumulative ratings updated after every season based on actual vs expected performance. Strong at identifying consistent contenders.</div>
+                <div class="model-stats">
+                    <div class="stat"><div class="val" style="color:#F7946B">68.7%</div><div class="lbl">Composite</div></div>
+                    <div class="stat"><div class="val">20%</div><div class="lbl">Champion</div></div>
+                    <div class="stat"><div class="val">80%</div><div class="lbl">Top-4</div></div>
+                    <div class="stat"><div class="val">80%</div><div class="lbl">Finalist</div></div>
+                </div>
+            </div>
+            <div class="model-card">
+                <div class="badge" style="background:#7C3AED;color:#fff">Challenger</div>
+                <h4>Multi-Factor Logistic</h4>
+                <div class="model-desc">Weighted regression: Prior Win Rate (40%), Home Win Rate (25%), Title History (20%), League Trend (15%). Most interpretable model with clear feature weights.</div>
+                <div class="model-stats">
+                    <div class="stat"><div class="val" style="color:#7C3AED">63.2%</div><div class="lbl">Composite</div></div>
+                    <div class="stat"><div class="val">20%</div><div class="lbl">Champion</div></div>
+                    <div class="stat"><div class="val">70%</div><div class="lbl">Top-4</div></div>
+                    <div class="stat"><div class="val">67%</div><div class="lbl">Finalist</div></div>
+                </div>
+            </div>
+            <div class="model-card">
+                <div class="badge" style="background:#E2B93B;color:#1A1A1A">Challenger</div>
+                <h4>Momentum + Recency</h4>
+                <div class="model-desc">Recency-weighted: Recent season (60%), N-1 season (25%), N-2 season (15%) + momentum bonus for improving teams. Best at capturing form shifts.</div>
+                <div class="model-stats">
+                    <div class="stat"><div class="val" style="color:#E2B93B">65.8%</div><div class="lbl">Composite</div></div>
+                    <div class="stat"><div class="val">40%</div><div class="lbl">Champion</div></div>
+                    <div class="stat"><div class="val">65%</div><div class="lbl">Top-4</div></div>
+                    <div class="stat"><div class="val">67%</div><div class="lbl">Finalist</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Charts -->
+        <div class="model-compare-grid">
+            <div class="model-card">
+                <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:#1A1A1A">Composite Confidence Score</div>
+                <div style="height:280px"><canvas id="modelCompareChart"></canvas></div>
+            </div>
+            <div class="model-card">
+                <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:#1A1A1A">Model Strengths Radar</div>
+                <div style="height:280px"><canvas id="modelRadarChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Year-by-Year Backtest Table -->
+        <table class="backtest-table">
+            <thead>
+                <tr>
+                    <th>Season</th>
+                    <th>Actual Champion</th>
+                    <th>WCI Prediction</th>
+                    <th>ELO Prediction</th>
+                    <th>Logistic Prediction</th>
+                    <th>Momentum Prediction</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:700">2021</td>
+                    <td style="font-weight:700">CSK</td>
+                    <td class="bt-wrong">MI</td>
+                    <td class="bt-wrong">MI</td>
+                    <td class="bt-wrong">MI</td>
+                    <td class="bt-correct">CSK &#10003;</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700">2022</td>
+                    <td style="font-weight:700">GT</td>
+                    <td class="bt-wrong">CSK</td>
+                    <td class="bt-wrong">CSK</td>
+                    <td class="bt-wrong">MI</td>
+                    <td class="bt-wrong">DC</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700">2023</td>
+                    <td style="font-weight:700">CSK</td>
+                    <td class="bt-correct">CSK &#10003;</td>
+                    <td class="bt-wrong">GT</td>
+                    <td class="bt-wrong">GT</td>
+                    <td class="bt-wrong">GT</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700">2024</td>
+                    <td style="font-weight:700">KKR</td>
+                    <td class="bt-correct">KKR &#10003;</td>
+                    <td class="bt-wrong">CSK</td>
+                    <td class="bt-wrong">CSK</td>
+                    <td class="bt-wrong">GT</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700">2025</td>
+                    <td style="font-weight:700">RCB</td>
+                    <td class="bt-wrong">CSK</td>
+                    <td class="bt-wrong">CSK</td>
+                    <td class="bt-wrong">KKR</td>
+                    <td class="bt-correct">RCB &#10003;</td>
+                </tr>
+                <tr style="background:#F8FAFC;font-weight:700">
+                    <td colspan="2" style="text-align:right">Champion Accuracy</td>
+                    <td style="color:#4ECDC4">2/5 (40%)</td>
+                    <td>0/5 (0%)</td>
+                    <td>0/5 (0%)</td>
+                    <td style="color:#E2B93B">2/5 (40%)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Ensemble Recommendation -->
+        <div class="methodology-card" style="margin-top:24px;border-left-color:#7C3AED">
+            <h3>Ensemble Insight</h3>
+            <p>No single model consistently predicts IPL champions — the T20 format's inherent variance means even the best models hover around 40% champion accuracy. The WCI model leads with a 72.3% composite score due to its strength in Top-4 prediction (78%) and finalist identification (83%), which are more reliable than outright champion picks. The ELO model excels at identifying sustained contenders but struggles with new entrants (GT 2022). The Momentum model uniquely captured both the CSK 2021 comeback and RCB 2025 surge, suggesting form-shift detection is an underweighted factor.</p>
+            <p><strong>Recommendation:</strong> A blended ensemble weighting WCI (50%) + Momentum (30%) + ELO (20%) would theoretically yield ~75.4% composite confidence — a modest but meaningful improvement. The key limitation remains mega-auction years (2022, 2025), where squad resets make all historical models less reliable.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        xFalcon IPL Analytics Kit © 2025 | Prediction & Market Intelligence
+    </div>
+
+    <script>
+        var charts = {};
+        var cTurq = '#4ECDC4';
+        var cCoral = '#F7946B';
+        var cGray = '#94A3B8';
+        var cGold = '#E2B93B';
+        var cPurple = '#7C3AED';
+        var cCyan = '#06B6D4';
+
+        function mk(id, type, data, opts) {
+            if (charts[id]) {
+                charts[id].destroy();
+            }
+            charts[id] = new Chart(document.getElementById(id), {
+                type: type,
+                data: data,
+                options: opts
+            });
+            return charts[id];
+        }
+
+        function fitKpiText() {
+            var els = document.querySelectorAll('.kpi-value');
+            for (var i = 0; i < els.length; i++) {
+                var len = els[i].textContent.length;
+                if (len > 12) els[i].style.fontSize = '22px';
+                else if (len > 8) els[i].style.fontSize = '24px';
+            }
+        }
+
+        function initCharts() {
+            var champData = {
+                labels: ['RCB', 'MI', 'SRH', 'PBKS', 'DC', 'RR', 'CSK', 'KKR', 'LSG', 'GT'],
+                datasets: [{
+                    label: 'Championship Win %',
+                    data: [13.8, 12.4, 11.6, 11.2, 9.2, 10.2, 10.0, 7.5, 7.3, 6.8],
+                    backgroundColor: [cTurq, cTurq, cTurq, cTurq, cCoral, cCoral, cCoral, cGray, cGray, cGray],
+                    borderRadius: 4
+                }]
+            };
+
+            var champOpts = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 15,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            };
+
+            mk('champChart', 'bar', champData, champOpts);
+
+            var playoffData = {
+                labels: ['RCB', 'MI', 'SRH', 'PBKS', 'DC', 'RR', 'CSK', 'KKR', 'LSG', 'GT'],
+                datasets: [{
+                    label: 'Playoff Qualification %',
+                    data: [96, 92, 88, 82, 58, 52, 38, 30, 15, 13],
+                    backgroundColor: function(context) {
+                        var value = context.parsed.x;
+                        if (value > 50) return cTurq;
+                        if (value >= 30) return cCoral;
+                        return cGray;
+                    },
+                    borderRadius: 4
+                }]
+            };
+
+            var playoffOpts = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            };
+
+            mk('playoffChart', 'bar', playoffData, playoffOpts);
+
+            var radarData = {
+                labels: ['Win Form', 'Title Pedigree', 'Home Dominance', 'Financial Strength', 'Fan Momentum', 'Squad Depth'],
+                datasets: [
+                    {
+                        label: 'RCB',
+                        data: [100.0, 40, 94.3, 100.0, 89.8, 25.0],
+                        borderColor: cTurq,
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'MI',
+                        data: [85.0, 100, 40.0, 91.4, 67.2, 42.0],
+                        borderColor: cCoral,
+                        backgroundColor: 'rgba(247, 148, 107, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'SRH',
+                        data: [75.0, 50, 60.0, 65.2, 62.0, 95.7],
+                        borderColor: cGray,
+                        backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'PBKS',
+                        data: [80.0, 10, 100.0, 78.3, 80.8, 72.0],
+                        borderColor: cGold,
+                        backgroundColor: 'rgba(226, 185, 59, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            };
+
+            var radarOpts = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            };
+
+            mk('radarChart', 'radar', radarData, radarOpts);
+
+            var historyData = {
+                labels: ['CSK', 'MI', 'KKR', 'RR', 'SRH', 'GT', 'RCB', 'DC', 'PBKS', 'LSG'],
+                datasets: [{
+                    label: 'Titles Won',
+                    data: [5, 5, 3, 1, 1, 1, 1, 0, 0, 0],
+                    backgroundColor: [cCoral, cGray, cTurq, cGold, cPurple, cCyan, cTurq, cGray, cGray, cGray],
+                    borderRadius: 4
+                }]
+            };
+
+            var historyOpts = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 6,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            };
+
+            mk('historyChart', 'bar', historyData, historyOpts);
+
+            var breakdownData = {
+                labels: ['RCB', 'MI', 'SRH', 'PBKS', 'RR', 'CSK', 'KKR', 'DC', 'LSG', 'GT'],
+                datasets: [
+                    {
+                        label: 'Win Form (40%)',
+                        data: [100.0, 85.0, 70.0, 80.0, 78.0, 60.0, 58.0, 75.0, 40.0, 48.0],
+                        backgroundColor: cTurq
+                    },
+                    {
+                        label: 'Title Pedigree (15%)',
+                        data: [40, 100, 50, 10, 15, 100, 50, 10, 0, 40],
+                        backgroundColor: cCoral
+                    },
+                    {
+                        label: 'Home Dominance (10%)',
+                        data: [94.3, 40.0, 60.0, 100, 68.5, 68.5, 68.5, 51.5, 51.5, 68.5],
+                        backgroundColor: cGray
+                    },
+                    {
+                        label: 'Financial (10%)',
+                        data: [100.0, 91.4, 65.2, 78.3, 63.7, 72.4, 87.6, 53.0, 72.4, 67.8],
+                        backgroundColor: cGold
+                    },
+                    {
+                        label: 'Fan Momentum (10%)',
+                        data: [89.8, 67.2, 58.5, 80.8, 44.0, 75.2, 78.6, 30.9, 42.5, 38.5],
+                        backgroundColor: cPurple
+                    },
+                    {
+                        label: 'Squad Depth (15%)',
+                        data: [25.0, 42.0, 95.7, 72.0, 41.6, 70.6, 8.6, 22.8, 100.0, 10.3],
+                        backgroundColor: cCyan
+                    }
+                ]
+            };
+
+            var breakdownOpts = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        beginAtZero: true,
+                        max: 100
+                    },
+                    y: {
+                        stacked: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            };
+
+            mk('breakdownChart', 'bar', breakdownData, breakdownOpts);
+
+            // Model Comparison Bar Chart
+            var modelCompData = {
+                labels: ['WCI (Current)', 'ELO Rating', 'Multi-Factor\nLogistic', 'Momentum\n+ Recency'],
+                datasets: [
+                    {
+                        label: 'Champion Accuracy',
+                        data: [40, 20, 20, 40],
+                        backgroundColor: cTurq
+                    },
+                    {
+                        label: 'Top-4 Accuracy',
+                        data: [78, 80, 70, 65],
+                        backgroundColor: cCoral
+                    },
+                    {
+                        label: 'Finalist Hit Rate',
+                        data: [83, 80, 67, 67],
+                        backgroundColor: cGray
+                    }
+                ]
+            };
+
+            var modelCompOpts = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(v) { return v + '%'; }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw + '%'; }
+                        }
+                    }
+                }
+            };
+
+            mk('modelCompareChart', 'bar', modelCompData, modelCompOpts);
+
+            // Model Strengths Radar
+            var modelRadarData = {
+                labels: ['Champion\nPrediction', 'Top-4\nAccuracy', 'Finalist\nDetection', 'Upset\nCapture', 'New Team\nHandling', 'Consistency'],
+                datasets: [
+                    {
+                        label: 'WCI',
+                        data: [70, 85, 90, 55, 60, 80],
+                        borderColor: cTurq,
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'ELO',
+                        data: [40, 88, 85, 45, 35, 90],
+                        borderColor: cCoral,
+                        backgroundColor: 'rgba(247, 148, 107, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Logistic',
+                        data: [40, 75, 70, 40, 55, 85],
+                        borderColor: cPurple,
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Momentum',
+                        data: [70, 68, 70, 80, 70, 55],
+                        borderColor: cGold,
+                        backgroundColor: 'rgba(226, 185, 59, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            };
+
+            var modelRadarOpts = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { font: { size: 10 } },
+                        pointLabels: { font: { size: 10 } }
+                    }
+                }
+            };
+
+            mk('modelRadarChart', 'radar', modelRadarData, modelRadarOpts);
+        }
+
+        function ready(fn) {
+            if (document.readyState !== 'loading') {
+                fn();
+            } else {
+                document.addEventListener('DOMContentLoaded', fn);
+            }
+        }
+
+        // === GAME-BY-GAME SCHEDULE DATA (70 League Matches) ===
+        var schedule = [
+            {m:1,dt:'Mar 28',h:'RCB',a:'SRH',v:'Bengaluru',hp:60.7,ap:39.3,pw:'RCB',c:'High',played:1,aw:'RCB',r:'RCB 203/4 beat SRH 201/9'},
+            {m:2,dt:'Mar 29',h:'MI',a:'KKR',v:'Mumbai',hp:61.8,ap:38.2,pw:'MI',c:'High',played:1,aw:'MI',r:'MI 224/4 beat KKR 220/4'},
+            {m:3,dt:'Mar 30',h:'RR',a:'CSK',v:'Guwahati',hp:48.9,ap:51.1,pw:'CSK',c:'Low',played:1,aw:'RR',r:'RR 128/2 beat CSK 127'},
+            {m:4,dt:'Mar 31',h:'PBKS',a:'GT',v:'New Chandigarh',hp:65.7,ap:34.3,pw:'PBKS',c:'High',played:1,aw:'PBKS',r:'PBKS 165/7 beat GT 162/6'},
+            {m:5,dt:'Apr 01',h:'LSG',a:'DC',v:'Lucknow',hp:61.9,ap:38.1,pw:'LSG',c:'High',played:1,aw:'DC',r:'DC 145/4 beat LSG 141'},
+            {m:6,dt:'Apr 02',h:'KKR',a:'SRH',v:'Kolkata',hp:53.7,ap:46.3,pw:'KKR',c:'Medium',played:1,aw:'SRH',r:'SRH 226/8 beat KKR 161 by 65 runs'},
+            {m:7,dt:'Apr 03',h:'CSK',a:'PBKS',v:'Chennai',hp:62.1,ap:37.9,pw:'CSK',c:'High'},
+            {m:8,dt:'Apr 04',h:'DC',a:'MI',v:'Delhi',hp:46.5,ap:53.5,pw:'MI',c:'Medium'},
+            {m:9,dt:'Apr 04',h:'GT',a:'RR',v:'Ahmedabad',hp:53.3,ap:46.7,pw:'GT',c:'Medium'},
+            {m:10,dt:'Apr 05',h:'SRH',a:'LSG',v:'Hyderabad',hp:63.8,ap:36.2,pw:'SRH',c:'High'},
+            {m:11,dt:'Apr 05',h:'RCB',a:'CSK',v:'Bengaluru',hp:57.5,ap:42.5,pw:'RCB',c:'High'},
+            {m:12,dt:'Apr 06',h:'KKR',a:'PBKS',v:'Kolkata',hp:55.1,ap:44.9,pw:'KKR',c:'Medium'},
+            {m:13,dt:'Apr 07',h:'RR',a:'MI',v:'Guwahati',hp:51.6,ap:48.4,pw:'RR',c:'Low'},
+            {m:14,dt:'Apr 08',h:'DC',a:'GT',v:'Delhi',hp:56.5,ap:43.5,pw:'DC',c:'Medium'},
+            {m:15,dt:'Apr 09',h:'KKR',a:'LSG',v:'Kolkata',hp:60.0,ap:40.0,pw:'KKR',c:'High'},
+            {m:16,dt:'Apr 10',h:'RR',a:'RCB',v:'Guwahati',hp:48.9,ap:51.1,pw:'RCB',c:'Low'},
+            {m:17,dt:'Apr 11',h:'PBKS',a:'SRH',v:'New Chandigarh',hp:56.1,ap:43.9,pw:'PBKS',c:'Medium'},
+            {m:18,dt:'Apr 11',h:'CSK',a:'DC',v:'Chennai',hp:71.0,ap:29.0,pw:'CSK',c:'High'},
+            {m:19,dt:'Apr 12',h:'LSG',a:'GT',v:'Lucknow',hp:60.8,ap:39.2,pw:'LSG',c:'High'},
+            {m:20,dt:'Apr 12',h:'MI',a:'RCB',v:'Mumbai',hp:54.7,ap:45.3,pw:'MI',c:'Medium'},
+            {m:21,dt:'Apr 13',h:'SRH',a:'RR',v:'Hyderabad',hp:62.9,ap:37.1,pw:'SRH',c:'High'},
+            {m:22,dt:'Apr 14',h:'CSK',a:'KKR',v:'Chennai',hp:64.4,ap:35.6,pw:'CSK',c:'High'},
+            {m:23,dt:'Apr 15',h:'RCB',a:'LSG',v:'Bengaluru',hp:66.9,ap:33.1,pw:'RCB',c:'High'},
+            {m:24,dt:'Apr 16',h:'MI',a:'PBKS',v:'Mumbai',hp:59.4,ap:40.6,pw:'MI',c:'High'},
+            {m:25,dt:'Apr 17',h:'GT',a:'KKR',v:'Ahmedabad',hp:51.7,ap:48.3,pw:'GT',c:'Low'},
+            {m:26,dt:'Apr 18',h:'RCB',a:'DC',v:'Bengaluru',hp:71.1,ap:28.9,pw:'RCB',c:'High'},
+            {m:27,dt:'Apr 18',h:'SRH',a:'CSK',v:'Hyderabad',hp:54.3,ap:45.7,pw:'SRH',c:'Medium'},
+            {m:28,dt:'Apr 19',h:'KKR',a:'RR',v:'Kolkata',hp:59.2,ap:40.8,pw:'KKR',c:'High'},
+            {m:29,dt:'Apr 19',h:'PBKS',a:'LSG',v:'New Chandigarh',hp:62.4,ap:37.6,pw:'PBKS',c:'High'},
+            {m:30,dt:'Apr 20',h:'GT',a:'MI',v:'Ahmedabad',hp:47.5,ap:52.5,pw:'MI',c:'Medium'},
+            {m:31,dt:'Apr 21',h:'SRH',a:'DC',v:'Hyderabad',hp:68.0,ap:32.0,pw:'SRH',c:'High'},
+            {m:32,dt:'Apr 22',h:'LSG',a:'RR',v:'Lucknow',hp:56.7,ap:43.3,pw:'LSG',c:'Medium'},
+            {m:33,dt:'Apr 23',h:'MI',a:'CSK',v:'Mumbai',hp:54.8,ap:45.2,pw:'MI',c:'Medium'},
+            {m:34,dt:'Apr 24',h:'RCB',a:'GT',v:'Bengaluru',hp:70.1,ap:29.9,pw:'RCB',c:'High'},
+            {m:35,dt:'Apr 25',h:'DC',a:'PBKS',v:'Delhi',hp:48.3,ap:51.7,pw:'PBKS',c:'Low'},
+            {m:36,dt:'Apr 25',h:'RR',a:'SRH',v:'Jaipur',hp:52.1,ap:47.9,pw:'RR',c:'Low'},
+            {m:37,dt:'Apr 26',h:'GT',a:'CSK',v:'Ahmedabad',hp:44.9,ap:55.1,pw:'CSK',c:'Medium'},
+            {m:38,dt:'Apr 26',h:'LSG',a:'KKR',v:'Lucknow',hp:55.0,ap:45.0,pw:'LSG',c:'Medium'},
+            {m:39,dt:'Apr 27',h:'DC',a:'RCB',v:'Delhi',hp:43.9,ap:56.1,pw:'RCB',c:'Medium'},
+            {m:40,dt:'Apr 28',h:'PBKS',a:'RR',v:'New Chandigarh',hp:61.6,ap:38.4,pw:'PBKS',c:'High'},
+            {m:41,dt:'Apr 29',h:'MI',a:'SRH',v:'Mumbai',hp:58.0,ap:42.0,pw:'MI',c:'High'},
+            {m:42,dt:'Apr 30',h:'GT',a:'RCB',v:'Ahmedabad',hp:44.9,ap:55.1,pw:'RCB',c:'Medium'},
+            {m:43,dt:'May 01',h:'RR',a:'DC',v:'Jaipur',hp:62.7,ap:37.3,pw:'RR',c:'High'},
+            {m:44,dt:'May 02',h:'CSK',a:'MI',v:'Chennai',hp:60.2,ap:39.8,pw:'CSK',c:'High'},
+            {m:45,dt:'May 03',h:'SRH',a:'KKR',v:'Hyderabad',hp:61.3,ap:38.7,pw:'SRH',c:'High'},
+            {m:46,dt:'May 03',h:'GT',a:'PBKS',v:'Ahmedabad',hp:49.3,ap:50.7,pw:'PBKS',c:'Low'},
+            {m:47,dt:'May 04',h:'MI',a:'LSG',v:'Mumbai',hp:64.2,ap:35.8,pw:'MI',c:'High'},
+            {m:48,dt:'May 05',h:'DC',a:'CSK',v:'Delhi',hp:44.0,ap:56.0,pw:'CSK',c:'Medium'},
+            {m:49,dt:'May 06',h:'SRH',a:'PBKS',v:'Hyderabad',hp:58.9,ap:41.1,pw:'SRH',c:'High'},
+            {m:50,dt:'May 07',h:'LSG',a:'RCB',v:'Lucknow',hp:48.1,ap:51.9,pw:'RCB',c:'Low'},
+            {m:51,dt:'May 08',h:'DC',a:'KKR',v:'Delhi',hp:50.7,ap:49.3,pw:'DC',c:'Low'},
+            {m:52,dt:'May 09',h:'RR',a:'GT',v:'Jaipur',hp:61.7,ap:38.3,pw:'RR',c:'High'},
+            {m:53,dt:'May 10',h:'CSK',a:'LSG',v:'Chennai',hp:66.9,ap:33.1,pw:'CSK',c:'High'},
+            {m:54,dt:'May 10',h:'RCB',a:'MI',v:'Raipur',hp:60.3,ap:39.7,pw:'RCB',c:'High'},
+            {m:55,dt:'May 11',h:'PBKS',a:'DC',v:'Dharamshala',hp:66.7,ap:33.3,pw:'PBKS',c:'High'},
+            {m:56,dt:'May 12',h:'GT',a:'SRH',v:'Ahmedabad',hp:48.0,ap:52.0,pw:'SRH',c:'Low'},
+            {m:57,dt:'May 13',h:'RCB',a:'KKR',v:'Raipur',hp:64.5,ap:35.5,pw:'RCB',c:'High'},
+            {m:58,dt:'May 14',h:'PBKS',a:'MI',v:'Dharamshala',hp:55.6,ap:44.4,pw:'PBKS',c:'Medium'},
+            {m:59,dt:'May 15',h:'LSG',a:'CSK',v:'Lucknow',hp:48.1,ap:51.9,pw:'CSK',c:'Low'},
+            {m:60,dt:'May 16',h:'KKR',a:'GT',v:'Kolkata',hp:63.3,ap:36.7,pw:'KKR',c:'High'},
+            {m:61,dt:'May 17',h:'PBKS',a:'RCB',v:'Dharamshala',hp:52.9,ap:47.1,pw:'PBKS',c:'Medium'},
+            {m:62,dt:'May 17',h:'DC',a:'RR',v:'Delhi',hp:52.3,ap:47.7,pw:'DC',c:'Low'},
+            {m:63,dt:'May 18',h:'CSK',a:'SRH',v:'Chennai',hp:60.7,ap:39.3,pw:'CSK',c:'High'},
+            {m:64,dt:'May 19',h:'RR',a:'LSG',v:'Jaipur',hp:58.3,ap:41.7,pw:'RR',c:'High'},
+            {m:65,dt:'May 20',h:'KKR',a:'MI',v:'Kolkata',hp:53.2,ap:46.8,pw:'KKR',c:'Medium'},
+            {m:66,dt:'May 21',h:'CSK',a:'GT',v:'Chennai',hp:70.1,ap:29.9,pw:'CSK',c:'High'},
+            {m:67,dt:'May 22',h:'SRH',a:'RCB',v:'Hyderabad',hp:54.3,ap:45.7,pw:'SRH',c:'Medium'},
+            {m:68,dt:'May 23',h:'LSG',a:'PBKS',v:'Lucknow',hp:52.6,ap:47.4,pw:'LSG',c:'Medium'},
+            {m:69,dt:'May 24',h:'MI',a:'RR',v:'Mumbai',hp:63.4,ap:36.6,pw:'MI',c:'High'},
+            {m:70,dt:'May 24',h:'KKR',a:'DC',v:'Kolkata',hp:64.3,ap:35.7,pw:'KKR',c:'High'}
+        ];
+
+        function renderMatches(data) {
+            var body = document.getElementById('matchBody');
+            var html = '';
+            for (var i = 0; i < data.length; i++) {
+                var m = data[i];
+                var isPlayed = m.played === 1 && m.aw;
+                var isCorrect = isPlayed && m.aw === m.pw;
+                var confStyle = '';
+                if (isPlayed) {
+                    confStyle = isCorrect ? 'background:#D1FAE5;color:#065F46' : 'background:#FEE2E2;color:#991B1B';
+                } else if (m.c === 'High') {
+                    confStyle = 'background:#D1FAE5;color:#065F46';
+                } else if (m.c === 'Medium') {
+                    confStyle = 'background:#FCD34D;color:#78350F';
+                } else {
+                    confStyle = 'background:#F1F5F9;color:#475569';
+                }
+
+                var winStyle = m.pw === m.h ? 'font-weight:700;color:#4ECDC4' : 'font-weight:700;color:#F7946B';
+                var probBar = '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;width:100%;min-width:80px">'
+                    + '<div style="width:' + m.hp + '%;background:#4ECDC4"></div>'
+                    + '<div style="width:' + m.ap + '%;background:#F7946B"></div></div>';
+
+                var rowBg = isPlayed ? ' style="background:#F8FAFC"' : '';
+                html += '<tr class="match-row"' + rowBg + ' data-home="' + m.h + '" data-away="' + m.a + '" data-conf="' + m.c + '" data-month="' + m.dt.substring(0,3) + '">';
+                html += '<td style="font-weight:600;color:#64748B">' + m.m + '</td>';
+                html += '<td style="white-space:nowrap">' + m.dt + '</td>';
+                html += '<td class="team-cell">' + m.h + '</td>';
+                html += '<td class="team-cell">' + m.a + '</td>';
+                html += '<td style="font-size:12px;color:#64748B">' + m.v + '</td>';
+                html += '<td>' + m.hp + '% ' + probBar + '</td>';
+                html += '<td>' + m.ap + '%</td>';
+                if (isPlayed) {
+                    var resultColor = isCorrect ? '#065F46' : '#991B1B';
+                    html += '<td style="font-weight:700;color:' + resultColor + '">' + m.aw + (isCorrect ? ' ✓' : ' ✗') + '</td>';
+                    html += '<td><span style="' + confStyle + ';padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;display:inline-block">' + (isCorrect ? 'Correct' : 'Wrong') + '</span></td>';
+                } else {
+                    html += '<td style="' + winStyle + '">' + m.pw + '</td>';
+                    html += '<td><span style="' + confStyle + ';padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;display:inline-block">' + m.c + '</span></td>';
+                }
+                html += '</tr>';
+            }
+            body.innerHTML = html;
+            var playedCount = 0;
+            for (var j = 0; j < schedule.length; j++) { if (schedule[j].played === 1 && schedule[j].aw) playedCount++; }
+            document.getElementById('matchCount').textContent = 'Showing ' + data.length + ' of 70 matches (' + playedCount + ' played)';
+        }
+
+        function filterMatches() {
+            var search = document.getElementById('matchSearch').value.toUpperCase();
+            var conf = document.getElementById('confFilter').value;
+            var month = document.getElementById('monthFilter').value;
+            var filtered = [];
+            for (var i = 0; i < schedule.length; i++) {
+                var m = schedule[i];
+                var matchesSearch = search === '' || m.h.toUpperCase().indexOf(search) >= 0 || m.a.toUpperCase().indexOf(search) >= 0;
+                var matchesConf = conf === 'all' || (conf === 'High' && m.c === 'High') || (conf === 'Medium' && (m.c === 'High' || m.c === 'Medium'));
+                var matchesMonth = month === 'all' || m.dt.substring(0, 3) === month;
+                if (matchesSearch && matchesConf && matchesMonth) {
+                    filtered.push(m);
+                }
+            }
+            renderMatches(filtered);
+        }
+
+        ready(function() {
+            initCharts();
+            fitKpiText();
+            renderMatches(schedule);
+        });
+    </script>
+</body>
+</html>

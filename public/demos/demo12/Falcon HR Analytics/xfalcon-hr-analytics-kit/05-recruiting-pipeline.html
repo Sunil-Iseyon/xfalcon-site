@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - 05. Recruiting Pipeline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --chart-primary: #006AFF;
+      --chart-secondary: #1A7F64;
+      --chart-tertiary: #94A3B8;
+      --chart-ext1: #0EA5E9;
+      --chart-ext2: #F59E0B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      background: linear-gradient(90deg, #141E30 0%, #1A2540 100%);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .logo-x { color: #00D4FF; }
+    .logo-f { color: #FF6B35; }
+
+    .topbar-title {
+      flex: 1;
+      margin-left: 24px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #00D4FF;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      background-color: rgba(0, 212, 255, 0.1);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 12px 32px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .filter-bar label {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .filter-bar select {
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-text-tertiary);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-bar select:hover {
+      border-color: #00D4FF;
+    }
+
+    .filter-bar select:focus {
+      outline: none;
+      border-color: #00D4FF;
+      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+    }
+
+    .container {
+      padding: 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #00D4FF;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+
+    .chart-card:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.1);
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    .table-section {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+
+    .table-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 500px;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 212, 255, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background-color: var(--color-base-darkest);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      background-color: #141E30;
+      color: var(--color-text-primary);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    tbody tr:hover {
+      background-color: rgba(0, 212, 255, 0.05);
+    }
+
+    .status-filled {
+      color: #7CFF01;
+      font-weight: 600;
+    }
+
+    .status-open {
+      color: #FF6B35;
+      font-weight: 600;
+    }
+
+    .status-on-hold {
+      color: #FFB800;
+      font-weight: 600;
+    }
+
+    .status-cancelled {
+      color: #FF3366;
+      font-weight: 600;
+    }
+
+    .priority-critical {
+      color: #FF3366;
+      font-weight: 600;
+    }
+
+    .priority-high {
+      color: #FF6B35;
+      font-weight: 600;
+    }
+
+    .priority-medium {
+      color: #FFB800;
+      font-weight: 600;
+    }
+
+    .priority-low {
+      color: #0EA5E9;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+    <div class="topbar-title">05 | Recruiting Pipeline
+      <div class="topbar-subtitle" id="reporting-period">Reporting Period: Jan–Dec 2023</div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="filter-bar">
+    <label>FILTERS:</label>
+    <select id="filterDept" onchange="applyFilters()">
+      <option value="All">All Departments</option>
+    </select>
+    <select id="filterLoc" onchange="applyFilters()">
+      <option value="All">All Locations</option>
+    </select>
+    <select id="filterYear" onchange="applyFilters()">
+      <option value="2023">2023</option>
+    </select>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total-apps">421</div>
+        <div class="kpi-delta neutral">all apps</div>
+        <div class="kpi-label">Total Applications</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-hired">89</div>
+        <div class="kpi-delta neutral">successfully hired</div>
+        <div class="kpi-label">Hired</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-conversion">21.1%</div>
+        <div class="kpi-delta neutral">application rate</div>
+        <div class="kpi-label">Conversion Rate</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-offer">$128,910</div>
+        <div class="kpi-delta neutral">hired avg</div>
+        <div class="kpi-label">Avg Offer</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-open-reqs">10</div>
+        <div class="kpi-delta neutral">currently open</div>
+        <div class="kpi-label">Open Requisitions</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-ttf">97d</div>
+        <div class="kpi-delta neutral">average</div>
+        <div class="kpi-label">Avg Time-to-Fill</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-offer-accept">100%</div>
+        <div class="kpi-delta neutral">accepted offers</div>
+        <div class="kpi-label">Offer Acceptance</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-pipeline-health">21%</div>
+        <div class="kpi-delta neutral">overall health</div>
+        <div class="kpi-label">Pipeline Health</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">Requisition Status</div>
+        <div class="chart-container">
+          <canvas id="chart-req-status"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Application Funnel</div>
+        <div class="chart-container">
+          <canvas id="chart-app-funnel"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Time-to-Fill by Priority</div>
+        <div class="chart-container">
+          <canvas id="chart-ttf-priority"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Requisitions by Priority</div>
+        <div class="chart-container">
+          <canvas id="chart-req-priority"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Applications by Stage</div>
+        <div class="chart-container">
+          <canvas id="chart-app-stage"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Offer Amounts Distribution</div>
+        <div class="chart-container">
+          <canvas id="chart-offer-dist"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-title">Top 20 Requisitions Drill-Down</div>
+      <div class="table-wrapper">
+        <table id="requisitions-table">
+          <thead>
+            <tr>
+              <th>Req ID</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Open Date</th>
+              <th>Close Date</th>
+              <th>Days Open</th>
+            </tr>
+          </thead>
+          <tbody id="req-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+
+    var APP_DATA = [
+      {stage:'Applied',cnt:138,accepted:0,avgOffer:0},
+      {stage:'Screening',cnt:69,accepted:0,avgOffer:0},
+      {stage:'Interview',cnt:35,accepted:0,avgOffer:0},
+      {stage:'Offer',cnt:20,accepted:0,avgOffer:134250},
+      {stage:'Hired',cnt:89,accepted:89,avgOffer:128910},
+      {stage:'Rejected',cnt:70,accepted:0,avgOffer:0}
+    ];
+
+    var REQ_DATA = [
+      {status:'Filled',priority:'High',yr:2023,reqs:10,avgDays:118},
+      {status:'Filled',priority:'Low',yr:2023,reqs:5,avgDays:107},
+      {status:'Filled',priority:'Medium',yr:2023,reqs:15,avgDays:83},
+      {status:'Cancelled',priority:'Critical',yr:2023,reqs:6,avgDays:92},
+      {status:'On Hold',priority:'High',yr:2023,reqs:2,avgDays:108},
+      {status:'On Hold',priority:'Low',yr:2023,reqs:1,avgDays:57},
+      {status:'On Hold',priority:'Medium',yr:2023,reqs:1,avgDays:266},
+      {status:'Open',priority:'Critical',yr:2023,reqs:1,avgDays:0},
+      {status:'Open',priority:'High',yr:2023,reqs:3,avgDays:0},
+      {status:'Open',priority:'Low',yr:2023,reqs:1,avgDays:0},
+      {status:'Open',priority:'Medium',yr:2023,reqs:5,avgDays:0}
+    ];
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) { chartInstances[id].destroy(); }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var yr = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, yr: yr };
+    }
+
+    function initializeFilters() {
+      var deptSelect = document.getElementById('filterDept');
+      var locs = ['Austin', 'Bangalore', 'London', 'New York', 'Remote', 'San Francisco', 'Singapore'];
+
+      var locSelect = document.getElementById('filterLoc');
+      locs.forEach(function(loc) {
+        var opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = loc;
+        locSelect.appendChild(opt);
+      });
+
+      var yearSelect = document.getElementById('filterYear');
+      var opt = document.createElement('option');
+      opt.value = '2023';
+      opt.textContent = '2023';
+      yearSelect.appendChild(opt);
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years' : 'Reporting Period: Jan–Dec ' + yr;
+      document.querySelector('.topbar-subtitle').textContent = text;
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function updateKPIs(appData, reqData) {
+      var filters = getFilters();
+      var showNoData = filters.dept !== 'All' || filters.loc !== 'All';
+
+      var totalApps = 0;
+      var totalHired = 0;
+      var totalOffers = 0;
+      var avgOfferForHired = 0;
+      var offersAccepted = 0;
+
+      appData.forEach(function(d) {
+        totalApps += d.cnt;
+        if (d.stage === 'Hired') {
+          totalHired += d.accepted;
+          totalOffers += d.cnt;
+        } else if (d.stage === 'Offer') {
+          totalOffers += d.cnt;
+        }
+      });
+
+      if (totalOffers > 0) {
+        appData.forEach(function(d) {
+          if (d.stage === 'Hired' && d.avgOffer > 0) {
+            avgOfferForHired = d.avgOffer;
+          }
+        });
+      }
+
+      if (totalHired > 0) {
+        offersAccepted = totalHired;
+      }
+
+      var conversionRate = totalApps > 0 ? ((totalHired / totalApps) * 100).toFixed(1) : 0;
+      var acceptanceRate = totalOffers > 0 ? ((totalHired / totalOffers) * 100).toFixed(1) : 0;
+
+      var totalReqs = 0;
+      var filledReqs = 0;
+      var openReqs = 0;
+      var totalDays = 0;
+      var daysCount = 0;
+
+      reqData.forEach(function(d) {
+        totalReqs += d.reqs;
+        if (d.status === 'Filled') {
+          filledReqs += d.reqs;
+          totalDays += d.reqs * d.avgDays;
+          daysCount += d.reqs;
+        } else if (d.status === 'Open') {
+          openReqs += d.reqs;
+        }
+      });
+
+      var avgTimeToFill = daysCount > 0 ? Math.round(totalDays / daysCount) : 0;
+
+      document.getElementById('kpi-total-apps').textContent = totalApps;
+      document.getElementById('kpi-hired').textContent = totalHired;
+      document.getElementById('kpi-conversion').textContent = conversionRate + '%';
+      document.getElementById('kpi-avg-offer').textContent = avgOfferForHired > 0 ? '$' + avgOfferForHired.toLocaleString() : '$0';
+      document.getElementById('kpi-open-reqs').textContent = openReqs;
+      document.getElementById('kpi-avg-ttf').textContent = avgTimeToFill + 'd';
+      document.getElementById('kpi-offer-accept').textContent = acceptanceRate + '%';
+
+      var pipelineHealth = totalApps > 0 ? ((totalHired / totalApps) * 100).toFixed(0) + '%' : '0%';
+      document.getElementById('kpi-pipeline-health').textContent = pipelineHealth;
+    }
+
+    function updateCharts(appData, reqData) {
+      var filters = getFilters();
+      var showNoData = filters.dept !== 'All' || filters.loc !== 'All';
+
+      if (showNoData) {
+        mk('chart-req-status', {
+          type: 'doughnut',
+          data: { labels: [], datasets: [{ data: [] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        mk('chart-app-funnel', {
+          type: 'bar',
+          data: { labels: [], datasets: [{ data: [] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        mk('chart-ttf-priority', {
+          type: 'bar',
+          data: { labels: [], datasets: [{ data: [] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        mk('chart-req-priority', {
+          type: 'bar',
+          data: { labels: [], datasets: [{ data: [] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        mk('chart-app-stage', {
+          type: 'doughnut',
+          data: { labels: [], datasets: [{ data: [] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        mk('chart-offer-dist', {
+          type: 'bar',
+          data: { labels: [], datasets: [{ data: [] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        return;
+      }
+
+      var stageCounts = {};
+      appData.forEach(function(d) {
+        stageCounts[d.stage] = d.cnt;
+      });
+
+      mk('chart-app-funnel', {
+        type: 'bar',
+        data: {
+          labels: Object.keys(stageCounts),
+          datasets: [{
+            label: 'Count',
+            data: Object.values(stageCounts),
+            backgroundColor: '#006AFF',
+            borderColor: '#006AFF',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            x: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      var statusCounts = {};
+      reqData.forEach(function(d) {
+        if (!statusCounts[d.status]) statusCounts[d.status] = 0;
+        statusCounts[d.status] += d.reqs;
+      });
+
+      var statusColors = {'Filled': '#1A7F64', 'Open': '#F59E0B', 'On Hold': '#F59E0B', 'Cancelled': '#94A3B8'};
+      var statusLabels = Object.keys(statusCounts);
+      var statusValues = statusLabels.map(function(s) { return statusCounts[s]; });
+      var statusBgColors = statusLabels.map(function(s) { return statusColors[s] || '#94A3B8'; });
+
+      mk('chart-req-status', {
+        type: 'doughnut',
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusValues,
+            backgroundColor: statusBgColors,
+            borderColor: statusBgColors,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#8B95A5', font: {size: 12}, padding: 16 } },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          }
+        }
+      });
+
+      var priorityCounts = {};
+      var priorityTTF = {};
+      reqData.forEach(function(d) {
+        if (!priorityCounts[d.priority]) priorityCounts[d.priority] = 0;
+        if (!priorityTTF[d.priority]) priorityTTF[d.priority] = { total: 0, count: 0 };
+        priorityCounts[d.priority] += d.reqs;
+        if (d.avgDays > 0) {
+          priorityTTF[d.priority].total += d.reqs * d.avgDays;
+          priorityTTF[d.priority].count += d.reqs;
+        }
+      });
+
+      var priorityOrder = ['Critical', 'High', 'Medium', 'Low'];
+      var ttfLabels = priorityOrder.filter(function(p) { return priorityCounts[p]; });
+      var ttfValues = ttfLabels.map(function(p) {
+        var avg = priorityTTF[p] && priorityTTF[p].count > 0 ? Math.round(priorityTTF[p].total / priorityTTF[p].count) : 0;
+        return avg;
+      });
+      var ttfColors = {'Critical': '#94A3B8', 'High': '#F59E0B', 'Medium': '#F59E0B', 'Low': '#0EA5E9'};
+      var ttfBgColors = ttfLabels.map(function(p) { return ttfColors[p]; });
+
+      mk('chart-ttf-priority', {
+        type: 'bar',
+        data: {
+          labels: ttfLabels,
+          datasets: [{
+            label: 'Avg Days',
+            data: ttfValues,
+            backgroundColor: ttfBgColors,
+            borderColor: ttfBgColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      var priorityCountLabels = priorityOrder.filter(function(p) { return priorityCounts[p]; });
+      var priorityCountValues = priorityCountLabels.map(function(p) { return priorityCounts[p]; });
+      var priorityCountBgColors = priorityCountLabels.map(function(p) { return ttfColors[p]; });
+
+      mk('chart-req-priority', {
+        type: 'bar',
+        data: {
+          labels: priorityCountLabels,
+          datasets: [{
+            label: 'Count',
+            data: priorityCountValues,
+            backgroundColor: priorityCountBgColors,
+            borderColor: priorityCountBgColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      var stageLabels = Object.keys(stageCounts);
+      var stageValues = stageLabels.map(function(s) { return stageCounts[s]; });
+      var stageColors = {'Applied': '#006AFF', 'Screening': '#1A7F64', 'Interview': '#0EA5E9', 'Offer': '#F59E0B', 'Hired': '#1A7F64', 'Rejected': '#94A3B8'};
+      var stageBgColors = stageLabels.map(function(s) { return stageColors[s] || '#94A3B8'; });
+
+      mk('chart-app-stage', {
+        type: 'doughnut',
+        data: {
+          labels: stageLabels,
+          datasets: [{
+            data: stageValues,
+            backgroundColor: stageBgColors,
+            borderColor: stageBgColors,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#8B95A5', font: {size: 12}, padding: 16 } },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          }
+        }
+      });
+
+      var offerDistributions = [
+        {range: '$50-75K', count: 12},
+        {range: '$75-100K', count: 18},
+        {range: '$100-125K', count: 35},
+        {range: '$125-150K', count: 28},
+        {range: '$150K+', count: 8}
+      ];
+
+      mk('chart-offer-dist', {
+        type: 'bar',
+        data: {
+          labels: offerDistributions.map(function(d) { return d.range; }),
+          datasets: [{
+            label: 'Count',
+            data: offerDistributions.map(function(d) { return d.count; }),
+            backgroundColor: '#1A7F64',
+            borderColor: '#1A7F64',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function updateTable(appData, reqData) {
+      var filters = getFilters();
+      var tbody = document.getElementById('req-tbody');
+      tbody.innerHTML = '';
+
+      if (filters.dept !== 'All' || filters.loc !== 'All') {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#8B95A5;">No data for this filter</td></tr>';
+        return;
+      }
+
+      var combined = [];
+      appData.forEach(function(a) {
+        combined.push({
+          id: 'APP-' + a.stage,
+          dept: 'N/A',
+          status: a.stage,
+          priority: 'N/A',
+          openDate: 'N/A',
+          closeDate: 'N/A',
+          daysOpen: a.cnt
+        });
+      });
+
+      reqData.forEach(function(r) {
+        combined.push({
+          id: 'REQ-' + r.status,
+          dept: 'N/A',
+          status: r.status,
+          priority: r.priority,
+          openDate: 'N/A',
+          closeDate: 'N/A',
+          daysOpen: r.reqs
+        });
+      });
+
+      combined.slice(0, 20).forEach(function(row) {
+        var tr = document.createElement('tr');
+        var statusClass = 'status-' + row.status.toLowerCase().replace(' ', '-');
+        var priorityClass = row.priority !== 'N/A' ? 'priority-' + row.priority.toLowerCase() : '';
+        tr.innerHTML = '<td>' + row.id + '</td><td>' + row.dept + '</td><td class="' + statusClass + '">' + row.status + '</td><td class="' + priorityClass + '">' + row.priority + '</td><td>' + row.openDate + '</td><td>' + row.closeDate + '</td><td>' + row.daysOpen + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      updateKPIs(APP_DATA, REQ_DATA);
+      updateCharts(APP_DATA, REQ_DATA);
+      updateTable(APP_DATA, REQ_DATA);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    function init() {
+      initializeFilters();
+      applyFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

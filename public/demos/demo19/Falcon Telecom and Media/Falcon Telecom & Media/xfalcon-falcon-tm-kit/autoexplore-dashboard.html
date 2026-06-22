@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media — AutoExplore Evidence Dashboard</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.intro{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:18px 22px;margin-bottom:22px;}
+.intro h1{margin:0 0 6px 0;font-size:24px;font-weight:700;color:var(--color-secondary);}
+.intro p{margin:0;color:var(--color-text-muted);font-size:13px;line-height:1.6;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:28px 0 12px 0;display:flex;align-items:center;gap:10px;}
+.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:900px){.findings-grid{grid-template-columns:1fr;}}
+.finding-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px 22px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.finding-card.span-2{grid-column:1 / -1;}
+.finding-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--color-primary);color:#FFF;font-weight:700;font-size:13px;margin-right:8px;}
+.finding-num.null{background:var(--color-tertiary);}
+.finding-card h3{margin:0 0 4px 0;font-size:16px;font-weight:700;color:var(--color-secondary);display:flex;align-items:center;}
+.finding-headline{font-size:13px;color:var(--color-text-muted);margin-bottom:10px;}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;background:#E0F2FE;color:#003057;text-transform:uppercase;letter-spacing:0.4px;}
+.tag.confirmed{background:#D1FAE5;color:#065F46;}
+.tag.null-finding{background:#FEF3C7;color:#92400E;}
+.tag.cross-domain{background:#DCEBF8;color:#003057;}
+.evidence-block{background:#F8FAFC;border-left:3px solid var(--color-primary);padding:10px 14px;margin:10px 0;border-radius:3px;font-size:12px;color:var(--color-text);}
+.evidence-block strong{color:var(--color-secondary);}
+.so-what{background:#FFF7ED;border:1px solid #FED7AA;border-radius:4px;padding:10px 14px;margin-top:12px;font-size:12.5px;color:#7C2D12;line-height:1.5;}
+.so-what strong{color:#92400E;}
+.chart-wrap{position:relative;height:240px;margin:8px 0 12px 0;}
+.chart-wrap.tall{height:320px;}
+.kpi-strip{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 14px 0;}
+.kpi-pill{background:#F1F5F9;border-radius:6px;padding:8px 14px;}
+.kpi-pill .lbl{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;}
+.kpi-pill .val{font-size:18px;font-weight:700;color:var(--color-primary);font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:var(--color-card);border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);}
+.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media — AutoExplore Evidence Dashboard</div><div class="topbar-subtitle">7 findings · 16 hypotheses tested · 1 chart per finding · Generated 2026-04-25</div></div>
+  </div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+
+<div class="container">
+
+  <div class="intro">
+    <h1>Cross-Domain Subscriber 360 — Findings</h1>
+    <p>16-iteration directed AutoExplore on the SUBSCRIBER_KEY join across billing × viewership × tickets × lifecycle events. Each card below shows one finding with its key chart, evidence callout, and so-what interpretation. The accompanying long-form memo is at <a href="autoexplore-memo.html" style="color:var(--color-primary);">autoexplore-memo.html</a>; the iteration-by-iteration log is at <a href="autoexplore-journal.md" style="color:var(--color-primary);">autoexplore-journal.md</a>.</p>
+  </div>
+
+  <div class="section-title">Findings</div>
+
+  <div class="findings-grid">
+
+    <div class="finding-card span-2">
+      <h3><span class="finding-num">1</span>The Cross-Domain Uniformity Paradox</h3>
+      <div class="finding-headline">Cross-domain participation is universal, but cross-domain INTENSITY is demographically random across 14 cuts tested.</div>
+      <div class="tag-row"><span class="tag confirmed">Confirmed</span> <span class="tag cross-domain">Meta-finding</span></div>
+      <div class="kpi-strip">
+        <div class="kpi-pill"><div class="lbl">Subs</div><div class="val">100,000</div></div>
+        <div class="kpi-pill"><div class="lbl">Stream</div><div class="val">100%</div></div>
+        <div class="kpi-pill"><div class="lbl">Bill</div><div class="val">99.997%</div></div>
+        <div class="kpi-pill"><div class="lbl">Buy Tickets</div><div class="val">96.94%</div></div>
+        <div class="kpi-pill"><div class="lbl">Per-sub spread (segment × $)</div><div class="val">1.0%</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="f1Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> Per-sub lifetime ticket spend by segment ranges $4,514 (Business Small) to $4,539 (Consumer) — a 1.0% spread. By age band, by credit, by tenure, by acquisition channel: every cut produces spreads inside the statistical noise floor.</div>
+      <div class="so-what"><strong>So what:</strong> This warehouse should not be demoed with persona-based marketing narratives. Lead with cross-domain VOLUME and event-based cuts (F4) instead.</div>
+    </div>
+
+    <div class="finding-card">
+      <h3><span class="finding-num null">2</span>No Carrier ↔ Platform Parent Affinity</h3>
+      <div class="finding-headline">Comcast subs do NOT over-stream Peacock. Vertical integration produces no detectable streaming preference.</div>
+      <div class="tag-row"><span class="tag null-finding">Null Finding</span> <span class="tag cross-domain">Cross-Domain</span></div>
+      <div class="chart-wrap tall"><canvas id="f2Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> Comcast subscribers' streaming distribution by platform — Peacock (Comcast-owned) is their LOWEST at 19,138 sessions; Tubi (Fox) is highest at 19,676. Spread: 2.8%. Sqrt-counting noise floor: 0.7%.</div>
+      <div class="so-what"><strong>So what:</strong> Killing the "bundle synergy" narrative for this dataset. Useful as a credibility-establishing null result in prospect demos.</div>
+    </div>
+
+    <div class="finding-card">
+      <h3><span class="finding-num null">3</span>5G Doesn't Drive 4K HDR Streaming</h3>
+      <div class="finding-headline">Identical quality-tier proportions across 5G, 4G LTE, and Fiber subscribers.</div>
+      <div class="tag-row"><span class="tag null-finding">Null Finding</span></div>
+      <div class="chart-wrap tall"><canvas id="f3Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> 4K HDR share: 15.0% (5G) vs 15.0% (4G LTE) vs 14.9% (Fiber). 1080p: 54.7% / 54.7% / 54.6%. Streaming quality choice is statistically independent of network technology.</div>
+      <div class="so-what"><strong>So what:</strong> The 5G-upsell-for-4K narrative has no support in this data. Use plan-type ARPU differentiation for the 5G ROI demo instead.</div>
+    </div>
+
+    <div class="finding-card span-2">
+      <h3><span class="finding-num">4</span>COVID Q2 2020 Cross-Domain Substitution</h3>
+      <div class="finding-headline">Same population substituted streaming for live events. Cleanest cross-domain signal in the warehouse.</div>
+      <div class="tag-row"><span class="tag confirmed">Confirmed</span> <span class="tag cross-domain">Cross-Domain</span></div>
+      <div class="kpi-strip">
+        <div class="kpi-pill"><div class="lbl">Tickets Q2'20</div><div class="val" style="color:var(--color-negative);">−91.3%</div></div>
+        <div class="kpi-pill"><div class="lbl">Streaming Subs Q2'20</div><div class="val" style="color:var(--color-positive);">+41.8%</div></div>
+        <div class="kpi-pill"><div class="lbl">View Min Q2'20</div><div class="val" style="color:var(--color-positive);">+52.7%</div></div>
+        <div class="kpi-pill"><div class="lbl">Tickets Q2'21 vs '19</div><div class="val" style="color:var(--color-positive);">+12.4%</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="f4Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> Distinct subscribers in each fact, by quarter 2019–2021. Q2 2020 ticket-buying subs collapsed from 9,263 (Q2'19) to 804. Streaming subs jumped from 25,292 to 35,874. View minutes rose from 1.46M to 2.23M. By Q2 2021 ticket buying recovered to 10,413 (12.4% above pre-COVID baseline); streaming returned to baseline trajectory.</div>
+      <div class="so-what"><strong>So what:</strong> Lead with this story for prospect demos. It's the cleanest demonstration of cross-domain substitution capability — same SUBSCRIBER_KEY, two completely different behaviors at two points in time.</div>
+    </div>
+
+    <div class="finding-card">
+      <h3><span class="finding-num">5</span>Heavy-Tailed Spending, Demographically Random</h3>
+      <div class="finding-headline">Top 5% drives 16.7% of spend. But they look identical demographically.</div>
+      <div class="tag-row"><span class="tag confirmed">Confirmed</span> <span class="tag">Counterintuitive</span></div>
+      <div class="chart-wrap tall"><canvas id="f5Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> Top ventile (4,404 subs) avg $15,129/sub vs bottom ventile $42 — 360× spread. Top 20% generates 48.1% of total spend. Yet super-spenders are 4.83–5.06% of every segment — perfect uniform distribution.</div>
+      <div class="so-what"><strong>So what:</strong> "VIP cohort" exists but cannot be predicted from demographics. Build behavioral cohorts (RFM, recency, cumulative spend) — not demographic.</div>
+    </div>
+
+    <div class="finding-card">
+      <h3><span class="finding-num">6</span>Enterprise Plans Skew Non-Purchaser</h3>
+      <div class="finding-headline">The only demographic discriminator that survives statistical noise: 1.1pp difference between Enterprise and Prepaid 5G.</div>
+      <div class="tag-row"><span class="tag confirmed">Weak Signal</span></div>
+      <div class="chart-wrap tall"><canvas id="f6Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> Enterprise Fiber subs are 47% more likely to never buy a ticket vs Prepaid 5G (3.45% vs 2.35%). Business Direct acquisition channel also under-indexes ($4,448/sub vs $4,591 Dealer). Consistent corporate-account / work-account signal.</div>
+      <div class="so-what"><strong>So what:</strong> The one defensible "plan type matters for entertainment behavior" claim. Add an Enterprise vs Consumer plan profile to the Plan & Carrier Mix dashboard.</div>
+    </div>
+
+    <div class="finding-card">
+      <h3><span class="finding-num null">7</span>Tenure Doesn't Predict Churn</h3>
+      <div class="finding-headline">Churned and not-churned subscribers have identical avg tenure (60.4 months).</div>
+      <div class="tag-row"><span class="tag null-finding">Null Finding</span></div>
+      <div class="chart-wrap tall"><canvas id="f7Chart"></canvas></div>
+      <div class="evidence-block"><strong>Evidence:</strong> 55,064 subs with 2024–25 churn events: avg tenure 60.4 months. 39,556 active subs with no churn: avg tenure 60.4 months. Identical to the decimal place. Combined with near-uniform churn-reason distribution, the warehouse models churn as memoryless.</div>
+      <div class="so-what"><strong>So what:</strong> Don't promise churn-prediction demos on this dataset. The data has no demographic predictive signal.</div>
+    </div>
+
+  </div>
+
+  <div class="disclaimer">
+    <strong>Source:</strong> Falcon Telecom &amp; Media synthetic warehouse · 4.7M fact rows · 2018-01-01 → 2026-04-17 ·
+    <strong>Method:</strong> Directed AutoExplore · 16 iterations · ~22 successful queries · 4 fact-check cycles ·
+    <strong>Connector:</strong> <code>mcp__0f5a7fbd-d3a0-4d09-80d5-e325ec2e51bb</code>
+  </div>
+
+</div>
+
+<script>
+function getPalette(){var t=document.documentElement.getAttribute('data-theme')||'spectrum';if(t==='tech')return{primary:'#00D4FF',secondary:'#7C3AED',tertiary:'#94A3B8',ext1:'#7CFF01',ext2:'#FF00C8',positive:'#7CFF01',negative:'#FF3366',grid:'rgba(255,255,255,0.06)',text:'#F1F5F9',textMuted:'#94A3B8'};return{primary:'#0099D8',secondary:'#003057',tertiary:'#77787B',ext1:'#0EA5E9',ext2:'#F59E0B',positive:'#059669',negative:'#D32F2F',grid:'rgba(15,23,42,0.05)',text:'#0F172A',textMuted:'#64748B'};}
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();var ctx=document.getElementById(id).getContext('2d');chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+function fmt(n,d){d=(d===undefined)?1:d;return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtInt(n){return Math.round(n).toLocaleString('en-US');}
+
+function renderF1(){
+  var p=getPalette();
+  var theme=document.documentElement.getAttribute('data-theme')||'spectrum';
+  // Per-sub spend by segment, plus top-5% concentration showing uniformity
+  var labels=['Consumer','Family','Business Mid','Prepaid','Business Small'];
+  var perSubSpend=[4538.85,4522.64,4519.23,4529.99,4513.63];
+  var top5Pct=[5.01,5.06,4.88,4.83,5.04];
+  // Use a high-contrast hue for the line so it pops against the blue bars
+  var lineColor=p.ext2; // amber on Spectrum, hot magenta on Tech
+  var pointBorder=theme==='tech'?'#0A0E1A':'#FFFFFF';
+  mk('f1Chart',{
+    data:{labels:labels,datasets:[
+      {type:'bar',label:'$ per active sub (lifetime ticket spend)',data:perSubSpend,backgroundColor:p.primary,borderColor:p.primary,yAxisID:'y',order:2},
+      {type:'line',label:'% of segment in top 5% spenders',data:top5Pct,
+       borderColor:lineColor,backgroundColor:lineColor,borderWidth:4,tension:0.2,fill:false,
+       yAxisID:'y1',pointRadius:8,pointHoverRadius:11,pointBorderColor:pointBorder,pointBorderWidth:2.5,
+       pointBackgroundColor:lineColor,order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11},usePointStyle:true,pointStyle:'rectRounded'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+(c.dataset.yAxisID==='y'?'$'+fmt(c.parsed.y,0):fmt(c.parsed.y,2)+'%');}}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:p.text}},
+        y:{position:'left',title:{display:true,text:'$ / sub',color:p.textMuted,font:{size:11}},grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+fmt(v,0);}},min:4400,max:4600},
+        y1:{position:'right',title:{display:true,text:'% in top 5%',color:lineColor,font:{size:11,weight:600}},grid:{drawOnChartArea:false},ticks:{color:lineColor,callback:function(v){return v+'%';}},min:4.5,max:5.5}
+      }
+    }
+  });
+}
+
+function renderF2(){
+  var p=getPalette();
+  // Comcast subs streaming by platform, sorted, with Peacock highlighted
+  var data=[
+    ['Tubi',19676,'Fox'],['Max',19570,'WBD'],['Paramount+',19542,'Paramount'],['ESPN+',19481,'Disney'],
+    ['Fox Nation',19475,'Fox'],['Amazon PV',19449,'Amazon'],['Netflix',19369,'Netflix'],['Apple TV+',19348,'Apple'],
+    ['Disney+',19250,'Disney'],['Hulu',19213,'Disney'],['Discovery+',19157,'WBD'],['Peacock',19138,'COMCAST']
+  ];
+  mk('f2Chart',{type:'bar',
+    data:{labels:data.map(function(d){return d[0];}),datasets:[{label:'Comcast Subs Sessions',data:data.map(function(d){return d[1];}),backgroundColor:data.map(function(d){return d[2]==='COMCAST'?p.negative:p.primary;}),borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtInt(c.parsed.x)+' sessions ('+data[c.dataIndex][2]+')';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(1)+'K';}},min:18900,max:19800,title:{display:true,text:'Lifetime sessions (Comcast subs)',color:p.textMuted,font:{size:10}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:10.5}}}}
+    }
+  });
+}
+
+function renderF3(){
+  var p=getPalette();
+  var labels=['4K HDR','1080p HD','720p HD','480p SD'];
+  mk('f3Chart',{type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'5G',data:[15.0,54.7,21.8,8.0],backgroundColor:p.primary,borderWidth:1},
+      {label:'4G LTE',data:[15.0,54.7,22.0,8.0],backgroundColor:p.secondary,borderWidth:1},
+      {label:'Fiber',data:[14.9,54.6,21.7,8.0],backgroundColor:p.tertiary,borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmt(c.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return v+'%';}},title:{display:true,text:'Share of sessions',color:p.textMuted,font:{size:11}}}}}
+  });
+}
+
+function renderF4(){
+  var p=getPalette();
+  var labels=['2019 Q1','Q2','Q3','Q4','2020 Q1','Q2','Q3','Q4','2021 Q1','Q2'];
+  mk('f4Chart',{
+    data:{labels:labels,datasets:[
+      {type:'line',label:'Streaming Subs',data:[28187,25292,27323,31175,33598,35874,25848,32201,29415,27607],borderColor:p.primary,backgroundColor:p.primary,borderWidth:2.5,tension:0.3,fill:false,yAxisID:'y',pointRadius:4,pointHoverRadius:6},
+      {type:'line',label:'Ticket-Buying Subs',data:[8593,9263,9970,9085,5932,804,2576,6728,6218,10413],borderColor:p.secondary,backgroundColor:p.secondary,borderWidth:2.5,tension:0.3,fill:false,yAxisID:'y1',pointRadius:4,pointHoverRadius:6}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{mode:'index',intersect:false,callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,maxRotation:0}},y:{position:'left',title:{display:true,text:'Streaming subs',color:p.textMuted,font:{size:11}},grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}},y1:{position:'right',title:{display:true,text:'Ticket-buying subs',color:p.textMuted,font:{size:11}},grid:{drawOnChartArea:false},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}}}}
+  });
+}
+
+function renderF5(){
+  var p=getPalette();
+  var labels=['Top 5%','5–10%','10–15%','15–20%','20–25%','25–30%','30–35%','35–40%','40–45%','45–50%','50–55%','55–60%','60–65%','65–70%','70–75%','75–80%','80–85%','85–90%','90–95%','Bottom 5%'];
+  var avgSpend=[15129,11051,9277,8089,7163,6353,5620,4977,4385,3843,3321,2814,2349,1910,1495,1134,803,525,283,42];
+  mk('f5Chart',{type:'bar',
+    data:{labels:labels,datasets:[{label:'Avg ticket spend per sub ($)',data:avgSpend,backgroundColor:p.primary,borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmtInt(c.parsed.y)+' / sub';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text,font:{size:9},maxRotation:60,minRotation:60}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+(v/1000).toFixed(0)+'K';}},title:{display:true,text:'Avg lifetime ticket spend ($)',color:p.textMuted,font:{size:11}}}}}
+  });
+}
+
+function renderF6(){
+  var p=getPalette();
+  var data=[
+    ['Enterprise / Fiber',3.45],['Enterprise / 5G',3.23],['Postpaid / 4G LTE',3.16],['Prepaid / 4G LTE',3.10],
+    ['Postpaid / 5G',2.94],['Bundle / Fiber+Cable',2.92],['Fixed Wireless / 5G',2.58],['Prepaid / 5G',2.35]
+  ];
+  mk('f6Chart',{type:'bar',
+    data:{labels:data.map(function(d){return d[0];}),datasets:[{label:'% Never Bought a Ticket',data:data.map(function(d){return d[1];}),backgroundColor:data.map(function(d){return d[0].indexOf('Enterprise')===0?p.primary:p.tertiary;}),borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt(c.parsed.x,2)+'% never bought';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return v+'%';}},title:{display:true,text:'% of subscribers who never bought a ticket',color:p.textMuted,font:{size:11}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:10}}}}}
+  });
+}
+
+function renderF7(){
+  var p=getPalette();
+  mk('f7Chart',{type:'bar',
+    data:{labels:['Churned 2024–25 (n=55,064)','Active, no churn (n=39,556)'],datasets:[{label:'Avg Tenure (months)',data:[60.4,60.4],backgroundColor:[p.tertiary,p.primary],borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+' months avg tenure';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text,font:{size:11}}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return v+' mo';}},min:0,max:80,title:{display:true,text:'Average tenure (months)',color:p.textMuted,font:{size:11}}}}}
+  });
+}
+
+document.addEventListener('DOMContentLoaded',function(){renderF1();renderF2();renderF3();renderF4();renderF5();renderF6();renderF7();});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11 — Distributor Scorecard | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html" class="active">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+<div class="header">
+    <h1>Distributor Scorecard <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Comprehensive Distributor Performance: Shipments, Depletions, Inventory & Trade | FY2025</div>
+    <div class="dash-num">11</div>
+</div>
+<div class="container">
+<div class="kpi-row" id="kpiRow"></div>
+<div class="section-label">Distributor Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Revenue by Distributor: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">All 12 distributors — shipment revenue comparison</div>
+        <canvas id="distRevenueChart" height="80"></canvas>
+    </div>
+</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Distributor Tier Performance</h3>
+        <div class="chart-subtitle">Revenue breakdown by tier</div>
+        <canvas id="tierChart"></canvas>
+    </div>
+</div>
+<div class="section-label">Operational Performance — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Shipment vs Depletion Revenue</h3>
+        <div class="chart-subtitle">Sell-in vs retail takeaway</div>
+        <canvas id="shipVsDepChart" height="60"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Cases Shipped by Distributor</h3>
+        <div class="chart-subtitle">Volume FY2025 vs FY2024</div>
+        <canvas id="caseVolumeChart" height="60"></canvas>
+    </div>
+</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Inventory & Days of Supply</h3>
+        <div class="chart-subtitle">FY2025 distributor inventory health</div>
+        <canvas id="inventoryChart" height="60"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Trade Spend ROI</h3>
+        <div class="chart-subtitle">Return on investment by distributor</div>
+        <canvas id="roiChart" height="60"></canvas>
+    </div>
+</div>
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Distributor Performance Scorecard — FY2025</h3>
+    <div class="chart-subtitle">Complete metrics: revenue, cases, margins, inventory, trade spend & compliance</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Distributor</th><th>Tier</th><th>Perf Tier</th>
+            <th class="num">Ship Rev FY25</th><th class="num">vs FY24</th>
+            <th class="num">Depl Rev</th>
+            <th class="num">Cases</th><th class="num">GP</th><th class="num">GP%</th>
+            <th class="num">Inv Qty</th><th class="num">Days Supply</th>
+            <th class="num">Trade Spend</th><th class="num">Avg ROI</th>
+        </tr></thead>
+        <tbody id="distScoreTable"></tbody>
+        <tfoot id="distScoreTfoot"></tfoot>
+    </table>
+</div>
+</div>
+<div class="footer">Dashboard 11 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+<script>
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+const fy25=[{n:'Southern Wine & Spirits',tier:'National',perf:'Platinum',ship:7821989.47,c25:179189.2,gp:2917396.02,depl:4157752.73,inv:214726.7,dos:48.18,trade:7989548.85,roi:2.61},{n:'Republic National Dist.',tier:'National',perf:'Platinum',ship:7790759.50,c25:178046.1,gp:2904502.58,depl:2598082.49,inv:216101.1,dos:48.38,trade:4948296.04,roi:2.34},{n:'Breakthru Beverage',tier:'National',perf:'Gold',ship:6460733.11,c25:147947.4,gp:2399061.35,depl:2896699.95,inv:174745.9,dos:48.04,trade:6792604.58,roi:2.80},{n:"Young's Market",tier:'Regional',perf:'Gold',ship:4866963.97,c25:111886.3,gp:1809381.79,depl:981850.09,inv:132760.4,dos:48.85,trade:2338113.98,roi:2.70},{n:'Empire Merchants',tier:'Regional',perf:'Gold',ship:2348886.88,c25:53617.8,gp:869198.65,depl:450073.02,inv:63802.9,dos:49.14,trade:925716.15,roi:3.36},{n:'Heidelberg Dist.',tier:'Regional',perf:'Silver',ship:1753016.48,c25:39949.5,gp:658251.47,depl:744917.08,inv:46936.8,dos:49.28,trade:1222445.17,roi:2.31},{n:'Winesellers Ltd',tier:'Local',perf:'Bronze',ship:1376625.23,c25:31589.7,gp:508292.65,depl:454964.63,inv:38905.0,dos:47.60,trade:467220.48,roi:2.68},{n:'Capitol Beverage',tier:'Regional',perf:'Bronze',ship:1157678.55,c25:26741.4,gp:431341.49,depl:780029.16,inv:31920.9,dos:49.48,trade:1596577.11,roi:5.46},{n:'Horizon Beverage',tier:'Regional',perf:'Silver',ship:1067906.33,c25:24706.8,gp:398055.49,depl:546800.25,inv:29323.2,dos:47.82,trade:1721111.69,roi:2.67},{n:'Lipman Brothers',tier:'Regional',perf:'Silver',ship:1031767.39,c25:24043.4,gp:379209.54,depl:470889.79,inv:29053.0,dos:49.54,trade:837963.06,roi:3.85},{n:'Fedway Associates',tier:'Regional',perf:'Silver',ship:722121.28,c25:16596.7,gp:267961.03,depl:322150.13,inv:19154.7,dos:48.86,trade:533619.34,roi:2.05},{n:'State Control Board',tier:'Local',perf:'Gold',ship:608862.06,c25:13943.0,gp:228745.69,depl:206244.45,inv:16536.1,dos:49.34,trade:373096.92,roi:2.36}];
+const fy24=[{n:'Southern Wine & Spirits',ship:6988228.26,c24:164656.6,gp:2608349.37},{n:'Republic National Dist.',ship:6913997.00,c24:163175.5,gp:2580474.44},{n:'Breakthru Beverage',ship:5822727.16,c24:136824.3,gp:2162864.59},{n:"Young's Market",ship:4404362.02,c24:103488.3,gp:1639015.87},{n:'Empire Merchants',ship:2063629.86,c24:49016.5,gp:763522.78},{n:'Heidelberg Dist.',ship:1572715.87,c24:36935.4,gp:590450.49},{n:'Winesellers Ltd',ship:1232319.96,c24:29273.8,gp:455414.20},{n:'Capitol Beverage',ship:1052732.78,c24:24763.3,gp:392978.85},{n:'Horizon Beverage',ship:965985.81,c24:22699.3,gp:360365.90},{n:'Lipman Brothers',ship:946182.27,c24:22282.0,gp:347950.11},{n:'Fedway Associates',ship:648880.12,c24:15365.7,gp:240269.86},{n:'State Control Board',ship:556934.77,c24:12831.2,gp:209785.84}];
+const tierData=[{t:'National',r:22073482.08},{t:'Regional',r:12948340.88},{t:'Local',r:1985487.29}];
+const perfTierData=[{p:'Platinum',r:15612748.97},{p:'Gold',r:14285446.02},{p:'Silver',r:4574811.48},{p:'Bronze',r:2534303.78}];
+const t25={ship:0,depl:0,cases:0,gp:0,inv:0,trade:0,roi:0};
+fy25.forEach(d=>{t25.ship+=d.ship;t25.depl+=d.depl;t25.cases+=d.c25;t25.gp+=d.gp;t25.inv+=d.inv;t25.trade+=d.trade;t25.roi+=d.roi;});
+const kpis=[{label:'Distributors',val:12,isCount:true},{label:'Total Shipments',val:t25.ship,prev:fy24.reduce((a,d)=>a+d.ship,0)},{label:'Total Depletions',val:t25.depl},{label:'Avg Days Supply',val:t25.inv/fy25.length,isDay:true},{label:'Total Trade Spend',val:t25.trade},{label:'Avg ROI',val:(t25.roi/fy25.length).toFixed(2),isRatio:true}];
+document.getElementById('kpiRow').innerHTML=kpis.map(k=>{const chg=k.prev?pct(k.val,k.prev):null;const cls=chg?chg>=0?'positive':'negative':'';const displayVal=k.isCount?k.val:k.isDay?k.val.toFixed(1)+' days':k.isRatio?k.val:fmt$(k.val);const sparkVals=fy25.map(d=>d.ship);const sparkMax=Math.max(...sparkVals);const bars=sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');return `<div class="kpi-card"><div class="label">${k.label}</div><div class="value">${displayVal}</div>${chg?`<div class="change ${cls}">${chg>=0?'&#9650;':'&#9660;'} ${Math.abs(chg)}% vs FY24</div>`:''}<div class="sparkline-row">${bars}</div></div>`;}).join('');
+new Chart(document.getElementById('distRevenueChart'),{type:'bar',data:{labels:fy25.map(d=>d.n),datasets:[{label:'FY2025',data:fy25.map(d=>d.ship),backgroundColor:G,borderRadius:3},{label:'FY2024',data:fy24.map(d=>d.ship),backgroundColor:PY,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+new Chart(document.getElementById('tierChart'),{type:'bar',data:{labels:tierData.map(d=>d.t),datasets:[{data:tierData.map(d=>d.r),backgroundColor:G,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+new Chart(document.getElementById('shipVsDepChart'),{type:'bar',data:{labels:fy25.map(d=>d.n.substring(0,12)),datasets:[{label:'Shipment',data:fy25.map(d=>d.ship),backgroundColor:G,borderRadius:3,barPercentage:.75},{label:'Depletion',data:fy25.map(d=>d.depl),backgroundColor:'rgba(212,168,67,0.35)',borderRadius:3,barPercentage:.75}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+new Chart(document.getElementById('caseVolumeChart'),{type:'bar',data:{labels:fy25.map(d=>d.n.substring(0,12)),datasets:[{label:'FY2025',data:fy25.map(d=>d.c25),backgroundColor:G,borderRadius:3,barPercentage:.75},{label:'FY2024',data:fy24.map(d=>d.c24),backgroundColor:PY,borderRadius:3,barPercentage:.75}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+new Chart(document.getElementById('inventoryChart'),{type:'scatter',data:{datasets:[{label:'Days of Supply',data:fy25.map(d=>({x:d.inv/1000,y:d.dos})),backgroundColor:G,borderColor:G,borderWidth:2,pointRadius:5}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>'Inv: '+fmtK(ctx.raw.x*1000)+' | DOS: '+ctx.raw.y.toFixed(1)+'d'}}},scales:{x:{ticks:{callback:v=>(v*1000/1000).toFixed(0)+'K'},grid:{color:GL}},y:{ticks:{callback:v=>v.toFixed(0)+'d'},grid:{color:GL}}}}});
+new Chart(document.getElementById('roiChart'),{type:'bar',data:{labels:fy25.map(d=>d.n.substring(0,12)),datasets:[{data:fy25.map(d=>d.roi),backgroundColor:G,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>v.toFixed(1)+'x'},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:8}}}}}});
+const dtb=document.getElementById('distScoreTable');let ttlShip=0,ttlDepl=0,ttlCases=0,ttlGP=0;fy25.forEach((d,i)=>{const schg=pct(d.ship,fy24[i].ship);const gpm=(d.gp/d.ship*100).toFixed(1);ttlShip+=d.ship;ttlDepl+=d.depl;ttlCases+=d.c25;ttlGP+=d.gp;dtb.innerHTML+=`<tr><td>${d.n}</td><td>${d.tier}</td><td>${d.perf}</td><td class="num">${fmt$(d.ship)}</td><td class="num ${schg>=0?'pos':'neg'}">${schg>=0?'&#9650;':'&#9660;'} ${Math.abs(schg)}%</td><td class="num">${fmt$(d.depl)}</td><td class="num">${fmtK(d.c25)}</td><td class="num">${fmt$(d.gp)}</td><td class="num">${gpm}%</td><td class="num">${fmtK(d.inv)}</td><td class="num">${d.dos.toFixed(1)}</td><td class="num">${fmt$(d.trade)}</td><td class="num">${d.roi.toFixed(2)}</td></tr>`;});document.getElementById('distScoreTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);"><td style="color:#D4A843">TOTAL</td><td></td><td></td><td class="num" style="color:#D4A843">${fmt$(ttlShip)}</td><td class="num pos">&#9650; ${pct(ttlShip,fy24.reduce((a,d)=>a+d.ship,0))}%</td><td class="num" style="color:#D4A843">${fmt$(ttlDepl)}</td><td class="num" style="color:#D4A843">${fmtK(ttlCases)}</td><td class="num" style="color:#D4A843">${fmt$(ttlGP)}</td><td class="num">${(ttlGP/ttlShip*100).toFixed(1)}%</td><td class="num" style="color:#D4A843">${fmtK(t25.inv)}</td><td class="num">${(t25.inv/fy25.length).toFixed(1)}</td><td class="num" style="color:#D4A843">${fmt$(t25.trade)}</td><td class="num">${(t25.roi/fy25.length).toFixed(2)}</td></tr>`;
+</script>
+</body>
+</html>

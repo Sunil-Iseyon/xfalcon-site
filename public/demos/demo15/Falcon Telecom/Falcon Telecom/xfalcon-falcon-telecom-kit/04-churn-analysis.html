@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Telecom / 4. Churn Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+    .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .logo-x { color: #E20074; }
+    .logo-f { color: white; }
+    .topbar-title { display: flex; flex-direction: column; }
+    .topbar-title-main { font-size: 16px; font-weight: 600; }
+    .topbar-title-sub { font-size: 12px; color: #94A3B8; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .back-link { color: white; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .filters { background: white; padding: 16px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; border-bottom: 1px solid #E2E8F0; }
+    .filter-group { display: flex; flex-direction: column; }
+    .filter-group label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+    .filter-group select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 4px; font-size: 14px; }
+    .container { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #E20074; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #E20074; margin-bottom: 8px; }
+    .kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; }
+    .kpi-delta { font-size: 12px; margin-top: 8px; }
+    .kpi-delta.positive { color: #059669; }
+    .kpi-delta.negative { color: #D32F2F; }
+    .chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+    .chart-container { background: white; padding: 24px; border-radius: 8px; }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+    .chart-wrapper { position: relative; height: 300px; }
+    .table-container { background: white; padding: 24px; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
+    .table-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table th { background: #1D1D2C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+    table td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+    table tr:hover { background: #F9FAFB; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="topbar-title">
+        <div class="topbar-title-main">Falcon Telecom / 4. Churn Analysis</div>
+        <div class="topbar-title-sub" id="reporting-period">Full Year 2025</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a class="back-link" href="index.html">← Back</a>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="yearSelect">Year</label>
+      <select id="yearSelect" onchange="applyFilters()">
+        <option value="">All Years</option>
+        <option value="2019">2019</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+        <option value="2025" selected>2025</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="segmentSelect">Segment</label>
+      <select id="segmentSelect" onchange="applyFilters()">
+        <option value="">All Segments</option>
+        <option value="Mass Market">Mass Market</option>
+        <option value="Mid Market">Mid Market</option>
+        <option value="Premium">Premium</option>
+        <option value="Corporate">Corporate</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi1">17,682</div>
+        <div class="kpi-label">Total Churned</div>
+        <div class="kpi-delta negative">-3.2%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi2">22.1%</div>
+        <div class="kpi-label">Overall Churn Rate</div>
+        <div class="kpi-delta negative">+0.8pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi3">4,420</div>
+        <div class="kpi-label">Top Churn Reason (Price)</div>
+        <div class="kpi-delta negative">+1.2%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi4">48.6</div>
+        <div class="kpi-label">Avg Tenure (Months)</div>
+        <div class="kpi-delta positive">+0.3mo</div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi5">₹37.2K</div>
+        <div class="kpi-label">Avg LTV at Risk</div>
+        <div class="kpi-delta negative">-2.1%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi6">5.8%</div>
+        <div class="kpi-label">Lowest Segment (Corp)</div>
+        <div class="kpi-delta positive">-0.2pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi7">5.0</div>
+        <div class="kpi-label">NPS of Churned</div>
+        <div class="kpi-delta negative">-0.1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi8">1.0%</div>
+        <div class="kpi-label">Involuntary Churn</div>
+        <div class="kpi-delta positive">-0.3pp</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">Churn Reasons</div>
+        <div class="chart-wrapper"><canvas id="chart1"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Churn Rate by Segment</div>
+        <div class="chart-wrapper"><canvas id="chart2"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">Churn Trend by Year</div>
+        <div class="chart-wrapper"><canvas id="chart3"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Churn by Reason & Segment (Top 4)</div>
+        <div class="chart-wrapper"><canvas id="chart4"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">LTV of Churned by Segment</div>
+        <div class="chart-wrapper"><canvas id="chart5"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Tenure at Churn by Reason</div>
+        <div class="chart-wrapper"><canvas id="chart6"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-title">Churn Analysis Details</div>
+      <table id="churnTable">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Reason</th>
+            <th>Count</th>
+            <th>% of Segment</th>
+            <th>Avg Tenure (mo)</th>
+            <th>Avg LTV (₹)</th>
+            <th>Avg NPS</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+    var DATA = [
+      {segment:'Mass Market', reason:'Price', count:3045, avgTenure:49.0, avgLtv:11600, avgNps:5.2},
+      {segment:'Mass Market', reason:'Network quality', count:2759, avgTenure:48.7, avgLtv:11746, avgNps:5.0},
+      {segment:'Mass Market', reason:'Better competitor offer', count:2231, avgTenure:48.1, avgLtv:11437, avgNps:5.0},
+      {segment:'Mass Market', reason:'Service issues', count:1484, avgTenure:47.7, avgLtv:11278, avgNps:5.0},
+      {segment:'Mass Market', reason:'Device upgrade', count:1265, avgTenure:48.9, avgLtv:11455, avgNps:5.1},
+      {segment:'Mass Market', reason:'Corporate switch', count:869, avgTenure:47.2, avgLtv:10814, avgNps:5.0},
+      {segment:'Mass Market', reason:'Relocation', count:618, avgTenure:47.9, avgLtv:11436, avgNps:4.9},
+      {segment:'Mass Market', reason:'Unknown', count:126, avgTenure:51.9, avgLtv:11693, avgNps:5.0},
+      {segment:'Mid Market', reason:'Price', count:1135, avgTenure:48.9, avgLtv:36580, avgNps:4.9},
+      {segment:'Mid Market', reason:'Network quality', count:916, avgTenure:48.8, avgLtv:37788, avgNps:4.9},
+      {segment:'Mid Market', reason:'Better competitor offer', count:774, avgTenure:48.1, avgLtv:34964, avgNps:4.9},
+      {segment:'Mid Market', reason:'Service issues', count:513, avgTenure:48.4, avgLtv:35637, avgNps:4.8},
+      {segment:'Mid Market', reason:'Device upgrade', count:392, avgTenure:48.2, avgLtv:34788, avgNps:5.1},
+      {segment:'Mid Market', reason:'Corporate switch', count:313, avgTenure:49.7, avgLtv:32691, avgNps:4.8},
+      {segment:'Mid Market', reason:'Relocation', count:219, avgTenure:48.8, avgLtv:34454, avgNps:5.3},
+      {segment:'Mid Market', reason:'Unknown', count:41, avgTenure:47.9, avgLtv:39105, avgNps:5.4},
+      {segment:'Premium', reason:'Price', count:171, avgTenure:49.0, avgLtv:70492, avgNps:5.2},
+      {segment:'Premium', reason:'Network quality', count:153, avgTenure:45.8, avgLtv:63831, avgNps:5.2},
+      {segment:'Premium', reason:'Better competitor offer', count:128, avgTenure:48.7, avgLtv:70439, avgNps:5.0},
+      {segment:'Premium', reason:'Service issues', count:89, avgTenure:48.7, avgLtv:70173, avgNps:5.2},
+      {segment:'Premium', reason:'Device upgrade', count:82, avgTenure:50.3, avgLtv:72224, avgNps:5.2},
+      {segment:'Premium', reason:'Corporate switch', count:47, avgTenure:52.9, avgLtv:71256, avgNps:4.8},
+      {segment:'Premium', reason:'Relocation', count:27, avgTenure:52.9, avgLtv:81251, avgNps:5.2},
+      {segment:'Premium', reason:'Unknown', count:7, avgTenure:49.1, avgLtv:65194, avgNps:5.1},
+      {segment:'Corporate', reason:'Price', count:69, avgTenure:48.2, avgLtv:52568, avgNps:4.8},
+      {segment:'Corporate', reason:'Network quality', count:63, avgTenure:47.7, avgLtv:53638, avgNps:5.1},
+      {segment:'Corporate', reason:'Better competitor offer', count:49, avgTenure:46.0, avgLtv:50964, avgNps:4.0},
+      {segment:'Corporate', reason:'Service issues', count:36, avgTenure:43.5, avgLtv:47065, avgNps:4.8},
+      {segment:'Corporate', reason:'Device upgrade', count:30, avgTenure:48.2, avgLtv:53758, avgNps:5.3},
+      {segment:'Corporate', reason:'Relocation', count:20, avgTenure:55.1, avgLtv:59724, avgNps:5.1},
+      {segment:'Corporate', reason:'Corporate switch', count:9, avgTenure:43.3, avgLtv:58588, avgNps:4.1},
+      {segment:'Corporate', reason:'Unknown', count:2, avgTenure:50.5, avgLtv:80039, avgNps:4.5}
+    ];
+
+    var CHURN_YEARLY = [
+      {year:2019, churns:313, activations:312, subs:3479},
+      {year:2020, churns:925, activations:921, subs:6911},
+      {year:2021, churns:1511, activations:1526, subs:10722},
+      {year:2022, churns:2122, activations:2250, subs:13708},
+      {year:2023, churns:3033, activations:3138, subs:16928},
+      {year:2024, churns:4317, activations:4165, subs:19584},
+      {year:2025, churns:4177, activations:4095, subs:18821}
+    ];
+
+    var SEGMENT_TOTALS = {
+      'Mass Market': {total: 49319, churned: 12397, rate: 25.1},
+      'Mid Market': {total: 19937, churned: 4303, rate: 21.6},
+      'Premium': {total: 5983, churned: 704, rate: 11.8},
+      'Corporate': {total: 4761, churned: 278, rate: 5.8}
+    };
+
+    function getFilters() {
+      return {
+        year: document.getElementById('yearSelect').value,
+        segment: document.getElementById('segmentSelect').value
+      };
+    }
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function fitKpiText(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var parentWidth = el.parentElement.offsetWidth;
+      var textWidth = el.offsetWidth;
+      if (textWidth > parentWidth - 40) {
+        el.style.fontSize = '20px';
+      }
+    }
+
+    function updateSubtitle() {
+      var filters = getFilters();
+      var period = filters.year ? 'Year ' + filters.year : 'Full Year 2025';
+      if (filters.segment) period += ' - ' + filters.segment;
+      document.getElementById('reporting-period').textContent = period;
+    }
+
+    function updateKPIs(filtered) {
+      var totalChurned = 0;
+      var totalLtv = 0;
+      var totalTenure = 0;
+      var totalNps = 0;
+      var maxReason = {count: 0, reason: 'Price'};
+      var reasonMap = {};
+      var segmentChurnMap = {};
+
+      filtered.forEach(function(row) {
+        totalChurned += row.count;
+        totalLtv += row.avgLtv * row.count;
+        totalTenure += row.avgTenure * row.count;
+        totalNps += row.avgNps * row.count;
+        if (!reasonMap[row.reason]) reasonMap[row.reason] = 0;
+        reasonMap[row.reason] += row.count;
+        if (reasonMap[row.reason] > maxReason.count) {
+          maxReason.count = reasonMap[row.reason];
+          maxReason.reason = row.reason;
+        }
+        if (!segmentChurnMap[row.segment]) segmentChurnMap[row.segment] = 0;
+        segmentChurnMap[row.segment] += row.count;
+      });
+
+      var avgLtv = totalChurned > 0 ? (totalLtv / totalChurned) : 0;
+      var avgTenure = totalChurned > 0 ? (totalTenure / totalChurned) : 0;
+      var avgNps = totalChurned > 0 ? (totalNps / totalChurned) : 0;
+      var totalSubs = 79500;
+      var churnRate = totalSubs > 0 ? ((totalChurned / totalSubs) * 100) : 0;
+
+      var lowestSegment = {rate: 100, name: 'Corporate', value: '5.8%'};
+      var filters = getFilters();
+      if (!filters.segment) {
+        Object.keys(segmentChurnMap).forEach(function(seg) {
+          var segmentTotals = SEGMENT_TOTALS[seg];
+          var rate = segmentTotals ? ((segmentChurnMap[seg] / segmentTotals.total) * 100) : 0;
+          if (rate < lowestSegment.rate) {
+            lowestSegment.rate = rate;
+            lowestSegment.name = seg;
+            lowestSegment.value = String(rate.toFixed(1)) + '%';
+          }
+        });
+      } else {
+        lowestSegment.rate = churnRate;
+        lowestSegment.value = String(churnRate.toFixed(1)) + '%';
+      }
+
+      var involuntaryChurnMap = {voluntary: 0, involuntary: 0};
+      filtered.forEach(function(row) {
+        if (row.reason === 'Service issues' || row.reason === 'Network quality') {
+          involuntaryChurnMap.involuntary += row.count;
+        } else {
+          involuntaryChurnMap.voluntary += row.count;
+        }
+      });
+      var involuntaryPct = totalChurned > 0 ? ((involuntaryChurnMap.involuntary / totalChurned) * 100) : 0;
+
+      document.getElementById('kpi1').textContent = String(totalChurned.toLocaleString());
+      document.getElementById('kpi2').textContent = String(churnRate.toFixed(1)) + '%';
+      document.getElementById('kpi3').textContent = String(maxReason.count.toLocaleString());
+      document.getElementById('kpi4').textContent = String(avgTenure.toFixed(1));
+      document.getElementById('kpi5').textContent = '\u20B9' + String((avgLtv / 1000).toFixed(1)) + 'K';
+      document.getElementById('kpi6').textContent = lowestSegment.value;
+      document.getElementById('kpi7').textContent = String(avgNps.toFixed(1));
+      document.getElementById('kpi8').textContent = String(involuntaryPct.toFixed(1)) + '%';
+
+      fitKpiText('kpi1');
+      fitKpiText('kpi2');
+      fitKpiText('kpi3');
+      fitKpiText('kpi4');
+      fitKpiText('kpi5');
+      fitKpiText('kpi6');
+      fitKpiText('kpi7');
+      fitKpiText('kpi8');
+    }
+
+    function updateCharts(filtered) {
+      // Chart 1: Churn Reasons
+      var reasonTotals = {};
+      filtered.forEach(function(row) {
+        if (!reasonTotals[row.reason]) reasonTotals[row.reason] = 0;
+        reasonTotals[row.reason] += row.count;
+      });
+      var reasons = Object.keys(reasonTotals).sort(function(a, b) {
+        return reasonTotals[b] - reasonTotals[a];
+      });
+      mk('chart1', {
+        type: 'bar',
+        data: {
+          labels: reasons,
+          datasets: [{
+            label: 'Churned Count',
+            data: reasons.map(function(r) { return reasonTotals[r]; }),
+            backgroundColor: '#006AFF'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+
+      // Chart 2: Churn Rate by Segment
+      var segments = ['Mass Market', 'Mid Market', 'Premium', 'Corporate'];
+      var segmentChurnMap = {};
+      segments.forEach(function(seg) { segmentChurnMap[seg] = 0; });
+      filtered.forEach(function(row) {
+        segmentChurnMap[row.segment] += row.count;
+      });
+      var rates = segments.map(function(seg) {
+        var segTotals = SEGMENT_TOTALS[seg];
+        return segTotals ? ((segmentChurnMap[seg] / segTotals.total) * 100) : 0;
+      });
+      mk('chart2', {
+        type: 'bar',
+        data: {
+          labels: segments,
+          datasets: [{
+            label: 'Churn Rate %',
+            data: rates,
+            backgroundColor: '#1A7F64'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, max: 30 } }
+        }
+      });
+
+      // Chart 3: Churn Trend by Year
+      var filters = getFilters();
+      var yearlyData = CHURN_YEARLY;
+      if (filters.year) {
+        yearlyData = CHURN_YEARLY.filter(function(y) { return String(y.year) === filters.year; });
+      }
+      mk('chart3', {
+        type: 'line',
+        data: {
+          labels: yearlyData.map(function(y) { return String(y.year); }),
+          datasets: [{
+            label: 'Churns',
+            data: yearlyData.map(function(y) { return y.churns; }),
+            borderColor: '#E20074',
+            backgroundColor: 'rgba(226, 0, 116, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // Chart 4: Churn by Reason & Segment (Top 4 Reasons)
+      var topReasons = reasons.slice(0, 4);
+      var segmentData = {};
+      segments.forEach(function(seg) {
+        segmentData[seg] = {};
+        topReasons.forEach(function(reason) {
+          segmentData[seg][reason] = 0;
+        });
+      });
+      filtered.forEach(function(row) {
+        if (topReasons.indexOf(row.reason) >= 0) {
+          if (!segmentData[row.segment]) segmentData[row.segment] = {};
+          segmentData[row.segment][row.reason] = row.count;
+        }
+      });
+      var colors = ['#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B'];
+      mk('chart4', {
+        type: 'bar',
+        data: {
+          labels: segments,
+          datasets: topReasons.map(function(reason, idx) {
+            return {
+              label: reason,
+              data: segments.map(function(seg) { return segmentData[seg] && segmentData[seg][reason] ? segmentData[seg][reason] : 0; }),
+              backgroundColor: colors[idx]
+            };
+          })
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: { y: { stacked: false, beginAtZero: true } }
+        }
+      });
+
+      // Chart 5: LTV by Segment
+      var segLtvData = {};
+      segments.forEach(function(seg) { segLtvData[seg] = []; });
+      filtered.forEach(function(row) {
+        if (!segLtvData[row.segment]) segLtvData[row.segment] = [];
+        segLtvData[row.segment].push(row.avgLtv);
+      });
+      var avgLtvBySegment = {};
+      segments.forEach(function(seg) {
+        if (segLtvData[seg] && segLtvData[seg].length > 0) {
+          var sum = segLtvData[seg].reduce(function(a, b) { return a + b; }, 0);
+          avgLtvBySegment[seg] = sum / segLtvData[seg].length;
+        } else {
+          avgLtvBySegment[seg] = 0;
+        }
+      });
+      mk('chart5', {
+        type: 'bar',
+        data: {
+          labels: segments,
+          datasets: [{
+            label: 'Avg LTV (\u20B9)',
+            data: segments.map(function(seg) { return avgLtvBySegment[seg]; }),
+            backgroundColor: '#0EA5E9'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+
+      // Chart 6: Tenure by Reason
+      var tenureByReason = {};
+      filtered.forEach(function(row) {
+        if (!tenureByReason[row.reason]) tenureByReason[row.reason] = [];
+        tenureByReason[row.reason].push(row.avgTenure);
+      });
+      var avgTenureByReason = {};
+      Object.keys(tenureByReason).forEach(function(reason) {
+        var vals = tenureByReason[reason];
+        avgTenureByReason[reason] = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
+      });
+      var reasonsForTenure = Object.keys(avgTenureByReason).sort(function(a, b) {
+        return avgTenureByReason[b] - avgTenureByReason[a];
+      });
+      mk('chart6', {
+        type: 'bar',
+        data: {
+          labels: reasonsForTenure,
+          datasets: [{
+            label: 'Avg Tenure (mo)',
+            data: reasonsForTenure.map(function(r) { return avgTenureByReason[r]; }),
+            backgroundColor: '#F59E0B'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, min: 40, max: 55 } }
+        }
+      });
+    }
+
+    function updateTable(filtered) {
+      var tbody = document.querySelector('#churnTable tbody');
+      tbody.innerHTML = '';
+      var segmentChurns = {};
+      Object.keys(SEGMENT_TOTALS).forEach(function(seg) {
+        segmentChurns[seg] = 0;
+      });
+      filtered.forEach(function(row) {
+        segmentChurns[row.segment] += row.count;
+      });
+
+      filtered.forEach(function(row) {
+        var pct = segmentChurns[row.segment] > 0 ? ((row.count / segmentChurns[row.segment]) * 100) : 0;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.segment + '</td><td>' + row.reason + '</td><td>' + String(row.count.toLocaleString()) + '</td><td>' + String(pct.toFixed(1)) + '%</td><td>' + String(row.avgTenure.toFixed(1)) + '</td><td>\u20B9' + String(row.avgLtv.toLocaleString()) + '</td><td>' + String(row.avgNps.toFixed(1)) + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      var filters = getFilters();
+      var filtered = DATA;
+      if (filters.segment) {
+        filtered = filtered.filter(function(row) { return row.segment === filters.segment; });
+      }
+      if (filters.year) {
+        var yearNum = parseInt(filters.year);
+        var yearlyChurns = CHURN_YEARLY.filter(function(y) { return y.year === yearNum; });
+        if (yearlyChurns.length > 0) {
+          var yearChurnCount = yearlyChurns[0].churns;
+          var totalChurnCount = filtered.reduce(function(sum, row) { return sum + row.count; }, 0);
+          if (totalChurnCount > 0) {
+            var ratio = yearChurnCount / DATA.reduce(function(sum, row) { return sum + row.count; }, 0);
+            filtered = filtered.map(function(row) {
+              return {
+                segment: row.segment,
+                reason: row.reason,
+                count: Math.round(row.count * ratio),
+                avgTenure: row.avgTenure,
+                avgLtv: row.avgLtv,
+                avgNps: row.avgNps
+              };
+            });
+          }
+        }
+      }
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+    }
+
+    applyFilters();
+  </script>
+</body>
+</html>

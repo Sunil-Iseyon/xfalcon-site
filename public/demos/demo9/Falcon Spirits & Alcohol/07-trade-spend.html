@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07 — Trade Spend & ROI | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html" class="active">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Trade Spend & ROI <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Trade Promotion Spend, Compliance & Return on Investment | Monthly with Prior Year Comparison</div>
+    <div class="dash-num">07</div>
+</div>
+
+<div class="container">
+
+<!-- ═══ KPI CARDS ═══ -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ═══ MONTHLY SPEND TREND ═══ -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Spend Trend — FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Planned vs Actual spend by month with prior year comparison</div>
+        <canvas id="spendTrendChart" height="70"></canvas>
+    </div>
+</div>
+
+<!-- ═══ MONTHLY SECTION ═══ -->
+<div class="section-label">Monthly Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Monthly ROI Trend</h3>
+        <div class="chart-subtitle">Average ROI Ratio — FY25 vs FY24</div>
+        <canvas id="roiTrendChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Monthly Compliance Trend</h3>
+        <div class="chart-subtitle">Compliance % by month — FY25 vs FY24</div>
+        <canvas id="complianceTrendChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ PROGRAM & SPEND TYPE ═══ -->
+<div class="section-label">Program Type & Spend Breakdown — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Spend by Program Type</h3>
+        <div class="chart-subtitle">Actual spend distribution across program types</div>
+        <canvas id="programTypeChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR & GEOGRAPHY ═══ -->
+<div class="section-label">Distributor Performance & Geography — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Distributor ROI Comparison</h3>
+        <div class="chart-subtitle">Average ROI ratio by distributor with spend volume</div>
+        <canvas id="distRoiChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Top 10 States by Trade Spend</h3>
+        <div class="chart-subtitle">Actual spend and average ROI by state</div>
+        <canvas id="stateChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ CATEGORY & STATUS ═══ -->
+<div class="section-label">Category & Program Status — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Spend by Category</h3>
+        <div class="chart-subtitle">Trade spend across product categories with ROI</div>
+        <canvas id="catChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Distributor Trade Spend Detail — FY2025</h3>
+    <div class="chart-subtitle">Spend, ROI, Compliance and cases by distributor</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Distributor</th>
+            <th class="num">FY25 Spend</th>
+            <th class="num">Cases Achieved</th>
+            <th class="num">Avg ROI</th>
+            <th class="num">Compliance %</th>
+        </tr></thead>
+        <tbody id="distTable"></tbody>
+        <tfoot id="distTfoot"></tfoot>
+    </table>
+</div>
+
+<!-- ═══ MONTHLY DETAIL TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Trade Spend Detail — FY2025</h3>
+    <div class="chart-subtitle">All metrics by fiscal period with prior year comparison</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Planned Spend</th>
+            <th class="num">Actual Spend</th><th class="num">vs FY24</th>
+            <th class="num">Cases Achieved</th>
+            <th class="num">Avg ROI</th>
+            <th class="num">Compliance %</th>
+        </tr></thead>
+        <tbody id="monthTable"></tbody>
+        <tfoot id="monthTfoot"></tfoot>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 07 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+// ── THEME ──
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+// ── MONTHLY DATA FY25/FY24 ──
+const fy25 = [
+    {m:'Jul',q:1,ps:3147844.09,as:3009082.42,c:102922,roi:4.30,comp:74.20},
+    {m:'Aug',q:1,ps:2918342.25,as:2751347.48,c:90298,roi:2.32,comp:74.52},
+    {m:'Sep',q:1,ps:2564595.14,as:2450116.95,c:80189,roi:3.19,comp:75.24},
+    {m:'Oct',q:2,ps:2996704.65,as:2854391.36,c:87642,roi:2.88,comp:74.18},
+    {m:'Nov',q:2,ps:2110955.06,as:1983558.34,c:68091,roi:2.64,comp:75.07},
+    {m:'Dec',q:2,ps:3512079.07,as:3302501.52,c:103866,roi:2.25,comp:75.01},
+    {m:'Jan',q:3,ps:2269475.71,as:2133068.67,c:69877,roi:2.61,comp:74.52},
+    {m:'Feb',q:3,ps:2227395.89,as:2091510.32,c:68969,roi:2.74,comp:75.65},
+    {m:'Mar',q:3,ps:2262614.61,as:2172900.87,c:68085,roi:2.02,comp:75.90},
+    {m:'Apr',q:4,ps:2331226.00,as:2234227.95,c:68996,roi:2.54,comp:74.43},
+    {m:'May',q:4,ps:2420974.93,as:2327488.42,c:78215,roi:2.55,comp:76.03},
+    {m:'Jun',q:4,ps:2581082.46,as:2436119.07,c:77933,roi:3.25,comp:74.75}
+];
+const fy24 = [
+    {m:'Jul',as:2609272.14,c:85464,roi:2.71,comp:75.29},
+    {m:'Aug',as:1793274.52,c:54383,roi:2.27,comp:73.41},
+    {m:'Sep',as:2165509.58,c:72059,roi:2.22,comp:76.37},
+    {m:'Oct',as:3232581.09,c:103565,roi:2.43,comp:74.07},
+    {m:'Nov',as:1897980.50,c:56739,roi:2.01,comp:74.60},
+    {m:'Dec',as:1957460.25,c:62865,roi:2.92,comp:75.77},
+    {m:'Jan',as:2118616.71,c:66514,roi:2.69,comp:74.81},
+    {m:'Feb',as:2737440.37,c:90528,roi:2.51,comp:74.72},
+    {m:'Mar',as:2118459.52,c:67670,roi:2.61,comp:74.74},
+    {m:'Apr',as:2818410.43,c:86633,roi:2.22,comp:73.48},
+    {m:'May',as:1653404.54,c:51137,roi:2.39,comp:74.26},
+    {m:'Jun',as:2685872.45,c:81619,roi:3.78,comp:73.09}
+];
+
+// ── PROGRAM TYPE DATA ──
+const progTypeData = [
+    {t:'Display',as:13740452.85,c:435338,roi:2.62,comp:75.21},
+    {t:'Volume Incentive',as:6768300.26,c:226329,roi:2.71,comp:75.58},
+    {t:'Menu Placement',as:3424493.92,c:114843,roi:2.33,comp:75.45},
+    {t:'Sponsorship',as:1642868.48,c:49605,roi:2.80,comp:74.34},
+    {t:'Co-op Advertising',as:1589300.41,c:49753,roi:2.84,comp:75.31},
+    {t:'Price Reduction',as:1546261.98,c:54918,roi:3.57,comp:76.15},
+    {t:'Sampling',as:1478667.01,c:48946,roi:2.56,comp:73.98}
+];
+
+// ── SPEND TYPE DATA ──
+const spendTypeData = [
+    {t:'Price Reduction',as:4524538.35},
+    {t:'Display Fee',as:4425847.07},
+    {t:'Sponsorship',as:4354782.00},
+    {t:'Sampling',as:4341885.40},
+    {t:'Volume Incentive',as:4303000.01},
+    {t:'Menu Listing',as:4245398.86},
+    {t:'Co-op Ad',as:3994893.22}
+];
+
+// ── DISTRIBUTOR DATA ──
+const distData = [
+    {n:'Southern Wine & Spirits Partne',as:8139081.50,c:270892,roi:2.55,comp:75.79},
+    {n:'Breakthru Beverage Holdings',as:7159815.96,c:224114,roi:2.83,comp:75.36},
+    {n:'Republic National Distributing',as:4967512.74,c:163357,roi:2.49,comp:74.74},
+    {n:"Young's Market Company",as:2398857.33,c:76565,roi:2.58,comp:75.17},
+    {n:'Horizon Beverage Group',as:1857610.15,c:58984,roi:2.33,comp:75.91},
+    {n:'Capitol Beverage Sales',as:1371421.83,c:42949,roi:2.96,comp:74.50},
+    {n:'Empire Merchants Distribution',as:1020549.17,c:32704,roi:2.87,comp:75.29},
+    {n:'Heidelberg Distributing',as:1012436.86,c:37188,roi:2.88,comp:74.64},
+    {n:'Lipman Brothers',as:865173.11,c:29240,roi:3.33,comp:75.36},
+    {n:'Fedway Associates',as:624643.05,c:19846,roi:2.65,comp:74.67},
+    {n:'Winesellers Ltd',as:411743.09,c:13603,roi:2.48,comp:73.74},
+    {n:'State Control Board',as:361500.12,c:10290,roi:4.16,comp:73.51}
+];
+
+// ── STATE DATA ──
+const stateData = [
+    {s:'New York',as:740596.04,roi:5.17},
+    {s:'Colorado',as:739711.66,roi:2.22},
+    {s:'Montana',as:738025.59,roi:2.32},
+    {s:'Alabama',as:716030.60,roi:3.44},
+    {s:'Iowa',as:698411.55,roi:3.28},
+    {s:'Louisiana',as:692617.11,roi:2.91},
+    {s:'Missouri',as:687994.42,roi:2.15},
+    {s:'Texas',as:687604.45,roi:2.53},
+    {s:'Connecticut',as:684503.46,roi:2.27},
+    {s:'Utah',as:681721.29,roi:2.25}
+];
+
+// ── CATEGORY DATA ──
+const catData = [
+    {c:'Premium Vodka',as:5133455.14,roi:1.31},
+    {c:'Scotch Whisky',as:4460827.64,roi:4.01},
+    {c:'Spiced Rum',as:3519367.57,roi:1.56},
+    {c:'Canadian Whisky',as:3467564.13,roi:2.69},
+    {c:'Ultra-Premium Vodka',as:2712302.58,roi:3.28},
+    {c:'Super-Premium Vodka',as:2045017.80,roi:1.74},
+    {c:'Bourbon',as:2012598.58,roi:3.34},
+    {c:'Premium Gin',as:1969340.99,roi:2.25},
+    {c:'Cream Liqueur',as:1765553.27,roi:2.62},
+    {c:'Premium Tequila',as:1497674.06,roi:5.90},
+    {c:'Ultra-Premium Tequila',as:1003723.77,roi:3.82},
+    {c:'Stout',as:602919.38,roi:0.73}
+];
+
+// ── STATUS DATA ──
+const statusData = [
+    {st:'Completed',c:1724,as:12504095.53},
+    {st:'Active',c:1272,as:9083264.77},
+    {st:'Planned',c:855,as:5954135.05},
+    {st:'Cancelled',c:382,as:2648849.56}
+];
+
+// ── TOTALS ──
+const t25={as:0,c:0,roi:0,comp:0};
+const t24={as:0,c:0};
+fy25.forEach(d=>{t25.as+=d.as;t25.c+=d.c;t25.roi+=d.roi;t25.comp+=d.comp;});
+fy24.forEach(d=>{t24.as+=d.as;t24.c+=d.c;});
+t25.roi=t25.roi/12; t25.comp=t25.comp/12;
+t24.roi=fy24.reduce((s,d)=>s+d.roi,0)/12; t24.comp=fy24.reduce((s,d)=>s+d.comp,0)/12;
+
+// ── KPI CARDS ──
+const kpis = [
+    {label:'Total Planned Spend',val:fy25.reduce((s,d)=>s+d.ps,0),prev:null,sub:'FY2025 target'},
+    {label:'Total Actual Spend',val:t25.as,prev:t24.as,sub:'All programs'},
+    {label:'Spend Variance',val:fy25.reduce((s,d)=>s+d.ps,0)-t25.as,prev:null,sub:'Planned vs Actual',isVar:true},
+    {label:'Avg ROI Ratio',val:t25.roi,prev:t24.roi,sub:'FY25 vs FY24',isRatio:true},
+    {label:'Avg Compliance',val:t25.comp,prev:t24.comp,sub:'Program compliance %',isComp:true},
+    {label:'Cases Achieved',val:t25.c,prev:t24.c,sub:'9L equiv. cases',isCases:true}
+];
+const kpiRow = document.getElementById('kpiRow');
+kpis.forEach(k=>{
+    const chg = k.prev ? pct(k.val, k.prev) : null;
+    const arrow = chg !== null ? (chg >= 0 ? '&#9650;' : '&#9660;') : '';
+    const cls = chg !== null ? (chg >= 0 ? 'positive' : 'negative') : '';
+    const displayVal = k.isRatio ? k.val.toFixed(2) : k.isComp ? k.val.toFixed(1)+'%' : k.isCases ? fmtK(k.val) : k.isVar ? fmt$(Math.abs(k.val)) : fmt$(k.val);
+    const sparkVals = fy25.map(d => d.as);
+    const sparkMax = Math.max(...sparkVals);
+    const bars = sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');
+    kpiRow.innerHTML += `<div class="kpi-card">
+        <div class="label">${k.label}</div>
+        <div class="value">${displayVal}</div>
+        ${chg !== null ? `<div class="change ${cls}">${arrow} ${Math.abs(chg)}% vs FY24</div>` : ''}
+        <div class="sub-value">${k.sub}</div>
+        <div class="sparkline-row">${bars}</div>
+    </div>`;
+});
+
+// ── MONTHLY SPEND TREND ──
+new Chart(document.getElementById('spendTrendChart'),{type:'line',data:{
+    labels:fy25.map(d=>d.m),
+    datasets:[
+        {label:'FY25 Actual',data:fy25.map(d=>d.as),borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',tension:0.3,fill:true,pointRadius:3,borderWidth:2},
+        {label:'FY25 Planned',data:fy25.map(d=>d.ps),borderColor:LG,backgroundColor:'rgba(201,176,55,0.05)',borderDash:[5,3],tension:0.3,fill:false,pointRadius:2,borderWidth:1.5},
+        {label:'FY24 Actual',data:fy24.map(d=>d.as),borderColor:PY,borderDash:[4,3],tension:0.3,pointRadius:2,borderWidth:1.5,fill:false}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── MONTHLY ROI TREND ──
+new Chart(document.getElementById('roiTrendChart'),{type:'line',data:{
+    labels:fy25.map(d=>d.m),
+    datasets:[
+        {label:'FY2025',data:fy25.map(d=>d.roi),borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',tension:0.3,fill:true,pointRadius:4,borderWidth:2,pointBackgroundColor:G},
+        {label:'FY2024',data:fy24.map(d=>d.roi),borderColor:PY,tension:0.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(2)+'x'}}},scales:{y:{ticks:{callback:v=>v.toFixed(1)+'x'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── MONTHLY COMPLIANCE TREND ──
+new Chart(document.getElementById('complianceTrendChart'),{type:'line',data:{
+    labels:fy25.map(d=>d.m),
+    datasets:[
+        {label:'FY2025',data:fy25.map(d=>d.comp),borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',tension:0.3,fill:true,pointRadius:4,borderWidth:2,pointBackgroundColor:G},
+        {label:'FY2024',data:fy24.map(d=>d.comp),borderColor:PY,tension:0.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(1)+'%'}}},scales:{y:{min:70,max:80,ticks:{callback:v=>v+'%'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── PROGRAM TYPE CHART ──
+new Chart(document.getElementById('programTypeChart'),{type:'bar',data:{
+    labels:progTypeData.map(d=>d.t),
+    datasets:[
+        {label:'Actual Spend',data:progTypeData.map(d=>d.as),backgroundColor:G,borderRadius:3}
+    ]
+},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt$(ctx.raw)+' | ROI: '+progTypeData[ctx.dataIndex].roi.toFixed(2)+'x'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── DISTRIBUTOR ROI ──
+new Chart(document.getElementById('distRoiChart'),{type:'bar',data:{
+    labels:distData.map(d=>d.n.length>20?d.n.substring(0,20)+'…':d.n),
+    datasets:[
+        {label:'Actual Spend',data:distData.map(d=>d.as),backgroundColor:G,borderRadius:3},
+        {label:'Avg ROI (×100K)',data:distData.map(d=>d.roi*100000),backgroundColor:DG,borderRadius:3}
+    ]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?'Spend: '+fmt$(ctx.raw):'ROI: '+(ctx.raw/100000).toFixed(2)+'x'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── TOP 10 STATES ──
+new Chart(document.getElementById('stateChart'),{type:'bar',data:{
+    labels:stateData.map(d=>d.s),
+    datasets:[
+        {label:'Spend',data:stateData.map(d=>d.as),backgroundColor:G,borderRadius:3,yAxisID:'y'},
+        {label:'ROI',data:stateData.map(d=>d.roi),backgroundColor:DG,borderRadius:3,yAxisID:'y1'}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?'Spend: '+fmt$(ctx.raw):'ROI: '+ctx.raw.toFixed(2)+'x'}}},scales:{y:{position:'left',ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y1:{type:'linear',position:'right',ticks:{callback:v=>v.toFixed(1)+'x'},grid:{display:false}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── CATEGORY CHART ──
+new Chart(document.getElementById('catChart'),{type:'bar',data:{
+    labels:catData.map(d=>d.c),
+    datasets:[{label:'Spend',data:catData.map(d=>d.as),backgroundColor:G,borderRadius:3}]
+},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt$(ctx.raw)+' | ROI: '+catData[ctx.dataIndex].roi.toFixed(2)+'x'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── DISTRIBUTOR TABLE ──
+const distTable = document.getElementById('distTable');
+distData.forEach(d=>{
+    const row = `<tr><td>${d.n}</td><td class="num">${fmt$(d.as)}</td><td class="num">${fmtK(d.c)}</td><td class="num">${d.roi.toFixed(2)}</td><td class="num">${d.comp.toFixed(1)}%</td></tr>`;
+    distTable.innerHTML += row;
+});
+const distTfoot = document.getElementById('distTfoot');
+distTfoot.innerHTML = `<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);"><td style="color:#D4A843">TOTAL</td><td class="num" style="color:#D4A843">${fmt$(distData.reduce((s,d)=>s+d.as,0))}</td><td class="num" style="color:#D4A843">${fmtK(distData.reduce((s,d)=>s+d.c,0))}</td><td class="num" style="color:#D4A843">${(distData.reduce((s,d)=>s+d.roi,0)/distData.length).toFixed(2)}</td><td class="num" style="color:#D4A843">${(distData.reduce((s,d)=>s+d.comp,0)/distData.length).toFixed(1)}%</td></tr>`;
+
+// ── MONTHLY TABLE ──
+const monthTable = document.getElementById('monthTable');
+fy25.forEach((d,i)=>{
+    const chg = pct(d.as, fy24[i].as);
+    const arrow = chg >= 0 ? '&#9650;' : '&#9660;';
+    const cls = chg >= 0 ? 'pos' : 'neg';
+    const row = `<tr><td>${d.m}</td><td>Q${d.q}</td><td class="num">${fmt$(d.ps)}</td><td class="num">${fmt$(d.as)}</td><td class="num ${cls}">${arrow} ${Math.abs(chg)}%</td><td class="num">${fmtK(d.c)}</td><td class="num">${d.roi.toFixed(2)}</td><td class="num">${d.comp.toFixed(1)}%</td></tr>`;
+    monthTable.innerHTML += row;
+});
+const monthTfoot = document.getElementById('monthTfoot');
+monthTfoot.innerHTML = `<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);"><td style="color:#D4A843">TOTAL</td><td>FY25</td><td class="num" style="color:#D4A843">${fmt$(fy25.reduce((s,d)=>s+d.ps,0))}</td><td class="num" style="color:#D4A843">${fmt$(t25.as)}</td><td class="num pos">&#9650; ${pct(t25.as,t24.as)}%</td><td class="num" style="color:#D4A843">${fmtK(t25.c)}</td><td class="num" style="color:#D4A843">${t25.roi.toFixed(2)}</td><td class="num" style="color:#D4A843">${t25.comp.toFixed(1)}%</td></tr>`;
+</script>
+
+</body>
+</html>

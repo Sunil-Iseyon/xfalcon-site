@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Food & Snacks - Channel & POS Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #1F2937; }
+        .topbar { background-color: #0F172A; color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #006AFF; }
+        .logo-f { color: #1A7F64; }
+        .topbar-title { font-size: 14px; font-weight: 500; flex: 1; margin-left: 24px; }
+        .topbar-right { display: flex; gap: 20px; align-items: center; }
+        .back-link { color: #006AFF; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .container { padding: 24px; max-width: 1600px; margin: 0 auto; }
+        .filters { background-color: #FFFFFF; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; gap: 16px; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; gap: 8px; align-items: center; }
+        .filter-group label { font-size: 13px; font-weight: 500; }
+        .filter-group select { padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 13px; background-color: #FFFFFF; cursor: pointer; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background-color: #FFFFFF; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .kpi-label { font-size: 12px; font-weight: 500; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
+        .kpi-delta { font-size: 12px; font-weight: 500; }
+        .delta-positive { color: #059669; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-container { background-color: #FFFFFF; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 16px; }
+        canvas { max-height: 300px; }
+        .table-container { background-color: #FFFFFF; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-top: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { background-color: #0F172A; color: white; }
+        th { padding: 12px 16px; text-align: left; font-weight: 600; }
+        td { padding: 12px 16px; border-bottom: 1px solid #E5E7EB; }
+        tbody tr:hover { background-color: #F9FAFB; }
+        .text-right { text-align: right; }
+        .metric-positive { color: #059669; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="topbar-title">Falcon Food & Snacks / 6. Channel & POS Analytics</div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year:</label>
+                <select id="yearFilter" onchange="applyFilters()">
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Total Net Revenue</div>
+                <div class="kpi-value" id="kpi1">$31.5M</div>
+                <div class="kpi-delta">8 Channels</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Channels</div>
+                <div class="kpi-value" id="kpi2">8</div>
+                <div class="kpi-delta">All Active</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Grocery Share</div>
+                <div class="kpi-value" id="kpi3">53.0%</div>
+                <div class="kpi-delta">$16.68M</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Fastest Growing</div>
+                <div class="kpi-value" id="kpi4">+106%</div>
+                <div class="kpi-delta delta-positive">eComm Growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Digital Revenue</div>
+                <div class="kpi-value" id="kpi5">$3.28M</div>
+                <div class="kpi-delta">eComm (2025)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Revenue/Channel</div>
+                <div class="kpi-value" id="kpi6">$3.94M</div>
+                <div class="kpi-delta">2025 Avg</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Channel Revenue (2025)</div>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Channel Growth % (2024-2025)</div>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-container" style="grid-column: 1 / -1;">
+                <div class="chart-title">Channel Quarterly Trend (2025)</div>
+                <canvas id="chart3"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Revenue Share by Channel Group (2025)</div>
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Units per Channel (2025)</div>
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Channel</th>
+                        <th>Group</th>
+                        <th class="text-right">2025 Revenue</th>
+                        <th class="text-right">2024 Revenue</th>
+                        <th class="text-right">YoY %</th>
+                        <th class="text-right">2025 Units</th>
+                        <th class="text-right">Revenue/Unit</th>
+                    </tr>
+                </thead>
+                <tbody id="channelTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var size = 28;
+                while (el.scrollWidth > el.parentElement.offsetWidth - 40 && size > 16) {
+                    size -= 2;
+                    el.style.fontSize = size + 'px';
+                }
+            });
+        }
+
+        var channelData = [
+            {name: 'Grocery', group: 'Retail', rev2025: 16.68, rev2024: 9.66, units2025: 2.64, units2024: 1.84},
+            {name: 'Mass', group: 'Retail', rev2025: 2.86, rev2024: 2.10, units2025: 0.443, units2024: 0.382},
+            {name: 'eCommerce', group: 'Digital', rev2025: 3.28, rev2024: 1.59, units2025: 0.506, units2024: 0.388},
+            {name: 'Club', group: 'Retail', rev2025: 3.21, rev2024: 1.56, units2025: 0.508, units2024: 0.438},
+            {name: 'Convenience', group: 'Retail', rev2025: 2.45, rev2024: 2.19, units2025: 0.372, units2024: 0.280},
+            {name: 'Drug', group: 'Retail', rev2025: 1.10, rev2024: 1.60, units2025: 0.169, units2024: 0.146},
+            {name: 'Foodservice', group: 'Foodservice', rev2025: 0.89, rev2024: 2.02, units2025: 0.141, units2024: 0.121},
+            {name: 'Dollar', group: 'Retail', rev2025: 1.05, rev2024: 0.91, units2025: 0.193, units2024: 0.167}
+        ];
+
+        var quarterlyRevenue = {
+            'Grocery': [3.95, 4.10, 4.28, 4.35],
+            'Mass': [0.68, 0.70, 0.74, 0.74],
+            'eCommerce': [0.78, 0.80, 0.85, 0.85],
+            'Club': [0.78, 0.79, 0.82, 0.82],
+            'Convenience': [0.58, 0.60, 0.63, 0.64],
+            'Drug': [0.28, 0.27, 0.27, 0.28],
+            'Foodservice': [0.21, 0.22, 0.23, 0.23],
+            'Dollar': [0.25, 0.26, 0.27, 0.27]
+        };
+
+        function applyFilters() {
+            var year = document.getElementById('yearFilter').value;
+            updateCharts(year);
+            updateTable(year);
+            fitKpiText();
+        }
+
+        function updateCharts(year) {
+            var labels = channelData.map(function(c) { return c.name; });
+            var data1 = channelData.map(function(c) { return year === '2024' ? c.rev2024 : c.rev2025; });
+
+            mk('chart1', {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue ($M)',
+                        data: data1,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            var growth = channelData.map(function(c) {
+                return ((c.rev2025 - c.rev2024) / c.rev2024 * 100).toFixed(1);
+            });
+
+            mk('chart2', {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Growth %',
+                        data: growth,
+                        backgroundColor: growth.map(function(g) { return parseFloat(g) >= 0 ? '#1A7F64' : '#D32F2F'; }),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { ticks: { callback: function(v) { return v.toFixed(0) + '%'; } } } }
+                }
+            });
+
+            var q1Data = Object.keys(quarterlyRevenue).map(function(ch) { return quarterlyRevenue[ch][0]; });
+            var q2Data = Object.keys(quarterlyRevenue).map(function(ch) { return quarterlyRevenue[ch][1]; });
+            var q3Data = Object.keys(quarterlyRevenue).map(function(ch) { return quarterlyRevenue[ch][2]; });
+            var q4Data = Object.keys(quarterlyRevenue).map(function(ch) { return quarterlyRevenue[ch][3]; });
+
+            mk('chart3', {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [
+                        {label: 'Grocery', data: quarterlyRevenue['Grocery'], borderColor: '#006AFF', backgroundColor: 'rgba(0,106,255,0.1)', tension: 0.4},
+                        {label: 'Mass', data: quarterlyRevenue['Mass'], borderColor: '#1A7F64', backgroundColor: 'rgba(26,127,100,0.1)', tension: 0.4},
+                        {label: 'eComm', data: quarterlyRevenue['eCommerce'], borderColor: '#94A3B8', backgroundColor: 'rgba(148,163,184,0.1)', tension: 0.4}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            var retailRev = channelData.filter(function(c) { return c.group === 'Retail'; }).reduce(function(a, b) { return a + b.rev2025; }, 0);
+            var digitalRev = channelData.filter(function(c) { return c.group === 'Digital'; }).reduce(function(a, b) { return a + b.rev2025; }, 0);
+            var foodserviceRev = channelData.filter(function(c) { return c.group === 'Foodservice'; }).reduce(function(a, b) { return a + b.rev2025; }, 0);
+
+            mk('chart4', {
+                type: 'bar',
+                data: {
+                    labels: ['Retail', 'Digital', 'Foodservice'],
+                    datasets: [{
+                        label: 'Revenue ($M)',
+                        data: [retailRev, digitalRev, foodserviceRev],
+                        backgroundColor: ['#006AFF', '#1A7F64', '#94A3B8'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            var units = channelData.map(function(c) { return c.units2025; });
+
+            mk('chart5', {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Units (M)',
+                        data: units,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return v.toFixed(2) + 'M'; } } } }
+                }
+            });
+        }
+
+        function updateTable(year) {
+            var tbody = document.getElementById('channelTable');
+            tbody.innerHTML = '';
+
+            channelData.forEach(function(row) {
+                var rev = year === '2024' ? row.rev2024 : row.rev2025;
+                var yoy = ((row.rev2025 - row.rev2024) / row.rev2024 * 100).toFixed(1);
+                var revPerUnit = (row.rev2025 / row.units2025).toFixed(3);
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.name + '</td><td>' + row.group + '</td>' +
+                    '<td class="text-right">$' + rev.toFixed(2) + 'M</td><td class="text-right">$' + row.rev2024.toFixed(2) + 'M</td>' +
+                    '<td class="text-right"><span class="metric-positive">' + yoy + '%</span></td>' +
+                    '<td class="text-right">' + row.units2025.toFixed(2) + 'M</td>' +
+                    '<td class="text-right">$' + revPerUnit + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Read URL params to set filters from training guide generator
+        function getUrlParam(name) {
+            var match = window.location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        var urlYear = getUrlParam('year');
+        if (urlYear) {
+            var yearSelect = document.getElementById('yearFilter');
+            for (var i = 0; i < yearSelect.options.length; i++) {
+                if (yearSelect.options[i].value === urlYear) {
+                    yearSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

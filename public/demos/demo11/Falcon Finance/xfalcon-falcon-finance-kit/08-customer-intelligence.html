@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Intelligence - Falcon Finance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #1A1A2E; min-height: 100vh; }
+        .topbar { background: #1D3557; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .topbar-left { display: flex; align-items: center; }
+        .logo { font-weight: 800; font-size: 22px; }
+        .logo .x { color: #A8DADC; }
+        .logo .f { color: #E63946; }
+        .topbar .title { color: #F1FAEE; font-weight: 600; font-size: 16px; margin-left: 14px; }
+        .back-link { color: #A8DADC; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 32px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #5F6B7A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1D3557; margin-bottom: 8px; }
+        .kpi-change { font-size: 13px; font-weight: 500; color: #5F6B7A; }
+        .chart-section { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 24px; margin-bottom: 32px; }
+        .chart-title { font-size: 16px; font-weight: 700; color: #1D3557; margin-bottom: 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: 32px; margin-bottom: 32px; }
+        .chart-container { position: relative; height: 400px; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+        .table-section { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 24px; margin-bottom: 32px; }
+        .table-title { font-size: 16px; font-weight: 700; color: #1D3557; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1D3557; padding: 12px; text-align: left; font-weight: 600; font-size: 12px; color: #F1FAEE; }
+        td { padding: 12px; border-bottom: 1px solid #ECEEF1; font-size: 13px; color: #1A1A2E; }
+        tr:hover { background: #F8FAFC; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-platinum { background: #DBEAFE; color: #0C63E4; }
+        .badge-gold { background: #FEF3C7; color: #D97706; }
+        .badge-silver { background: #E0E7FF; color: #4F46E5; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="x">x</span><span class="f">F</span></div>
+            <div class="title">Falcon Finance / 8. Customer Intelligence</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Customers</div>
+                <div class="kpi-value">150K</div>
+                <div class="kpi-change">All customers active</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Active Customers</div>
+                <div class="kpi-value">150K</div>
+                <div class="kpi-change">100% activity rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Female Customers</div>
+                <div class="kpi-value">71.8K</div>
+                <div class="kpi-change">47.9% of total base</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Male Customers</div>
+                <div class="kpi-value">69.3K</div>
+                <div class="kpi-change">46.2% of total base</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Age Band</div>
+                <div class="kpi-value">35-44</div>
+                <div class="kpi-change">37.7K customers (25.1%)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Income Band</div>
+                <div class="kpi-value">$50-75K</div>
+                <div class="kpi-change">35.9K customers (23.9%)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Acquisition Channel</div>
+                <div class="kpi-value">In-Store Kiosk</div>
+                <div class="kpi-change">57.0K customers (38.0%)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Platinum Tier</div>
+                <div class="kpi-value">42.9K</div>
+                <div class="kpi-change">28.6% loyalty penetration</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-section">
+                <div class="chart-title">Customer Distribution by Age Band</div>
+                <div class="chart-container">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Customer Distribution by Income Band</div>
+                <div class="chart-container">
+                    <canvas id="incomeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="chart-section">
+                <div class="chart-title">Customer Distribution by Gender</div>
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Acquisition Channel Distribution</div>
+                <div class="chart-container">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="chart-section">
+                <div class="chart-title">FICO Score Band Distribution</div>
+                <div class="chart-container">
+                    <canvas id="ficoChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Loyalty Segment Distribution</div>
+                <div class="chart-container">
+                    <canvas id="loyaltyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Customer Acquisition by Year</div>
+            <div class="chart-container" style="height: 300px;">
+                <canvas id="acquisitionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Top 15 States by Customer Concentration</div>
+            <div class="chart-container" style="height: 350px;">
+                <canvas id="stateChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-title">Customer Segment Details (Top 20 Segments)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Loyalty Segment</th>
+                        <th>Gender</th>
+                        <th>Age Band</th>
+                        <th class="text-right">Customer Count</th>
+                        <th class="text-right">% of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Female</td>
+                        <td>35-44</td>
+                        <td class="text-right">5,144</td>
+                        <td class="text-right">3.43%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Female</td>
+                        <td>35-44</td>
+                        <td class="text-right">5,091</td>
+                        <td class="text-right">3.39%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Male</td>
+                        <td>35-44</td>
+                        <td class="text-right">5,067</td>
+                        <td class="text-right">3.38%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Male</td>
+                        <td>35-44</td>
+                        <td class="text-right">4,986</td>
+                        <td class="text-right">3.32%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Female</td>
+                        <td>45-54</td>
+                        <td class="text-right">4,629</td>
+                        <td class="text-right">3.09%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Female</td>
+                        <td>25-34</td>
+                        <td class="text-right">4,556</td>
+                        <td class="text-right">3.04%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Female</td>
+                        <td>45-54</td>
+                        <td class="text-right">4,474</td>
+                        <td class="text-right">2.98%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Male</td>
+                        <td>25-34</td>
+                        <td class="text-right">4,428</td>
+                        <td class="text-right">2.95%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Female</td>
+                        <td>25-34</td>
+                        <td class="text-right">4,417</td>
+                        <td class="text-right">2.94%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Male</td>
+                        <td>45-54</td>
+                        <td class="text-right">4,372</td>
+                        <td class="text-right">2.91%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Male</td>
+                        <td>25-34</td>
+                        <td class="text-right">4,362</td>
+                        <td class="text-right">2.91%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Male</td>
+                        <td>45-54</td>
+                        <td class="text-right">4,266</td>
+                        <td class="text-right">2.84%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-silver">Silver</span></td>
+                        <td>Female</td>
+                        <td>35-44</td>
+                        <td class="text-right">3,879</td>
+                        <td class="text-right">2.59%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-silver">Silver</span></td>
+                        <td>Male</td>
+                        <td>35-44</td>
+                        <td class="text-right">3,647</td>
+                        <td class="text-right">2.43%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-silver">Silver</span></td>
+                        <td>Female</td>
+                        <td>45-54</td>
+                        <td class="text-right">3,392</td>
+                        <td class="text-right">2.26%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-silver">Silver</span></td>
+                        <td>Female</td>
+                        <td>25-34</td>
+                        <td class="text-right">3,377</td>
+                        <td class="text-right">2.25%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-silver">Silver</span></td>
+                        <td>Male</td>
+                        <td>25-34</td>
+                        <td class="text-right">3,269</td>
+                        <td class="text-right">2.18%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-silver">Silver</span></td>
+                        <td>Male</td>
+                        <td>45-54</td>
+                        <td class="text-right">3,224</td>
+                        <td class="text-right">2.15%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-platinum">Platinum</span></td>
+                        <td>Female</td>
+                        <td>55-64</td>
+                        <td class="text-right">3,080</td>
+                        <td class="text-right">2.05%</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gold">Gold</span></td>
+                        <td>Female</td>
+                        <td>55-64</td>
+                        <td class="text-right">3,045</td>
+                        <td class="text-right">2.03%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function mk(type, labels, datasets, options) {
+            var opts = Object.assign({
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'bottom' } }
+            }, options || {});
+            return { type: type, data: { labels: labels, datasets: datasets }, options: opts };
+        }
+
+        // Age Distribution
+        var ageCtx = document.getElementById('ageChart').getContext('2d');
+        var ageChart = new Chart(ageCtx, mk('bar',
+            ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'],
+            [{ label: 'Customers', data: [12017, 32999, 37688, 32933, 22625, 11738], backgroundColor: '#006AFF' }],
+            { scales: { y: { beginAtZero: true } } }
+        ));
+
+        // Income Distribution
+        var incomeCtx = document.getElementById('incomeChart').getContext('2d');
+        var incomeChart = new Chart(incomeCtx, mk('bar',
+            ['<30K', '30-50K', '50-75K', '75-100K', '100-150K', '150K+'],
+            [{ label: 'Customers', data: [18015, 27107, 35906, 29929, 23956, 15087], backgroundColor: '#1A7F64' }],
+            { scales: { y: { beginAtZero: true } } }
+        ));
+
+        // Gender Distribution
+        var genderCtx = document.getElementById('genderChart').getContext('2d');
+        var genderChart = new Chart(genderCtx, mk('bar',
+            ['Female', 'Male', 'Non-Binary', 'Not Specified'],
+            [{ label: 'Customers', data: [71836, 69341, 4503, 4320], backgroundColor: '#F59E0B' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+
+        // Acquisition Channel
+        var channelCtx = document.getElementById('channelChart').getContext('2d');
+        var channelChart = new Chart(channelCtx, mk('bar',
+            ['In-Store Kiosk', 'Partner Website', 'Bread Direct App', 'Phone', 'Mail Offer', 'Partner App'],
+            [{ label: 'Customers', data: [56961, 37508, 22463, 14919, 12072, 6077], backgroundColor: '#0EA5E9' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+
+        // FICO Score Distribution
+        var ficoCtx = document.getElementById('ficoChart').getContext('2d');
+        var ficoChart = new Chart(ficoCtx, mk('bar',
+            ['Deep Subprime (<600)', 'Subprime (600-649)', 'Near Prime (650-699)', 'Prime (700-749)', 'Super Prime (750+)'],
+            [{ label: 'Customers', data: [12155, 23968, 39196, 42038, 32643], backgroundColor: '#EC4899' }],
+            { scales: { y: { beginAtZero: true } } }
+        ));
+
+        // Loyalty Segment
+        var loyaltyCtx = document.getElementById('loyaltyChart').getContext('2d');
+        var loyaltyChart = new Chart(loyaltyCtx, mk('bar',
+            ['Platinum', 'Gold', 'Silver', 'Bronze', 'New'],
+            [{ label: 'Customers', data: [42939, 42768, 32165, 21508, 10620], backgroundColor: '#1A7F64' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+
+        // Acquisition by Year
+        var acqCtx = document.getElementById('acquisitionChart').getContext('2d');
+        var acqChart = new Chart(acqCtx, mk('line',
+            ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+            [{ label: 'New Customers', data: [114772, 107234, 118466, 124585, 127514, 129539, 122626], borderColor: '#006AFF', backgroundColor: 'rgba(0, 106, 255, 0.1)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#006AFF' }],
+            { scales: { y: { beginAtZero: false, ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'K'; } } } } }
+        ));
+
+        // State Distribution
+        var stateCtx = document.getElementById('stateChart').getContext('2d');
+        var stateChart = new Chart(stateCtx, mk('bar',
+            ['CA', 'TX', 'FL', 'NY', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA', 'WA', 'AZ', 'MA'],
+            [{ label: 'Customers', data: [19221, 15285, 11763, 9352, 6353, 6179, 5732, 5380, 5261, 4906, 4556, 4295, 3985, 3857, 3485], backgroundColor: '#8B5CF6' }],
+            { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+        ));
+    </script>
+</body>
+</html>

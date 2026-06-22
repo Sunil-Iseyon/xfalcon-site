@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Finance — Q4 2025 QBR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #FFFFFF;
+            color: #1A1A2E;
+        }
+
+        .topbar {
+            background: #1D3557;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #E2E5EA;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-x {
+            color: #A8DADC;
+        }
+
+        .logo-f {
+            color: #E63946;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #F1FAEE;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-link {
+            color: #A8DADC;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: text-decoration 0.2s;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1D3557;
+            border-bottom: 2px solid #E2E5EA;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: #FAFBFC;
+            border: 1px solid #ECEEF1;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #5F6B7A;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            color: #1D3557;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .kpi-change {
+            font-size: 13px;
+            font-weight: 500;
+            color: #5F6B7A;
+        }
+
+        .kpi-change.positive {
+            color: #2E7D32;
+        }
+
+        .kpi-change.negative {
+            color: #D32F2F;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-container {
+            background: #FAFBFC;
+            border: 1px solid #ECEEF1;
+            border-radius: 8px;
+            padding: 24px;
+            position: relative;
+            height: 400px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1D3557;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: calc(100% - 50px);
+        }
+
+        .table-container {
+            background: #FAFBFC;
+            border: 1px solid #ECEEF1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            font-size: 13px;
+            font-weight: 600;
+            background: #1D3557;
+            color: #F1FAEE;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table td {
+            font-size: 13px;
+            color: #1A1A2E;
+            padding: 12px;
+            border-bottom: 1px solid #ECEEF1;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kpi-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-mini-card {
+            background: #FAFBFC;
+            border: 1px solid #ECEEF1;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .kpi-mini-label {
+            font-size: 12px;
+            color: #5F6B7A;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .kpi-mini-value {
+            font-size: 24px;
+            color: #1D3557;
+            font-weight: 700;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            color: #5F6B7A;
+            padding-top: 24px;
+            border-top: 1px solid #ECEEF1;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 1024px) {
+            .two-col-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-mini-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="topbar-title">Falcon Finance / Q4 2025 — Quarterly Business Review</div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back to Portal</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Section 1: Executive KPIs -->
+        <div class="section">
+            <div class="section-title">Executive KPIs</div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Purchase Volume</div>
+                    <div class="kpi-value">$6.06M</div>
+                    <div class="kpi-change negative">-15.2% vs $7.15M</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Portfolio Balance</div>
+                    <div class="kpi-value">$121.81M</div>
+                    <div class="kpi-change negative">-14.5% vs $142.52M</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Interest Income</div>
+                    <div class="kpi-value">$2.30M</div>
+                    <div class="kpi-change negative">-14.5% vs $2.69M</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Active Accounts</div>
+                    <div class="kpi-value">56,491</div>
+                    <div class="kpi-change negative">-14.9% vs 66,401</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">BNPL GMV</div>
+                    <div class="kpi-value">$4.40M</div>
+                    <div class="kpi-change negative">-4.6% vs $4.61M</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">BNPL Orders</div>
+                    <div class="kpi-value">38,073</div>
+                    <div class="kpi-change negative">-5.0% vs 40,069</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Delinquent Accounts</div>
+                    <div class="kpi-value">6,745</div>
+                    <div class="kpi-change negative">-16.4% vs 8,067</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Churned Accounts</div>
+                    <div class="kpi-value">1,312</div>
+                    <div class="kpi-change negative">-16.0% vs 1,561</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Monthly Breakdown -->
+        <div class="section">
+            <div class="section-title">Monthly Breakdown</div>
+            <div class="two-col-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Monthly Purchase Volume (Q4 2025)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-monthly-pv"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Portfolio Balance by Month</div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-portfolio-balance"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Credit Risk -->
+        <div class="section">
+            <div class="section-title">Credit Risk</div>
+            <div class="two-col-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Delinquency Buckets (Q4 2025)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-delinquency"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Credit Tier Distribution (Dec 2025)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-credit-tier"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Top Partners -->
+        <div class="section">
+            <div class="section-title">Top Partners</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Partner</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Active Accounts</th>
+                            <th>Interchange</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Harrington & Co.</td>
+                            <td>Specialty Apparel</td>
+                            <td>$7.53M</td>
+                            <td>85,647</td>
+                            <td>$135.8K</td>
+                        </tr>
+                        <tr>
+                            <td>Brackenridge</td>
+                            <td>Specialty Apparel</td>
+                            <td>$3.28M</td>
+                            <td>41,394</td>
+                            <td>$60.9K</td>
+                        </tr>
+                        <tr>
+                            <td>Silhouette Boutique</td>
+                            <td>Specialty Apparel</td>
+                            <td>$2.17M</td>
+                            <td>28,898</td>
+                            <td>$38.6K</td>
+                        </tr>
+                        <tr>
+                            <td>Calloway & Finch</td>
+                            <td>Specialty Apparel</td>
+                            <td>$1.42M</td>
+                            <td>16,697</td>
+                            <td>$26.0K</td>
+                        </tr>
+                        <tr>
+                            <td>Elara Studio</td>
+                            <td>Specialty Apparel</td>
+                            <td>$1.14M</td>
+                            <td>14,551</td>
+                            <td>$21.1K</td>
+                        </tr>
+                        <tr>
+                            <td>Hearthstone Home</td>
+                            <td>Home Furnishings</td>
+                            <td>$0.92M</td>
+                            <td>12,723</td>
+                            <td>$16.6K</td>
+                        </tr>
+                        <tr>
+                            <td>Morrow & Reed</td>
+                            <td>Home Furnishings</td>
+                            <td>$0.75M</td>
+                            <td>10,095</td>
+                            <td>$13.8K</td>
+                        </tr>
+                        <tr>
+                            <td>Canopy Interiors</td>
+                            <td>Home Furnishings</td>
+                            <td>$0.60M</td>
+                            <td>8,159</td>
+                            <td>$10.6K</td>
+                        </tr>
+                        <tr>
+                            <td>Ashford & Vale</td>
+                            <td>Luxury</td>
+                            <td>$0.54M</td>
+                            <td>6,011</td>
+                            <td>$9.9K</td>
+                        </tr>
+                        <tr>
+                            <td>Celeste Maison</td>
+                            <td>Luxury</td>
+                            <td>$0.48M</td>
+                            <td>5,684</td>
+                            <td>$8.9K</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 5: Regional & BNPL Summary -->
+        <div class="section">
+            <div class="section-title">Regional Balance & BNPL Summary</div>
+            <div class="two-col-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Regional Balance Distribution (Dec 2025)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-regional"></canvas>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <div class="kpi-mini-grid">
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-label">BNPL Orders</div>
+                            <div class="kpi-mini-value">38,073</div>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-label">Avg Order Value</div>
+                            <div class="kpi-mini-value">$115.46</div>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-label">Paid-in-Full Rate</div>
+                            <div class="kpi-mini-value">15.1%</div>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-label">Merchant Fees</div>
+                            <div class="kpi-mini-value">$109.9K</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="footer">Falcon Finance — Q4 2025 QBR | Data as of December 31, 2025</div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+
+        function mk(id, config) {
+            if (chartInstances[id]) { chartInstances[id].destroy(); }
+            chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), config);
+            return chartInstances[id];
+        }
+
+        // Chart 1: Monthly Purchase Volume
+        mk('chart-monthly-pv', {
+            type: 'bar',
+            data: {
+                labels: ['Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Purchase Volume',
+                    data: [1.67, 1.91, 2.48],
+                    backgroundColor: '#006AFF',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(v) { return '$' + v.toFixed(1) + 'M'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Portfolio Balance by Month
+        mk('chart-portfolio-balance', {
+            type: 'bar',
+            data: {
+                labels: ['Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Portfolio Balance',
+                    data: [40.04, 41.67, 40.10],
+                    backgroundColor: '#1A7F64',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(v) { return '$' + v.toFixed(0) + 'M'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Delinquency Buckets
+        mk('chart-delinquency', {
+            type: 'bar',
+            data: {
+                labels: ['1-29 DPD', '30-59 DPD', '60-89 DPD', '90-119 DPD', '120-179 DPD', '180+ DPD'],
+                datasets: [{
+                    label: 'Delinquency Events',
+                    data: [6629, 4076, 3451, 2301, 1492, 975],
+                    backgroundColor: ['#006AFF', '#0EA5E9', '#1A7F64', '#94A3B8', '#F59E0B', '#F59E0B'],
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Credit Tier Distribution
+        mk('chart-credit-tier', {
+            type: 'bar',
+            data: {
+                labels: ['Super Prime', 'Prime', 'Near Prime', 'Subprime', 'Deep Subprime'],
+                datasets: [{
+                    label: 'Portfolio Balance',
+                    data: [16.63, 14.38, 6.34, 2.18, 0.55],
+                    backgroundColor: '#006AFF',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(v) { return '$' + v + 'M'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 5: Regional Balance Distribution
+        mk('chart-regional', {
+            type: 'bar',
+            data: {
+                labels: ['South', 'Midwest', 'Northeast', 'Pacific', 'West'],
+                datasets: [{
+                    label: 'Regional Balance',
+                    data: [15.95, 7.64, 6.96, 5.20, 4.35],
+                    backgroundColor: ['#006AFF', '#1A7F64', '#0EA5E9', '#94A3B8', '#F59E0B'],
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(v) { return '$' + v + 'M'; }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

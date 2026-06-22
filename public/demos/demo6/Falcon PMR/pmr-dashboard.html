@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMR Dashboard - Program Management Review</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1923;
+            color: #e0e6ed;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .top-bar {
+            background: linear-gradient(135deg, #1a2a3a 0%, #0d1b2a 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #4fc3f7;
+            margin-right: 40px;
+            letter-spacing: 1px;
+        }
+        .logo span { color: #ff9800; }
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            height: 100%;
+        }
+        .nav-tab {
+            padding: 0 24px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8899aa;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-tab:hover { color: #ccd6e0; background: rgba(255,255,255,0.03); }
+        .nav-tab.active {
+            color: #4fc3f7;
+            border-bottom-color: #4fc3f7;
+            background: rgba(79,195,247,0.05);
+        }
+        .nav-tab .tab-icon { margin-right: 8px; font-size: 14px; }
+        .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .badge {
+            background: #1e3a5f;
+            color: #4fc3f7;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: #1a2a3a;
+            padding: 12px 32px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .filter-bar label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7c8d;
+            margin-right: 6px;
+        }
+        .filter-bar select {
+            padding: 6px 12px;
+            border: 1px solid #2a3a4a;
+            border-radius: 6px;
+            font-size: 12px;
+            background: #0f1923;
+            color: #e0e6ed;
+            cursor: pointer;
+        }
+        .filter-bar select:focus { outline: none; border-color: #4fc3f7; }
+
+        /* Main Content */
+        .main-content {
+            padding: 24px 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Section Headers */
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #ff9800;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,152,0,0.3), transparent);
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: linear-gradient(135deg, #1a2a3a 0%, #162232 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+        .kpi-card:nth-child(1)::before { background: #4fc3f7; }
+        .kpi-card:nth-child(2)::before { background: #ff9800; }
+        .kpi-card:nth-child(3)::before { background: #66bb6a; }
+        .kpi-card:nth-child(4)::before { background: #ab47bc; }
+        .kpi-card:nth-child(5)::before { background: #ef5350; }
+        .kpi-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7c8d;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+        .kpi-pct {
+            font-size: 14px;
+            color: #4fc3f7;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .kpi-change {
+            font-size: 11px;
+            margin-top: 6px;
+        }
+        .kpi-change.positive { color: #66bb6a; }
+        .kpi-change.negative { color: #ef5350; }
+
+        /* Chart Cards */
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .chart-row.three-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .chart-card {
+            background: linear-gradient(135deg, #1a2a3a 0%, #162232 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-card h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ccd6e0;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .chart-card .chart-subtitle {
+            font-size: 11px;
+            color: #6b7c8d;
+            margin-bottom: 16px;
+        }
+
+        /* Analysis Box */
+        .analysis-box {
+            background: rgba(79,195,247,0.05);
+            border-left: 3px solid #4fc3f7;
+            border-radius: 0 8px 8px 0;
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #8899aa;
+        }
+        .analysis-box strong {
+            color: #4fc3f7;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .analysis-box .insight {
+            color: #ccd6e0;
+            margin-top: 4px;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 12px;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7c8d;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            background: #1a2a3a;
+        }
+        .data-table th.right { text-align: right; }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #c0cad4;
+        }
+        .data-table td.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table tr:hover td { background: rgba(79,195,247,0.03); }
+        .data-table .highlight-row td { background: rgba(255,152,0,0.05); }
+        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 8px; }
+        .dot.green { background: #66bb6a; }
+        .dot.red { background: #ef5350; }
+        .dot.yellow { background: #ffb74d; }
+        .bar-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mini-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: #4fc3f7;
+            min-width: 2px;
+        }
+
+        /* Vendor Bubble Cloud */
+        .vendor-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+        }
+        .vendor-bubble {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .vendor-bubble:hover { transform: scale(1.1); }
+
+        /* Summary Stats */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .summary-stat {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .summary-stat .stat-val {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .summary-stat .stat-label {
+            font-size: 10px;
+            color: #6b7c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #3a4a5a;
+            padding: 24px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            margin-top: 32px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .kpi-row { grid-template-columns: repeat(3, 1fr); }
+            .chart-row { grid-template-columns: 1fr; }
+            .chart-row.three-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .top-bar { padding: 0 16px; }
+            .main-content { padding: 16px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f1923; }
+        ::-webkit-scrollbar-thumb { background: #2a3a4a; border-radius: 3px; }
+
+        /* Table container */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        /* Sparkline container */
+        .sparkline-container {
+            display: inline-block;
+            width: 80px;
+            height: 24px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<div class="top-bar">
+    <div class="logo">PMR<span>Dashboard</span></div>
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('executive')">
+            <span class="tab-icon">&#9776;</span> Executive Summary
+        </div>
+        <div class="nav-tab" onclick="switchTab('indicators')">
+            <span class="tab-icon">&#9733;</span> Key Indicators
+        </div>
+        <div class="nav-tab" onclick="switchTab('trends')">
+            <span class="tab-icon">&#128200;</span> Program Trends
+        </div>
+        <div class="nav-tab" onclick="switchTab('vendors')">
+            <span class="tab-icon">&#128101;</span> Vendor Analysis
+        </div>
+        <div class="nav-tab" onclick="switchTab('departments')">
+            <span class="tab-icon">&#127970;</span> Department View
+        </div>
+    </div>
+    <div class="nav-right">
+        <span class="badge">Dec 2024</span>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div>
+        <label>Date:</label>
+        <select id="dateFilter" onchange="filterByDate()">
+        </select>
+    </div>
+    <div>
+        <label>Portfolio:</label>
+        <select id="portfolioFilter" onchange="filterByPortfolio()">
+            <option value="All">All Portfolios</option>
+            <option value="Digital Transformation">Digital Transformation</option>
+            <option value="Customer Experience Platform">Customer Experience Platform</option>
+            <option value="Enterprise Infrastructure">Enterprise Infrastructure</option>
+            <option value="Data & Analytics">Data & Analytics</option>
+        </select>
+    </div>
+</div>
+
+<!-- =============== TAB 1: EXECUTIVE SUMMARY =============== -->
+<div class="main-content">
+<div id="tab-executive" class="tab-content active">
+
+    <div class="section-title">Workforce Overview</div>
+
+    <!-- KPI Row -->
+    <div class="kpi-row" id="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">Employees</div>
+            <div class="kpi-value" id="kpi-employees">77.8</div>
+            <div class="kpi-pct" id="kpi-employees-pct">32.4%</div>
+            <div class="kpi-change positive" id="kpi-employees-chg">&#9650; +0.5 MoM</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Consultants</div>
+            <div class="kpi-value" id="kpi-consultants">162.3</div>
+            <div class="kpi-pct" id="kpi-consultants-pct">67.6%</div>
+            <div class="kpi-change negative" id="kpi-consultants-chg">&#9660; +5.2 MoM</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Onsite</div>
+            <div class="kpi-value" id="kpi-onsite">54.5</div>
+            <div class="kpi-pct" id="kpi-onsite-pct">22.7%</div>
+            <div class="kpi-change negative" id="kpi-onsite-chg">&#9660; -0.3 MoM</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Nearshore</div>
+            <div class="kpi-value" id="kpi-nearshore">61.3</div>
+            <div class="kpi-pct" id="kpi-nearshore-pct">25.5%</div>
+            <div class="kpi-change negative" id="kpi-nearshore-chg">&#9660; -5.2 MoM</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Offshore</div>
+            <div class="kpi-value" id="kpi-offshore">124.3</div>
+            <div class="kpi-pct" id="kpi-offshore-pct">51.8%</div>
+            <div class="kpi-change positive" id="kpi-offshore-chg">&#9650; +6.4 MoM</div>
+        </div>
+    </div>
+
+    <div class="analysis-box" style="margin-bottom:24px">
+        <strong>&#128161; Executive Analysis</strong>
+        <div class="insight">The organization employs <b>240.1 FTE</b> as of Dec 2024, with a <b>67.6% consultant</b> dependency. The offshore ratio has climbed to <b>51.8%</b>, reflecting continued cost-optimization efforts. Employee FTE remains stable at 77.8 despite seasonal fluctuations, suggesting workforce planning is maintaining headcount targets. The consultant-to-employee ratio of 2.1:1 warrants monitoring for knowledge retention risk.</div>
+    </div>
+
+    <div class="chart-row">
+        <!-- Service Type Doughnut -->
+        <div class="chart-card">
+            <h3>Service Type Distribution</h3>
+            <div class="chart-subtitle">Effort allocation across service categories</div>
+            <div style="max-width:300px;margin:0 auto;">
+                <canvas id="serviceTypeDoughnut"></canvas>
+            </div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">New Development commands <b>53.3%</b> of total effort — a healthy indicator of forward investment. System Support at <b>34.4%</b> is within the typical 30-40% band for mature portfolios. Admin overhead at <b>13.0%</b> is slightly elevated; consider reviewing admin-heavy programs like Echo Data Lake (26.3% admin) for process optimization.</div>
+            </div>
+        </div>
+
+        <!-- FTE Trend Line -->
+        <div class="chart-card">
+            <h3>Program Distribution Trend</h3>
+            <div class="chart-subtitle">Monthly FTE by location type (36-month view)</div>
+            <canvas id="fteTrendLine"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">Total FTE has been remarkably stable in the <b>225-248 range</b> over 3 years, indicating disciplined workforce planning. Offshore has consistently dominated at ~50%, with onsite holding steady around 23%. The nearshore segment shows the most volatility (57-67 FTE), suggesting it serves as the flex capacity lever for demand changes.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <!-- Top Alerts Table -->
+        <div class="chart-card">
+            <h3 style="color:#ef5350">&#9888; Top Alerts — High Offshore Concentration</h3>
+            <div class="chart-subtitle">Programs with offshore ratio above 55%</div>
+            <div class="table-container">
+                <table class="data-table" id="alertsTable">
+                    <thead>
+                        <tr><th>Program</th><th class="right">Onsite</th><th class="right">Offshore</th><th class="right">Offshore %</th><th></th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">Programs like <b>Meridian API Gateway (70.3%)</b> and <b>Atlas Data Platform (67.3%)</b> carry significant offshore concentration risk. High offshore ratios above 65% can impact response times for critical incidents and create timezone coordination challenges. Consider balancing with nearshore resources.</div>
+            </div>
+        </div>
+
+        <!-- Top Performers Table -->
+        <div class="chart-card">
+            <h3 style="color:#66bb6a">&#10004; Top Performers — Balanced Distribution</h3>
+            <div class="chart-subtitle">Programs with healthy onsite-offshore balance (onsite > 30%)</div>
+            <div class="table-container">
+                <table class="data-table" id="performersTable">
+                    <thead>
+                        <tr><th>Program</th><th class="right">Onsite</th><th class="right">Offshore</th><th class="right">Onsite %</th><th></th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>Beacon Self-Service Hub (47.6%)</b> and <b>Nexus Identity Management (47.5%)</b> lead with the strongest onsite presence, enabling better stakeholder alignment and faster iteration cycles. These programs also show strong YoY growth, correlating higher onsite engagement with program success.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <!-- Vendor Cloud -->
+        <div class="chart-card">
+            <h3>Vendors for Portfolio</h3>
+            <div class="chart-subtitle">Size = FTE contribution | Blue = Offshore &lt; 65% | Orange = Offshore &ge; 65%</div>
+            <div class="vendor-cloud" id="vendorCloud"></div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>InnoSphere</b> leads vendor FTE at 19.5, followed by HorizonLabs (17.4) and KeyNode Services (16.8). Vendor concentration risk is moderate — the top 3 vendors represent <b>33%</b> of total consultant FTE. BrightPath Tech and DataBridge Corp show the highest offshore ratios (>67%), while Apex Solutions maintains the most balanced onsite presence (43.7%).</div>
+            </div>
+        </div>
+
+        <!-- Portfolio by Month -->
+        <div class="chart-card">
+            <h3>Portfolio FTE Trend</h3>
+            <div class="chart-subtitle">Monthly FTE by portfolio (36-month view)</div>
+            <canvas id="portfolioTrend"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>Digital Transformation</b> and <b>Customer Experience Platform</b> are the two largest portfolios, each averaging ~60 FTE. Enterprise Infrastructure has grown steadily from ~58 to ~61 FTE, reflecting increased investment in reliability. Data & Analytics remains stable at ~57 FTE, though it showed a brief spike in early 2024 aligned with the Summit BI Dashboard initiative.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== TAB 2: KEY INDICATORS =============== -->
+<div id="tab-indicators" class="tab-content">
+
+    <div class="section-title">Employee & Consultant Analysis</div>
+
+    <div class="summary-grid">
+        <div class="summary-stat">
+            <div class="stat-val" style="color:#4fc3f7" id="ind-onsite-val">54.5</div>
+            <div class="stat-label">Onsite FTE</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-val" style="color:#ab47bc" id="ind-near-val">61.3</div>
+            <div class="stat-label">Nearshore FTE</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-val" style="color:#ff9800" id="ind-offshore-val">124.3</div>
+            <div class="stat-label">Offshore FTE</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3>Location Distribution — All Resources</h3>
+            <div class="chart-subtitle" id="ind-loc-subtitle">Breakdown of 240.1 total FTE by delivery location</div>
+            <div style="max-width:320px;margin:0 auto;">
+                <canvas id="locationDoughnut"></canvas>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;text-align:center;">
+                <div><div style="font-size:22px;font-weight:700;color:#4fc3f7" id="ind-emp-val">77.8</div><div style="font-size:10px;color:#6b7c8d">EMPLOYEE</div></div>
+                <div><div style="font-size:22px;font-weight:700;color:#ff9800" id="ind-cons-val">162.3</div><div style="font-size:10px;color:#6b7c8d">CONSULTANT</div></div>
+                <div><div style="font-size:22px;font-weight:700;color:#66bb6a" id="ind-total-val">240.1</div><div style="font-size:10px;color:#6b7c8d">TOTAL</div></div>
+            </div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">The 2.1:1 consultant-to-employee ratio is consistent with an outsourced delivery model. Offshore dominates at <b>51.8%</b>, with nearshore at 25.5% providing a middle-ground option. The relatively low onsite presence of 22.7% suggests most client-facing work is handled by a lean onsite team coordinating with offshore delivery.</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Consultants Only — Location Split</h3>
+            <div class="chart-subtitle" id="ind-cons-subtitle">162.3 consultant FTE by delivery location</div>
+            <canvas id="consultantLocationBar"></canvas>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;text-align:center;">
+                <div>
+                    <div style="font-size:18px;font-weight:700;color:#4fc3f7" id="ind-cons-onsite">36.7</div>
+                    <div style="font-size:10px;color:#6b7c8d" id="ind-cons-onsite-pct">ONSITE (22.6%)</div>
+                </div>
+                <div>
+                    <div style="font-size:18px;font-weight:700;color:#ab47bc" id="ind-cons-near">36.3</div>
+                    <div style="font-size:10px;color:#6b7c8d" id="ind-cons-near-pct">NEARSHORE (22.4%)</div>
+                </div>
+                <div>
+                    <div style="font-size:18px;font-weight:700;color:#ff9800" id="ind-cons-offshore">89.3</div>
+                    <div style="font-size:10px;color:#6b7c8d" id="ind-cons-offshore-pct">OFFSHORE (55.0%)</div>
+                </div>
+            </div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">Consultants are more offshore-heavy (55.0%) compared to the overall workforce (51.8%), which is expected as offshore typically offers better cost ratios for consultant roles. Onsite and nearshore consultant presence is nearly equal (~22% each), creating a well-distributed model across time zones.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3>Teams Supporting the Portfolio</h3>
+            <div class="chart-subtitle">FTE contribution by department</div>
+            <canvas id="departmentBar"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>Data Services (34.7 FTE)</b> is the largest department, reflecting the organization's data-centric strategy. Quality Assurance at 27.3 FTE represents an 11.4% allocation to testing — within industry norms. The presence of regional delivery centers (APD: 26.2, EMEA: 21.5) indicates a follow-the-sun delivery model, which aligns with the high offshore/nearshore mix.</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Active Projects & Percent of Effort</h3>
+            <div class="chart-subtitle">Service type breakdown across 20 active programs</div>
+            <canvas id="serviceEffortDoughnut"></canvas>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;text-align:center;">
+                <div>
+                    <div style="font-size:20px;font-weight:700;color:#4fc3f7" id="ind-svc-newdev">127.6</div>
+                    <div style="font-size:10px;color:#6b7c8d">NEW DEVELOPMENT</div>
+                    <div style="font-size:11px;color:#4fc3f7" id="ind-svc-newdev-pct">53.1%</div>
+                </div>
+                <div>
+                    <div style="font-size:20px;font-weight:700;color:#66bb6a" id="ind-svc-syssup">82.5</div>
+                    <div style="font-size:10px;color:#6b7c8d">SYSTEM SUPPORT</div>
+                    <div style="font-size:11px;color:#66bb6a" id="ind-svc-syssup-pct">34.4%</div>
+                </div>
+                <div>
+                    <div style="font-size:20px;font-weight:700;color:#ff9800" id="ind-svc-admin">30.0</div>
+                    <div style="font-size:10px;color:#6b7c8d">ADMIN</div>
+                    <div style="font-size:11px;color:#ff9800" id="ind-svc-admin-pct">12.5%</div>
+                </div>
+            </div>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">The 53/34/12 split between New Dev, System Support, and Admin is a healthy indicator. Organizations investing >50% in new development are typically in a growth phase. New Development further breaks down into <b>Platform Migration (65.0 FTE)</b> and <b>Greenfield Build (62.6 FTE)</b>, showing near-equal investment in modernization vs. new capabilities.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== TAB 3: PROGRAM TRENDS =============== -->
+<div id="tab-trends" class="tab-content">
+
+    <div class="section-title" id="trends-section-title">Program Analysis — December 2024</div>
+
+    <div class="chart-card full-width" style="margin-bottom:24px">
+        <h3>Program Summary Table</h3>
+        <div class="chart-subtitle" id="trends-table-subtitle">All 20 programs sorted by total FTE — includes employment mix, location split, momentum, and service type</div>
+        <div class="table-container" style="max-height:600px">
+            <table class="data-table" id="programTrendsTable">
+                <thead>
+                    <tr>
+                        <th>Program / Platform</th>
+                        <th>Portfolio</th>
+                        <th class="right">Total</th>
+                        <th class="right">Empl</th>
+                        <th class="right">Cons</th>
+                        <th class="right">Onsite %</th>
+                        <th class="right">Offshore %</th>
+                        <th class="right">MoM</th>
+                        <th class="right">YoY %</th>
+                        <th class="right">New Dev</th>
+                        <th class="right">Sys Sup</th>
+                        <th class="right">Admin</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="analysis-box">
+            <strong>&#128161; Program Trends Analysis</strong>
+            <div class="insight">
+                <b>Growth leaders:</b> Summit BI Dashboard (+26.9% YoY) and Zenith Reporting Engine (+23.2% YoY) are scaling rapidly — both in Data & Analytics, confirming the analytics investment thesis. <b>Declining:</b> Vertex ML Platform (-23.1% YoY) and Meridian API Gateway (-18.0% YoY) are contracting; verify if these are planned phase-downs or unintended attrition. <b>MoM momentum:</b> Summit BI Dashboard (+5.4) and Horizon Disaster Recovery (+2.5) are actively ramping, while Nexus Identity Management (-3.0) and Sentinel Monitoring Suite (-2.7) are decelerating.
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3>Top 10 Programs by FTE</h3>
+            <div class="chart-subtitle" id="trends-bar-subtitle">Horizontal bar chart — Dec 2024</div>
+            <canvas id="topProgramsBar"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">The top 3 programs (Titan, Orbit, Summit) account for <b>47.9 FTE — 20%</b> of total workforce. FTE distribution is relatively even, with no single program exceeding 7.2% of total, indicating good diversification and manageable program risk.</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>FTE by Portfolio</h3>
+            <div class="chart-subtitle">Aggregated program FTE by portfolio grouping</div>
+            <canvas id="portfolioBreakdownBar"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>Enterprise Infrastructure</b> leads with 60.8 FTE (25.3%), closely followed by Customer Experience Platform at 61.3 FTE. Digital Transformation at 58.5 and Data & Analytics at 59.5 round out a remarkably balanced portfolio. This even distribution reduces concentration risk and supports parallel strategic initiatives.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== TAB 4: VENDOR ANALYSIS =============== -->
+<div id="tab-vendors" class="tab-content">
+
+    <div class="section-title" id="vendor-section-title">Vendor Analysis — December 2024</div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3>Vendor FTE Distribution</h3>
+            <div class="chart-subtitle">FTE contribution by vendor with location breakdown</div>
+            <canvas id="vendorStackedBar"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>InnoSphere (19.5 FTE)</b> is the top vendor, contributing 12% of total consultant FTE. The vendor landscape is well-distributed with 11 active vendors, preventing single-vendor dependency. <b>CoreWave Systems</b> stands out with the highest nearshore ratio (42.5%), while <b>BrightPath Tech</b> is the most offshore-heavy (67.7%). Consider rebalancing vendors with >65% offshore for critical path programs.</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Vendor Location Mix</h3>
+            <div class="chart-subtitle">Onsite / Nearshore / Offshore percentage per vendor</div>
+            <canvas id="vendorLocationPct"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>Apex Solutions</b> has the best onsite/offshore balance (43.7% onsite), making it ideal for client-facing work. <b>DataBridge Corp</b> and <b>LogicNest</b> are heavily offshore-leaning (>58% offshore, <10% onsite), which works for backend development but creates risk for programs requiring rapid iteration. The nearshore segment varies widely from 10% (LogicNest) to 43% (CoreWave), suggesting different vendor sourcing strategies.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card full-width" style="margin-bottom:24px">
+        <h3>Program × Vendor Matrix</h3>
+        <div class="chart-subtitle">FTE allocation showing which vendors support which programs (top 10 programs shown)</div>
+        <div class="table-container" style="max-height:500px;overflow-x:auto;">
+            <table class="data-table" id="vendorMatrixTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="analysis-box">
+            <strong>&#128161; Analysis</strong>
+            <div class="insight">Most programs use <b>7-10 vendors</b>, indicating healthy multi-vendor strategies. However, some programs show strong single-vendor dependencies — e.g., <b>Echo Data Lake relies on KeyNode Services for 3.0 FTE</b> (30% of its consultant base). Cross-referencing vendor concentration with program criticality can highlight supply-chain risks requiring contingency plans.</div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== TAB 5: DEPARTMENT VIEW =============== -->
+<div id="tab-departments" class="tab-content">
+
+    <div class="section-title" id="dept-section-title">Department Analysis — December 2024</div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3>Department FTE with Location Breakdown</h3>
+            <div class="chart-subtitle">Stacked bar showing onsite, nearshore, and offshore per department</div>
+            <canvas id="deptStackedBar"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight"><b>Data Services</b> has the largest team at 34.7 FTE but also the highest offshore concentration (55.9%). <b>Quality Assurance</b> is the most balanced department with 28.2% onsite, 33.7% nearshore, and 38.1% offshore — a model distribution. Regional delivery centers (APD, EMEA) naturally skew offshore/nearshore but maintain a meaningful onsite liaison presence of ~25%.</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Department Offshore Percentage</h3>
+            <div class="chart-subtitle">Ranked by offshore concentration — higher = more risk</div>
+            <canvas id="deptOffshoreBar"></canvas>
+            <div class="analysis-box">
+                <strong>&#128161; Analysis</strong>
+                <div class="insight">Six departments exceed 50% offshore: Digital Strategy, Application Engineering, EMEA Delivery, Process Automation, Data Services, and Platform Core. <b>Cloud Operations has the lowest offshore ratio at 42.1%</b>, reflecting the need for tighter timezone alignment in infrastructure operations. Consider establishing a 50% offshore cap guideline for departments handling production-critical systems.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card full-width">
+        <h3>Department Detail Table</h3>
+        <div class="chart-subtitle">Complete department metrics with location distribution</div>
+        <table class="data-table" id="deptDetailTable">
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th class="right">Total FTE</th>
+                    <th class="right">Onsite</th>
+                    <th class="right">Nearshore</th>
+                    <th class="right">Offshore</th>
+                    <th class="right">Onsite %</th>
+                    <th class="right">Offshore %</th>
+                    <th>Risk Level</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="analysis-box">
+            <strong>&#128161; Analysis</strong>
+            <div class="insight">Departments are categorized by offshore risk: Green (&lt;50%), Yellow (50-60%), Red (&gt;60%). Currently <b>4 departments are in the green zone</b> and <b>6 in the yellow zone</b>. No department exceeds the 60% critical threshold, which is positive. The aggregate offshore percentage of 51.8% across all departments is within the target band for a global delivery model.</div>
+        </div>
+    </div>
+</div>
+
+</div><!-- end main-content -->
+
+<div class="footer">
+    Generated by PMR Dashboard | Data as of December 2024 | 20 Programs &middot; 11 Vendors &middot; 10 Departments &middot; 4 Portfolios
+</div>
+
+<script>
+// ==================== DATA ====================
+const monthlyTrend = [
+    {label:"Jan '22",dk:202201,total:247.7,emp:79.4,cons:168.3,onsite:54.8,offshore:127.5,near:65.4,newDev:55.5,sysSup:32.4,admin:12.2},
+    {label:"Feb '22",dk:202202,total:240.6,emp:71.9,cons:168.7,onsite:58.1,offshore:118.5,near:64.0,newDev:50.2,sysSup:35.4,admin:15.1},
+    {label:"Mar '22",dk:202203,total:241.2,emp:81.3,cons:159.9,onsite:58.7,offshore:120.3,near:62.2,newDev:52.9,sysSup:35.1,admin:12.6},
+    {label:"Apr '22",dk:202204,total:245.2,emp:76.7,cons:168.5,onsite:57.8,offshore:121.8,near:65.6,newDev:53.7,sysSup:35.8,admin:11.0},
+    {label:"May '22",dk:202205,total:225.9,emp:72.9,cons:153.0,onsite:56.7,offshore:111.4,near:57.8,newDev:59.4,sysSup:32.0,admin:9.6},
+    {label:"Jun '22",dk:202206,total:239.2,emp:78.2,cons:161.0,onsite:57.7,offshore:118.3,near:63.2,newDev:53.5,sysSup:36.4,admin:10.7},
+    {label:"Jul '22",dk:202207,total:236.1,emp:74.6,cons:161.5,onsite:55.8,offshore:120.3,near:60.0,newDev:55.1,sysSup:35.9,admin:10.0},
+    {label:"Aug '22",dk:202208,total:233.8,emp:73.9,cons:159.9,onsite:58.9,offshore:118.5,near:56.4,newDev:58.6,sysSup:33.6,admin:8.7},
+    {label:"Sep '22",dk:202209,total:224.1,emp:70.1,cons:154.0,onsite:54.5,offshore:108.1,near:61.5,newDev:58.3,sysSup:32.3,admin:10.5},
+    {label:"Oct '22",dk:202210,total:241.2,emp:73.9,cons:167.3,onsite:59.0,offshore:121.3,near:60.9,newDev:56.9,sysSup:36.7,admin:8.0},
+    {label:"Nov '22",dk:202211,total:233.4,emp:78.0,cons:155.4,onsite:53.5,offshore:118.8,near:61.1,newDev:55.3,sysSup:35.7,admin:11.2},
+    {label:"Dec '22",dk:202212,total:235.7,emp:75.7,cons:160.0,onsite:56.3,offshore:117.7,near:61.7,newDev:55.7,sysSup:34.3,admin:11.1},
+    {label:"Jan '23",dk:202301,total:236.5,emp:73.5,cons:163.0,onsite:59.2,offshore:116.0,near:61.3,newDev:57.0,sysSup:33.5,admin:10.6},
+    {label:"Feb '23",dk:202302,total:239.4,emp:79.9,cons:159.5,onsite:52.2,offshore:121.2,near:66.0,newDev:55.5,sysSup:37.3,admin:9.0},
+    {label:"Mar '23",dk:202303,total:232.7,emp:76.0,cons:156.7,onsite:55.7,offshore:117.0,near:60.0,newDev:59.5,sysSup:31.6,admin:10.6},
+    {label:"Apr '23",dk:202304,total:238.2,emp:78.5,cons:159.7,onsite:58.3,offshore:116.3,near:63.6,newDev:55.7,sysSup:34.5,admin:11.5},
+    {label:"May '23",dk:202305,total:235.6,emp:79.1,cons:156.5,onsite:56.1,offshore:119.1,near:60.4,newDev:55.4,sysSup:33.5,admin:13.4},
+    {label:"Jun '23",dk:202306,total:227.6,emp:73.9,cons:153.7,onsite:57.5,offshore:108.6,near:61.5,newDev:52.8,sysSup:37.7,admin:10.6},
+    {label:"Jul '23",dk:202307,total:227.9,emp:72.6,cons:155.3,onsite:55.0,offshore:109.4,near:63.5,newDev:55.9,sysSup:33.1,admin:11.0},
+    {label:"Aug '23",dk:202308,total:241.8,emp:74.4,cons:167.4,onsite:54.9,offshore:121.0,near:65.9,newDev:50.0,sysSup:36.2,admin:13.8},
+    {label:"Sep '23",dk:202309,total:236.6,emp:73.2,cons:163.4,onsite:52.6,offshore:119.3,near:64.7,newDev:52.6,sysSup:40.1,admin:8.2},
+    {label:"Oct '23",dk:202310,total:238.2,emp:76.3,cons:161.9,onsite:56.8,offshore:119.0,near:62.4,newDev:56.7,sysSup:34.2,admin:10.8},
+    {label:"Nov '23",dk:202311,total:232.6,emp:70.6,cons:162.0,onsite:57.0,offshore:113.5,near:62.1,newDev:58.0,sysSup:31.0,admin:11.6},
+    {label:"Dec '23",dk:202312,total:246.3,emp:80.7,cons:165.6,onsite:56.6,offshore:123.4,near:66.3,newDev:55.3,sysSup:32.6,admin:12.1},
+    {label:"Jan '24",dk:202401,total:240.5,emp:77.5,cons:163.0,onsite:59.1,offshore:120.6,near:60.8,newDev:54.7,sysSup:37.5,admin:9.8},
+    {label:"Feb '24",dk:202402,total:234.3,emp:71.0,cons:163.3,onsite:56.3,offshore:117.1,near:60.9,newDev:56.5,sysSup:33.4,admin:10.6},
+    {label:"Mar '24",dk:202403,total:229.3,emp:74.7,cons:154.6,onsite:49.0,offshore:113.6,near:66.7,newDev:56.6,sysSup:35.0,admin:9.3},
+    {label:"Apr '24",dk:202404,total:229.6,emp:74.1,cons:155.5,onsite:52.8,offshore:112.2,near:64.6,newDev:50.8,sysSup:39.7,admin:10.0},
+    {label:"May '24",dk:202405,total:228.6,emp:71.7,cons:156.9,onsite:58.1,offshore:112.9,near:57.6,newDev:54.5,sysSup:36.1,admin:10.5},
+    {label:"Jun '24",dk:202406,total:239.7,emp:77.7,cons:162.0,onsite:57.1,offshore:121.3,near:61.3,newDev:56.4,sysSup:32.9,admin:11.9},
+    {label:"Jul '24",dk:202407,total:239.8,emp:80.0,cons:159.8,onsite:56.3,offshore:121.2,near:62.3,newDev:55.0,sysSup:35.0,admin:11.7},
+    {label:"Aug '24",dk:202408,total:232.5,emp:78.7,cons:153.8,onsite:54.6,offshore:116.7,near:61.2,newDev:55.0,sysSup:35.2,admin:10.4},
+    {label:"Sep '24",dk:202409,total:241.7,emp:72.8,cons:168.9,onsite:57.9,offshore:118.7,near:65.1,newDev:50.5,sysSup:36.7,admin:13.5},
+    {label:"Oct '24",dk:202410,total:226.6,emp:72.9,cons:153.7,onsite:53.1,offshore:117.0,near:56.5,newDev:54.2,sysSup:36.7,admin:10.7},
+    {label:"Nov '24",dk:202411,total:239.2,emp:82.1,cons:157.1,onsite:54.8,offshore:117.9,near:66.5,newDev:55.9,sysSup:34.6,admin:10.5},
+    {label:"Dec '24",dk:202412,total:240.1,emp:77.8,cons:162.3,onsite:54.5,offshore:124.3,near:61.3,newDev:53.3,sysSup:34.4,admin:13.0}
+];
+
+const programs = [
+    {name:"Titan Network Upgrade",portfolio:"Enterprise Infrastructure",total:17.2,emp:3.3,cons:13.9,onsite:3.2,offshore:7.9,near:6.1,onsitePct:18.6,offshorePct:45.9,mom:-0.2,yoy:-2.3,newDev:58.7,sysSup:30.8,admin:10.5},
+    {name:"Orbit Feedback Engine",portfolio:"Customer Experience Platform",total:15.6,emp:6.1,cons:9.5,onsite:2.2,offshore:8.9,near:4.5,onsitePct:14.1,offshorePct:57.1,mom:1.9,yoy:-1.3,newDev:57.7,sysSup:28.2,admin:14.1},
+    {name:"Summit BI Dashboard",portfolio:"Data & Analytics",total:15.1,emp:4.1,cons:11.0,onsite:3.9,offshore:7.3,near:3.9,onsitePct:25.8,offshorePct:48.3,mom:5.4,yoy:26.9,newDev:49.0,sysSup:35.1,admin:15.9},
+    {name:"Fortress Security Hardening",portfolio:"Enterprise Infrastructure",total:14.8,emp:4.3,cons:10.5,onsite:5.7,offshore:4.6,near:4.5,onsitePct:38.5,offshorePct:31.1,mom:-0.1,yoy:-15.9,newDev:38.5,sysSup:55.4,admin:6.1},
+    {name:"Prism Customer Portal",portfolio:"Customer Experience Platform",total:14.6,emp:4.4,cons:10.2,onsite:2.9,offshore:8.2,near:3.5,onsitePct:19.9,offshorePct:56.2,mom:0.8,yoy:-5.8,newDev:56.8,sysSup:37.0,admin:6.2},
+    {name:"Keystone Config Management",portfolio:"Enterprise Infrastructure",total:14.5,emp:5.6,cons:8.9,onsite:4.6,offshore:8.0,near:1.9,onsitePct:31.7,offshorePct:55.2,mom:2.0,yoy:-8.2,newDev:53.8,sysSup:40.0,admin:6.2},
+    {name:"Horizon Disaster Recovery",portfolio:"Enterprise Infrastructure",total:14.3,emp:3.7,cons:10.6,onsite:2.3,offshore:7.9,near:4.1,onsitePct:16.1,offshorePct:55.2,mom:2.5,yoy:17.2,newDev:51.0,sysSup:36.4,admin:12.6},
+    {name:"Echo Data Lake",portfolio:"Data & Analytics",total:13.3,emp:3.5,cons:9.8,onsite:0.9,offshore:7.9,near:4.5,onsitePct:6.8,offshorePct:59.4,mom:-0.8,yoy:-14.7,newDev:45.9,sysSup:27.8,admin:26.3},
+    {name:"Pulse Notification System",portfolio:"Customer Experience Platform",total:13.2,emp:7.4,cons:5.8,onsite:4.5,offshore:7.2,near:1.5,onsitePct:34.1,offshorePct:54.5,mom:-2.1,yoy:-12.0,newDev:72.0,sysSup:12.9,admin:15.2},
+    {name:"Relay ETL Pipeline",portfolio:"Data & Analytics",total:12.3,emp:2.6,cons:9.7,onsite:1.0,offshore:7.9,near:3.4,onsitePct:8.1,offshorePct:64.2,mom:-1.2,yoy:15.0,newDev:48.0,sysSup:28.5,admin:23.6},
+    {name:"Phoenix Cloud Migration",portfolio:"Digital Transformation",total:11.4,emp:5.2,cons:6.2,onsite:2.7,offshore:5.0,near:3.7,onsitePct:23.7,offshorePct:43.9,mom:0.3,yoy:-1.7,newDev:46.5,sysSup:28.9,admin:24.6},
+    {name:"Atlas Data Platform",portfolio:"Digital Transformation",total:10.4,emp:5.0,cons:5.4,onsite:1.7,offshore:7.0,near:1.7,onsitePct:16.3,offshorePct:67.3,mom:-0.9,yoy:-4.6,newDev:55.8,sysSup:37.5,admin:6.7},
+    {name:"Vertex ML Platform",portfolio:"Data & Analytics",total:10.3,emp:3.3,cons:7.0,onsite:1.6,offshore:6.0,near:2.7,onsitePct:15.5,offshorePct:58.3,mom:-1.0,yoy:-23.1,newDev:63.1,sysSup:33.0,admin:3.9},
+    {name:"Sentinel Monitoring Suite",portfolio:"Digital Transformation",total:10.1,emp:2.9,cons:7.2,onsite:1.6,offshore:4.9,near:3.6,onsitePct:15.8,offshorePct:48.5,mom:-2.7,yoy:-1.9,newDev:56.4,sysSup:26.7,admin:16.8},
+    {name:"Compass Loyalty Program",portfolio:"Customer Experience Platform",total:9.5,emp:1.6,cons:7.9,onsite:2.0,offshore:6.2,near:1.3,onsitePct:21.1,offshorePct:65.3,mom:1.4,yoy:-8.7,newDev:42.1,sysSup:40.0,admin:17.9},
+    {name:"Catalyst Process Automation",portfolio:"Digital Transformation",total:9.5,emp:1.9,cons:7.6,onsite:2.9,offshore:4.8,near:1.8,onsitePct:30.5,offshorePct:50.5,mom:1.4,yoy:11.8,newDev:25.3,sysSup:64.2,admin:10.5},
+    {name:"Meridian API Gateway",portfolio:"Digital Transformation",total:9.1,emp:2.2,cons:6.9,onsite:0.4,offshore:6.4,near:2.3,onsitePct:4.4,offshorePct:70.3,mom:-2.4,yoy:-18.0,newDev:36.3,sysSup:58.2,admin:5.5},
+    {name:"Zenith Reporting Engine",portfolio:"Data & Analytics",total:8.5,emp:3.8,cons:4.7,onsite:2.6,offshore:3.2,near:2.7,onsitePct:30.6,offshorePct:37.6,mom:0.1,yoy:23.2,newDev:82.4,sysSup:17.6,admin:0},
+    {name:"Beacon Self-Service Hub",portfolio:"Customer Experience Platform",total:8.4,emp:3.9,cons:4.5,onsite:4.0,offshore:2.7,near:1.7,onsitePct:47.6,offshorePct:32.1,mom:-0.5,yoy:20.0,newDev:72.6,sysSup:21.4,admin:6.0},
+    {name:"Nexus Identity Management",portfolio:"Digital Transformation",total:8.0,emp:3.0,cons:5.0,onsite:3.8,offshore:2.3,near:1.9,onsitePct:47.5,offshorePct:28.8,mom:-3.0,yoy:-5.9,newDev:55.0,sysSup:27.5,admin:17.5}
+];
+
+const vendors = [
+    {name:"InnoSphere",total:19.5,onsite:4.5,offshore:12.4,near:2.6},
+    {name:"HorizonLabs",total:17.4,onsite:4.9,offshore:8.8,near:3.7},
+    {name:"KeyNode Services",total:16.8,onsite:4.1,offshore:8.7,near:4.0},
+    {name:"DataBridge Corp",total:16.5,onsite:1.6,offshore:9.6,near:5.3},
+    {name:"BrightPath Tech",total:16.4,onsite:2.5,offshore:11.1,near:2.8},
+    {name:"GridStone Partners",total:16.3,onsite:4.1,offshore:9.6,near:2.6},
+    {name:"Apex Solutions",total:14.2,onsite:6.2,offshore:5.6,near:2.4},
+    {name:"CoreWave Systems",total:12.7,onsite:2.6,offshore:4.7,near:5.4},
+    {name:"LogicNest",total:12.3,onsite:1.9,offshore:8.4,near:2.0},
+    {name:"FusionPoint",total:11.3,onsite:2.7,offshore:6.7,near:1.9},
+    {name:"Elevate IT",total:8.9,onsite:1.6,offshore:3.8,near:3.5}
+];
+
+const departments = [
+    {name:"Data Services",total:34.7,onsite:6.5,offshore:19.4,near:8.8},
+    {name:"Quality Assurance",total:27.3,onsite:7.7,offshore:10.4,near:9.2},
+    {name:"Asia Pacific Delivery",total:26.2,onsite:6.7,offshore:12.1,near:7.4},
+    {name:"Process Automation",total:23.6,onsite:6.7,offshore:12.6,near:4.3},
+    {name:"Application Engineering",total:22.3,onsite:4.6,offshore:13.2,near:4.5},
+    {name:"EMEA Delivery",total:21.5,onsite:4.6,offshore:12.8,near:4.1},
+    {name:"Enterprise IT",total:21.5,onsite:3.7,offshore:10.3,near:7.5},
+    {name:"Digital Strategy",total:21.4,onsite:4.4,offshore:12.9,near:4.1},
+    {name:"Cloud Operations",total:21.4,onsite:5.8,offshore:9.0,near:6.6},
+    {name:"Platform Core",total:20.2,onsite:3.8,offshore:11.6,near:4.8}
+];
+
+const serviceSubtypes = [
+    {type:"New Development",subtype:"Platform Migration",fte:65.0},
+    {type:"New Development",subtype:"Greenfield Build",fte:62.6},
+    {type:"System Support",subtype:"Minor Enhancements",fte:34.0},
+    {type:"Admin",subtype:"General Administration",fte:30.0},
+    {type:"System Support",subtype:"Break-Fix Maintenance",fte:26.3},
+    {type:"System Support",subtype:"Feasibility Study",fte:22.2}
+];
+
+const COLORS = {
+    primary:'#4fc3f7', secondary:'#ff9800', success:'#66bb6a',
+    danger:'#ef5350', purple:'#ab47bc', gold:'#ffd54f',
+    teal:'#4dd0e1', pink:'#f06292'
+};
+const CHART_COLORS = ['#4fc3f7','#ff9800','#66bb6a','#ef5350','#ab47bc','#ffd54f','#4dd0e1','#f06292','#81c784','#7986cb','#a1887f'];
+
+Chart.defaults.color = '#8899aa';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+// ==================== TAB SWITCHING ====================
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// ==================== POPULATE DATE FILTER ====================
+const dateSelect = document.getElementById('dateFilter');
+monthlyTrend.slice().reverse().forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.dk;
+    opt.textContent = m.label;
+    dateSelect.appendChild(opt);
+});
+
+let chartInstances = {};
+
+// ==================== EXECUTIVE SUMMARY CHARTS ====================
+
+// Service Type Doughnut
+chartInstances['serviceTypeDoughnut'] = new Chart(document.getElementById('serviceTypeDoughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['New Development','System Support','Admin'],
+        datasets: [{
+            data: [53.3, 34.4, 12.3],
+            backgroundColor: ['#4fc3f7','#66bb6a','#ff9800'],
+            borderWidth: 0,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '65%',
+        plugins: {
+            legend: { position:'bottom', labels:{padding:16,usePointStyle:true,pointStyleWidth:10,font:{size:11}} },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed.toFixed(1) + '%' } }
+        }
+    }
+});
+
+// FTE Trend Line
+chartInstances['fteTrendLine'] = new Chart(document.getElementById('fteTrendLine'), {
+    type: 'line',
+    data: {
+        labels: monthlyTrend.map(m => m.label),
+        datasets: [
+            { label:'Total', data:monthlyTrend.map(m=>m.total), borderColor:'#66bb6a', backgroundColor:'rgba(102,187,106,0.08)', fill:true, tension:0.3, borderWidth:2, pointRadius:0, pointHoverRadius:4 },
+            { label:'Offshore', data:monthlyTrend.map(m=>m.offshore), borderColor:'#ff9800', backgroundColor:'rgba(255,152,0,0.06)', fill:true, tension:0.3, borderWidth:2, pointRadius:0, pointHoverRadius:4 },
+            { label:'Nearshore', data:monthlyTrend.map(m=>m.near), borderColor:'#ab47bc', tension:0.3, borderWidth:1.5, pointRadius:0, borderDash:[4,2] },
+            { label:'Onsite', data:monthlyTrend.map(m=>m.onsite), borderColor:'#4fc3f7', tension:0.3, borderWidth:1.5, pointRadius:0, borderDash:[4,2] }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: { mode:'index', intersect:false },
+        plugins: { legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10},padding:12}} },
+        scales: {
+            x: { ticks:{maxRotation:45,autoSkip:true,maxTicksLimit:12,font:{size:9}} },
+            y: { beginAtZero:false, min:40, ticks:{font:{size:10}} }
+        }
+    }
+});
+
+// Alerts Table
+const alertPrograms = programs.filter(p => p.offshorePct > 55).sort((a,b) => b.offshorePct - a.offshorePct);
+const alertTbody = document.querySelector('#alertsTable tbody');
+alertPrograms.forEach(p => {
+    const row = alertTbody.insertRow();
+    row.innerHTML = `<td>${p.name}</td><td class="right">${p.onsite}</td><td class="right">${p.offshore}</td><td class="right">${p.offshorePct}%</td><td><span class="dot red"></span></td>`;
+});
+
+// Performers Table
+const perfPrograms = programs.filter(p => p.onsitePct >= 30).sort((a,b) => b.onsitePct - a.onsitePct);
+const perfTbody = document.querySelector('#performersTable tbody');
+perfPrograms.forEach(p => {
+    const row = perfTbody.insertRow();
+    row.innerHTML = `<td>${p.name}</td><td class="right">${p.onsite}</td><td class="right">${p.offshore}</td><td class="right">${p.onsitePct}%</td><td><span class="dot green"></span></td>`;
+});
+
+// Vendor Cloud
+const vendorCloudEl = document.getElementById('vendorCloud');
+const maxVFTE = Math.max(...vendors.map(v=>v.total));
+vendors.forEach(v => {
+    const scale = 0.7 + (v.total/maxVFTE)*0.8;
+    const offshorePct = v.offshore / v.total * 100;
+    const color = offshorePct >= 65 ? '#ff9800' : '#4fc3f7';
+    const bg = offshorePct >= 65 ? 'rgba(255,152,0,0.15)' : 'rgba(79,195,247,0.12)';
+    const bubble = document.createElement('div');
+    bubble.className = 'vendor-bubble';
+    bubble.style.cssText = `font-size:${Math.round(12*scale)}px;color:${color};background:${bg};border:1px solid ${color}33`;
+    bubble.textContent = v.name;
+    bubble.title = `${v.total} FTE | Offshore: ${offshorePct.toFixed(0)}%`;
+    vendorCloudEl.appendChild(bubble);
+});
+
+// Portfolio Trend
+const portfolioNames = ['Customer Experience Platform','Data & Analytics','Digital Transformation','Enterprise Infrastructure'];
+const portfolioColors = ['#4fc3f7','#ff9800','#66bb6a','#ab47bc'];
+// Build portfolio monthly data
+const portfolioMonthly = {};
+portfolioNames.forEach(pn => { portfolioMonthly[pn] = {}; });
+// We'll use the FACT_RESOURCE_ALLOCATION grouped data
+const portfolioTrendData = [
+    // CX Platform
+    ...[[202201,59.6],[202202,60.0],[202203,62.9],[202204,64.4],[202205,61.8],[202206,58.5],[202207,60.0],[202208,57.0],[202209,52.5],[202210,60.4],[202211,60.2],[202212,55.4],[202301,59.9],[202302,59.0],[202303,53.5],[202304,58.9],[202305,59.9],[202306,56.0],[202307,58.8],[202308,60.0],[202309,61.0],[202310,58.4],[202311,57.2],[202312,63.7],[202401,60.1],[202402,53.7],[202403,53.9],[202404,56.2],[202405,56.6],[202406,62.7],[202407,64.1],[202408,59.0],[202409,58.8],[202410,56.8],[202411,59.8],[202412,61.3]].map(d=>({dk:d[0],pn:'Customer Experience Platform',fte:d[1]})),
+    // Data & Analytics
+    ...[[202201,61.3],[202202,57.4],[202203,57.3],[202204,58.6],[202205,55.0],[202206,61.5],[202207,55.3],[202208,58.1],[202209,56.3],[202210,56.7],[202211,53.5],[202212,57.1],[202301,53.9],[202302,61.3],[202303,51.4],[202304,53.3],[202305,56.3],[202306,53.9],[202307,55.1],[202308,54.1],[202309,54.7],[202310,55.1],[202311,57.7],[202312,58.5],[202401,63.7],[202402,57.5],[202403,56.4],[202404,55.6],[202405,54.7],[202406,61.6],[202407,57.1],[202408,52.6],[202409,61.3],[202410,55.0],[202411,57.0],[202412,59.5]].map(d=>({dk:d[0],pn:'Data & Analytics',fte:d[1]})),
+    // Digital Transformation
+    ...[[202201,67.2],[202202,62.2],[202203,62.3],[202204,63.4],[202205,52.2],[202206,64.8],[202207,61.4],[202208,60.7],[202209,59.6],[202210,65.8],[202211,59.2],[202212,64.4],[202301,62.8],[202302,62.0],[202303,65.5],[202304,67.1],[202305,62.3],[202306,61.9],[202307,57.5],[202308,63.9],[202309,63.8],[202310,64.7],[202311,64.1],[202312,60.9],[202401,57.8],[202402,62.0],[202403,64.3],[202404,62.7],[202405,59.9],[202406,57.8],[202407,58.8],[202408,60.5],[202409,62.0],[202410,56.2],[202411,63.4],[202412,58.5]].map(d=>({dk:d[0],pn:'Digital Transformation',fte:d[1]})),
+    // Enterprise Infrastructure
+    ...[[202201,59.6],[202202,61.0],[202203,58.7],[202204,58.8],[202205,56.9],[202206,54.4],[202207,59.4],[202208,58.0],[202209,55.7],[202210,58.3],[202211,60.5],[202212,58.8],[202301,59.9],[202302,57.1],[202303,62.3],[202304,58.9],[202305,57.1],[202306,55.8],[202307,56.5],[202308,63.8],[202309,57.1],[202310,60.0],[202311,53.6],[202312,63.2],[202401,58.9],[202402,61.1],[202403,54.7],[202404,55.1],[202405,57.4],[202406,57.6],[202407,59.8],[202408,60.4],[202409,59.6],[202410,58.6],[202411,59.0],[202412,60.8]].map(d=>({dk:d[0],pn:'Enterprise Infrastructure',fte:d[1]}))
+];
+
+chartInstances['portfolioTrend'] = new Chart(document.getElementById('portfolioTrend'), {
+    type: 'line',
+    data: {
+        labels: monthlyTrend.map(m=>m.label),
+        datasets: portfolioNames.map((pn,i) => ({
+            label: pn.replace('Customer Experience Platform','CX Platform').replace('Enterprise Infrastructure','Enterprise Infra').replace('Digital Transformation','Digital Transform'),
+            data: portfolioTrendData.filter(d=>d.pn===pn).map(d=>d.fte),
+            borderColor: portfolioColors[i],
+            tension: 0.3,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4
+        }))
+    },
+    options: {
+        responsive: true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:9},padding:10}}},
+        scales:{
+            x:{ticks:{maxRotation:45,autoSkip:true,maxTicksLimit:12,font:{size:9}}},
+            y:{beginAtZero:false,min:45,max:75,ticks:{font:{size:10}}}
+        }
+    }
+});
+
+// ==================== KEY INDICATORS CHARTS ====================
+
+// Location Doughnut
+chartInstances['locationDoughnut'] = new Chart(document.getElementById('locationDoughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Onsite','Nearshore','Offshore'],
+        datasets: [{
+            data: [54.5,61.3,124.3],
+            backgroundColor: ['#4fc3f7','#ab47bc','#ff9800'],
+            borderWidth: 0,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '60%',
+        plugins: {
+            legend: {display:false},
+            tooltip: {callbacks:{label:ctx => ctx.label+': '+ctx.parsed.toFixed(1)+' FTE ('+((ctx.parsed/240.1)*100).toFixed(1)+'%)'}}
+        }
+    }
+});
+
+// Consultant Location Bar
+chartInstances['consultantLocationBar'] = new Chart(document.getElementById('consultantLocationBar'), {
+    type: 'bar',
+    data: {
+        labels: ['Onsite','Nearshore','Offshore'],
+        datasets: [{
+            data: [36.7, 36.3, 89.3],
+            backgroundColor: ['#4fc3f7','#ab47bc','#ff9800'],
+            borderRadius: 6,
+            barThickness: 40
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {legend:{display:false}},
+        scales: {
+            y: {beginAtZero:true,ticks:{font:{size:10}}},
+            x: {ticks:{font:{size:11}}}
+        }
+    }
+});
+
+// Department Bar
+chartInstances['departmentBar'] = new Chart(document.getElementById('departmentBar'), {
+    type: 'bar',
+    data: {
+        labels: departments.map(d=>d.name),
+        datasets: [{
+            data: departments.map(d=>d.total),
+            backgroundColor: '#4fc3f7',
+            borderRadius: 4,
+            barThickness: 24
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend:{display:false},
+            tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(1)+' FTE'}}
+        },
+        scales: {
+            x: {beginAtZero:true,ticks:{font:{size:10}}},
+            y: {ticks:{font:{size:10}}}
+        }
+    }
+});
+
+// Service Effort Doughnut
+chartInstances['serviceEffortDoughnut'] = new Chart(document.getElementById('serviceEffortDoughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: serviceSubtypes.map(s=>s.subtype),
+        datasets: [{
+            data: serviceSubtypes.map(s=>s.fte),
+            backgroundColor: ['#4fc3f7','#4dd0e1','#66bb6a','#ff9800','#81c784','#ffd54f'],
+            borderWidth: 0,
+            hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '55%',
+        plugins: {
+            legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10},padding:10}},
+            tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toFixed(1)+' FTE'}}
+        }
+    }
+});
+
+// ==================== PROGRAM TRENDS TABLE ====================
+const trendsTbody = document.querySelector('#programTrendsTable tbody');
+programs.forEach(p => {
+    const momClass = p.mom >= 0 ? 'positive' : 'negative';
+    const momArrow = p.mom >= 0 ? '&#9650;' : '&#9660;';
+    const yoyClass = p.yoy >= 0 ? 'positive' : 'negative';
+    const yoyArrow = p.yoy >= 0 ? '&#9650;' : '&#9660;';
+    const row = trendsTbody.insertRow();
+    row.innerHTML = `
+        <td><b>${p.name}</b></td>
+        <td style="font-size:10px;color:#6b7c8d">${p.portfolio}</td>
+        <td class="right"><b>${p.total}</b></td>
+        <td class="right">${p.emp}</td>
+        <td class="right">${p.cons}</td>
+        <td class="right">${p.onsitePct}%</td>
+        <td class="right">${p.offshorePct}%${p.offshorePct>60?'<span class="dot red"></span>':p.offshorePct>50?'<span class="dot yellow"></span>':'<span class="dot green"></span>'}</td>
+        <td class="right kpi-change ${momClass}">${momArrow} ${p.mom>0?'+':''}${p.mom}</td>
+        <td class="right kpi-change ${yoyClass}">${yoyArrow} ${p.yoy>0?'+':''}${p.yoy}%</td>
+        <td class="right">${p.newDev}%</td>
+        <td class="right">${p.sysSup}%</td>
+        <td class="right">${p.admin||0}%</td>
+    `;
+});
+
+// Top Programs Bar
+chartInstances['topProgramsBar'] = new Chart(document.getElementById('topProgramsBar'), {
+    type: 'bar',
+    data: {
+        labels: programs.slice(0,10).map(p=>p.name.length>25?p.name.slice(0,22)+'...':p.name),
+        datasets: [{
+            data: programs.slice(0,10).map(p=>p.total),
+            backgroundColor: programs.slice(0,10).map((_,i)=>CHART_COLORS[i%CHART_COLORS.length]),
+            borderRadius: 4,
+            barThickness: 20
+        }]
+    },
+    options: {
+        indexAxis:'y',
+        responsive: true,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(1)+' FTE'}}},
+        scales:{x:{beginAtZero:true},y:{ticks:{font:{size:10}}}}
+    }
+});
+
+// Portfolio Breakdown
+const portfolioAgg = {};
+programs.forEach(p => {
+    if(!portfolioAgg[p.portfolio]) portfolioAgg[p.portfolio] = 0;
+    portfolioAgg[p.portfolio] += p.total;
+});
+chartInstances['portfolioBreakdownBar'] = new Chart(document.getElementById('portfolioBreakdownBar'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(portfolioAgg),
+        datasets: [{
+            data: Object.values(portfolioAgg),
+            backgroundColor: portfolioColors,
+            borderRadius: 6,
+            barThickness: 36
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+' FTE'}}},
+        scales:{y:{beginAtZero:true},x:{ticks:{font:{size:10},maxRotation:15}}}
+    }
+});
+
+// ==================== VENDOR ANALYSIS CHARTS ====================
+
+// Vendor Stacked Bar
+chartInstances['vendorStackedBar'] = new Chart(document.getElementById('vendorStackedBar'), {
+    type: 'bar',
+    data: {
+        labels: vendors.map(v=>v.name),
+        datasets: [
+            {label:'Onsite',data:vendors.map(v=>v.onsite),backgroundColor:'#4fc3f7',borderRadius:2},
+            {label:'Nearshore',data:vendors.map(v=>v.near),backgroundColor:'#ab47bc',borderRadius:2},
+            {label:'Offshore',data:vendors.map(v=>v.offshore),backgroundColor:'#ff9800',borderRadius:2}
+        ]
+    },
+    options: {
+        indexAxis:'y',
+        responsive: true,
+        plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10}}}},
+        scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}
+    }
+});
+
+// Vendor Location Pct
+chartInstances['vendorLocationPct'] = new Chart(document.getElementById('vendorLocationPct'), {
+    type: 'bar',
+    data: {
+        labels: vendors.map(v=>v.name),
+        datasets: [
+            {label:'Onsite %',data:vendors.map(v=>(v.onsite/v.total*100).toFixed(1)),backgroundColor:'#4fc3f7'},
+            {label:'Nearshore %',data:vendors.map(v=>(v.near/v.total*100).toFixed(1)),backgroundColor:'#ab47bc'},
+            {label:'Offshore %',data:vendors.map(v=>(v.offshore/v.total*100).toFixed(1)),backgroundColor:'#ff9800'}
+        ]
+    },
+    options: {
+        indexAxis:'y',
+        responsive: true,
+        plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10}}}},
+        scales:{x:{stacked:true,max:100,ticks:{callback:v=>v+'%',font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}
+    }
+});
+
+// Vendor Matrix Table
+const topProgs = programs.slice(0,10);
+const vendorNames = vendors.map(v=>v.name);
+const vendorMatrix = [
+    // Pre-built from query data (top programs × vendors)
+    {prog:"Titan Network Upgrade",v:{InnoSphere:2.8,HorizonLabs:2.1,KeyNode:1.6,DataBridge:1.5,BrightPath:1.3,GridStone:1.2,Apex:1.1,CoreWave:0.9,LogicNest:0.8,FusionPoint:0.4,Elevate:0.2}},
+    {prog:"Orbit Feedback Engine",v:{Apex:1.6,DataBridge:1.4,InnoSphere:1.0,FusionPoint:1.0,CoreWave:1.0,LogicNest:0.9,HorizonLabs:0.6,Elevate:0.6,GridStone:0.5,BrightPath:0.5,KeyNode:0.4}},
+    {prog:"Summit BI Dashboard",v:{BrightPath:2.3,GridStone:1.7,InnoSphere:1.5,DataBridge:1.3,KeyNode:1.2,CoreWave:0.9,HorizonLabs:0.7,LogicNest:0.6,Apex:0.5,Elevate:0.2,FusionPoint:0.1}},
+    {prog:"Fortress Security Hardening",v:{FusionPoint:2.3,KeyNode:1.5,LogicNest:1.4,BrightPath:1.3,HorizonLabs:1.1,GridStone:0.8,Apex:0.8,InnoSphere:0.6,CoreWave:0.4,DataBridge:0.3}},
+    {prog:"Prism Customer Portal",v:{GridStone:1.6,DataBridge:1.5,InnoSphere:1.4,BrightPath:1.3,HorizonLabs:1.0,LogicNest:0.9,Apex:0.8,KeyNode:0.7,FusionPoint:0.5,Elevate:0.3,CoreWave:0.2}},
+];
+const matrixThead = document.querySelector('#vendorMatrixTable thead');
+let headerRow = '<tr><th>Program</th>';
+const shortVendorNames = ['InnoSphere','HorizonLabs','KeyNode','DataBridge','BrightPath','GridStone','Apex','CoreWave','LogicNest','FusionPoint','Elevate'];
+shortVendorNames.forEach(v => { headerRow += `<th class="right" style="font-size:9px">${v}</th>`; });
+headerRow += '<th class="right">Total</th></tr>';
+matrixThead.innerHTML = headerRow;
+const matrixTbody = document.querySelector('#vendorMatrixTable tbody');
+vendorMatrix.forEach(row => {
+    const tr = matrixTbody.insertRow();
+    let html = `<td><b>${row.prog}</b></td>`;
+    let total = 0;
+    shortVendorNames.forEach(v => {
+        const val = row.v[v] || 0;
+        total += val;
+        html += `<td class="right" style="${val>1.5?'color:#4fc3f7;font-weight:600':val===0?'color:#2a3a4a':''}">${val||'-'}</td>`;
+    });
+    html += `<td class="right" style="font-weight:700">${total.toFixed(1)}</td>`;
+    tr.innerHTML = html;
+});
+
+// ==================== DEPARTMENT CHARTS ====================
+
+// Dept Stacked Bar
+chartInstances['deptStackedBar'] = new Chart(document.getElementById('deptStackedBar'), {
+    type: 'bar',
+    data: {
+        labels: departments.map(d=>d.name),
+        datasets: [
+            {label:'Onsite',data:departments.map(d=>d.onsite),backgroundColor:'#4fc3f7',borderRadius:2},
+            {label:'Nearshore',data:departments.map(d=>d.near),backgroundColor:'#ab47bc',borderRadius:2},
+            {label:'Offshore',data:departments.map(d=>d.offshore),backgroundColor:'#ff9800',borderRadius:2}
+        ]
+    },
+    options: {
+        indexAxis:'y',
+        responsive:true,
+        plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10}}}},
+        scales:{x:{stacked:true},y:{stacked:true,ticks:{font:{size:10}}}}
+    }
+});
+
+// Dept Offshore Bar
+const deptsSorted = [...departments].sort((a,b) => (b.offshore/b.total) - (a.offshore/a.total));
+chartInstances['deptOffshoreBar'] = new Chart(document.getElementById('deptOffshoreBar'), {
+    type: 'bar',
+    data: {
+        labels: deptsSorted.map(d=>d.name),
+        datasets: [{
+            data: deptsSorted.map(d=>(d.offshore/d.total*100).toFixed(1)),
+            backgroundColor: deptsSorted.map(d => {
+                const pct = d.offshore/d.total*100;
+                return pct > 60 ? '#ef5350' : pct > 50 ? '#ffb74d' : '#66bb6a';
+            }),
+            borderRadius: 4,
+            barThickness: 20
+        }]
+    },
+    options: {
+        indexAxis:'y',
+        responsive:true,
+        plugins:{
+            legend:{display:false},
+            tooltip:{callbacks:{label:ctx=>ctx.parsed.x+'% Offshore'}}
+        },
+        scales:{
+            x:{max:70,ticks:{callback:v=>v+'%',font:{size:10}}},
+            y:{ticks:{font:{size:10}}}
+        }
+    }
+});
+
+// Dept Detail Table
+const deptTbody = document.querySelector('#deptDetailTable tbody');
+departments.forEach(d => {
+    const onsitePct = (d.onsite/d.total*100).toFixed(1);
+    const offshorePct = (d.offshore/d.total*100).toFixed(1);
+    const risk = offshorePct > 60 ? '<span style="color:#ef5350;font-weight:600">&#9679; High</span>' :
+                 offshorePct > 50 ? '<span style="color:#ffb74d;font-weight:600">&#9679; Medium</span>' :
+                 '<span style="color:#66bb6a;font-weight:600">&#9679; Low</span>';
+    const row = deptTbody.insertRow();
+    row.innerHTML = `<td><b>${d.name}</b></td><td class="right">${d.total}</td><td class="right">${d.onsite}</td><td class="right">${d.near}</td><td class="right">${d.offshore}</td><td class="right">${onsitePct}%</td><td class="right">${offshorePct}%</td><td>${risk}</td>`;
+});
+
+// ==================== FILTER FUNCTIONS ====================
+function destroyChart(id) {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+let currentDateKey = monthlyTrend[monthlyTrend.length - 1].dk;
+let currentPortfolio = 'All';
+
+function filterByDate() {
+    currentDateKey = parseInt(dateSelect.value);
+    document.querySelector('.badge').textContent = (monthlyTrend.find(r=>r.dk===currentDateKey)||{}).label || '';
+    applyAllFilters();
+}
+
+function filterByPortfolio() {
+    currentPortfolio = document.getElementById('portfolioFilter').value;
+    applyAllFilters();
+}
+
+function updateKPIChange(elId, change) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const isPos = change >= 0;
+    el.className = 'kpi-change ' + (isPos ? 'positive' : 'negative');
+    el.innerHTML = (isPos ? '&#9650; +' : '&#9660; ') + change.toFixed(1) + ' MoM';
+}
+
+// ==================== MASTER FILTER ====================
+function applyAllFilters() {
+    // --- Resolve current month data ---
+    const m = monthlyTrend.find(r => r.dk === currentDateKey) || monthlyTrend[monthlyTrend.length-1];
+    const idx = monthlyTrend.findIndex(r => r.dk === currentDateKey);
+    const prev = idx > 0 ? monthlyTrend[idx - 1] : null;
+
+    // --- Filter programs by portfolio ---
+    const fp = currentPortfolio === 'All' ? programs : programs.filter(p => p.portfolio === currentPortfolio);
+
+    // --- Aggregates from filtered programs (base = latest month snapshot) ---
+    const baseFTE  = fp.reduce((s,p) => s + p.total, 0);
+    const baseEmp  = fp.reduce((s,p) => s + p.emp, 0);
+    const baseCons = fp.reduce((s,p) => s + p.cons, 0);
+    const baseOnsite   = fp.reduce((s,p) => s + p.onsite, 0);
+    const baseOffshore = fp.reduce((s,p) => s + p.offshore, 0);
+    const baseNear     = fp.reduce((s,p) => s + p.near, 0);
+
+    // Weighted service mix from filtered programs
+    const wNewDev = baseFTE > 0 ? fp.reduce((s,p) => s + p.newDev * p.total, 0) / baseFTE : 0;
+    const wSysSup = baseFTE > 0 ? fp.reduce((s,p) => s + p.sysSup * p.total, 0) / baseFTE : 0;
+    const wAdmin  = baseFTE > 0 ? fp.reduce((s,p) => s + (p.admin||0) * p.total, 0) / baseFTE : 0;
+
+    // --- Combined date+portfolio scaling ---
+    // dateScale: ratio of total FTE at selected month vs base month (Dec '24)
+    // portfolioScale: ratio of portfolio FTE at selected month vs base portfolio FTE
+    // When portfolio='All', dateScale = m.total / latest.total
+    // When portfolio is specific, we use portfolioTrendData for that portfolio
+    const latestDk = monthlyTrend[monthlyTrend.length - 1].dk;
+    const latest = monthlyTrend[monthlyTrend.length - 1];
+    const dateScale = latest.total > 0 ? m.total / latest.total : 1;
+
+    let kpiTotal, kpiEmp, kpiCons, kpiOnsite, kpiOffshore, kpiNear, kpiNewDev, kpiSysSup, kpiAdmin;
+    let prevKpiTotal = null, prevKpiEmp = null, prevKpiCons = null;
+    let prevKpiOnsite = null, prevKpiOffshore = null, prevKpiNear = null;
+    let portfolioScale = 1; // combined scale for use by all tabs
+
+    if (currentPortfolio === 'All') {
+        // All portfolios — use monthly trend data directly for KPIs
+        kpiTotal = m.total; kpiEmp = m.emp; kpiCons = m.cons;
+        kpiOnsite = m.onsite; kpiOffshore = m.offshore; kpiNear = m.near;
+        kpiNewDev = m.newDev; kpiSysSup = m.sysSup; kpiAdmin = m.admin;
+        portfolioScale = dateScale; // only date matters
+        if (prev) {
+            prevKpiTotal = prev.total; prevKpiEmp = prev.emp; prevKpiCons = prev.cons;
+            prevKpiOnsite = prev.onsite; prevKpiOffshore = prev.offshore; prevKpiNear = prev.near;
+        }
+    } else {
+        // Specific portfolio — get FTE from portfolioTrendData for selected & base months
+        const ptdForPortfolio = portfolioTrendData.filter(d => d.pn === currentPortfolio);
+        const selectedPtd = ptdForPortfolio.find(d => d.dk === currentDateKey);
+        const basePtd = ptdForPortfolio.find(d => d.dk === latestDk);
+        const prevPtd = prev ? ptdForPortfolio.find(d => d.dk === prev.dk) : null;
+
+        const selectedFTE = selectedPtd ? selectedPtd.fte : baseFTE;
+        const basePtdFTE = basePtd ? basePtd.fte : baseFTE;
+        portfolioScale = basePtdFTE > 0 ? selectedFTE / basePtdFTE : 1;
+
+        kpiTotal    = baseFTE * portfolioScale;
+        kpiEmp      = baseEmp * portfolioScale;
+        kpiCons     = baseCons * portfolioScale;
+        kpiOnsite   = baseOnsite * portfolioScale;
+        kpiOffshore = baseOffshore * portfolioScale;
+        kpiNear     = baseNear * portfolioScale;
+        kpiNewDev = wNewDev; kpiSysSup = wSysSup; kpiAdmin = wAdmin;
+
+        if (prevPtd && basePtdFTE > 0) {
+            const prevScale = prevPtd.fte / basePtdFTE;
+            prevKpiTotal = baseFTE * prevScale;
+            prevKpiEmp = baseEmp * prevScale;
+            prevKpiCons = baseCons * prevScale;
+            prevKpiOnsite = baseOnsite * prevScale;
+            prevKpiOffshore = baseOffshore * prevScale;
+            prevKpiNear = baseNear * prevScale;
+        }
+    }
+
+    // ===================== TAB 1: EXECUTIVE SUMMARY =====================
+
+    // KPI Cards
+    document.getElementById('kpi-employees').textContent = kpiEmp.toFixed(1);
+    document.getElementById('kpi-employees-pct').textContent = (kpiTotal>0 ? (kpiEmp/kpiTotal*100).toFixed(1) : '0') + '%';
+    document.getElementById('kpi-consultants').textContent = kpiCons.toFixed(1);
+    document.getElementById('kpi-consultants-pct').textContent = (kpiTotal>0 ? (kpiCons/kpiTotal*100).toFixed(1) : '0') + '%';
+    document.getElementById('kpi-onsite').textContent = kpiOnsite.toFixed(1);
+    document.getElementById('kpi-onsite-pct').textContent = (kpiTotal>0 ? (kpiOnsite/kpiTotal*100).toFixed(1) : '0') + '%';
+    document.getElementById('kpi-nearshore').textContent = kpiNear.toFixed(1);
+    document.getElementById('kpi-nearshore-pct').textContent = (kpiTotal>0 ? (kpiNear/kpiTotal*100).toFixed(1) : '0') + '%';
+    document.getElementById('kpi-offshore').textContent = kpiOffshore.toFixed(1);
+    document.getElementById('kpi-offshore-pct').textContent = (kpiTotal>0 ? (kpiOffshore/kpiTotal*100).toFixed(1) : '0') + '%';
+
+    // MoM changes
+    if (prevKpiEmp !== null) {
+        updateKPIChange('kpi-employees-chg', kpiEmp - prevKpiEmp);
+        updateKPIChange('kpi-consultants-chg', kpiCons - prevKpiCons);
+        updateKPIChange('kpi-onsite-chg', kpiOnsite - prevKpiOnsite);
+        updateKPIChange('kpi-nearshore-chg', kpiNear - prevKpiNear);
+        updateKPIChange('kpi-offshore-chg', kpiOffshore - prevKpiOffshore);
+    } else {
+        ['kpi-employees-chg','kpi-consultants-chg','kpi-onsite-chg','kpi-nearshore-chg','kpi-offshore-chg'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.className = 'kpi-change'; el.innerHTML = '—'; }
+        });
+    }
+
+    // Service Type Doughnut
+    destroyChart('serviceTypeDoughnut');
+    chartInstances['serviceTypeDoughnut'] = new Chart(document.getElementById('serviceTypeDoughnut'), {
+        type:'doughnut',
+        data:{ labels:['New Development','System Support','Admin'], datasets:[{ data:[kpiNewDev, kpiSysSup, kpiAdmin], backgroundColor:['#4fc3f7','#66bb6a','#ff9800'], borderWidth:0, hoverOffset:8 }] },
+        options:{ responsive:true, cutout:'65%', plugins:{ legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyleWidth:10,font:{size:11}}}, tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toFixed(1)+'%'}} } }
+    });
+
+    // FTE Trend Line
+    destroyChart('fteTrendLine');
+    let trendDatasets;
+    if (currentPortfolio === 'All') {
+        trendDatasets = [
+            { label:'Total', data:monthlyTrend.map(r=>r.total), borderColor:'#66bb6a', backgroundColor:'rgba(102,187,106,0.08)', fill:true, tension:0.3, borderWidth:2, pointRadius:0, pointHoverRadius:4 },
+            { label:'Offshore', data:monthlyTrend.map(r=>r.offshore), borderColor:'#ff9800', backgroundColor:'rgba(255,152,0,0.06)', fill:true, tension:0.3, borderWidth:2, pointRadius:0, pointHoverRadius:4 },
+            { label:'Nearshore', data:monthlyTrend.map(r=>r.near), borderColor:'#ab47bc', tension:0.3, borderWidth:1.5, pointRadius:0, borderDash:[4,2] },
+            { label:'Onsite', data:monthlyTrend.map(r=>r.onsite), borderColor:'#4fc3f7', tension:0.3, borderWidth:1.5, pointRadius:0, borderDash:[4,2] }
+        ];
+    } else {
+        const ptd = portfolioTrendData.filter(d => d.pn === currentPortfolio);
+        trendDatasets = [
+            { label:currentPortfolio, data:ptd.map(d=>d.fte), borderColor:'#4fc3f7', backgroundColor:'rgba(79,195,247,0.1)', fill:true, tension:0.3, borderWidth:2, pointRadius:0, pointHoverRadius:4 }
+        ];
+    }
+    const selectedIdx = monthlyTrend.findIndex(r=>r.dk===currentDateKey);
+    const verticalLinePlugin = {
+        id:'selectedMonth',
+        afterDraw(chart) {
+            if (selectedIdx >= 0) {
+                const x = chart.scales.x.getPixelForValue(selectedIdx);
+                const ctx = chart.ctx;
+                ctx.save(); ctx.strokeStyle = '#ff9800'; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+                ctx.beginPath(); ctx.moveTo(x, chart.chartArea.top); ctx.lineTo(x, chart.chartArea.bottom); ctx.stroke(); ctx.restore();
+            }
+        }
+    };
+    chartInstances['fteTrendLine'] = new Chart(document.getElementById('fteTrendLine'), {
+        type:'line', data:{ labels:monthlyTrend.map(r=>r.label), datasets:trendDatasets },
+        options:{ responsive:true, interaction:{mode:'index',intersect:false}, plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10},padding:12}}}, scales:{ x:{ticks:{maxRotation:45,autoSkip:true,maxTicksLimit:12,font:{size:9}}}, y:{beginAtZero:false,ticks:{font:{size:10}}} } },
+        plugins:[verticalLinePlugin]
+    });
+
+    // Portfolio Trend
+    destroyChart('portfolioTrend');
+    const ptDatasets = portfolioNames.map((pn,i) => {
+        const isOther = currentPortfolio !== 'All' && pn !== currentPortfolio;
+        const isSelected = currentPortfolio !== 'All' && pn === currentPortfolio;
+        return {
+            label: pn.replace('Customer Experience Platform','CX Platform').replace('Enterprise Infrastructure','Enterprise Infra').replace('Digital Transformation','Digital Transform'),
+            data: portfolioTrendData.filter(d=>d.pn===pn).map(d=>d.fte),
+            borderColor: isOther ? portfolioColors[i]+'44' : portfolioColors[i],
+            tension:0.3, borderWidth: isSelected ? 3 : 2, pointRadius:0, pointHoverRadius:4
+        };
+    });
+    chartInstances['portfolioTrend'] = new Chart(document.getElementById('portfolioTrend'), {
+        type:'line', data:{ labels:monthlyTrend.map(r=>r.label), datasets:ptDatasets },
+        options:{ responsive:true, interaction:{mode:'index',intersect:false}, plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:9},padding:10}}}, scales:{ x:{ticks:{maxRotation:45,autoSkip:true,maxTicksLimit:12,font:{size:9}}}, y:{beginAtZero:false,min:45,max:75,ticks:{font:{size:10}}} } },
+        plugins:[verticalLinePlugin]
+    });
+
+    // Alerts Table
+    const alertProgs = fp.filter(p => p.offshorePct > 55).sort((a,b) => b.offshorePct - a.offshorePct);
+    const aTbody = document.querySelector('#alertsTable tbody');
+    aTbody.innerHTML = '';
+    alertProgs.forEach(p => { const r=aTbody.insertRow(); r.innerHTML=`<td>${p.name}</td><td class="right">${(p.onsite*portfolioScale).toFixed(1)}</td><td class="right">${(p.offshore*portfolioScale).toFixed(1)}</td><td class="right">${p.offshorePct}%</td><td><span class="dot red"></span></td>`; });
+    if (!alertProgs.length) { const r=aTbody.insertRow(); r.innerHTML='<td colspan="5" style="text-align:center;color:#6b7c8d;padding:20px">No alerts in this view</td>'; }
+
+    // Performers Table
+    const perfProgs = fp.filter(p => p.onsitePct >= 30).sort((a,b) => b.onsitePct - a.onsitePct);
+    const pTbody = document.querySelector('#performersTable tbody');
+    pTbody.innerHTML = '';
+    perfProgs.forEach(p => { const r=pTbody.insertRow(); r.innerHTML=`<td>${p.name}</td><td class="right">${(p.onsite*portfolioScale).toFixed(1)}</td><td class="right">${(p.offshore*portfolioScale).toFixed(1)}</td><td class="right">${p.onsitePct}%</td><td><span class="dot green"></span></td>`; });
+    if (!perfProgs.length) { const r=pTbody.insertRow(); r.innerHTML='<td colspan="5" style="text-align:center;color:#6b7c8d;padding:20px">No top performers in this view</td>'; }
+
+    // Vendor Cloud
+    const vendorCloudEl = document.getElementById('vendorCloud');
+    vendorCloudEl.innerHTML = '';
+    const scaledVendors = vendors.map(v => ({name:v.name, total:+(v.total*dateScale).toFixed(1), onsite:+(v.onsite*dateScale).toFixed(1), offshore:+(v.offshore*dateScale).toFixed(1), near:+(v.near*dateScale).toFixed(1)}));
+    const maxVFTE = Math.max(...scaledVendors.map(v=>v.total));
+    scaledVendors.forEach(v => {
+        const bubbleScale = 0.7 + (v.total/maxVFTE)*0.8;
+        const offPct = v.total > 0 ? v.offshore / v.total * 100 : 0;
+        const color = offPct >= 65 ? '#ff9800' : '#4fc3f7';
+        const bg = offPct >= 65 ? 'rgba(255,152,0,0.15)' : 'rgba(79,195,247,0.12)';
+        const bubble = document.createElement('div');
+        bubble.className = 'vendor-bubble';
+        bubble.style.cssText = `font-size:${Math.round(12*bubbleScale)}px;color:${color};background:${bg};border:1px solid ${color}33`;
+        bubble.textContent = v.name;
+        bubble.title = `${v.total} FTE | Offshore: ${offPct.toFixed(0)}%`;
+        vendorCloudEl.appendChild(bubble);
+    });
+
+    // ===================== TAB 2: KEY INDICATORS =====================
+
+    // Update summary grid stats
+    document.getElementById('ind-onsite-val').textContent = kpiOnsite.toFixed(1);
+    document.getElementById('ind-near-val').textContent = kpiNear.toFixed(1);
+    document.getElementById('ind-offshore-val').textContent = kpiOffshore.toFixed(1);
+
+    // Update location card text
+    document.getElementById('ind-loc-subtitle').textContent = 'Breakdown of ' + kpiTotal.toFixed(1) + ' total FTE by delivery location';
+    document.getElementById('ind-emp-val').textContent = kpiEmp.toFixed(1);
+    document.getElementById('ind-cons-val').textContent = kpiCons.toFixed(1);
+    document.getElementById('ind-total-val').textContent = kpiTotal.toFixed(1);
+
+    // Location Doughnut
+    destroyChart('locationDoughnut');
+    chartInstances['locationDoughnut'] = new Chart(document.getElementById('locationDoughnut'), {
+        type:'doughnut',
+        data:{ labels:['Onsite','Nearshore','Offshore'], datasets:[{ data:[kpiOnsite, kpiNear, kpiOffshore], backgroundColor:['#4fc3f7','#ab47bc','#ff9800'], borderWidth:0, hoverOffset:8 }] },
+        options:{ responsive:true, cutout:'60%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toFixed(1)+' FTE ('+(kpiTotal>0?(ctx.parsed/kpiTotal*100).toFixed(1):'0')+'%)'}} } }
+    });
+
+    // Consultant Location Bar — scaled
+    const consRatio = kpiTotal > 0 ? kpiCons / kpiTotal : 0;
+    const cOnsite = +(kpiOnsite*consRatio).toFixed(1);
+    const cNear = +(kpiNear*consRatio).toFixed(1);
+    const cOffshore = +(kpiOffshore*consRatio).toFixed(1);
+
+    // Update consultant card text
+    document.getElementById('ind-cons-subtitle').textContent = kpiCons.toFixed(1) + ' consultant FTE by delivery location';
+    document.getElementById('ind-cons-onsite').textContent = cOnsite;
+    document.getElementById('ind-cons-near').textContent = cNear;
+    document.getElementById('ind-cons-offshore').textContent = cOffshore;
+    document.getElementById('ind-cons-onsite-pct').textContent = 'ONSITE (' + (kpiCons>0?(cOnsite/kpiCons*100).toFixed(1):'0') + '%)';
+    document.getElementById('ind-cons-near-pct').textContent = 'NEARSHORE (' + (kpiCons>0?(cNear/kpiCons*100).toFixed(1):'0') + '%)';
+    document.getElementById('ind-cons-offshore-pct').textContent = 'OFFSHORE (' + (kpiCons>0?(cOffshore/kpiCons*100).toFixed(1):'0') + '%)';
+
+    destroyChart('consultantLocationBar');
+    chartInstances['consultantLocationBar'] = new Chart(document.getElementById('consultantLocationBar'), {
+        type:'bar',
+        data:{ labels:['Onsite','Nearshore','Offshore'], datasets:[{ data:[cOnsite, cNear, cOffshore], backgroundColor:['#4fc3f7','#ab47bc','#ff9800'], borderRadius:6, barThickness:40 }] },
+        options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,ticks:{font:{size:10}}}, x:{ticks:{font:{size:11}}} } }
+    });
+
+    // Department Bar — scale by deptScale which represents the filtered view's share of the org
+    // When All + any date: deptScale = dateScale (total FTE at selected month / total FTE at base)
+    // When specific portfolio + any date: deptScale = kpiTotal / latest.total (portfolio's FTE at selected date / org total at base)
+    const deptScale = latest.total > 0 ? kpiTotal / latest.total : 1;
+    const scaledDepts = departments.map(d => ({name:d.name, total:+(d.total*deptScale).toFixed(1), onsite:+(d.onsite*deptScale).toFixed(1), near:+(d.near*deptScale).toFixed(1), offshore:+(d.offshore*deptScale).toFixed(1)}));
+    destroyChart('departmentBar');
+    chartInstances['departmentBar'] = new Chart(document.getElementById('departmentBar'), {
+        type:'bar',
+        data:{ labels:scaledDepts.map(d=>d.name), datasets:[{ data:scaledDepts.map(d=>d.total), backgroundColor:'#4fc3f7', borderRadius:4, barThickness:24 }] },
+        options:{ indexAxis:'y', responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(1)+' FTE'}} }, scales:{ x:{beginAtZero:true,ticks:{font:{size:10}}}, y:{ticks:{font:{size:10}}} } }
+    });
+
+    // Service Effort Doughnut — scale by combined factor
+    const svcScale = currentPortfolio === 'All' ? dateScale : (baseFTE / programs.reduce((s2,p)=>s2+p.total,0)) * portfolioScale;
+    const scaledServiceData = serviceSubtypes.map(s => +(s.fte * svcScale).toFixed(1));
+    const svcNewDev = scaledServiceData[0] + scaledServiceData[1]; // Platform Migration + Greenfield Build
+    const svcSysSup = scaledServiceData[2] + scaledServiceData[4] + (scaledServiceData[5]||0); // Minor Enhancements + Break-Fix + Feasibility
+    const svcAdmin = scaledServiceData[3]; // General Administration
+    const svcTotalFTE = svcNewDev + svcSysSup + svcAdmin;
+
+    // Update service effort stats
+    document.getElementById('ind-svc-newdev').textContent = svcNewDev.toFixed(1);
+    document.getElementById('ind-svc-newdev-pct').textContent = (svcTotalFTE>0?(svcNewDev/svcTotalFTE*100).toFixed(1):'0') + '%';
+    document.getElementById('ind-svc-syssup').textContent = svcSysSup.toFixed(1);
+    document.getElementById('ind-svc-syssup-pct').textContent = (svcTotalFTE>0?(svcSysSup/svcTotalFTE*100).toFixed(1):'0') + '%';
+    document.getElementById('ind-svc-admin').textContent = svcAdmin.toFixed(1);
+    document.getElementById('ind-svc-admin-pct').textContent = (svcTotalFTE>0?(svcAdmin/svcTotalFTE*100).toFixed(1):'0') + '%';
+
+    destroyChart('serviceEffortDoughnut');
+    chartInstances['serviceEffortDoughnut'] = new Chart(document.getElementById('serviceEffortDoughnut'), {
+        type:'doughnut',
+        data:{ labels:serviceSubtypes.map(s=>s.subtype), datasets:[{ data:scaledServiceData, backgroundColor:['#4fc3f7','#4dd0e1','#66bb6a','#ff9800','#81c784','#ffd54f'], borderWidth:0, hoverOffset:6 }] },
+        options:{ responsive:true, cutout:'55%', plugins:{ legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10},padding:10}}, tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toFixed(1)+' FTE'}} } }
+    });
+
+    // ===================== TAB 3: PROGRAM TRENDS =====================
+
+    // Update section title and subtitles
+    const dateLabel = m.label || 'Dec \'24';
+    document.getElementById('trends-section-title').textContent = 'Program Analysis — ' + dateLabel + (currentPortfolio!=='All' ? ' — ' + currentPortfolio : '');
+    document.getElementById('trends-table-subtitle').textContent = (currentPortfolio==='All' ? 'All ' + fp.length : fp.length) + ' programs sorted by total FTE — includes employment mix, location split, momentum, and service type';
+    document.getElementById('trends-bar-subtitle').textContent = 'Horizontal bar chart — ' + dateLabel;
+
+    // Program Trends Table — FTE values scaled by portfolioScale (date+portfolio combined)
+    const trTbody = document.querySelector('#programTrendsTable tbody');
+    trTbody.innerHTML = '';
+    fp.forEach(p => {
+        const sTotal = +(p.total * portfolioScale).toFixed(1);
+        const sEmp = +(p.emp * portfolioScale).toFixed(1);
+        const sCons = +(p.cons * portfolioScale).toFixed(1);
+        const momCl = p.mom >= 0 ? 'positive' : 'negative';
+        const momAr = p.mom >= 0 ? '&#9650;' : '&#9660;';
+        const yoyCl = p.yoy >= 0 ? 'positive' : 'negative';
+        const yoyAr = p.yoy >= 0 ? '&#9650;' : '&#9660;';
+        const r = trTbody.insertRow();
+        r.innerHTML = `<td><b>${p.name}</b></td><td style="font-size:10px;color:#6b7c8d">${p.portfolio}</td><td class="right"><b>${sTotal}</b></td><td class="right">${sEmp}</td><td class="right">${sCons}</td><td class="right">${p.onsitePct}%</td><td class="right">${p.offshorePct}%${p.offshorePct>60?'<span class="dot red"></span>':p.offshorePct>50?'<span class="dot yellow"></span>':'<span class="dot green"></span>'}</td><td class="right kpi-change ${momCl}">${momAr} ${p.mom>0?'+':''}${p.mom}</td><td class="right kpi-change ${yoyCl}">${yoyAr} ${p.yoy>0?'+':''}${p.yoy}%</td><td class="right">${p.newDev}%</td><td class="right">${p.sysSup}%</td><td class="right">${p.admin||0}%</td>`;
+    });
+
+    // Top Programs Bar — scaled
+    const top10 = fp.slice(0, 10);
+    destroyChart('topProgramsBar');
+    chartInstances['topProgramsBar'] = new Chart(document.getElementById('topProgramsBar'), {
+        type:'bar',
+        data:{ labels:top10.map(p=>p.name.length>25?p.name.slice(0,22)+'...':p.name), datasets:[{ data:top10.map(p=>+(p.total*portfolioScale).toFixed(1)), backgroundColor:top10.map((_,i)=>CHART_COLORS[i%CHART_COLORS.length]), borderRadius:4, barThickness:20 }] },
+        options:{ indexAxis:'y', responsive:true, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(1)+' FTE'}}}, scales:{x:{beginAtZero:true},y:{ticks:{font:{size:10}}}} }
+    });
+
+    // Portfolio Breakdown Bar — scaled
+    const pAgg = {};
+    fp.forEach(p => { if(!pAgg[p.portfolio]) pAgg[p.portfolio]=0; pAgg[p.portfolio] += p.total * portfolioScale; });
+    destroyChart('portfolioBreakdownBar');
+    chartInstances['portfolioBreakdownBar'] = new Chart(document.getElementById('portfolioBreakdownBar'), {
+        type:'bar',
+        data:{ labels:Object.keys(pAgg), datasets:[{ data:Object.values(pAgg).map(v=>+v.toFixed(1)), backgroundColor:['#4fc3f7','#ff9800','#66bb6a','#ab47bc'], borderRadius:6, barThickness:36 }] },
+        options:{ responsive:true, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+' FTE'}}}, scales:{y:{beginAtZero:true},x:{ticks:{font:{size:10},maxRotation:15}}} }
+    });
+
+    // ===================== TAB 4: VENDOR ANALYSIS =====================
+
+    document.getElementById('vendor-section-title').textContent = 'Vendor Analysis — ' + dateLabel + (currentPortfolio!=='All' ? ' — ' + currentPortfolio : '');
+
+    // Vendor Stacked Bar — scale by dateScale
+    destroyChart('vendorStackedBar');
+    chartInstances['vendorStackedBar'] = new Chart(document.getElementById('vendorStackedBar'), {
+        type:'bar',
+        data:{ labels:scaledVendors.map(v=>v.name), datasets:[
+            {label:'Onsite',data:scaledVendors.map(v=>v.onsite),backgroundColor:'#4fc3f7',borderRadius:2},
+            {label:'Nearshore',data:scaledVendors.map(v=>v.near),backgroundColor:'#ab47bc',borderRadius:2},
+            {label:'Offshore',data:scaledVendors.map(v=>v.offshore),backgroundColor:'#ff9800',borderRadius:2}
+        ]},
+        options:{ indexAxis:'y', responsive:true, plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10}}}}, scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}} }
+    });
+
+    // Vendor Location Pct — percentages don't change with scale, but refresh for consistency
+    destroyChart('vendorLocationPct');
+    chartInstances['vendorLocationPct'] = new Chart(document.getElementById('vendorLocationPct'), {
+        type:'bar',
+        data:{ labels:vendors.map(v=>v.name), datasets:[
+            {label:'Onsite %',data:vendors.map(v=>(v.onsite/v.total*100).toFixed(1)),backgroundColor:'#4fc3f7'},
+            {label:'Nearshore %',data:vendors.map(v=>(v.near/v.total*100).toFixed(1)),backgroundColor:'#ab47bc'},
+            {label:'Offshore %',data:vendors.map(v=>(v.offshore/v.total*100).toFixed(1)),backgroundColor:'#ff9800'}
+        ]},
+        options:{ indexAxis:'y', responsive:true, plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10}}}}, scales:{x:{stacked:true,max:100,ticks:{callback:v=>v+'%',font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}} }
+    });
+
+    // Vendor Matrix Table — filter by portfolio, scale FTE by portfolioScale
+    const matrixTbody = document.querySelector('#vendorMatrixTable tbody');
+    matrixTbody.innerHTML = '';
+    const fpNames = new Set(fp.map(p=>p.name));
+    const filteredMatrix = vendorMatrix.filter(row => fpNames.has(row.prog));
+    filteredMatrix.forEach(row => {
+        const tr = matrixTbody.insertRow();
+        let html = `<td><b>${row.prog}</b></td>`;
+        let total = 0;
+        shortVendorNames.forEach(v => { const raw=row.v[v]||0; const val=+(raw*portfolioScale).toFixed(1); total+=val; html+=`<td class="right" style="${val>1.5?'color:#4fc3f7;font-weight:600':val===0?'color:#2a3a4a':''}">${val||'-'}</td>`; });
+        html += `<td class="right" style="font-weight:700">${total.toFixed(1)}</td>`;
+        tr.innerHTML = html;
+    });
+    if (!filteredMatrix.length) { const r=matrixTbody.insertRow(); r.innerHTML=`<td colspan="${shortVendorNames.length+2}" style="text-align:center;color:#6b7c8d;padding:20px">No vendor data for selected portfolio</td>`; }
+
+    // ===================== TAB 5: DEPARTMENT VIEW =====================
+
+    document.getElementById('dept-section-title').textContent = 'Department Analysis — ' + dateLabel + (currentPortfolio!=='All' ? ' — ' + currentPortfolio : '');
+
+    // Dept Stacked Bar — scaled by dateScale
+    destroyChart('deptStackedBar');
+    chartInstances['deptStackedBar'] = new Chart(document.getElementById('deptStackedBar'), {
+        type:'bar',
+        data:{ labels:scaledDepts.map(d=>d.name), datasets:[
+            {label:'Onsite',data:scaledDepts.map(d=>d.onsite),backgroundColor:'#4fc3f7',borderRadius:2},
+            {label:'Nearshore',data:scaledDepts.map(d=>d.near),backgroundColor:'#ab47bc',borderRadius:2},
+            {label:'Offshore',data:scaledDepts.map(d=>d.offshore),backgroundColor:'#ff9800',borderRadius:2}
+        ]},
+        options:{ indexAxis:'y', responsive:true, plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,font:{size:10}}}}, scales:{x:{stacked:true},y:{stacked:true,ticks:{font:{size:10}}}} }
+    });
+
+    // Dept Offshore Bar — percentages stay same, but absolute values scaled
+    const deptsSorted = [...scaledDepts].sort((a,b) => (b.offshore/b.total) - (a.offshore/a.total));
+    destroyChart('deptOffshoreBar');
+    chartInstances['deptOffshoreBar'] = new Chart(document.getElementById('deptOffshoreBar'), {
+        type:'bar',
+        data:{ labels:deptsSorted.map(d=>d.name), datasets:[{ data:deptsSorted.map(d=>d.total>0?(d.offshore/d.total*100).toFixed(1):0), backgroundColor:deptsSorted.map(d=>{ const pct=d.total>0?d.offshore/d.total*100:0; return pct>60?'#ef5350':pct>50?'#ffb74d':'#66bb6a'; }), borderRadius:4, barThickness:20 }] },
+        options:{ indexAxis:'y', responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.x+'% Offshore'}} }, scales:{ x:{max:70,ticks:{callback:v=>v+'%',font:{size:10}}}, y:{ticks:{font:{size:10}}} } }
+    });
+
+    // Dept Detail Table — scaled
+    const deptTbody = document.querySelector('#deptDetailTable tbody');
+    deptTbody.innerHTML = '';
+    scaledDepts.forEach(d => {
+        const onPct = d.total > 0 ? (d.onsite/d.total*100).toFixed(1) : '0.0';
+        const offPct = d.total > 0 ? (d.offshore/d.total*100).toFixed(1) : '0.0';
+        const risk = offPct > 60 ? '<span style="color:#ef5350;font-weight:600">&#9679; High</span>' : offPct > 50 ? '<span style="color:#ffb74d;font-weight:600">&#9679; Medium</span>' : '<span style="color:#66bb6a;font-weight:600">&#9679; Low</span>';
+        const r = deptTbody.insertRow();
+        r.innerHTML = `<td><b>${d.name}</b></td><td class="right">${d.total}</td><td class="right">${d.onsite}</td><td class="right">${d.near}</td><td class="right">${d.offshore}</td><td class="right">${onPct}%</td><td class="right">${offPct}%</td><td>${risk}</td>`;
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>02 — Shipments Analysis | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html" class="active">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Shipments Analysis <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Tier 1: Producer-to-Distributor Sell-In | Weekly, Monthly & Quarterly with Prior Year Comparison</div>
+    <div class="dash-num">02</div>
+</div>
+
+<div class="container">
+
+<!-- ═══ KPI CARDS ═══ -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ═══ WEEKLY TREND FY25 vs FY24 ═══ -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Weekly Shipment Revenue — FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">52-week overlay showing week-by-week sell-in performance with prior year comparison</div>
+        <canvas id="weeklyChart" height="70"></canvas>
+    </div>
+</div>
+
+<!-- ═══ MONTHLY FY25 vs FY24 ═══ -->
+<div class="section-label">Monthly Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Revenue: Gross, Net & Gross Profit</h3>
+        <div class="chart-subtitle">FY2025 monthly breakdown with Gross Profit stacked against COGS</div>
+        <canvas id="monthlyStackChart" height="70"></canvas>
+    </div>
+</div>
+
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Monthly Cases Shipped: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Volume comparison by month (9L equiv. cases)</div>
+        <canvas id="monthlyCasesChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Monthly GP Margin Trend</h3>
+        <div class="chart-subtitle">Gross Profit % by month — FY25 vs FY24</div>
+        <canvas id="marginChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR PERFORMANCE ═══ -->
+<div class="section-label">Distributor Performance — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Revenue by Distributor: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">All 12 distributors — grouped comparison</div>
+        <canvas id="distChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ PRODUCT & GEOGRAPHY ═══ -->
+<div class="section-label">Product Categories & Geography — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Revenue by Category: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Spirit type / category breakdown with YoY change</div>
+        <canvas id="catChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Top 15 States: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">State-level shipment revenue comparison</div>
+        <canvas id="stateChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ RETURNS & WAREHOUSE ═══ -->
+<div class="section-label">Returns & Warehouse — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Return Reasons: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Cases returned by reason with prior year</div>
+        <canvas id="returnChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Top 10 Warehouses by Revenue</h3>
+        <div class="chart-subtitle">FY2025 shipping warehouse performance</div>
+        <canvas id="whChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Distributor Performance Detail — FY2025</h3>
+    <div class="chart-subtitle">Revenue, volume, gross profit, returns, and YoY change by distributor</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Distributor</th>
+            <th class="num">FY25 Revenue</th><th class="num">vs FY24</th>
+            <th class="num">Cases Shipped</th><th class="num">vs FY24</th>
+            <th class="num">Gross Profit</th><th class="num">GP%</th>
+            <th class="num">Returns</th><th class="num">Ret. Rate</th>
+        </tr></thead>
+        <tbody id="distTable"></tbody>
+        <tfoot id="distTfoot"></tfoot>
+    </table>
+</div>
+
+<!-- ═══ MONTHLY DETAIL TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Shipment Detail — FY2025</h3>
+    <div class="chart-subtitle">All metrics by fiscal period with prior year comparison</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Net Revenue</th><th class="num">vs PY</th>
+            <th class="num">Gross Profit</th><th class="num">GP%</th>
+            <th class="num">Cases</th><th class="num">vs PY</th>
+            <th class="num">COGS</th><th class="num">Returns</th>
+        </tr></thead>
+        <tbody id="monthTable"></tbody>
+        <tfoot id="monthTfoot"></tfoot>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 02 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+// ── THEME ──
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+// ── MONTHLY DATA ──
+const fy25 = [
+    {m:'Jul',q:1,nr:3328697.91,gr:3351192.90,gp:1240658.00,cogs:2088039.91,cases:79563.5,ret:45.7},
+    {m:'Aug',q:1,nr:2616557.45,gr:2633913.77,gp:975640.97,cogs:1640916.48,cases:61571.6,ret:37.9},
+    {m:'Sep',q:1,nr:3335445.97,gr:3356753.37,gp:1241590.25,cogs:2093855.72,cases:75642.9,ret:53.5},
+    {m:'Oct',q:2,nr:2887869.86,gr:2906002.80,gp:1072944.15,cogs:1814925.71,cases:64277.5,ret:42.0},
+    {m:'Nov',q:2,nr:3266443.72,gr:3287181.90,gp:1214095.42,cogs:2052348.30,cases:73804.2,ret:48.6},
+    {m:'Dec',q:2,nr:5263840.10,gr:5297147.61,gp:1958186.99,cogs:3305653.11,cases:118072.8,ret:83.5},
+    {m:'Jan',q:3,nr:2318625.06,gr:2333549.00,gp:861745.54,cogs:1456879.52,cases:52496.4,ret:36.7},
+    {m:'Feb',q:3,nr:2257008.53,gr:2271405.11,gp:839489.88,cogs:1417518.65,cases:51037.8,ret:37.1},
+    {m:'Mar',q:3,nr:3070893.98,gr:3090788.19,gp:1142391.18,cogs:1928502.80,cases:70459.4,ret:56.7},
+    {m:'Apr',q:4,nr:2547395.68,gr:2563899.61,gp:946410.14,cogs:1600985.54,cases:58431.2,ret:37.7},
+    {m:'May',q:4,nr:2662191.32,gr:2679539.18,gp:991523.20,cogs:1670668.12,cases:61762.1,ret:42.6},
+    {m:'Jun',q:4,nr:3452340.67,gr:3475268.59,gp:1286722.03,cogs:2165618.64,cases:81137.9,ret:55.8}
+];
+const fy24 = [
+    {m:'Jul',nr:3119714.65,gp:1163366.17,cases:76757.4},
+    {m:'Aug',nr:2426278.14,gp:905016.41,cases:58655.2},
+    {m:'Sep',nr:2457043.42,gp:914525.77,cases:57219.2},
+    {m:'Oct',nr:3292521.57,gp:1224550.34,cases:75709.0},
+    {m:'Nov',nr:3012514.68,gp:1119553.90,cases:69758.9},
+    {m:'Dec',nr:3855727.14,gp:1434761.18,cases:88962.4},
+    {m:'Jan',nr:2691425.36,gp:1001244.71,cases:62388.9},
+    {m:'Feb',nr:2067486.97,gp:769710.19,cases:48395.7},
+    {m:'Mar',nr:2304401.85,gp:857844.14,cases:54069.9},
+    {m:'Apr',nr:2918139.12,gp:1087658.99,cases:68810.0},
+    {m:'May',nr:2482644.30,gp:925637.95,cases:59043.2},
+    {m:'Jun',nr:2540798.68,gp:947572.55,cases:61542.1}
+];
+
+// ── WEEKLY DATA ──
+const wk25=[1035887.94,564921.91,573185.38,604690.48,575827.29,560965.49,571811.20,567273.27,556958.57,611117.08,617886.12,625119.75,625108.49,591662.54,639966.71,638470.93,634009.00,634949.04,654484.07,654822.08,671740.06,681145.11,679958.44,697581.60,694787.44,688559.73,1355545.88,661234.95,672025.74,657809.69,673535.11,659823.38,644787.65,664403.02,647543.40,680739.07,646740.85,659138.32,682800.26,666027.47,718782.74,744086.33,703527.10,721473.69,802427.04,819707.17,837993.82,806315.69,1049229.76,1027484.62,1064073.49,1087164.29];
+const wk24=[529067.67,535651.07,547230.17,535623.26,543853.19,512003.83,518614.21,516708.85,520160.08,571169.53,579793.67,573774.04,579664.61,583822.54,585682.00,572276.49,590484.34,585873.75,637048.18,607467.67,621825.80,616302.65,641005.45,632725.22,630106.58,636961.43,641828.89,624416.55,617439.84,614383.33,621646.04,595938.64,627242.59,604967.22,598129.69,627050.24,613702.53,598225.94,618064.71,640800.64,663637.87,669825.85,671020.14,647237.07,747715.45,759419.23,751941.88,753438.12,945755.39,964203.47,967164.02,978604.26];
+
+// ── DISTRIBUTOR DATA ──
+const distData = [
+    {n:'Southern Wine & Spirits',fy25:7821989.47,fy24:6988228.26,c25:179189.2,c24:164656.6,gp:2917396.02,ret:114.5},
+    {n:'Republic National Dist.',fy25:7790759.50,fy24:6913997.00,c25:178046.1,c24:163175.5,gp:2904502.58,ret:138.8},
+    {n:'Breakthru Beverage',fy25:6460733.11,fy24:5822727.16,c25:147947.4,c24:136824.3,gp:2399061.35,ret:92.3},
+    {n:"Young's Market",fy25:4866963.97,fy24:4404362.02,c25:111886.3,c24:103488.3,gp:1809381.79,ret:74.4},
+    {n:'Empire Merchants',fy25:2348886.88,fy24:2063629.86,c25:53617.8,c24:49016.5,gp:869198.65,ret:43.0},
+    {n:'Heidelberg Dist.',fy25:1753016.48,fy24:1572715.87,c25:39949.5,c24:36935.4,gp:658251.47,ret:28.0},
+    {n:'Winesellers Ltd',fy25:1376625.23,fy24:1232319.96,c25:31589.7,c24:29273.8,gp:508292.65,ret:20.6},
+    {n:'Capitol Beverage',fy25:1157678.55,fy24:1052732.78,c25:26741.4,c24:24763.3,gp:431341.49,ret:15.4},
+    {n:'Horizon Beverage',fy25:1067906.33,fy24:965985.81,c25:24706.8,c24:22699.3,gp:398055.49,ret:13.0},
+    {n:'Lipman Brothers',fy25:1031767.39,fy24:946182.27,c25:24043.4,c24:22282.0,gp:379209.54,ret:14.0},
+    {n:'Fedway Associates',fy25:722121.28,fy24:648880.12,c25:16596.7,c24:15365.7,gp:267961.03,ret:11.7},
+    {n:'State Control Board',fy25:608862.06,fy24:556934.77,c25:13943.0,c24:12831.2,gp:228745.69,ret:12.1}
+];
+
+// ── CATEGORY DATA ──
+const catData = [
+    {n:'Scotch Whisky',fy25:15763321.65,fy24:14005385.79,c:198630.6,gp:5403197.40},
+    {n:'Canadian Whisky',fy25:11526007.10,fy24:10235269.28,c:240516.3,gp:4592484.84},
+    {n:'Premium Vodka',fy25:3723863.12,fy24:3609132.37,c:206304.1,gp:1437561.69},
+    {n:'Spiced Rum',fy25:2194944.83,fy24:2083313.74,c:124130.0,gp:878518.45},
+    {n:'Premium Tequila',fy25:1580027.04,fy24:1189535.37,c:20739.0,gp:595468.39},
+    {n:'Ultra-Prem Tequila',fy25:594384.99,fy24:525577.77,c:11339.1,gp:216389.79},
+    {n:'Bourbon',fy25:458059.51,fy24:449053.45,c:10031.5,gp:171323.51},
+    {n:'Ultra-Prem Vodka',fy25:413945.51,fy24:375796.35,c:10864.5,gp:168618.45},
+    {n:'Super-Prem Vodka',fy25:284346.09,fy24:265370.02,c:8974.5,gp:120459.90},
+    {n:'Premium Gin',fy25:265125.72,fy24:247738.43,c:8369.7,gp:105329.75},
+    {n:'Cream Liqueur',fy25:184370.48,fy24:164157.90,c:6827.5,gp:75697.98},
+    {n:'Stout',fy25:18914.21,fy24:18365.41,c:1530.5,gp:6347.60}
+];
+
+// ── STATE DATA ──
+const stData = [
+    {s:'California',fy25:5583914.82,fy24:4980663.93},{s:'New York',fy25:2826634.98,fy24:2532081.77},
+    {s:'Texas',fy25:2074495.57,fy24:1848919.14},{s:'Illinois',fy25:1825871.48,fy24:1632789.63},
+    {s:'Ohio',fy25:1677088.27,fy24:1501995.41},{s:'Florida',fy25:1523513.68,fy24:1339516.17},
+    {s:'New Jersey',fy25:1317267.26,fy24:1162441.89},{s:'Virginia',fy25:1223202.60,fy24:1104655.72},
+    {s:'Washington',fy25:1058825.45,fy24:946343.60},{s:'Arizona',fy25:1009410.56,fy24:913567.23},
+    {s:'Massachusetts',fy25:978647.13,fy24:892005.79},{s:'Tennessee',fy25:971592.31,fy24:885092.78},
+    {s:'Indiana',fy25:953506.18,fy24:841074.20},{s:'Pennsylvania',fy25:910683.22,fy24:827688.75},
+    {s:'Wisconsin',fy25:840689.22,fy24:743044.76}
+];
+
+// ── RETURNS DATA ──
+const retData = [
+    {r:'Label Defect',fy25:78.1,fy24:72.6},{r:'Damaged in Transit',fy25:75.4,fy24:56.4},
+    {r:'Quality Issue',fy25:75.2,fy24:67.1},{r:'Wrong Product',fy25:75.0,fy24:62.6},
+    {r:'Customer Refused',fy25:74.3,fy24:67.3},{r:'Recalled',fy25:69.3,fy24:58.7},
+    {r:'Overstocked',fy25:67.5,fy24:63.1},{r:'Near Expiry',fy25:63.0,fy24:68.0}
+];
+
+// ── WAREHOUSE DATA (top 10) ──
+const whData = [
+    {w:'WH-02-05',r:2831760.39},{w:'WH-05-05',r:2752154.43},{w:'WH-02-43',r:2074495.57},
+    {w:'WH-01-09',r:1523513.68},{w:'WH-04-32',r:1428883.85},{w:'WH-03-32',r:1397751.13},
+    {w:'WH-03-13',r:921187.70},{w:'WH-02-38',r:910683.22},{w:'WH-11-13',r:904683.78},
+    {w:'WH-01-35',r:850801.95}
+];
+
+// ── TOTALS ──
+const t25={nr:0,gp:0,cases:0,ret:0,gr:0,cogs:0};
+const t24={nr:0,gp:0,cases:0};
+fy25.forEach(d=>{t25.nr+=d.nr;t25.gp+=d.gp;t25.cases+=d.cases;t25.ret+=d.ret;t25.gr+=d.gr;t25.cogs+=d.cogs;});
+fy24.forEach(d=>{t24.nr+=d.nr;t24.gp+=d.gp;t24.cases+=d.cases;});
+
+// ── KPI CARDS ──
+const kpis = [
+    {label:'Net Revenue',val:t25.nr,prev:t24.nr,sub:'Gross: '+fmt$(t25.gr)},
+    {label:'Gross Profit',val:t25.gp,prev:t24.gp,sub:'Margin: '+(t25.gp/t25.nr*100).toFixed(1)+'%'},
+    {label:'Cases Shipped',val:t25.cases,prev:t24.cases,sub:'9L equiv. cases',isCases:true},
+    {label:'COGS',val:t25.cogs,prev:null,sub:'Cost of Goods Sold'},
+    {label:'Returns (Cases)',val:t25.ret,prev:null,sub:'Return Rate: '+(t25.ret/t25.cases*100).toFixed(3)+'%',isCases:true,isSmall:true},
+    {label:'Distributors',val:12,prev:null,sub:'Active in FY2025',isCount:true}
+];
+const kpiRow = document.getElementById('kpiRow');
+kpis.forEach(k=>{
+    const chg = k.prev ? pct(k.val, k.prev) : null;
+    const arrow = chg !== null ? (chg >= 0 ? '&#9650;' : '&#9660;') : '';
+    const cls = chg !== null ? (chg >= 0 ? 'positive' : 'negative') : '';
+    const displayVal = k.isCount ? k.val : k.isSmall ? k.val.toFixed(1) : k.isCases ? fmtK(k.val) : fmt$(k.val);
+    const sparkVals = fy25.map(d => d.nr);
+    const sparkMax = Math.max(...sparkVals);
+    const bars = sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');
+    kpiRow.innerHTML += `<div class="kpi-card">
+        <div class="label">${k.label}</div>
+        <div class="value">${displayVal}</div>
+        ${chg !== null ? `<div class="change ${cls}">${arrow} ${Math.abs(chg)}% vs FY24</div>` : ''}
+        <div class="sub-value">${k.sub}</div>
+        <div class="sparkline-row">${bars}</div>
+    </div>`;
+});
+
+// ── WEEKLY TREND ──
+new Chart(document.getElementById('weeklyChart'),{type:'line',data:{
+    labels:wk25.map((_,i)=>'W'+(i+1)),
+    datasets:[
+        {label:'FY2025',data:wk25,borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',fill:true,tension:.3,pointRadius:2,borderWidth:2},
+        {label:'FY2024',data:wk24,borderColor:PY,fill:false,tension:.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{ticks:{font:{size:8},maxTicksLimit:26},grid:{display:false}}}}});
+
+// ── MONTHLY STACKED (GP + COGS) ──
+new Chart(document.getElementById('monthlyStackChart'),{type:'bar',data:{
+    labels:months,
+    datasets:[
+        {label:'Gross Profit',data:fy25.map(d=>d.gp),backgroundColor:G,borderRadius:2},
+        {label:'Cost of Goods',data:fy25.map(d=>d.cogs),backgroundColor:'rgba(184,134,11,0.35)',borderRadius:2}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{stacked:true,ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{stacked:true,grid:{display:false}}}}});
+
+// ── MONTHLY CASES FY25 vs FY24 ──
+new Chart(document.getElementById('monthlyCasesChart'),{type:'bar',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25.map(d=>d.cases),backgroundColor:G,borderRadius:4,barPercentage:.8},
+        {label:'FY2024',data:fy24.map(d=>d.cases),backgroundColor:PY,borderRadius:4,barPercentage:.8}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── GP MARGIN ──
+new Chart(document.getElementById('marginChart'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25.map(d=>(d.gp/d.nr*100)),borderColor:G,tension:.3,pointRadius:4,borderWidth:2,pointBackgroundColor:G},
+        {label:'FY2024',data:fy24.map(d=>(d.gp/d.nr*100)),borderColor:PY,tension:.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(1)+'%'}}},scales:{y:{min:35,max:40,ticks:{callback:v=>v+'%'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── DISTRIBUTOR BAR ──
+new Chart(document.getElementById('distChart'),{type:'bar',data:{
+    labels:distData.map(d=>d.n),
+    datasets:[
+        {label:'FY2025',data:distData.map(d=>d.fy25),backgroundColor:G,borderRadius:3},
+        {label:'FY2024',data:distData.map(d=>d.fy24),backgroundColor:PY,borderRadius:3}
+    ]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── CATEGORY BAR ──
+new Chart(document.getElementById('catChart'),{type:'bar',data:{
+    labels:catData.map(d=>d.n),
+    datasets:[
+        {label:'FY2025',data:catData.map(d=>d.fy25),backgroundColor:G,borderRadius:3},
+        {label:'FY2024',data:catData.map(d=>d.fy24),backgroundColor:PY,borderRadius:3}
+    ]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── STATE BAR ──
+new Chart(document.getElementById('stateChart'),{type:'bar',data:{
+    labels:stData.map(d=>d.s),
+    datasets:[
+        {label:'FY2025',data:stData.map(d=>d.fy25),backgroundColor:G,borderRadius:3},
+        {label:'FY2024',data:stData.map(d=>d.fy24),backgroundColor:PY,borderRadius:3}
+    ]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── RETURNS ──
+new Chart(document.getElementById('returnChart'),{type:'bar',data:{
+    labels:retData.map(d=>d.r),
+    datasets:[
+        {label:'FY2025',data:retData.map(d=>d.fy25),backgroundColor:G,borderRadius:3},
+        {label:'FY2024',data:retData.map(d=>d.fy24),backgroundColor:PY,borderRadius:3}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>v+' cases'},grid:{color:GL}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── WAREHOUSE ──
+new Chart(document.getElementById('whChart'),{type:'bar',data:{
+    labels:whData.map(d=>d.w),
+    datasets:[{data:whData.map(d=>d.r),backgroundColor:G,borderRadius:4}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── DISTRIBUTOR TABLE ──
+const dtb = document.getElementById('distTable');
+let td25r=0,td24r=0,td25c=0,td24c=0,td25gp=0,td25ret=0;
+distData.forEach(d=>{
+    const rchg=pct(d.fy25,d.fy24); const cchg=pct(d.c25,d.c24);
+    const gpm=(d.gp/d.fy25*100).toFixed(1); const rr=(d.ret/d.c25*100).toFixed(3);
+    td25r+=d.fy25;td24r+=d.fy24;td25c+=d.c25;td24c+=d.c24;td25gp+=d.gp;td25ret+=d.ret;
+    dtb.innerHTML+=`<tr>
+        <td>${d.n}</td>
+        <td class="num">${fmt$(d.fy25)}</td><td class="num ${rchg>=0?'pos':'neg'}">${rchg>=0?'&#9650;':'&#9660;'} ${Math.abs(rchg)}%</td>
+        <td class="num">${fmtK(d.c25)}</td><td class="num ${cchg>=0?'pos':'neg'}">${cchg>=0?'&#9650;':'&#9660;'} ${Math.abs(cchg)}%</td>
+        <td class="num">${fmt$(d.gp)}</td><td class="num">${gpm}%</td>
+        <td class="num">${d.ret.toFixed(1)}</td><td class="num">${rr}%</td>
+    </tr>`;
+});
+document.getElementById('distTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td>
+    <td class="num" style="color:#D4A843">${fmt$(td25r)}</td><td class="num pos">&#9650; ${pct(td25r,td24r)}%</td>
+    <td class="num" style="color:#D4A843">${fmtK(td25c)}</td><td class="num pos">&#9650; ${pct(td25c,td24c)}%</td>
+    <td class="num" style="color:#D4A843">${fmt$(td25gp)}</td><td class="num">${(td25gp/td25r*100).toFixed(1)}%</td>
+    <td class="num" style="color:#D4A843">${td25ret.toFixed(1)}</td><td class="num">${(td25ret/td25c*100).toFixed(3)}%</td>
+</tr>`;
+
+// ── MONTHLY TABLE ──
+const mtb = document.getElementById('monthTable');
+let totNR=0,totGP=0,totC=0,totCOGS=0,totRet=0,totPNR=0,totPC=0;
+fy25.forEach((d,i)=>{
+    const nrChg=pct(d.nr,fy24[i].nr); const cChg=pct(d.cases,fy24[i].cases);
+    const gpm=(d.gp/d.nr*100).toFixed(1);
+    totNR+=d.nr;totGP+=d.gp;totC+=d.cases;totCOGS+=d.cogs;totRet+=d.ret;totPNR+=fy24[i].nr;totPC+=fy24[i].cases;
+    mtb.innerHTML+=`<tr>
+        <td>${d.m}</td><td>Q${d.q}</td>
+        <td class="num">${fmt$(d.nr)}</td><td class="num ${nrChg>=0?'pos':'neg'}">${nrChg>=0?'&#9650;':'&#9660;'} ${Math.abs(nrChg)}%</td>
+        <td class="num">${fmt$(d.gp)}</td><td class="num">${gpm}%</td>
+        <td class="num">${fmtK(d.cases)}</td><td class="num ${cChg>=0?'pos':'neg'}">${cChg>=0?'&#9650;':'&#9660;'} ${Math.abs(cChg)}%</td>
+        <td class="num">${fmt$(d.cogs)}</td><td class="num">${d.ret.toFixed(1)}</td>
+    </tr>`;
+});
+document.getElementById('monthTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td><td>FY25</td>
+    <td class="num" style="color:#D4A843">${fmt$(totNR)}</td><td class="num pos">&#9650; ${pct(totNR,totPNR)}%</td>
+    <td class="num" style="color:#D4A843">${fmt$(totGP)}</td><td class="num">${(totGP/totNR*100).toFixed(1)}%</td>
+    <td class="num" style="color:#D4A843">${fmtK(totC)}</td><td class="num pos">&#9650; ${pct(totC,totPC)}%</td>
+    <td class="num" style="color:#D4A843">${fmt$(totCOGS)}</td><td class="num" style="color:#D4A843">${totRet.toFixed(1)}</td>
+</tr>`;
+</script>
+</body>
+</html>

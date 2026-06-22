@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beverage Manufacturing - Marketing Sales Impact Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #7CB701;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .back-link {
+            color: #95D600;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            background-color: #1A1A1A;
+            border: 1px solid #7CB701;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: #7CB701;
+            color: #0D0D0D;
+        }
+
+        .filters {
+            background-color: #1A1A1A;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+            margin-bottom: 25px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-item label {
+            font-weight: 600;
+            color: #95D600;
+            font-size: 14px;
+        }
+
+        .filter-item select {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            border: 1px solid #7CB701;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .filter-item select:hover {
+            border-color: #95D600;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333333;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: #7CB701;
+            box-shadow: 0 0 15px rgba(124, 183, 1, 0.2);
+        }
+
+        .kpi-label {
+            color: #9B999B;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #7CB701;
+            margin-bottom: 5px;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            color: #95D600;
+        }
+
+        .chart-section {
+            background-color: #1A1A1A;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #333333;
+            margin-bottom: 25px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #95D600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #7CB701;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 10px;
+        }
+
+        .chart-container.small {
+            height: 300px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .chart-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table thead {
+            background-color: #0D0D0D;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            color: #95D600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #333333;
+            color: #FFFFFF;
+        }
+
+        table tbody tr:hover {
+            background-color: rgba(124, 183, 1, 0.05);
+        }
+
+        .value-positive {
+            color: #7CB701;
+            font-weight: 600;
+        }
+
+        .value-warning {
+            color: #FFB800;
+        }
+
+        .value-danger {
+            color: #FF4444;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #9B999B;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #333333;
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, rgba(124, 183, 1, 0.1), rgba(149, 214, 0, 0.05));
+            border-left: 4px solid #7CB701;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: #95D600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .insight-text {
+            color: #FFFFFF;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filter-item {
+                width: 100%;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Beverage Manufacturing Marketing-Sales Impact Dashboard</h1>
+            <div class="header-right">
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label for="yearFilter">Filter by Year:</label>
+                    <select id="yearFilter" onchange="applyFilters()">
+                        <option value="All">All Years</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiContainer"></div>
+
+        <div class="chart-section">
+            <div class="chart-title">Revenue vs Marketing Spend Trend (by Quarter)</div>
+            <div class="chart-container">
+                <canvas id="revenueVsSpendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-section">
+                <div class="chart-title">Marketing ROI by Year</div>
+                <div class="chart-container small">
+                    <canvas id="roiByYearChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Revenue per Marketing Dollar</div>
+                <div class="chart-container small">
+                    <canvas id="revenuePerDollarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-section">
+                <div class="chart-title">Conversions vs Revenue Scatter</div>
+                <div class="chart-container small">
+                    <canvas id="conversionScatterChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">EBITDA Margin Trend</div>
+                <div class="chart-container small">
+                    <canvas id="ebitdaMarginChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <div class="insight-title">Cross-Functional Insight: Marketing Spend as % of Revenue</div>
+            <div id="insightChart" style="position: relative; height: 200px;">
+                <canvas id="marketingPercentChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Marketing Efficiency Table - Year by Year Comparison</div>
+            <div class="table-responsive">
+                <table id="efficiencyTable">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Total Revenue</th>
+                            <th>Marketing Spend</th>
+                            <th>Marketing ROI</th>
+                            <th>Revenue per $ Spent</th>
+                            <th>Total Conversions</th>
+                            <th>Mkt Spend as % of Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="efficiencyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Insights & Analysis Section -->
+        <div style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+            <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+            <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+            <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+            <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+        </div>
+
+        <div class="footer">
+            Generated by IDA Analytics
+        </div>
+    </div>
+
+    <script>
+        // Embedded Data
+        const finData = [
+            {year:2020,quarter:1,revenue:10930758.76,cogs:5192758.03,gross_profit:5738000.73,mkt_spend:1218679.73,ebitda:2977863.81,net_profit:2322733.77},
+            {year:2020,quarter:2,revenue:9844632.61,cogs:4451061.78,gross_profit:5393570.83,mkt_spend:1356731.79,ebitda:2629395.87,net_profit:2050928.78},
+            {year:2020,quarter:3,revenue:10522341.63,cogs:5050542.32,gross_profit:5471799.32,mkt_spend:1664154.44,ebitda:2386621.53,net_profit:1861564.79},
+            {year:2020,quarter:4,revenue:13082283.02,cogs:6211787.55,gross_profit:6870495.47,mkt_spend:1220359.86,ebitda:4031676.86,net_profit:3144708.95},
+            {year:2021,quarter:1,revenue:13235849.77,cogs:6230546.36,gross_profit:7005303.41,mkt_spend:2133023.59,ebitda:3006049.15,net_profit:2344718.33},
+            {year:2021,quarter:2,revenue:13789517.26,cogs:6377349.50,gross_profit:7412167.76,mkt_spend:1310817.71,ebitda:4352720.38,net_profit:3395121.89},
+            {year:2021,quarter:3,revenue:14745175.05,cogs:6785221.52,gross_profit:7959953.54,mkt_spend:1355214.58,ebitda:4661006.12,net_profit:3635584.77},
+            {year:2021,quarter:4,revenue:14298344.12,cogs:6545577.92,gross_profit:7752766.20,mkt_spend:1399860.41,ebitda:4319665.21,net_profit:3369339.87},
+            {year:2022,quarter:1,revenue:12562974.87,cogs:5934394.52,gross_profit:6628580.36,mkt_spend:1038884.24,ebitda:3825070.71,net_profit:2983555.15},
+            {year:2022,quarter:2,revenue:13960130.58,cogs:6626700.22,gross_profit:7333430.37,mkt_spend:1425717.87,ebitda:3833206.34,net_profit:2989900.94},
+            {year:2022,quarter:3,revenue:15601386.01,cogs:7328178.42,gross_profit:8273207.59,mkt_spend:1514117.77,ebitda:4672121.31,net_profit:3644254.62},
+            {year:2022,quarter:4,revenue:14977880.06,cogs:7201601.16,gross_profit:7776278.90,mkt_spend:1615442.27,ebitda:4097875.92,net_profit:3196343.21},
+            {year:2023,quarter:1,revenue:13078806.80,cogs:6236826.17,gross_profit:6841980.63,mkt_spend:1244103.02,ebitda:3824021.78,net_profit:2982736.98},
+            {year:2023,quarter:2,revenue:16056714.29,cogs:7655722.41,gross_profit:8400991.89,mkt_spend:1527054.73,ebitda:4685609.44,net_profit:3654775.36},
+            {year:2023,quarter:3,revenue:17849693.59,cogs:8478858.51,gross_profit:9370835.08,mkt_spend:1907965.21,ebitda:5001929.14,net_profit:3901504.73},
+            {year:2023,quarter:4,revenue:15518308.71,cogs:7227700.03,gross_profit:8290608.68,mkt_spend:1583802.65,ebitda:4754451.10,net_profit:3708471.85},
+            {year:2024,quarter:1,revenue:14389688.20,cogs:6923234.45,gross_profit:7466453.75,mkt_spend:1397764.09,ebitda:4062625.41,net_profit:3168847.82},
+            {year:2024,quarter:2,revenue:16824699.68,cogs:7920635.18,gross_profit:8904064.50,mkt_spend:1581831.76,ebitda:5002852.82,net_profit:3902225.20},
+            {year:2024,quarter:3,revenue:17830839.16,cogs:8262779.15,gross_profit:9568060.01,mkt_spend:1757952.33,ebitda:5324910.24,net_profit:4153429.99},
+            {year:2024,quarter:4,revenue:16814010.50,cogs:8034568.60,gross_profit:8779441.89,mkt_spend:1584698.57,ebitda:4873090.37,net_profit:3801010.49},
+            {year:2025,quarter:1,revenue:15093196.52,cogs:7126772.36,gross_profit:7966424.16,mkt_spend:1406997.54,ebitda:4673485.68,net_profit:3645318.83},
+            {year:2025,quarter:2,revenue:17551805.35,cogs:8133501.83,gross_profit:9418303.52,mkt_spend:1844255.35,ebitda:5043233.55,net_profit:3933722.17},
+            {year:2025,quarter:3,revenue:19455800.00,cogs:9047639.71,gross_profit:10408160.29,mkt_spend:1930656.81,ebitda:5754245.40,net_profit:4488311.41},
+            {year:2025,quarter:4,revenue:18028110.81,cogs:8782912.95,gross_profit:9245197.86,mkt_spend:1686894.79,ebitda:5060787.13,net_profit:3947413.96}
+        ];
+
+        const mktSummary = [
+            {year:2020,total_spend:193369.33,total_revenue:406074.25,total_conversions:19740,avg_roi:2.50},
+            {year:2021,total_spend:161524.84,total_revenue:549623.17,total_conversions:27497,avg_roi:3.43},
+            {year:2022,total_spend:273042.14,total_revenue:534707.18,total_conversions:26381,avg_roi:2.42},
+            {year:2023,total_spend:189486.25,total_revenue:452543.73,total_conversions:26243,avg_roi:2.94},
+            {year:2024,total_spend:270977.13,total_revenue:683227.64,total_conversions:32667,avg_roi:3.54},
+            {year:2025,total_spend:212598.34,total_revenue:597670.37,total_conversions:30685,avg_roi:2.56}
+        ];
+
+        let charts = {};
+        const chartColors = {
+            primary: '#7CB701',
+            secondary: '#95D600',
+            accent: '#FFB800',
+            danger: '#FF4444',
+            dark: '#0D0D0D',
+            card: '#1A1A1A'
+        };
+
+        // Initialize charts with proper defaults
+        Chart.defaults.color = '#9B999B';
+        Chart.defaults.borderColor = '#333333';
+        Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value);
+        }
+
+        function getFilteredData() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            if (yearFilter === 'All') {
+                return finData;
+            }
+            return finData.filter(row => row.year.toString() === yearFilter);
+        }
+
+        function getFilteredMktSummary() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            if (yearFilter === 'All') {
+                return mktSummary;
+            }
+            return mktSummary.filter(row => row.year.toString() === yearFilter);
+        }
+
+        function calculateKPIs() {
+            const filtered = getFilteredData();
+            const mktFiltered = getFilteredMktSummary();
+
+            const totalRevenue = filtered.reduce((sum, row) => sum + row.revenue, 0);
+            const totalMktSpend = filtered.reduce((sum, row) => sum + row.mkt_spend, 0);
+            const totalConversions = mktFiltered.reduce((sum, row) => sum + row.total_conversions, 0);
+            const avgROI = mktFiltered.length > 0 ? mktFiltered.reduce((sum, row) => sum + row.avg_roi, 0) / mktFiltered.length : 0;
+            const revenuePerDollar = totalMktSpend > 0 ? totalRevenue / totalMktSpend : 0;
+
+            return {
+                totalRevenue,
+                totalMktSpend,
+                avgROI,
+                revenuePerDollar,
+                totalConversions
+            };
+        }
+
+        function renderKPIs() {
+            const kpis = calculateKPIs();
+            const container = document.getElementById('kpiContainer');
+
+            const kpiData = [
+                { label: 'Total Revenue', value: formatCurrency(kpis.totalRevenue) },
+                { label: 'Marketing Spend', value: formatCurrency(kpis.totalMktSpend) },
+                { label: 'Marketing ROI', value: kpis.avgROI.toFixed(2) + 'x' },
+                { label: 'Revenue per $ Spent', value: '$' + kpis.revenuePerDollar.toFixed(2) },
+                { label: 'Total Conversions', value: formatNumber(kpis.totalConversions) }
+            ];
+
+            container.innerHTML = kpiData.map(kpi => `
+                <div class="kpi-card">
+                    <div class="kpi-label">${kpi.label}</div>
+                    <div class="kpi-value">${kpi.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderRevenueVsSpendChart() {
+            const filtered = getFilteredData();
+            const labels = filtered.map(row => `Q${row.quarter} '${row.year.toString().slice(2)}`);
+            const revenueData = filtered.map(row => row.revenue / 1000000);
+            const spendData = filtered.map(row => row.mkt_spend / 1000000);
+
+            const ctx = document.getElementById('revenueVsSpendChart').getContext('2d');
+            if (charts.revenueVsSpend) charts.revenueVsSpend.destroy();
+
+            charts.revenueVsSpend = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenue (M)',
+                            data: revenueData,
+                            backgroundColor: chartColors.primary,
+                            borderColor: chartColors.secondary,
+                            borderWidth: 2,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Marketing Spend (M)',
+                            data: spendData,
+                            type: 'line',
+                            borderColor: chartColors.accent,
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: chartColors.accent,
+                            order: 1,
+                            yAxisID: 'y1',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', padding: 15, font: { size: 12, weight: '600' } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#9B999B', callback: v => '$' + v.toFixed(1) + 'M' },
+                            grid: { color: '#333333' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#FFB800', callback: v => '$' + v.toFixed(1) + 'M' },
+                            grid: { drawOnChartArea: false }
+                        },
+                        x: { grid: { color: '#333333' } }
+                    }
+                }
+            });
+        }
+
+        function renderROIByYearChart() {
+            const mktFiltered = getFilteredMktSummary();
+            const labels = mktFiltered.map(row => row.year.toString());
+            const roiData = mktFiltered.map(row => row.avg_roi);
+
+            const ctx = document.getElementById('roiByYearChart').getContext('2d');
+            if (charts.roi) charts.roi.destroy();
+
+            charts.roi = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Marketing ROI',
+                        data: roiData,
+                        backgroundColor: roiData.map(v => v >= 3 ? chartColors.primary : chartColors.secondary),
+                        borderColor: chartColors.secondary,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'x',
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B', callback: v => v.toFixed(2) + 'x' },
+                            grid: { color: '#333333' }
+                        },
+                        x: { grid: { color: '#333333' } }
+                    }
+                }
+            });
+        }
+
+        function renderRevenuePerDollarChart() {
+            const mktFiltered = getFilteredMktSummary();
+            const labels = mktFiltered.map(row => row.year.toString());
+            const revenuePerDollar = mktFiltered.map(row => row.total_spend > 0 ? row.total_revenue / row.total_spend : 0);
+
+            const ctx = document.getElementById('revenuePerDollarChart').getContext('2d');
+            if (charts.revenuePerDollar) charts.revenuePerDollar.destroy();
+
+            charts.revenuePerDollar = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue per $ Spent',
+                        data: revenuePerDollar,
+                        borderColor: chartColors.secondary,
+                        backgroundColor: 'rgba(149, 214, 0, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: chartColors.primary,
+                        pointBorderColor: chartColors.secondary,
+                        pointBorderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B', callback: v => '$' + v.toFixed(2) },
+                            grid: { color: '#333333' }
+                        },
+                        x: { grid: { color: '#333333' } }
+                    }
+                }
+            });
+        }
+
+        function renderConversionScatterChart() {
+            const mktFiltered = getFilteredMktSummary();
+            const data = mktFiltered.map(row => ({
+                x: row.total_conversions,
+                y: row.total_revenue / 1000,
+                label: row.year.toString()
+            }));
+
+            const ctx = document.getElementById('conversionScatterChart').getContext('2d');
+            if (charts.scatter) charts.scatter.destroy();
+
+            charts.scatter = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Conversions vs Revenue',
+                        data: data,
+                        backgroundColor: chartColors.primary,
+                        borderColor: chartColors.secondary,
+                        borderWidth: 2,
+                        pointRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF' } },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.raw.label}: ${context.raw.x.toLocaleString()} conversions, $${context.raw.y.toFixed(0)}K`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#333333' },
+                            title: { display: true, text: 'Conversions', color: '#FFFFFF' }
+                        },
+                        y: {
+                            ticks: { color: '#9B999B', callback: v => '$' + v.toFixed(0) + 'K' },
+                            grid: { color: '#333333' },
+                            title: { display: true, text: 'Revenue (Thousands)', color: '#FFFFFF' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderEBITDAMarginChart() {
+            const filtered = getFilteredData();
+            const labels = filtered.map(row => `Q${row.quarter} '${row.year.toString().slice(2)}`);
+            const marginData = filtered.map(row => (row.ebitda / row.revenue) * 100);
+
+            const ctx = document.getElementById('ebitdaMarginChart').getContext('2d');
+            if (charts.ebitda) charts.ebitda.destroy();
+
+            charts.ebitda = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'EBITDA Margin %',
+                        data: marginData,
+                        borderColor: chartColors.secondary,
+                        backgroundColor: 'rgba(149, 214, 0, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: chartColors.primary,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF' } }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 40,
+                            ticks: { color: '#9B999B', callback: v => v.toFixed(1) + '%' },
+                            grid: { color: '#333333' }
+                        },
+                        x: { grid: { color: '#333333' } }
+                    }
+                }
+            });
+        }
+
+        function renderMarketingPercentChart() {
+            const filtered = getFilteredData();
+            const byYear = {};
+
+            filtered.forEach(row => {
+                if (!byYear[row.year]) {
+                    byYear[row.year] = { revenue: 0, spend: 0 };
+                }
+                byYear[row.year].revenue += row.revenue;
+                byYear[row.year].spend += row.mkt_spend;
+            });
+
+            const labels = Object.keys(byYear).sort();
+            const percentData = labels.map(year => (byYear[year].spend / byYear[year].revenue) * 100);
+
+            const ctx = document.getElementById('marketingPercentChart').getContext('2d');
+            if (charts.marketingPercent) charts.marketingPercent.destroy();
+
+            charts.marketingPercent = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Marketing Spend as % of Revenue',
+                        data: percentData,
+                        borderColor: chartColors.primary,
+                        backgroundColor: 'rgba(124, 183, 1, 0.15)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: chartColors.secondary,
+                        pointBorderColor: chartColors.primary,
+                        pointBorderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', padding: 15 } }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            ticks: { color: '#9B999B', callback: v => v.toFixed(2) + '%' },
+                            grid: { color: '#333333' }
+                        },
+                        x: { grid: { color: '#333333' } }
+                    }
+                }
+            });
+        }
+
+        function renderEfficiencyTable() {
+            const mktFiltered = getFilteredMktSummary();
+            const filtered = getFilteredData();
+
+            const byYear = {};
+            filtered.forEach(row => {
+                if (!byYear[row.year]) {
+                    byYear[row.year] = { revenue: 0, spend: 0 };
+                }
+                byYear[row.year].revenue += row.revenue;
+                byYear[row.year].spend += row.mkt_spend;
+            });
+
+            const tbody = document.getElementById('efficiencyTableBody');
+            tbody.innerHTML = mktFiltered.map(mkt => {
+                const yearData = byYear[mkt.year];
+                const spendPercent = yearData ? (yearData.spend / yearData.revenue) * 100 : 0;
+                const roiClass = mkt.avg_roi >= 3 ? 'value-positive' : (mkt.avg_roi >= 2.5 ? 'value-warning' : 'value-danger');
+
+                return `
+                    <tr>
+                        <td><strong>${mkt.year}</strong></td>
+                        <td class="value-positive">${formatCurrency(yearData ? yearData.revenue : 0)}</td>
+                        <td>${formatCurrency(yearData ? yearData.spend : 0)}</td>
+                        <td class="${roiClass}">${mkt.avg_roi.toFixed(2)}x</td>
+                        <td>${'$' + (mkt.total_spend > 0 ? (mkt.total_revenue / mkt.total_spend).toFixed(2) : '0.00')}</td>
+                        <td>${formatNumber(mkt.total_conversions)}</td>
+                        <td class="${spendPercent > 12 ? 'value-warning' : 'value-positive'}">${spendPercent.toFixed(2)}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateInsights() {
+            const filtered = getFilteredData();
+            const mktFiltered = getFilteredMktSummary();
+
+            if (filtered.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                document.getElementById('focusAreas').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                return;
+            }
+
+            // Calculate metrics
+            const totalRevenue = filtered.reduce((sum, row) => sum + row.revenue, 0);
+            const totalMktSpend = filtered.reduce((sum, row) => sum + row.mkt_spend, 0);
+            const avgROI = mktFiltered.length > 0 ? mktFiltered.reduce((sum, row) => sum + row.avg_roi, 0) / mktFiltered.length : 0;
+            const revenuePerDollar = totalMktSpend > 0 ? totalRevenue / totalMktSpend : 0;
+            const avgEBITDAMargin = filtered.length > 0 ? filtered.reduce((sum, row) => (row.ebitda / row.revenue) * 100, 0) / filtered.length : 0;
+            const mktSpendPercent = totalRevenue > 0 ? (totalMktSpend / totalRevenue) * 100 : 0;
+
+            // Calculate year-over-year changes
+            const yearByYear = {};
+            filtered.forEach(row => {
+                if (!yearByYear[row.year]) {
+                    yearByYear[row.year] = { revenue: 0, spend: 0, conversions: 0 };
+                }
+                yearByYear[row.year].revenue += row.revenue;
+                yearByYear[row.year].spend += row.mkt_spend;
+            });
+
+            const years = Object.keys(yearByYear).sort();
+            const revenueGrowth = years.length > 1
+                ? ((yearByYear[years[years.length - 1]].revenue - yearByYear[years[0]].revenue) / yearByYear[years[0]].revenue) * 100
+                : 0;
+
+            // Find trends
+            const roiTrend = avgROI >= 3 ? 'strong' : avgROI >= 2.5 ? 'solid' : 'declining';
+            const marginTrend = avgEBITDAMargin > 30 ? 'healthy' : avgEBITDAMargin > 25 ? 'acceptable' : 'compressed';
+
+            // Generate insights HTML
+            const insightsHTML = `
+                <ul style="margin-left:20px;">
+                    <li style="margin-bottom:10px;">• Marketing spend to revenue ratio is <strong>${mktSpendPercent.toFixed(2)}%</strong>, indicating spend efficiency</li>
+                    <li style="margin-bottom:10px;">• ROI trend shows <strong>${roiTrend}</strong> performance with average <strong>${avgROI.toFixed(2)}x</strong> return</li>
+                    <li style="margin-bottom:10px;">• Revenue per marketing dollar spent is <strong>$${revenuePerDollar.toFixed(2)}</strong>, showing good efficiency</li>
+                    <li style="margin-bottom:10px;">• EBITDA margin health is <strong>${marginTrend}</strong> at <strong>${avgEBITDAMargin.toFixed(1)}%</strong></li>
+                    <li style="margin-bottom:10px;">• Revenue growth trend shows <strong>${revenueGrowth > 0 ? 'positive' : 'negative'}</strong> trajectory with ${Math.abs(revenueGrowth).toFixed(1)}% change</li>
+                </ul>
+            `;
+
+            // Generate focus areas HTML
+            const focusAreasHTML = `
+                <ul style="margin-left:20px;">
+                    ${mktSpendPercent > 15 ? `<li style="margin-bottom:8px;">• Marketing spend at ${mktSpendPercent.toFixed(2)}% of revenue is above typical benchmarks</li>` : ''}
+                    ${avgROI < 2.5 ? `<li style="margin-bottom:8px;">• ROI declining: Current ${avgROI.toFixed(2)}x below healthy threshold - review campaign effectiveness</li>` : ''}
+                    ${avgEBITDAMargin < 25 ? `<li style="margin-bottom:8px;">• Margin compression: EBITDA margin at ${avgEBITDAMargin.toFixed(1)}% - assess cost structure</li>` : ''}
+                    ${revenueGrowth < 0 ? `<li style="margin-bottom:8px;">• Revenue declining: Down ${Math.abs(revenueGrowth).toFixed(1)}% - increase marketing effectiveness</li>` : ''}
+                </ul>
+            `;
+
+            document.getElementById('insightsContent').innerHTML = insightsHTML;
+            document.getElementById('focusAreas').innerHTML = focusAreasHTML || '<li style="margin-bottom:8px;">• No critical focus areas - marketing investment is delivering strong returns</li>';
+        }
+
+        function applyFilters() {
+            renderKPIs();
+            renderRevenueVsSpendChart();
+            renderROIByYearChart();
+            renderRevenuePerDollarChart();
+            renderConversionScatterChart();
+            renderEBITDAMarginChart();
+            renderMarketingPercentChart();
+            renderEfficiencyTable();
+            updateInsights();
+        }
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', applyFilters);
+    </script>
+</body>
+</html>

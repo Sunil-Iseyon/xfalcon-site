@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Falcon World Cup 360 / 10. Historical Trends</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; background: #F3F4F6; }
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #66BB6A; }
+        .logo-f { color: #FFD600; }
+        .back-link { color: #FFD600; text-decoration: none; font-size: 14px; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+        .title { font-size: 32px; font-weight: 700; color: #1F2937; margin-bottom: 32px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-top: 3px solid #FFD600;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #2E7D32; margin-bottom: 8px; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #64748B; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .chart-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .chart-title { font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 16px; }
+        .table-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table thead {
+            background: #2E7D32;
+            color: #FFFFFF;
+        }
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .data-table tbody tr:hover { background: #F9FAFB; }
+        .delta-pos { color: #059669; }
+        .delta-neg { color: #D32F2F; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        <a href="index.html" class="back-link">← Back</a>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Falcon World Cup 360 / 10. Historical Trends</h1>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">20</div>
+                <div class="kpi-label">Tournaments</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">84</div>
+                <div class="kpi-label">Time Span (Years)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2,379</div>
+                <div class="kpi-label">Total Goals</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">305x</div>
+                <div class="kpi-label">Revenue Growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">5.7x</div>
+                <div class="kpi-label">Attendance Growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">13→32</div>
+                <div class="kpi-label">Team Expansion</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">18→64</div>
+                <div class="kpi-label">Matches Growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">3.89→2.67</div>
+                <div class="kpi-label">Avg Goals Decline</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Total Revenue Growth (Stacked Area)</div>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Goals per Match Trend</div>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Tournament Size Evolution</div>
+                <canvas id="chart3"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Total Attendance Trend</div>
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Average Attendance Trend</div>
+                <canvas id="chart5"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Revenue Mix Shift</div>
+                <canvas id="chart6"></canvas>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div style="font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 16px;">Historical Data (20 Tournaments)</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Goals</th>
+                        <th>Avg Goals</th>
+                        <th>Teams</th>
+                        <th>Matches</th>
+                        <th>Attendance</th>
+                        <th>Ticket Rev</th>
+                        <th>Merch Rev</th>
+                        <th>Broadcast Rev</th>
+                        <th>Sponsor Val</th>
+                        <th>Total Rev</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var HISTORY = [
+            {year:1930, goals:70, avgGoals:3.89, teams:13, matches:18, attendance:590549, avgAtt:32808, ticketRev:39.9, merchRev:15.0, broadcastRev:0.006, sponsorVal:8.6},
+            {year:1934, goals:70, avgGoals:4.12, teams:16, matches:17, attendance:363000, avgAtt:21353, ticketRev:26.8, merchRev:15.1, broadcastRev:0.006, sponsorVal:7.5},
+            {year:1938, goals:84, avgGoals:4.67, teams:15, matches:18, attendance:375700, avgAtt:20872, ticketRev:28.2, merchRev:15.0, broadcastRev:0.008, sponsorVal:8.7},
+            {year:1950, goals:88, avgGoals:4.00, teams:13, matches:22, attendance:1045246, avgAtt:47511, ticketRev:52.8, merchRev:24.7, broadcastRev:0.016, sponsorVal:9.0},
+            {year:1954, goals:140, avgGoals:5.38, teams:16, matches:26, attendance:768607, avgAtt:29562, ticketRev:50.2, merchRev:29.6, broadcastRev:0.032, sponsorVal:8.8},
+            {year:1958, goals:126, avgGoals:3.60, teams:16, matches:35, attendance:819810, avgAtt:23423, ticketRev:50.8, merchRev:33.9, broadcastRev:0.025, sponsorVal:9.2},
+            {year:1962, goals:89, avgGoals:2.78, teams:16, matches:32, attendance:893172, avgAtt:27912, ticketRev:57.3, merchRev:39.1, broadcastRev:0.026, sponsorVal:8.7},
+            {year:1966, goals:89, avgGoals:2.78, teams:16, matches:32, attendance:1563135, avgAtt:48848, ticketRev:97.0, merchRev:43.8, broadcastRev:0.044, sponsorVal:8.0},
+            {year:1970, goals:95, avgGoals:2.97, teams:16, matches:32, attendance:1603975, avgAtt:50309, ticketRev:91.8, merchRev:48.3, broadcastRev:0.63, sponsorVal:30.9},
+            {year:1974, goals:97, avgGoals:2.55, teams:16, matches:38, attendance:1865753, avgAtt:49020, ticketRev:96.3, merchRev:52.9, broadcastRev:0.69, sponsorVal:33.4},
+            {year:1978, goals:102, avgGoals:2.68, teams:16, matches:38, attendance:1545791, avgAtt:40679, ticketRev:97.7, merchRev:57.6, broadcastRev:0.72, sponsorVal:34.3},
+            {year:1982, goals:146, avgGoals:2.81, teams:24, matches:52, attendance:2109723, avgAtt:40572, ticketRev:146.8, merchRev:62.1, broadcastRev:3.33, sponsorVal:163.1},
+            {year:1986, goals:132, avgGoals:2.54, teams:24, matches:52, attendance:2394031, avgAtt:46039, ticketRev:199.0, merchRev:67.8, broadcastRev:3.48, sponsorVal:174.5},
+            {year:1990, goals:115, avgGoals:2.21, teams:24, matches:52, attendance:2516215, avgAtt:48389, ticketRev:221.0, merchRev:71.3, broadcastRev:16.2, sponsorVal:287.6},
+            {year:1994, goals:141, avgGoals:2.71, teams:24, matches:52, attendance:3587538, avgAtt:68991, ticketRev:327.7, merchRev:77.2, broadcastRev:23.8, sponsorVal:507.9},
+            {year:1998, goals:171, avgGoals:2.67, teams:32, matches:64, attendance:2785100, avgAtt:43517, ticketRev:269.3, merchRev:81.0, broadcastRev:106.4, sponsorVal:1099.9},
+            {year:2002, goals:161, avgGoals:2.52, teams:32, matches:64, attendance:2705197, avgAtt:42530, ticketRev:248.7, merchRev:86.4, broadcastRev:96.2, sponsorVal:1562.0},
+            {year:2006, goals:147, avgGoals:2.30, teams:32, matches:64, attendance:3359439, avgAtt:52491, ticketRev:355.7, merchRev:90.1, broadcastRev:219.4, sponsorVal:2429.7},
+            {year:2010, goals:145, avgGoals:2.27, teams:32, matches:64, attendance:3178856, avgAtt:49670, ticketRev:358.5, merchRev:95.3, broadcastRev:348.1, sponsorVal:2994.6},
+            {year:2014, goals:171, avgGoals:2.67, teams:32, matches:64, attendance:3386810, avgAtt:53624, ticketRev:547.9, merchRev:100.9, broadcastRev:545.3, sponsorVal:4074.9}
+        ];
+
+        function mk(type, data) {
+            return new Chart(document.getElementById(data.id), {
+                type: type,
+                data: data.data,
+                options: data.options
+            });
+        }
+
+        function fitKpiText() {
+            document.querySelectorAll('.kpi-value').forEach(function(el) {
+                while(el.scrollHeight > 40 && parseInt(window.getComputedStyle(el).fontSize) > 20) {
+                    el.style.fontSize = (parseInt(window.getComputedStyle(el).fontSize) - 1) + 'px';
+                }
+            });
+        }
+
+        // Chart 1: Total Revenue Growth (Stacked Area)
+        (function() {
+            mk('line', {
+                id: 'chart1',
+                data: {
+                    labels: HISTORY.map(function(h) { return h.year; }),
+                    datasets: [
+                        {
+                            label: 'Ticket Revenue',
+                            data: HISTORY.map(function(h) { return h.ticketRev; }),
+                            borderColor: '#2E7D32',
+                            backgroundColor: 'rgba(46, 125, 50, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Merchandise Revenue',
+                            data: HISTORY.map(function(h) { return h.merchRev; }),
+                            borderColor: '#C8A415',
+                            backgroundColor: 'rgba(200, 164, 21, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Broadcast Revenue',
+                            data: HISTORY.map(function(h) { return h.broadcastRev; }),
+                            borderColor: '#66BB6A',
+                            backgroundColor: 'rgba(102, 187, 106, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Sponsorship Value',
+                            data: HISTORY.map(function(h) { return h.sponsorVal; }),
+                            borderColor: '#1B5E20',
+                            backgroundColor: 'rgba(27, 94, 32, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { stacked: false } },
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        })();
+
+        // Chart 2: Goals per Match Trend
+        (function() {
+            mk('line', {
+                id: 'chart2',
+                data: {
+                    labels: HISTORY.map(function(h) { return h.year; }),
+                    datasets: [{
+                        label: 'Avg Goals per Match',
+                        data: HISTORY.map(function(h) { return h.avgGoals; }),
+                        borderColor: '#2E7D32',
+                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2E7D32'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 3: Tournament Size Evolution
+        (function() {
+            mk('line', {
+                id: 'chart3',
+                data: {
+                    labels: HISTORY.map(function(h) { return h.year; }),
+                    datasets: [{
+                        label: 'Teams',
+                        data: HISTORY.map(function(h) { return h.teams; }),
+                        borderColor: '#C8A415',
+                        backgroundColor: 'rgba(200, 164, 21, 0.1)',
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#C8A415',
+                        stepped: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 4: Total Attendance Trend
+        (function() {
+            mk('bar', {
+                id: 'chart4',
+                data: {
+                    labels: HISTORY.map(function(h) { return h.year; }),
+                    datasets: [{
+                        label: 'Total Attendance',
+                        data: HISTORY.map(function(h) { return h.attendance; }),
+                        backgroundColor: '#C8A415',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 5: Average Attendance Trend
+        (function() {
+            mk('line', {
+                id: 'chart5',
+                data: {
+                    labels: HISTORY.map(function(h) { return h.year; }),
+                    datasets: [{
+                        label: 'Average Attendance',
+                        data: HISTORY.map(function(h) { return h.avgAtt; }),
+                        borderColor: '#94A3B8',
+                        backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#94A3B8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 6: Revenue Mix Shift (100% stacked bar)
+        (function() {
+            var era1 = HISTORY.filter(function(h) { return h.year >= 1930 && h.year <= 1966; });
+            var era2 = HISTORY.filter(function(h) { return h.year >= 1970 && h.year <= 1990; });
+            var era3 = HISTORY.filter(function(h) { return h.year >= 1994 && h.year <= 2014; });
+
+            function calcMix(data) {
+                var ticket = data.reduce(function(s, h) { return s + h.ticketRev; }, 0);
+                var merch = data.reduce(function(s, h) { return s + h.merchRev; }, 0);
+                var broadcast = data.reduce(function(s, h) { return s + h.broadcastRev; }, 0);
+                var sponsor = data.reduce(function(s, h) { return s + h.sponsorVal; }, 0);
+                var total = ticket + merch + broadcast + sponsor;
+                return {
+                    ticket: (ticket / total * 100),
+                    merch: (merch / total * 100),
+                    broadcast: (broadcast / total * 100),
+                    sponsor: (sponsor / total * 100)
+                };
+            }
+
+            var mix1 = calcMix(era1);
+            var mix2 = calcMix(era2);
+            var mix3 = calcMix(era3);
+
+            mk('bar', {
+                id: 'chart6',
+                data: {
+                    labels: ['1930-1966', '1970-1990', '1994-2014'],
+                    datasets: [
+                        {
+                            label: 'Ticket',
+                            data: [mix1.ticket, mix2.ticket, mix3.ticket],
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'Merchandise',
+                            data: [mix1.merch, mix2.merch, mix3.merch],
+                            backgroundColor: '#C8A415',
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'Broadcast',
+                            data: [mix1.broadcast, mix2.broadcast, mix3.broadcast],
+                            backgroundColor: '#66BB6A',
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'Sponsorship',
+                            data: [mix1.sponsor, mix2.sponsor, mix3.sponsor],
+                            backgroundColor: '#1B5E20',
+                            borderRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    scales: { x: { stacked: true }, y: { stacked: true, max: 100 } },
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        })();
+
+        // Populate table
+        (function() {
+            var tbody = document.getElementById('tableBody');
+            HISTORY.forEach(function(h) {
+                var totalRev = h.ticketRev + h.merchRev + h.broadcastRev + h.sponsorVal;
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + h.year + '</td><td>' + h.goals + '</td><td>' + h.avgGoals.toFixed(2) + '</td><td>' + h.teams + '</td><td>' + h.matches + '</td><td>' + h.attendance.toLocaleString() + '</td><td>$' + h.ticketRev.toFixed(1) + 'M</td><td>$' + h.merchRev.toFixed(1) + 'M</td><td>$' + h.broadcastRev.toFixed(2) + 'M</td><td>$' + h.sponsorVal.toFixed(1) + 'M</td><td>$' + totalRev.toFixed(1) + 'M</td>';
+                tbody.appendChild(tr);
+            });
+        })();
+
+        fitKpiText();
+    </script>
+</body>
+</html>

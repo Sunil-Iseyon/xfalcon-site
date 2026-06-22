@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Retail - Analytics Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #2D2D2D;
+            --bg-card: #252525;
+            --color-gold: #C9A84C;
+            --color-gold-dim: #8B6F3A;
+            --text-primary: #F5F0E8;
+            --text-muted: #9A9590;
+            --text-dim: #6B6560;
+            --success: #4CAF50;
+            --danger: #E74C3C;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── Hero Section ── */
+        .hero {
+            position: relative;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--color-gold);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            position: relative;
+        }
+
+        .hero-diamond {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--color-gold);
+            transform: rotate(45deg);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .hero-diamond::after {
+            content: '';
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            background: var(--color-gold);
+            opacity: 0.3;
+        }
+
+        .hero-text {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+        }
+
+        .hero-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--color-gold);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .hero-tagline {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            line-height: 1;
+        }
+
+        .hero-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 0.2rem;
+        }
+
+        /* ── Main Container ── */
+        .main {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 1rem;
+        }
+
+        /* ── Section Headers ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            margin-top: 2.5rem;
+        }
+
+        .section-header:first-child {
+            margin-top: 0;
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--color-gold-dim), transparent);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* ── Dashboard Cards Grid ── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .card-grid.ref-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--color-gold-dim);
+            border-radius: 8px;
+            padding: 1.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dash-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--color-gold);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .dash-card:hover {
+            border-color: var(--color-gold);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(201, 168, 76, 0.1);
+        }
+
+        .dash-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 1.75rem;
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(201, 168, 76, 0.06);
+            border-radius: 8px;
+            border: 1px solid rgba(201, 168, 76, 0.15);
+        }
+
+        .card-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .card-arrow {
+            color: var(--color-gold-dim);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            align-self: center;
+            transition: all 0.3s ease;
+        }
+
+        .dash-card:hover .card-arrow {
+            color: var(--color-gold);
+            transform: translateX(3px);
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(139, 111, 58, 0.3);
+        }
+
+        footer span {
+            color: var(--color-gold-dim);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero { flex-direction: column; gap: 1rem; text-align: center; }
+            .hero-left { flex-direction: column; gap: 0.75rem; }
+            .hero-text { flex-direction: column; align-items: center; gap: 0.25rem; }
+            .hero-brand { font-size: 1.5rem; letter-spacing: 3px; }
+            .hero-stats { gap: 1.5rem; justify-content: center; }
+            .card-grid, .card-grid.ref-grid { grid-template-columns: 1fr; }
+            .main { padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-left">
+            <div class="hero-diamond"></div>
+            <div class="hero-text">
+                <div class="hero-brand">Falcon Retail</div>
+                <div class="hero-tagline">Executive Analytics Suite</div>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-value">14</div>
+                <div class="hero-stat-label">Dashboards</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">42+</div>
+                <div class="hero-stat-label">KPIs</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">8</div>
+                <div class="hero-stat-label">Categories</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">FY 2026</div>
+                <div class="hero-stat-label">Data Period</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- Core Analytics -->
+        <div class="section-header">
+            <div class="section-title">Core Analytics</div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="card-grid">
+            <a href="sales-performance.html" class="dash-card">
+                <div class="card-icon">📊</div>
+                <div class="card-body">
+                    <div class="card-title">Sales Performance</div>
+                    <div class="card-desc">Revenue trends, gross margin, units sold, and category-level P&L analysis</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="customer-intelligence.html" class="dash-card">
+                <div class="card-icon">👥</div>
+                <div class="card-body">
+                    <div class="card-title">Customer Intelligence</div>
+                    <div class="card-desc">Loyalty segmentation, acquisition funnels, CLV cohorts, and retention metrics</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="inventory-health.html" class="dash-card">
+                <div class="card-icon">📦</div>
+                <div class="card-body">
+                    <div class="card-title">Inventory Health</div>
+                    <div class="card-desc">Sell-through rates, weeks of supply, stockout tracking, and markdown depth</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="store-operations.html" class="dash-card">
+                <div class="card-icon">🏪</div>
+                <div class="card-body">
+                    <div class="card-title">Store Operations</div>
+                    <div class="card-desc">Foot traffic, conversion rates, basket size, and labor productivity by location</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="ecommerce-digital.html" class="dash-card">
+                <div class="card-icon">💻</div>
+                <div class="card-body">
+                    <div class="card-title">E-Commerce & Digital</div>
+                    <div class="card-desc">Sessions, digital orders, device mix, funnel conversion, and AOV trends</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="omnichannel.html" class="dash-card">
+                <div class="card-icon">🔄</div>
+                <div class="card-body">
+                    <div class="card-title">Omnichannel & Channel Mix</div>
+                    <div class="card-desc">Cross-channel performance, BOPIS, curbside, returns analysis, and payment trends</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- Operational Reports -->
+        <div class="section-header">
+            <div class="section-title">Operational Reports</div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="card-grid">
+            <a href="promotion-effectiveness.html" class="dash-card">
+                <div class="card-icon">🎯</div>
+                <div class="card-body">
+                    <div class="card-title">Promotion Effectiveness</div>
+                    <div class="card-desc">Campaign ROI, promo penetration, stacked discounts, and margin-adjusted uplift</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="associate-performance.html" class="dash-card">
+                <div class="card-icon">⭐</div>
+                <div class="card-body">
+                    <div class="card-title">Associate Performance</div>
+                    <div class="card-desc">Top sellers, productivity rankings, role analysis, and store distribution</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="daily-flash.html" class="dash-card">
+                <div class="card-icon">⚡</div>
+                <div class="card-body">
+                    <div class="card-title">Daily Flash</div>
+                    <div class="card-desc">Today's sales snapshot with hourly trends, plan variance, and top movers</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="weekly-recap.html" class="dash-card">
+                <div class="card-icon">📋</div>
+                <div class="card-body">
+                    <div class="card-title">Weekly Recap</div>
+                    <div class="card-desc">Week-to-date performance, day-over-day trends, and emerging patterns</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="monthly-review.html" class="dash-card">
+                <div class="card-icon">📈</div>
+                <div class="card-body">
+                    <div class="card-title">Monthly Review</div>
+                    <div class="card-desc">Month-end summaries, plan attainment, YoY comparisons, and forecasts</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+
+            <a href="open-to-buy.html" class="dash-card">
+                <div class="card-icon">💰</div>
+                <div class="card-body">
+                    <div class="card-title">Open-to-Buy & GMROI</div>
+                    <div class="card-desc">Inventory planning, replenishment priorities, and GMROI category analysis</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- Presentations -->
+        <div class="section-header">
+            <div class="section-title">Presentations</div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="card-grid">
+            <a href="qbr.html" class="dash-card">
+                <div class="card-icon">🎤</div>
+                <div class="card-body">
+                    <div class="card-title">Q4 FY2025 QBR</div>
+                    <div class="card-desc">12-slide quarterly business review — exec summary, categories, channels, regions, stores, digital, inventory, loyalty, plan attainment, and key actions</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- Reference -->
+        <div class="section-header">
+            <div class="section-title">Reference</div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="card-grid ref-grid">
+            <a href="metric-definitions.html" class="dash-card">
+                <div class="card-icon">📖</div>
+                <div class="card-body">
+                    <div class="card-title">Metric Definitions</div>
+                    <div class="card-desc">Complete glossary of 42+ retail KPIs with formulas and business context</div>
+                </div>
+                <div class="card-arrow">›</div>
+            </a>
+        </div>
+
+    </div>
+
+    <footer>
+        <span>Falcon Retail</span> &middot; Executive Analytics Suite &middot; Data as of March 17, 2026
+    </footer>
+ <script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>   
+
+</body>
+</html>

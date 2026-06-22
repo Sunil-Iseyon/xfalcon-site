@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - Headcount & Demographics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-hero: linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%);
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, var(--color-base-dark) 0%, var(--color-base-darker) 100%);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    .back-link {
+      color: var(--color-cyan);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-coral);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 20px 30px;
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.3px;
+    }
+
+    .filter-bar select {
+      padding: 10px 15px;
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-bar select:hover,
+    .filter-bar select:focus {
+      border-color: var(--color-cyan);
+      outline: none;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .chart-container {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .chart-container:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 16px;
+      letter-spacing: 0.3px;
+    }
+
+    canvas {
+      max-height: 300px;
+    }
+
+    .drill-down-section {
+      margin-top: 40px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .table-wrapper {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #141E30;
+      color: #F5F7FA;
+      font-weight: 600;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--color-text-primary);
+    }
+
+    tr:hover {
+      background: rgba(0, 212, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span style="color:#00D4FF">x</span><span style="color:#FF6B35">F</span></div>
+      <div class="topbar-text">
+        <div class="topbar-title">01 | Headcount & Demographics</div>
+        <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Department</label>
+      <select id="filterDept" onchange="applyFilters()">
+        <option value="All">All Departments</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Location</label>
+      <select id="filterLoc" onchange="applyFilters()">
+        <option value="All">All Locations</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Year</label>
+      <select id="filterYear" onchange="applyFilters()">
+        <option value="All">All Years</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total">--</div>
+        <div class="kpi-delta neutral" id="kpi-total-delta"></div>
+        <div class="kpi-label">Total Headcount</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-active">--</div>
+        <div class="kpi-delta neutral" id="kpi-active-delta"></div>
+        <div class="kpi-label">Active Employees</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-newhires">--</div>
+        <div class="kpi-delta neutral" id="kpi-newhires-delta"></div>
+        <div class="kpi-label">New Hires (Yr)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-tenure">--</div>
+        <div class="kpi-delta neutral" id="kpi-tenure-delta"></div>
+        <div class="kpi-label">Avg Tenure</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-age">--</div>
+        <div class="kpi-delta neutral" id="kpi-age-delta"></div>
+        <div class="kpi-label">Avg Age</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-female">--</div>
+        <div class="kpi-delta neutral" id="kpi-female-delta"></div>
+        <div class="kpi-label">Female %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-locs">--</div>
+        <div class="kpi-delta neutral" id="kpi-locs-delta"></div>
+        <div class="kpi-label">Locations</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-depts">--</div>
+        <div class="kpi-delta neutral" id="kpi-depts-delta"></div>
+        <div class="kpi-label">Org Units</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-container">
+        <div class="chart-title">Hiring Trend by Year</div>
+        <canvas id="chart-hiring"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Headcount by Department</div>
+        <canvas id="chart-dept"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Headcount by Location</div>
+        <canvas id="chart-loc"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Gender Distribution</div>
+        <canvas id="chart-gender"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Age Distribution</div>
+        <canvas id="chart-age"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Tenure Distribution</div>
+        <canvas id="chart-tenure"></canvas>
+      </div>
+    </div>
+
+    <div class="drill-down-section">
+      <div class="section-title">Headcount by Department, Location & Year</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Location</th>
+              <th>Year</th>
+              <th>Total Count</th>
+              <th>Male</th>
+              <th>Female</th>
+              <th>Avg Age</th>
+              <th>Avg Tenure</th>
+            </tr>
+          </thead>
+          <tbody id="drill-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+    function mk(id, cfg) {
+      if (chartInstances[id]) { chartInstances[id].destroy(); }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    var DATA = [
+      ['Backend Engineering','Austin',2018,1,1,0,40,7],
+      ['Backend Engineering','Austin',2019,2,2,0,30.5,6.5],
+      ['Backend Engineering','Austin',2020,3,1,2,33,5],
+      ['Backend Engineering','Austin',2021,3,3,0,38,4.3],
+      ['Backend Engineering','Austin',2022,1,1,0,42,3],
+      ['Backend Engineering','Austin',2023,3,2,1,38.3,2.3],
+      ['Backend Engineering','Bangalore',2018,2,2,0,32.5,7.5],
+      ['Backend Engineering','Bangalore',2019,1,1,0,31,6],
+      ['Backend Engineering','Bangalore',2020,2,2,0,44.5,5.5],
+      ['Backend Engineering','Bangalore',2021,1,1,0,43,4],
+      ['Backend Engineering','Bangalore',2022,2,2,0,42,3.5],
+      ['Backend Engineering','Bangalore',2023,2,1,1,34,2.5],
+      ['Backend Engineering','London',2018,3,0,3,42,7.7],
+      ['Backend Engineering','London',2019,1,0,1,38,6],
+      ['Backend Engineering','London',2020,2,0,2,37,5.5],
+      ['Backend Engineering','London',2021,1,0,1,28,4],
+      ['Backend Engineering','London',2022,3,0,3,28.3,3.3],
+      ['Backend Engineering','London',2023,1,0,1,26,2],
+      ['Backend Engineering','New York',2018,2,1,1,47,7],
+      ['Backend Engineering','New York',2019,6,3,3,41.5,6.2],
+      ['Backend Engineering','New York',2020,2,1,1,37,5],
+      ['Backend Engineering','New York',2021,4,2,2,35.5,4.3],
+      ['Backend Engineering','New York',2022,4,2,2,34.3,3],
+      ['Backend Engineering','New York',2023,4,2,2,36.5,2.3],
+      ['Backend Engineering','Remote',2018,2,2,0,46.5,7],
+      ['Backend Engineering','Remote',2019,1,1,0,45,6],
+      ['Backend Engineering','Remote',2020,2,2,0,40.5,5],
+      ['Backend Engineering','Remote',2021,2,2,0,39.5,4.5],
+      ['Backend Engineering','Remote',2022,4,2,2,32.5,3],
+      ['Backend Engineering','Remote',2023,5,4,1,33,2.4],
+      ['Backend Engineering','San Francisco',2018,4,2,2,35.8,7.3],
+      ['Backend Engineering','San Francisco',2019,6,3,3,38.8,6.2],
+      ['Backend Engineering','San Francisco',2020,11,4,7,38,5.2],
+      ['Backend Engineering','San Francisco',2021,10,3,7,36.1,4.2],
+      ['Backend Engineering','San Francisco',2022,16,6,10,34.8,3.2],
+      ['Backend Engineering','San Francisco',2023,8,4,4,36.3,2.4],
+      ['Backend Engineering','Singapore',2018,1,0,1,40,7],
+      ['Backend Engineering','Singapore',2019,2,0,2,34.5,6.5],
+      ['Backend Engineering','Singapore',2020,1,0,1,30,5],
+      ['Backend Engineering','Singapore',2021,3,1,2,30.7,4.3],
+      ['Backend Engineering','Singapore',2022,1,0,1,42,3],
+      ['Backend Engineering','Singapore',2023,3,1,2,39.7,2.3],
+      ['Customer Success','Austin',2018,2,2,0,32,7],
+      ['Customer Success','Austin',2019,1,1,0,45,6],
+      ['Customer Success','Austin',2020,2,2,0,44.5,5],
+      ['Customer Success','Austin',2021,1,1,0,43,4],
+      ['Customer Success','Austin',2022,2,2,0,38,3],
+      ['Customer Success','Austin',2023,1,1,0,33,2],
+      ['Customer Success','Bangalore',2018,1,1,0,47,7],
+      ['Customer Success','Bangalore',2019,3,3,0,47,6.3],
+      ['Customer Success','Bangalore',2020,2,2,0,45,5],
+      ['Customer Success','Bangalore',2021,2,2,0,39.5,4.5],
+      ['Customer Success','Bangalore',2022,2,2,0,37.5,3.5],
+      ['Customer Success','Bangalore',2023,2,2,0,38.5,2.5],
+      ['Customer Success','New York',2018,2,1,1,37.5,7],
+      ['Customer Success','New York',2019,3,2,1,41.3,6],
+      ['Customer Success','New York',2020,2,2,0,35.5,5],
+      ['Customer Success','New York',2021,1,1,0,30,4],
+      ['Customer Success','New York',2022,2,2,0,36,3],
+      ['Customer Success','New York',2023,1,1,0,27,2],
+      ['Customer Success','Remote',2018,2,2,0,36.5,7],
+      ['Customer Success','Remote',2019,2,2,0,43.5,6],
+      ['Customer Success','Remote',2020,2,2,0,37,5],
+      ['Customer Success','Remote',2021,2,2,0,35,4.5],
+      ['Customer Success','Remote',2022,2,1,1,33.5,3.5],
+      ['Customer Success','Remote',2023,1,1,0,32,2],
+      ['Customer Success','San Francisco',2018,2,2,0,39,7],
+      ['Customer Success','San Francisco',2019,2,2,0,41,6],
+      ['Customer Success','San Francisco',2020,2,2,0,37,5],
+      ['Customer Success','San Francisco',2021,2,2,0,38.5,4.5],
+      ['Customer Success','San Francisco',2022,2,2,0,33,3],
+      ['Customer Success','San Francisco',2023,2,2,0,36,2],
+      ['Data & AI','Austin',2018,0,0,0,0,0],
+      ['Data & AI','Austin',2023,1,0,1,43,7],
+      ['Data & AI','Bangalore',2022,1,0,1,31,3],
+      ['Data & AI','Bangalore',2023,1,1,0,41,2],
+      ['Data & AI','London',2018,2,0,2,39,7],
+      ['Data & AI','London',2019,2,0,2,36,6],
+      ['Data & AI','London',2020,2,0,2,34,5.5],
+      ['Data & AI','London',2021,2,0,2,33,4.5],
+      ['Data & AI','London',2022,1,0,1,28,3],
+      ['Data & AI','London',2023,2,0,2,31,2],
+      ['Data & AI','New York',2018,2,0,2,37.5,7],
+      ['Data & AI','New York',2019,3,0,3,42,6],
+      ['Data & AI','New York',2020,2,0,2,36,5],
+      ['Data & AI','New York',2021,1,0,1,30,4],
+      ['Data & AI','New York',2022,2,0,2,30.5,3],
+      ['Data & AI','New York',2023,1,1,0,32,2],
+      ['Data & AI','San Francisco',2018,4,0,4,38,7],
+      ['Data & AI','San Francisco',2019,2,0,2,35,6],
+      ['Data & AI','San Francisco',2020,3,0,3,38,5.3],
+      ['Data & AI','San Francisco',2021,4,0,4,37.5,4.5],
+      ['Data & AI','San Francisco',2022,4,0,4,34,3],
+      ['Data & AI','San Francisco',2023,4,2,2,36,2.3],
+      ['Data & AI','Singapore',2018,2,0,2,38,7],
+      ['Data & AI','Singapore',2019,2,0,2,35,6],
+      ['Data & AI','Singapore',2020,2,0,2,36.5,5.5],
+      ['Data & AI','Singapore',2021,2,0,2,36,4.5],
+      ['Data & AI','Singapore',2022,2,0,2,37,3.5],
+      ['Frontend Engineering','Austin',2018,2,1,1,39.5,7],
+      ['Frontend Engineering','Austin',2019,2,1,1,37,6],
+      ['Frontend Engineering','Austin',2020,2,1,1,32,5],
+      ['Frontend Engineering','Austin',2021,2,1,1,36,4.5],
+      ['Frontend Engineering','Austin',2022,2,2,0,32,3],
+      ['Frontend Engineering','Austin',2023,1,1,0,40,2],
+      ['Frontend Engineering','Bangalore',2018,2,2,0,33.5,7],
+      ['Frontend Engineering','Bangalore',2019,2,2,0,38,6],
+      ['Frontend Engineering','Bangalore',2020,2,2,0,33.5,5.5],
+      ['Frontend Engineering','Bangalore',2021,2,2,0,29.5,4.5],
+      ['Frontend Engineering','Bangalore',2022,3,3,0,37,3.3],
+      ['Frontend Engineering','Bangalore',2023,2,2,0,31.5,2.5],
+      ['Frontend Engineering','London',2018,2,0,2,39,7],
+      ['Frontend Engineering','London',2019,2,0,2,36,6],
+      ['Frontend Engineering','London',2020,2,0,2,37.5,5.5],
+      ['Frontend Engineering','London',2021,2,0,2,41,4.5],
+      ['Frontend Engineering','London',2022,1,0,1,35,3],
+      ['Frontend Engineering','London',2023,2,0,2,33,2],
+      ['Frontend Engineering','New York',2018,4,2,2,39,7],
+      ['Frontend Engineering','New York',2019,4,2,2,37,6],
+      ['Frontend Engineering','New York',2020,4,2,2,36,5],
+      ['Frontend Engineering','New York',2021,4,2,2,38,4.5],
+      ['Frontend Engineering','New York',2022,5,3,2,33.4,3.2],
+      ['Frontend Engineering','New York',2023,1,1,0,36,2],
+      ['Frontend Engineering','Remote',2018,2,2,0,36,7],
+      ['Frontend Engineering','Remote',2019,2,2,0,41,6],
+      ['Frontend Engineering','Remote',2020,2,2,0,39,5],
+      ['Frontend Engineering','Remote',2021,1,1,0,30,4],
+      ['Frontend Engineering','Remote',2022,1,1,0,35,3],
+      ['Frontend Engineering','Remote',2023,2,1,1,32,2.5],
+      ['Frontend Engineering','San Francisco',2018,8,2,6,35.1,7],
+      ['Frontend Engineering','San Francisco',2019,7,3,4,38,6],
+      ['Frontend Engineering','San Francisco',2020,7,2,5,37,5],
+      ['Frontend Engineering','San Francisco',2021,6,1,5,38.5,4.5],
+      ['Frontend Engineering','San Francisco',2022,11,5,6,35,3],
+      ['Frontend Engineering','San Francisco',2023,3,1,2,33.3,2.3],
+      ['Frontend Engineering','Singapore',2018,2,0,2,39,7],
+      ['Frontend Engineering','Singapore',2019,2,0,2,37.5,6],
+      ['Frontend Engineering','Singapore',2020,2,0,2,44.5,5.5],
+      ['Frontend Engineering','Singapore',2021,2,0,2,36.5,4.5],
+      ['Frontend Engineering','Singapore',2022,3,0,3,37,3.3],
+      ['Human Resources','London',2018,2,0,2,41,7],
+      ['Human Resources','London',2019,2,0,2,39,6],
+      ['Human Resources','London',2020,2,0,2,43,5],
+      ['Human Resources','London',2021,2,0,2,40,4.5],
+      ['Human Resources','London',2022,2,0,2,38,3.5],
+      ['Human Resources','London',2023,1,0,1,41,2],
+      ['Human Resources','New York',2018,2,0,2,39,7],
+      ['Human Resources','New York',2019,2,0,2,38,6],
+      ['Human Resources','New York',2020,2,0,2,38,5],
+      ['Human Resources','New York',2021,2,0,2,40,4.5],
+      ['Human Resources','New York',2022,2,0,2,35,3],
+      ['Human Resources','Remote',2023,1,0,1,45,6],
+      ['Human Resources','San Francisco',2018,4,0,4,37.5,7],
+      ['Human Resources','San Francisco',2019,4,0,4,38,6],
+      ['Human Resources','San Francisco',2020,4,0,4,35,5],
+      ['Human Resources','San Francisco',2021,4,0,4,37.5,4.5],
+      ['Human Resources','San Francisco',2022,6,1,5,34.5,3.3],
+      ['Human Resources','San Francisco',2023,1,0,1,40,2],
+      ['Human Resources','Singapore',2018,2,0,2,37,7],
+      ['Human Resources','Singapore',2019,2,0,2,36,6],
+      ['Human Resources','Singapore',2020,2,0,2,37,5.5],
+      ['Human Resources','Singapore',2021,2,0,2,37.5,4.5],
+      ['Human Resources','Singapore',2022,1,0,1,38,3],
+      ['Human Resources','Singapore',2023,1,0,1,33,2],
+      ['SMB Sales','Austin',2018,2,2,0,38,7],
+      ['SMB Sales','Austin',2019,2,2,0,41,6],
+      ['SMB Sales','Austin',2020,2,2,0,38.5,5],
+      ['SMB Sales','Austin',2021,2,2,0,42,4.5],
+      ['SMB Sales','Austin',2022,2,2,0,37.5,3.5],
+      ['SMB Sales','Austin',2023,2,2,0,34,2.5],
+      ['SMB Sales','Bangalore',2018,2,2,0,35,7],
+      ['SMB Sales','Bangalore',2019,2,2,0,38,6],
+      ['SMB Sales','Bangalore',2020,2,2,0,36.5,5.5],
+      ['SMB Sales','Bangalore',2021,1,1,0,35,4],
+      ['SMB Sales','Bangalore',2022,2,2,0,28,3],
+      ['SMB Sales','Bangalore',2023,2,2,0,33.5,2.5],
+      ['SMB Sales','London',2023,1,1,0,43,6],
+      ['SMB Sales','New York',2018,2,2,0,36.5,7],
+      ['SMB Sales','New York',2019,2,2,0,40,6],
+      ['SMB Sales','New York',2020,2,2,0,37,5],
+      ['SMB Sales','New York',2021,2,2,0,33.5,4.5],
+      ['SMB Sales','New York',2022,2,2,0,36.5,3],
+      ['SMB Sales','New York',2023,2,2,0,35.5,2.5],
+      ['SMB Sales','Remote',2018,2,2,0,37.5,7],
+      ['SMB Sales','Remote',2019,2,2,0,39,6],
+      ['SMB Sales','Remote',2020,2,2,0,35,5],
+      ['SMB Sales','Remote',2021,1,1,0,34,4],
+      ['SMB Sales','Remote',2022,2,2,0,39.5,3.5],
+      ['SMB Sales','Remote',2023,2,2,0,34.5,2.5],
+      ['SMB Sales','San Francisco',2018,2,2,0,41,7],
+      ['SMB Sales','San Francisco',2019,2,2,0,37.5,6],
+      ['SMB Sales','San Francisco',2020,1,1,0,40,5],
+      ['SMB Sales','San Francisco',2021,1,1,0,38,4],
+      ['SMB Sales','San Francisco',2022,1,1,0,35,3],
+      ['SMB Sales','San Francisco',2023,2,2,0,36,2.5],
+      ['Enterprise Sales','New York',2019,2,2,0,40,6],
+      ['Enterprise Sales','New York',2020,2,2,0,41.5,5.5],
+      ['Enterprise Sales','New York',2022,1,0,1,33,3],
+      ['Enterprise Sales','New York',2023,1,1,0,35,2],
+      ['Product','London',2023,1,0,1,46,6],
+      ['Product','San Francisco',2018,1,1,0,52,8],
+      ['Product','San Francisco',2019,1,0,1,49,7],
+      ['DevOps & Infra','Remote',2021,2,0,2,32.5,4.5],
+      ['Operations','New York',2020,1,1,0,39,5],
+      ['Sales Operations','Bangalore',2019,1,1,0,49,6],
+      ['Sales Operations','Singapore',2019,1,1,0,41,6],
+      ['Finance','San Francisco',2020,1,0,1,34,5],
+      ['Engineering','San Francisco',2018,1,1,0,52,8]
+    ];
+
+    function initializeFilters() {
+      var depts = {};
+      var locs = {};
+      var yrs = {};
+      DATA.forEach(function(row) {
+        depts[row[0]] = true;
+        locs[row[1]] = true;
+        yrs[row[2]] = true;
+      });
+      var deptSelect = document.getElementById('filterDept');
+      var deptKeys = Object.keys(depts).sort();
+      deptKeys.forEach(function(d) {
+        var opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        deptSelect.appendChild(opt);
+      });
+      var locSelect = document.getElementById('filterLoc');
+      var locKeys = Object.keys(locs).sort();
+      locKeys.forEach(function(l) {
+        var opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        locSelect.appendChild(opt);
+      });
+      var yrSelect = document.getElementById('filterYear');
+      var yrKeys = Object.keys(yrs).sort();
+      yrKeys.forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yrSelect.appendChild(opt);
+      });
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var yr = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, yr: yr };
+    }
+
+    function filterData(data) {
+      var f = getFilters();
+      return data.filter(function(row) {
+        var deptOk = f.dept === 'All' || row[0] === f.dept;
+        var locOk = f.loc === 'All' || row[1] === f.loc;
+        var yrOk = f.yr === 'All' || String(row[2]) === f.yr;
+        return deptOk && locOk && yrOk;
+      });
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years' : 'Reporting Period: Jan–Dec ' + yr;
+      document.getElementById('reporting-period').textContent = text;
+    }
+
+    function updateKPIs(data) {
+      var total = 0;
+      var maleCount = 0;
+      var femaleCount = 0;
+      var sumAge = 0;
+      var sumTenure = 0;
+      var locSet = {};
+      var deptSet = {};
+      var yrForNewHires = document.getElementById('filterYear').value;
+      var newHiresCount = 0;
+
+      data.forEach(function(row) {
+        total += row[3];
+        maleCount += row[4];
+        femaleCount += row[5];
+        sumAge += row[3] * row[6];
+        sumTenure += row[3] * row[7];
+        locSet[row[1]] = true;
+        deptSet[row[0]] = true;
+        if (yrForNewHires !== 'All' && String(row[2]) === yrForNewHires) {
+          newHiresCount += row[3];
+        }
+      });
+
+      var avgAge = total > 0 ? (sumAge / total).toFixed(1) : 0;
+      var avgTenure = total > 0 ? (sumTenure / total).toFixed(1) : 0;
+      var femalePercent = total > 0 ? ((femaleCount / total) * 100).toFixed(1) : 0;
+      var numLocs = Object.keys(locSet).length;
+      var numDepts = Object.keys(deptSet).length;
+
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-total-delta').textContent = 'All-Time Hires';
+      document.getElementById('kpi-total-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-active').textContent = total;
+      document.getElementById('kpi-active-delta').textContent = 'Filtered Count';
+      document.getElementById('kpi-active-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-newhires').textContent = newHiresCount;
+      document.getElementById('kpi-newhires-delta').textContent = yrForNewHires === 'All' ? 'All Years' : 'In ' + yrForNewHires;
+      document.getElementById('kpi-newhires-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-tenure').textContent = avgTenure;
+      document.getElementById('kpi-tenure-delta').textContent = 'Years Average';
+      document.getElementById('kpi-tenure-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-age').textContent = avgAge;
+      document.getElementById('kpi-age-delta').textContent = 'Years Average';
+      document.getElementById('kpi-age-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-female').textContent = femalePercent + '%';
+      document.getElementById('kpi-female-delta').textContent = femaleCount + ' of ' + total;
+      document.getElementById('kpi-female-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-locs').textContent = numLocs;
+      document.getElementById('kpi-locs-delta').textContent = 'In Selection';
+      document.getElementById('kpi-locs-delta').className = 'kpi-delta neutral';
+
+      document.getElementById('kpi-depts').textContent = numDepts;
+      document.getElementById('kpi-depts-delta').textContent = 'In Selection';
+      document.getElementById('kpi-depts-delta').className = 'kpi-delta neutral';
+    }
+
+    function updateCharts(data) {
+      var byYear = {};
+      var byDept = {};
+      var byLoc = {};
+      var gender = { Male: 0, Female: 0 };
+      var ageRanges = { '<25': 0, '25-30': 0, '30-35': 0, '35-40': 0, '40-45': 0, '45+': 0 };
+      var tenureRanges = { '<2yr': 0, '2-4yr': 0, '4-6yr': 0, '6+yr': 0 };
+
+      data.forEach(function(row) {
+        var dept = row[0];
+        var loc = row[1];
+        var yr = row[2];
+        var cnt = row[3];
+        var male = row[4];
+        var female = row[5];
+        var age = row[6];
+        var tenure = row[7];
+
+        if (!byYear[yr]) byYear[yr] = 0;
+        byYear[yr] += cnt;
+
+        if (!byDept[dept]) byDept[dept] = 0;
+        byDept[dept] += cnt;
+
+        if (!byLoc[loc]) byLoc[loc] = 0;
+        byLoc[loc] += cnt;
+
+        gender.Male += male;
+        gender.Female += female;
+
+        if (age < 25) ageRanges['<25'] += cnt;
+        else if (age < 30) ageRanges['25-30'] += cnt;
+        else if (age < 35) ageRanges['30-35'] += cnt;
+        else if (age < 40) ageRanges['35-40'] += cnt;
+        else if (age < 45) ageRanges['40-45'] += cnt;
+        else ageRanges['45+'] += cnt;
+
+        if (tenure < 2) tenureRanges['<2yr'] += cnt;
+        else if (tenure < 4) tenureRanges['2-4yr'] += cnt;
+        else if (tenure < 6) tenureRanges['4-6yr'] += cnt;
+        else tenureRanges['6+yr'] += cnt;
+      });
+
+      var yrLabels = Object.keys(byYear).sort();
+      var yrValues = yrLabels.map(function(y) { return byYear[y]; });
+      mk('chart-hiring', {
+        type: 'bar',
+        data: {
+          labels: yrLabels,
+          datasets: [{
+            data: yrValues,
+            backgroundColor: '#006AFF',
+            borderRadius: 4,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      var deptLabels = Object.keys(byDept).sort();
+      var deptValues = deptLabels.map(function(d) { return byDept[d]; });
+      mk('chart-dept', {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [{
+            data: deptValues,
+            backgroundColor: '#1A7F64',
+            borderRadius: 4,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      var locLabels = Object.keys(byLoc).sort();
+      var locValues = locLabels.map(function(l) { return byLoc[l]; });
+      var locColors = ['#006AFF','#1A7F64','#0EA5E9','#F59E0B','#94A3B8','#F59E0B','#1A7F64'];
+      mk('chart-loc', {
+        type: 'doughnut',
+        data: {
+          labels: locLabels,
+          datasets: [{
+            data: locValues,
+            backgroundColor: locColors.slice(0, locLabels.length),
+            borderColor: '#141E30',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#F5F7FA', font: { size: 11 }, padding: 15, boxWidth: 10 }
+            }
+          }
+        }
+      });
+
+      mk('chart-gender', {
+        type: 'doughnut',
+        data: {
+          labels: ['Male','Female'],
+          datasets: [{
+            data: [gender.Male, gender.Female],
+            backgroundColor: ['#006AFF','#F59E0B'],
+            borderColor: '#141E30',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#F5F7FA', font: { size: 11 }, padding: 15, boxWidth: 10 }
+            }
+          }
+        }
+      });
+
+      mk('chart-age', {
+        type: 'bar',
+        data: {
+          labels: ['<25','25-30','30-35','35-40','40-45','45+'],
+          datasets: [{
+            data: [ageRanges['<25'],ageRanges['25-30'],ageRanges['30-35'],ageRanges['35-40'],ageRanges['40-45'],ageRanges['45+']],
+            backgroundColor: '#0EA5E9',
+            borderRadius: 4,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      mk('chart-tenure', {
+        type: 'bar',
+        data: {
+          labels: ['<2yr','2-4yr','4-6yr','6+yr'],
+          datasets: [{
+            data: [tenureRanges['<2yr'],tenureRanges['2-4yr'],tenureRanges['4-6yr'],tenureRanges['6+yr']],
+            backgroundColor: '#F59E0B',
+            borderRadius: 4,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { ticks: { color: '#8B95A5', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function updateTable(data) {
+      var tbody = document.getElementById('drill-table');
+      tbody.innerHTML = '';
+      data.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td><td>' + row[4] + '</td><td>' + row[5] + '</td><td>' + row[6].toFixed(1) + '</td><td>' + row[7].toFixed(1) + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function applyFilters() {
+      var filtered = filterData(DATA);
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    initializeFilters();
+    applyFilters();
+  </script>
+</body>
+</html>

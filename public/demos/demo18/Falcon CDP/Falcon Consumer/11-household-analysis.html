@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Household Analysis — Falcon Consumer</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'retailedge')</script>
+<link rel="stylesheet" href="theme.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#F3F4F6;color:#1E293B;line-height:1.5}.topbar{background:#1A1A2E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:32px;font-weight:700;letter-spacing:-2px}.topbar-title{font-size:20px;font-weight:700;color:#FFF}.topbar-subtitle{font-size:12px;font-weight:600;color:#94A3B8;margin-top:2px}.topbar-right a{color:#94A3B8;text-decoration:none;font-size:13px;font-weight:600}.topbar-right a:hover{color:#00AEFF}.container{max-width:1400px;margin:0 auto;padding:24px}.page-title{font-size:22px;font-weight:700;margin-bottom:4px}.page-subtitle{font-size:13px;color:#64748B;margin-bottom:20px}.filter-bar{background:#FFF;border:1px solid #E2E8F0;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;box-shadow:0 1px 3px rgba(0,0,0,.05)}.filter-group{display:flex;flex-direction:column;gap:4px}.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#64748B}.filter-group select,.filter-group .multi{padding:8px 10px;border:1px solid #CBD5E1;border-radius:6px;font-size:13px;background:#FFF;color:#1E293B;min-width:180px;cursor:pointer}.filter-group .multi{position:relative;user-select:none}.multi-summary{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.multi-dropdown{position:absolute;top:100%;left:0;right:0;background:#FFF;border:1px solid #CBD5E1;border-radius:6px;margin-top:4px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:50;max-height:240px;overflow-y:auto;display:none}.multi.open .multi-dropdown{display:block}.multi-dropdown label{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:13px;cursor:pointer;color:#1E293B;font-weight:400}.multi-dropdown label:hover{background:#F1F5F9;border-radius:4px}.reset-btn{padding:8px 14px;border:1px solid #CBD5E1;background:#FFF;border-radius:6px;font-size:13px;font-weight:600;color:#475569;cursor:pointer;height:36px}.disclaimer{background:#FEF3C7;border-left:4px solid #F59E0B;padding:12px 16px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:20px}.disclaimer strong{color:#7C2D12}.disclaimer code{background:#FDE68A;padding:1px 4px;border-radius:3px;font-size:11px}.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}.kpi-card{background:#FFF;border-radius:8px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0}.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#64748B;letter-spacing:.5px;margin-bottom:10px}.kpi-value{font-size:26px;font-weight:700;color:#00AEFF;margin-bottom:6px}.kpi-delta{font-size:12px;font-weight:600;color:#64748B}.section-title{font-size:16px;font-weight:700;margin:24px 0 12px}.chart-grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:20px;margin-bottom:24px}.chart-card{background:#FFF;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0}.chart-card.full{grid-column:1/-1}.chart-title{font-size:14px;font-weight:700;color:#00AEFF;margin-bottom:14px}.chart-sub{font-size:11px;color:#64748B;margin-bottom:12px}.chart-wrapper{position:relative;height:320px}.table-card{background:#FFF;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0;overflow:hidden;margin-bottom:24px}.table-header{padding:20px;border-bottom:1px solid #E2E8F0}table{width:100%;border-collapse:collapse}th{background:#F8FAFC;color:#475569;padding:12px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid #E2E8F0}td{padding:12px 14px;border-bottom:1px solid #F1F5F9;font-size:13px}tr:last-child td{border-bottom:none}tr:hover td{background:#F8FAFC}.text-right{text-align:right}.footer{text-align:center;padding:24px;font-size:12px;color:#64748B;margin-top:24px}.footer a{color:#00AEFF;text-decoration:none;font-weight:600}
+</style></head><body>
+
+<div class="topbar"><div class="topbar-left"><span class="logo"><span style="color:#00AEFF">x</span><span style="color:#1A7F64">F</span></span><div><div class="topbar-title">Household Analysis</div><div class="topbar-subtitle">Falcon Consumer · xFalcon AnalyticsPro</div></div></div><div class="topbar-right"><a href="index.html">← Dashboard suite</a></div></div>
+
+<div class="container">
+<div class="page-title">Household Analysis</div>
+<div class="page-subtitle">Size · Children · Income · Geography. Current-state snapshot of ~600 active households.</div>
+
+<div class="filter-bar">
+<div class="filter-group"><label>Household Size</label><div class="multi" id="szMulti"><div class="multi-summary" id="szSummary" onclick="toggleMulti('szMulti')">All (5)</div><div class="multi-dropdown" id="szDropdown"></div></div></div>
+<div class="filter-group"><label>Children</label><select id="chSel"><option value="all" selected>All</option><option value="true">With children</option><option value="false">Without children</option></select></div>
+<div class="filter-group"><label>Income Band</label><div class="multi" id="incMulti"><div class="multi-summary" id="incSummary" onclick="toggleMulti('incMulti')">All (7)</div><div class="multi-dropdown" id="incDropdown"></div></div></div>
+<div class="filter-group"><label>&nbsp;</label><button class="reset-btn" onclick="resetFilters()">Reset</button></div>
+</div>
+
+<div class="disclaimer"><strong>Data governance:</strong> Current-state snapshot from <code>DIM_HOUSEHOLD</code> (~600 active rows, IS_CURRENT=TRUE). Counts = households, not individual customers. Customer count per household averages 1-3 depending on size.</div>
+
+<div class="section-title">Household KPIs</div>
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="chart-grid-2">
+<div class="chart-card"><div class="chart-title">Households by Size</div><div class="chart-wrapper"><canvas id="szChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Households with vs without Children</div><div class="chart-wrapper"><canvas id="kidsChart"></canvas></div></div>
+</div>
+
+<div class="chart-grid-2">
+<div class="chart-card"><div class="chart-title">Household Income Distribution</div><div class="chart-wrapper"><canvas id="incChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Income × Has Children</div><div class="chart-sub">Where does each income band have children vs not?</div><div class="chart-wrapper"><canvas id="incKidsChart"></canvas></div></div>
+</div>
+
+<div class="chart-grid-2">
+<div class="chart-card full"><div class="chart-title">Households by State</div><div class="chart-sub">Physical distribution across 13 tracked states.</div><div class="chart-wrapper"><canvas id="stateChart"></canvas></div></div>
+</div>
+
+<div class="table-card"><div class="table-header"><div class="chart-title" style="margin-bottom:4px;">Household Segment Detail</div><div class="chart-sub">Filtered by size, income, and children status. Sorted by household count.</div></div>
+<table><thead><tr><th>Size</th><th>Children</th><th>Income</th><th class="text-right">Households</th><th class="text-right">Avg Customers/HH</th><th class="text-right">Share</th></tr></thead><tbody id="tableBody"></tbody><tfoot><tr id="tableFoot" style="background:#F8FAFC;font-weight:700;"></tr></tfoot></table></div>
+
+<div class="footer">Falcon Consumer · xFalcon AnalyticsPro · Source: DIM_HOUSEHOLD · <a href="metrics-definitions.html">Metric definitions</a></div>
+</div>
+
+<script>
+// HH size × children × income (real, 56 rows)
+const HH = [
+{s:2,c:false,i:"$75K-$100K",hh:56,ac:1.57},{s:2,c:false,i:"$100K-$150K",hh:47,ac:1.53},{s:2,c:false,i:"$50K-$75K",hh:37,ac:1.51},{s:1,c:false,i:"$75K-$100K",hh:33,ac:1.00},{s:1,c:false,i:"$50K-$75K",hh:30,ac:1.00},{s:1,c:false,i:"$100K-$150K",hh:28,ac:1.00},{s:2,c:false,i:"$30K-$50K",hh:22,ac:1.55},{s:1,c:false,i:"$150K-$200K",hh:21,ac:1.00},{s:3,c:true,i:"$75K-$100K",hh:20,ac:2.25},{s:3,c:false,i:"$100K-$150K",hh:17,ac:2.00},{s:2,c:false,i:"$150K-$200K",hh:15,ac:1.53},{s:3,c:true,i:"$100K-$150K",hh:14,ac:1.64},{s:1,c:false,i:"$200K+",hh:14,ac:1.00},{s:3,c:false,i:"$50K-$75K",hh:14,ac:2.00},{s:4,c:true,i:"$75K-$100K",hh:13,ac:1.77},{s:1,c:false,i:"$30K-$50K",hh:13,ac:1.00},{s:3,c:false,i:"$75K-$100K",hh:13,ac:1.92},{s:4,c:false,i:"$50K-$75K",hh:12,ac:2.08},{s:4,c:false,i:"$75K-$100K",hh:12,ac:2.25},{s:5,c:true,i:"$50K-$75K",hh:10,ac:3.00},{s:2,c:false,i:"$200K+",hh:10,ac:1.70},{s:4,c:true,i:"$100K-$150K",hh:10,ac:2.50},{s:3,c:true,i:"$50K-$75K",hh:10,ac:1.60},{s:2,c:false,i:"Under $30K",hh:8,ac:1.63},{s:3,c:true,i:"$30K-$50K",hh:7,ac:1.71},{s:5,c:false,i:"$50K-$75K",hh:7,ac:4.00},{s:1,c:false,i:"Under $30K",hh:7,ac:1.00},{s:5,c:true,i:"$100K-$150K",hh:7,ac:3.00},{s:4,c:false,i:"$100K-$150K",hh:7,ac:3.00},{s:5,c:false,i:"$75K-$100K",hh:6,ac:2.00},{s:4,c:true,i:"$50K-$75K",hh:5,ac:2.80},{s:4,c:false,i:"$30K-$50K",hh:5,ac:1.80},{s:5,c:true,i:"$75K-$100K",hh:5,ac:3.60},{s:3,c:false,i:"$150K-$200K",hh:5,ac:2.40},{s:5,c:false,i:"$30K-$50K",hh:5,ac:2.80},{s:3,c:true,i:"Under $30K",hh:5,ac:2.00},{s:3,c:true,i:"$200K+",hh:4,ac:2.75},{s:4,c:true,i:"$30K-$50K",hh:4,ac:1.75},{s:5,c:false,i:"$100K-$150K",hh:4,ac:2.00},{s:4,c:true,i:"$200K+",hh:4,ac:2.25},{s:5,c:false,i:"$150K-$200K",hh:4,ac:3.50},{s:5,c:false,i:"$200K+",hh:3,ac:2.67},{s:3,c:false,i:"$30K-$50K",hh:3,ac:1.67},{s:4,c:true,i:"$150K-$200K",hh:3,ac:1.67},{s:5,c:true,i:"Under $30K",hh:3,ac:3.00},{s:5,c:true,i:"$150K-$200K",hh:2,ac:3.00},{s:4,c:false,i:"$200K+",hh:2,ac:1.50},{s:5,c:true,i:"$200K+",hh:2,ac:4.00},{s:3,c:false,i:"$200K+",hh:2,ac:2.00},{s:3,c:true,i:"$150K-$200K",hh:2,ac:1.50},{s:4,c:true,i:"Under $30K",hh:2,ac:3.00},{s:3,c:false,i:"Under $30K",hh:2,ac:2.00},{s:5,c:false,i:"Under $30K",hh:1,ac:4.00},{s:4,c:false,i:"$150K-$200K",hh:1,ac:2.00},{s:5,c:true,i:"$30K-$50K",hh:1,ac:5.00},{s:4,c:false,i:"Under $30K",hh:1,ac:2.00}
+];
+
+// HH by state (real)
+const STATES = [
+{st:"TX",hh:92,avgSize:2.58},{st:"CA",hh:84,avgSize:2.48},{st:"CO",hh:50,avgSize:2.64},{st:"MA",hh:48,avgSize:2.58},{st:"GA",hh:46,avgSize:2.61},{st:"AZ",hh:43,avgSize:2.49},{st:"MN",hh:43,avgSize:2.77},{st:"IL",hh:39,avgSize:2.59},{st:"WA",hh:37,avgSize:2.19},{st:"FL",hh:34,avgSize:2.76},{st:"NV",hh:30,avgSize:2.33},{st:"TN",hh:28,avgSize:2.29},{st:"NY",hh:26,avgSize:2.19}
+];
+
+const SIZE_LIST=[1,2,3,4,5];
+const INC_LIST=["Under $30K","$30K-$50K","$50K-$75K","$75K-$100K","$100K-$150K","$150K-$200K","$200K+"];
+
+const state={sizes:new Set(SIZE_LIST),kids:"all",incs:new Set(INC_LIST)};
+const fmtInt=v=>v==null||isNaN(v)?"—":Math.round(v).toLocaleString("en-US");
+const fmtPct=v=>v==null||isNaN(v)?"—":v.toFixed(1)+"%";
+
+function filt(){return HH.filter(r=>state.sizes.has(r.s)&&(state.kids==="all"||String(r.c)===state.kids)&&state.incs.has(r.i))}
+
+function buildMulti(name,list,set,sumId,ddId,toStr){
+  const dd=document.getElementById(ddId);dd.innerHTML="";
+  const all=document.createElement("label");
+  all.innerHTML=`<input type="checkbox" id="${name}All" ${set.size===list.length?'checked':''}> <strong>All</strong>`;
+  all.querySelector("input").addEventListener("change",e=>{if(e.target.checked){list.forEach(v=>set.add(v))}else{set.clear()};buildMulti(name,list,set,sumId,ddId,toStr);render()});
+  dd.appendChild(all);
+  list.forEach(v=>{const l=document.createElement("label");const label=toStr?toStr(v):v;l.innerHTML=`<input type="checkbox" ${set.has(v)?'checked':''}> ${label}`;l.querySelector("input").addEventListener("change",e=>{if(e.target.checked)set.add(v);else set.delete(v);document.getElementById(name+"All").checked=set.size===list.length;updateSum(sumId,set,list,toStr);render()});dd.appendChild(l)});
+  updateSum(sumId,set,list,toStr);
+}
+function updateSum(id,set,list,toStr){document.getElementById(id).textContent=set.size===list.length?`All (${list.length})`:set.size===0?"None":set.size===1?(toStr?toStr([...set][0]):[...set][0]):`${set.size} selected`}
+function toggleMulti(id){document.querySelectorAll(".multi").forEach(m=>{if(m.id!==id)m.classList.remove("open")});document.getElementById(id).classList.toggle("open")}
+document.addEventListener("click",e=>{if(!e.target.closest(".multi"))document.querySelectorAll(".multi").forEach(m=>m.classList.remove("open"))});
+function resetFilters(){state.sizes=new Set(SIZE_LIST);state.kids="all";state.incs=new Set(INC_LIST);document.getElementById("chSel").value="all";buildAll();render()}
+function buildAll(){buildMulti("sz",SIZE_LIST,state.sizes,"szSummary","szDropdown",v=>v+(v===1?" person":" people"));buildMulti("inc",INC_LIST,state.incs,"incSummary","incDropdown")}
+document.getElementById("chSel").addEventListener("change",e=>{state.kids=e.target.value;render()});
+
+const charts={};
+function mk(id,t,d,o){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),{type:t,data:d,options:o})}
+const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"},color:'#1E293B',boxWidth:14,padding:12}},tooltip:{backgroundColor:'rgba(30,41,59,.95)',padding:10,titleFont:{size:12,weight:'600'},bodyFont:{size:12}}}};
+
+function render(){renderKPIs();renderSz();renderKids();renderInc();renderIncKids();renderState();renderTable()}
+function renderKPIs(){
+  const f=filt();
+  const totalHH=f.reduce((s,r)=>s+r.hh,0);
+  const withKids=f.filter(r=>r.c).reduce((s,r)=>s+r.hh,0);
+  const totalCust=f.reduce((s,r)=>s+r.hh*r.ac,0);
+  const avgSize=totalHH>0?f.reduce((s,r)=>s+r.hh*r.s,0)/totalHH:0;
+  const avgCust=totalHH>0?totalCust/totalHH:0;
+  const highInc=f.filter(r=>["$150K-$200K","$200K+"].includes(r.i)).reduce((s,r)=>s+r.hh,0);
+  const row=document.getElementById("kpiRow");row.innerHTML="";
+  const ks=[
+    {l:"Total Households",v:fmtInt(totalHH),d:"Current snapshot"},
+    {l:"Total Customers",v:fmtInt(totalCust),d:"Across all HH"},
+    {l:"Avg HH Size",v:avgSize.toFixed(2),d:"People per household"},
+    {l:"Avg Cust / HH",v:avgCust.toFixed(2),d:"Identified shoppers"},
+    {l:"With Children",v:fmtInt(withKids),d:totalHH>0?fmtPct(withKids/totalHH*100)+" of HH":""},
+    {l:"High Income ($150K+)",v:fmtInt(highInc),d:totalHH>0?fmtPct(highInc/totalHH*100)+" of HH":""}
+  ];
+  ks.forEach(k=>{const c=document.createElement("div");c.className="kpi-card";c.innerHTML=`<div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div><div class="kpi-delta">${k.d}</div>`;row.appendChild(c)});
+}
+function renderSz(){
+  const f=filt();const d={};SIZE_LIST.forEach(s=>d[s]=0);f.forEach(r=>d[r.s]+=r.hh);
+  mk("szChart","bar",{labels:SIZE_LIST.map(s=>s+(s===1?" person":" people")),datasets:[{label:"Households",data:SIZE_LIST.map(s=>d[s]),backgroundColor:"#00AEFF",borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>fmtInt(c.parsed.y)+" HH"}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B'},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B'},grid:{display:false}}}});
+}
+function renderKids(){
+  const f=filt();const kids=f.filter(r=>r.c).reduce((s,r)=>s+r.hh,0);const no=f.filter(r=>!r.c).reduce((s,r)=>s+r.hh,0);
+  mk("kidsChart","doughnut",{labels:["With Children","Without Children"],datasets:[{data:[kids,no],backgroundColor:["#F59E0B","#94A3B8"],borderColor:"#FFF",borderWidth:2}]},{...bo,plugins:{...bo.plugins,legend:{position:'right',labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"},color:'#1E293B',boxWidth:14,padding:12}},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>{const t=c.dataset.data.reduce((s,v)=>s+v,0);return c.label+": "+fmtInt(c.parsed)+" ("+(t>0?(c.parsed/t*100).toFixed(1):"0")+"%)"}}}}});
+}
+function renderInc(){
+  const f=filt();const d={};INC_LIST.forEach(i=>d[i]=0);f.forEach(r=>d[r.i]+=r.hh);
+  mk("incChart","bar",{labels:INC_LIST,datasets:[{label:"Households",data:INC_LIST.map(i=>d[i]),backgroundColor:"#1A7F64",borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>fmtInt(c.parsed.y)+" HH"}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B'},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:10}},grid:{display:false}}}});
+}
+function renderIncKids(){
+  const f=filt();
+  const withKids=INC_LIST.map(i=>f.filter(r=>r.c&&r.i===i).reduce((s,r)=>s+r.hh,0));
+  const noKids=INC_LIST.map(i=>f.filter(r=>!r.c&&r.i===i).reduce((s,r)=>s+r.hh,0));
+  mk("incKidsChart","bar",{labels:INC_LIST,datasets:[
+    {label:"With Children",data:withKids,backgroundColor:"#F59E0B",borderRadius:4},
+    {label:"No Children",data:noKids,backgroundColor:"#94A3B8",borderRadius:4}
+  ]},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,mode:'index',callbacks:{label:c=>c.dataset.label+": "+fmtInt(c.parsed.y)}}},scales:{y:{stacked:true,beginAtZero:true,ticks:{color:'#64748B'},grid:{color:'#E2E8F0'}},x:{stacked:true,ticks:{color:'#64748B',font:{size:10}},grid:{display:false}}}});
+}
+function renderState(){
+  mk("stateChart","bar",{labels:STATES.map(s=>s.st),datasets:[{label:"Households",data:STATES.map(s=>s.hh),backgroundColor:"#00AEFF",borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>fmtInt(c.parsed.y)+" HH · avg "+STATES[c.dataIndex].avgSize.toFixed(2)+" people"}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B'},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B'},grid:{display:false}}}});
+}
+function renderTable(){
+  const body=document.getElementById("tableBody");body.innerHTML="";
+  const f=filt();const total=f.reduce((s,r)=>s+r.hh,0);
+  const sorted=f.sort((a,b)=>b.hh-a.hh).slice(0,25);
+  let tHH=0;
+  sorted.forEach(r=>{
+    tHH+=r.hh;const share=total>0?(r.hh/total)*100:0;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.s}${r.s===1?" person":" people"}</td><td>${r.c?"Yes":"No"}</td><td>${r.i}</td><td class="text-right">${fmtInt(r.hh)}</td><td class="text-right">${r.ac.toFixed(2)}</td><td class="text-right">${share.toFixed(1)}%</td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById("tableFoot").innerHTML=`<td colspan="3"><strong>TOP ${sorted.length} SEGMENTS</strong></td><td class="text-right"><strong>${fmtInt(tHH)}</strong></td><td class="text-right">—</td><td class="text-right"><strong>${total>0?fmtPct(tHH/total*100):"—"}</strong></td>`;
+}
+buildAll();render();
+</script>
+<script src="theme.js"></script>
+</body></html>

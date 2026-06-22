@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics Dictionary - Falcon Hotels & Restaurants</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F4F5F7; color: #2D3436; line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky; top: 0; background-color: #1B2A4A; color: #FFFFFF;
+            padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #C8A951; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
+        .nav-links a {
+            color: #FFFFFF; text-decoration: none; font-size: 0.85rem;
+            padding-bottom: 0.5rem; border-bottom: 3px solid transparent; transition: border-color 0.3s ease;
+        }
+        .nav-links a:hover { border-bottom-color: #C8A951; }
+        .nav-links a.active { border-bottom-color: #C8A951; color: #C8A951; }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #1B2A4A 0%, #2a3f6e 100%);
+            color: #FFFFFF; padding: 2rem;
+        }
+        .page-header h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+        .page-header p { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+
+        .dashboard { padding: 1.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+        /* Search & Filter Bar */
+        .toolbar {
+            background: #FFFFFF; border-radius: 10px; padding: 1.2rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem;
+            display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1; min-width: 250px; padding: 0.6rem 1rem; border: 2px solid #E0E0E0;
+            border-radius: 6px; font-size: 0.9rem; outline: none; transition: border-color 0.3s;
+        }
+        .search-box:focus { border-color: #C8A951; }
+        .filter-btn {
+            padding: 0.5rem 1rem; border: 2px solid #E0E0E0; background: #FFFFFF;
+            border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            color: #636E72; transition: all 0.3s;
+        }
+        .filter-btn.active { background: #1B2A4A; color: #FFFFFF; border-color: #1B2A4A; }
+        .filter-btn:hover:not(.active) { border-color: #C8A951; color: #1B2A4A; }
+
+        /* Stats Strip */
+        .stats-strip {
+            display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: #FFFFFF; border-radius: 20px; padding: 0.5rem 1.2rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06); font-size: 0.8rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .stat-pill .count { font-weight: 700; color: #1B2A4A; font-size: 1rem; }
+        .stat-pill .label { color: #636E72; }
+
+        /* Category Sections */
+        .category-section { margin-bottom: 2rem; }
+        .category-header {
+            display: flex; align-items: center; gap: 0.8rem;
+            padding: 0.8rem 1.2rem; background: #1B2A4A; color: #FFFFFF;
+            border-radius: 8px 8px 0 0; font-size: 0.95rem; font-weight: 700;
+        }
+        .category-header .cat-icon { font-size: 1.2rem; }
+        .category-header .cat-count {
+            margin-left: auto; background: rgba(200,169,81,0.3); color: #C8A951;
+            padding: 0.15rem 0.7rem; border-radius: 12px; font-size: 0.75rem;
+        }
+
+        /* Metric Cards */
+        .metrics-list { background: #FFFFFF; border-radius: 0 0 8px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .metric-card {
+            padding: 1.2rem 1.5rem; border-bottom: 1px solid #F0F0F0;
+            transition: background 0.2s;
+        }
+        .metric-card:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
+        .metric-card:hover { background: #FAFAFA; }
+        .metric-card.hidden { display: none; }
+
+        .metric-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem; }
+        .metric-name { font-size: 1rem; font-weight: 700; color: #1B2A4A; flex: 1; }
+        .metric-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .tag {
+            padding: 0.15rem 0.6rem; border-radius: 12px; font-size: 0.65rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .tag-db { background: #EEF0F7; color: #1B2A4A; }
+        .tag-type { background: #FFF8E1; color: #8D6E00; }
+
+        .metric-definition { font-size: 0.88rem; color: #2D3436; margin-bottom: 0.6rem; line-height: 1.7; }
+        .metric-details {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0.6rem 1.5rem; font-size: 0.78rem;
+            background: #F8F9FA; border-radius: 6px; padding: 0.8rem 1rem; margin-top: 0.4rem;
+        }
+        .detail-item { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+        .detail-label { color: #636E72; font-weight: 600; white-space: nowrap; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        .detail-value { color: #2D3436; word-wrap: break-word; overflow-wrap: break-word; }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 1.5rem; font-size: 0.75rem; color: #B2BEC3;
+            border-top: 1px solid #E0E0E0; margin-top: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .dashboard { padding: 1rem; }
+            .toolbar { flex-direction: column; }
+            .metric-details { grid-template-columns: 1fr; }
+            .metric-header { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="nav-brand">Falcon Hotels & Restaurants</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="db-01-executive-overview.html">Executive</a></li>
+            <li><a href="db-02-revenue-finance.html">Revenue</a></li>
+            <li><a href="db-03-hotel-operations.html">Hotels</a></li>
+            <li><a href="db-04-restaurant-fb.html">Restaurant</a></li>
+            <li><a href="db-05-guest-experience.html">Guest Exp</a></li>
+            <li><a href="db-06-labor-workforce.html">Labor</a></li>
+            <li><a href="db-07-inventory-supply.html">Inventory</a></li>
+            <li><a href="db-08-social-marketing.html">Social</a></li>
+            <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html" class="active">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>DB-10 | Metrics Dictionary</h1>
+        <p>Complete reference guide for all KPIs, metrics, and measurements used across Falcon Hotels & Restaurants dashboards</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Search & Filter Toolbar -->
+        <div class="toolbar">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search metrics by name, definition, or dashboard..." oninput="filterMetrics()">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+            <button class="filter-btn" data-filter="Revenue" onclick="setFilter('Revenue', this)">Revenue</button>
+            <button class="filter-btn" data-filter="Financial" onclick="setFilter('Financial', this)">Financial</button>
+            <button class="filter-btn" data-filter="Hotel Operations" onclick="setFilter('Hotel Operations', this)">Hotels</button>
+            <button class="filter-btn" data-filter="Restaurant Operations" onclick="setFilter('Restaurant Operations', this)">Restaurant</button>
+            <button class="filter-btn" data-filter="Guest Experience" onclick="setFilter('Guest Experience', this)">Guest Exp</button>
+            <button class="filter-btn" data-filter="Labor" onclick="setFilter('Labor', this)">Labor</button>
+            <button class="filter-btn" data-filter="Inventory" onclick="setFilter('Inventory', this)">Inventory</button>
+            <button class="filter-btn" data-filter="Marketing" onclick="setFilter('Marketing', this)">Marketing</button>
+            <button class="filter-btn" data-filter="Scenario" onclick="setFilter('Scenario', this)">What-If</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-strip">
+            <div class="stat-pill"><span class="count" id="totalCount">0</span><span class="label">Total Metrics</span></div>
+            <div class="stat-pill"><span class="count" id="visibleCount">0</span><span class="label">Showing</span></div>
+            <div class="stat-pill"><span class="count">9</span><span class="label">Categories</span></div>
+            <div class="stat-pill"><span class="count">9</span><span class="label">Dashboards</span></div>
+        </div>
+
+        <!-- Metrics rendered by JS -->
+        <div id="metricsContainer"></div>
+    </div>
+
+    <div class="footer">
+        Falcon Hotels & Restaurants — Metrics Dictionary | 51 metrics across 9 dashboards | Generated March 2026
+    </div>
+
+    <script>
+        // ========== COMPLETE METRICS DATA ==========
+        const metrics = [
+            // ── REVENUE ──
+            {
+                name: "Gross Revenue",
+                category: "Revenue",
+                icon: "💰",
+                definition: "Total revenue generated before any discounts, promotions, or adjustments are applied. Represents the full list-price value of all goods and services sold across all revenue streams (Room, Food, Beverage, Alcohol).",
+                formula: "SUM(GROSS_REVENUE) from FACT_REVENUE_TRANSACTIONS",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-01", "DB-02", "DB-09"],
+                source: "FACT_REVENUE_TRANSACTIONS.GROSS_REVENUE",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Net Revenue",
+                category: "Revenue",
+                icon: "💰",
+                definition: "Revenue after all discounts and promotional adjustments have been deducted from Gross Revenue. This is the actual revenue realized from transactions and is the primary top-line metric for financial reporting.",
+                formula: "GROSS_REVENUE - DISCOUNT_AMOUNT",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-01", "DB-02", "DB-09"],
+                source: "FACT_REVENUE_TRANSACTIONS.NET_REVENUE",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Total Revenue (Hotels)",
+                category: "Revenue",
+                icon: "💰",
+                definition: "Combined revenue from all hotel revenue streams including room charges, food & beverage, spa services, and ancillary services (parking, mini-bar, etc.) for a given stay or period.",
+                formula: "ROOM_REVENUE + F_AND_B_REVENUE + SPA_REVENUE + ANCILLARY_REVENUE",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-03", "DB-09"],
+                source: "FACT_HOTEL_STAYS.TOTAL_REVENUE",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Room Revenue",
+                category: "Revenue",
+                icon: "🛏️",
+                definition: "Revenue generated specifically from guest room charges before discounts. Calculated as room rate multiplied by the number of nights stayed. Excludes ancillary and F&B revenue.",
+                formula: "SUM(ROOM_REVENUE) from FACT_HOTEL_STAYS",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-03"],
+                source: "FACT_HOTEL_STAYS.ROOM_REVENUE",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Average Ticket Size",
+                category: "Revenue",
+                icon: "🎫",
+                definition: "The average dollar amount per restaurant or F&B transaction. Indicates the typical spend per order and is a key indicator of upselling effectiveness and menu pricing strategy.",
+                formula: "Total Net Revenue / Total Number of Orders",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-01", "DB-04"],
+                source: "Derived from FACT_ORDERS",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Discount Amount",
+                category: "Revenue",
+                icon: "🏷️",
+                definition: "Total value of price reductions applied through promotional offers, loyalty redemptions, employee discounts, and other pricing adjustments. Monitored to control margin erosion.",
+                formula: "SUM(DISCOUNT_AMOUNT) from FACT_REVENUE_TRANSACTIONS",
+                unit: "Currency ($)",
+                direction: "Lower is better (controlled)",
+                dashboards: ["DB-02"],
+                source: "FACT_REVENUE_TRANSACTIONS.DISCOUNT_AMOUNT",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Revenue by Stream",
+                category: "Revenue",
+                icon: "📊",
+                definition: "Breakdown of net revenue by its source category: Food (dine-in and takeout meals), Beverage (non-alcoholic drinks), Alcohol (beer, wine, spirits), and Room (hotel stays). Used for revenue mix analysis.",
+                formula: "SUM(NET_REVENUE) GROUP BY REVENUE_STREAM",
+                unit: "Currency ($)",
+                direction: "Balanced mix preferred",
+                dashboards: ["DB-01", "DB-02"],
+                source: "FACT_REVENUE_TRANSACTIONS.REVENUE_STREAM",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Revenue by Channel",
+                category: "Revenue",
+                icon: "📡",
+                definition: "Revenue segmented by the ordering or booking channel: Dine-In, Third-Party Delivery, Hotel Restaurant, Carryout, Drive-Thru, Room Service, Mobile App, Catering, and First-Party Delivery.",
+                formula: "SUM(NET_REVENUE) GROUP BY CHANNEL_NAME",
+                unit: "Currency ($)",
+                direction: "Higher is better across channels",
+                dashboards: ["DB-01", "DB-02", "DB-04"],
+                source: "FACT_REVENUE_TRANSACTIONS joined to DIM_CHANNEL",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Attributed Revenue (Marketing)",
+                category: "Revenue",
+                icon: "📣",
+                definition: "Revenue directly attributable to social media marketing efforts and campaigns. Calculated using attribution models that link campaign impressions/engagements to downstream transactions.",
+                formula: "SUM(ATTRIBUTED_REVENUE) from FACT_SOCIAL_METRICS",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS.ATTRIBUTED_REVENUE",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Total Tips",
+                category: "Revenue",
+                icon: "💵",
+                definition: "Total gratuities collected across all restaurant and F&B service locations. Indicates service quality perception and guest satisfaction with front-of-house staff.",
+                formula: "SUM(TIP_AMOUNT) from FACT_ORDERS",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-04"],
+                source: "FACT_ORDERS.TIP_AMOUNT",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+
+            // ── FINANCIAL ──
+            {
+                name: "Cost of Goods Sold (COGS)",
+                category: "Financial",
+                icon: "📉",
+                definition: "Direct cost of producing goods and services sold. Includes raw ingredient costs for food/beverage and direct room servicing costs. COGS margins vary by stream: Food 32%, Beverage 30%, Alcohol 22%, Room 20%.",
+                formula: "SUM(COGS_AMOUNT) from FACT_REVENUE_TRANSACTIONS",
+                unit: "Currency ($)",
+                direction: "Lower is better (as % of revenue)",
+                dashboards: ["DB-02", "DB-09"],
+                source: "FACT_REVENUE_TRANSACTIONS.COGS_AMOUNT",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Gross Margin",
+                category: "Financial",
+                icon: "📈",
+                definition: "The profit remaining after subtracting Cost of Goods Sold from Net Revenue. Represents the core profitability before operating expenses (labor, rent, utilities, marketing).",
+                formula: "NET_REVENUE - COGS_AMOUNT",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-01", "DB-02", "DB-09"],
+                source: "FACT_REVENUE_TRANSACTIONS.GROSS_MARGIN",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Gross Margin Rate",
+                category: "Financial",
+                icon: "📈",
+                definition: "Gross Margin expressed as a percentage of Net Revenue. Shows how much of each revenue dollar is retained after direct costs. Target varies by brand: hotels ~80%, restaurants ~68-72%, bakeries ~67%.",
+                formula: "(NET_REVENUE - COGS_AMOUNT) / NET_REVENUE × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better",
+                dashboards: ["DB-02"],
+                source: "Derived from FACT_REVENUE_TRANSACTIONS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "EBITDA (Proxy)",
+                category: "Financial",
+                icon: "💎",
+                definition: "Earnings Before Interest, Taxes, Depreciation, and Amortization — approximated as Gross Margin minus variable operating costs (waste, incremental marketing). Used in What-If analysis to estimate bottom-line impact of expansion scenarios.",
+                formula: "Gross Margin - Waste Costs - Incremental OpEx + Efficiency Savings",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-09"],
+                source: "Derived (What-If calculation)",
+                frequency: "Scenario-based"
+            },
+
+            // ── HOTEL OPERATIONS ──
+            {
+                name: "Average Daily Rate (ADR)",
+                category: "Hotel Operations",
+                icon: "🏨",
+                definition: "The average revenue earned per occupied room per night. Calculated by dividing total room revenue by the number of rooms sold. A key hotel pricing metric that reflects rate strategy effectiveness.",
+                formula: "Room Revenue / Room Nights Sold",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-03", "DB-09"],
+                source: "FACT_HOTEL_STAYS.ADR",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Occupancy Rate",
+                category: "Hotel Operations",
+                icon: "🏨",
+                definition: "The percentage of available rooms that are occupied on a given night or over a period. A fundamental hotel performance metric indicating demand strength and inventory utilization.",
+                formula: "Total Rooms Occupied / Total Rooms Available × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better (optimal 75-90%)",
+                dashboards: ["DB-01", "DB-03", "DB-09"],
+                source: "FACT_HOTEL_STAYS.OCCUPANCY_PCT",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "RevPAR (Revenue Per Available Room)",
+                category: "Hotel Operations",
+                icon: "🏨",
+                definition: "Revenue generated per available room, regardless of whether it was occupied. Combines the effects of both pricing (ADR) and demand (occupancy) into a single metric. The gold-standard hotel performance KPI.",
+                formula: "ADR × Occupancy Rate, or Total Room Revenue / Total Available Rooms",
+                unit: "Currency ($)",
+                direction: "Higher is better",
+                dashboards: ["DB-03"],
+                source: "FACT_REVENUE_TRANSACTIONS.REVPAR",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Digital Key Adoption Rate",
+                category: "Hotel Operations",
+                icon: "📱",
+                definition: "Percentage of hotel guests who use the mobile digital key feature to access their room instead of a traditional key card. Indicates guest comfort with digital technology and app engagement.",
+                formula: "Stays with Digital Key / Total Stays × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better",
+                dashboards: ["DB-03"],
+                source: "FACT_HOTEL_STAYS.USED_DIGITAL_KEY",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Mobile Check-In Rate",
+                category: "Hotel Operations",
+                icon: "📱",
+                definition: "Percentage of guests who complete the check-in process via the mobile app rather than at the front desk. Reduces lobby congestion and staffing needs while improving guest convenience.",
+                formula: "Mobile Check-Ins / Total Check-Ins × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better",
+                dashboards: ["DB-03"],
+                source: "FACT_HOTEL_STAYS.USED_MOBILE_CHECKIN",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Upgrade Acceptance Rate",
+                category: "Hotel Operations",
+                icon: "⬆️",
+                definition: "Percentage of guests who accept a room upgrade offer when presented (e.g., Standard to Deluxe, Deluxe to Suite). Indicates upselling effectiveness and willingness-to-pay headroom.",
+                formula: "Upgrades Accepted / Upgrades Offered × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better",
+                dashboards: ["DB-03"],
+                source: "FACT_HOTEL_STAYS.UPGRADE_ACCEPTED / UPGRADE_OFFERED",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Nights Stayed",
+                category: "Hotel Operations",
+                icon: "🌙",
+                definition: "Total number of room nights consumed across all hotel properties. Derived from check-in and check-out dates. Used for revenue, occupancy, and capacity planning analysis.",
+                formula: "SUM(NIGHTS_STAYED) from FACT_HOTEL_STAYS",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-03"],
+                source: "FACT_HOTEL_STAYS.NIGHTS_STAYED",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+
+            // ── RESTAURANT OPERATIONS ──
+            {
+                name: "Total Orders",
+                category: "Restaurant Operations",
+                icon: "🍽️",
+                definition: "Total number of completed food and beverage orders across all restaurant, bakery, and hotel F&B outlets. Each order may contain multiple items. Cancelled orders are excluded.",
+                formula: "COUNT(*) from FACT_ORDERS where status = completed",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-01", "DB-04"],
+                source: "FACT_ORDERS",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Order Accuracy Rate",
+                category: "Restaurant Operations",
+                icon: "✅",
+                definition: "Percentage of orders delivered to the guest exactly as ordered, without errors, substitutions, or missing items. A critical quality metric that directly impacts guest satisfaction and repeat visits.",
+                formula: "Correct Orders / Total Orders × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better (target >95%)",
+                dashboards: ["DB-04"],
+                source: "FACT_SERVICE_SCORES.ACCURACY_SCORE",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "On-Time Delivery Rate",
+                category: "Restaurant Operations",
+                icon: "⏱️",
+                definition: "Percentage of orders served or delivered within the promised time window. Measured from order placement to guest receipt. Tracks kitchen and service efficiency under varying demand levels.",
+                formula: "On-Time Orders / Total Orders × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better (target >93%)",
+                dashboards: ["DB-04"],
+                source: "FACT_SERVICE_SCORES.ONTIME_SCORE",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Average Prep Time",
+                category: "Restaurant Operations",
+                icon: "👨‍🍳",
+                definition: "Average time from when an order is sent to the kitchen to when it is ready for pickup/delivery to the guest's table. Measures kitchen throughput and operational efficiency.",
+                formula: "AVG(PREP_TIME_MINUTES) from FACT_ORDERS",
+                unit: "Minutes",
+                direction: "Lower is better",
+                dashboards: ["DB-04"],
+                source: "FACT_ORDERS.PREP_TIME_MINUTES",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Average Wait Time",
+                category: "Restaurant Operations",
+                icon: "⏳",
+                definition: "Average time a guest waits from order placement to receiving their food. Includes prep time plus any queue or delivery delays. Directly impacts guest satisfaction scores.",
+                formula: "AVG(WAIT_TIME_MINUTES) from FACT_ORDERS",
+                unit: "Minutes",
+                direction: "Lower is better",
+                dashboards: ["DB-04"],
+                source: "FACT_ORDERS.WAIT_TIME_MINUTES",
+                frequency: "Daily / Monthly / Quarterly / Yearly"
+            },
+
+            // ── GUEST EXPERIENCE ──
+            {
+                name: "Net Promoter Score (NPS)",
+                category: "Guest Experience",
+                icon: "⭐",
+                definition: "A loyalty and satisfaction metric based on the question 'How likely are you to recommend us?' on a 0-10 scale. Respondents are classified as Promoters (9-10), Passives (7-8), or Detractors (0-6). The score shown is the average raw rating.",
+                formula: "AVG(NPS_RATING) from FACT_GUEST_FEEDBACK (displayed as average score); traditional NPS = % Promoters - % Detractors",
+                unit: "Score (0-10)",
+                direction: "Higher is better (>8.5 excellent)",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK.NPS_RATING",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Customer Satisfaction Score (CSAT)",
+                category: "Guest Experience",
+                icon: "😊",
+                definition: "Average overall satisfaction rating from guest feedback surveys on a 1-5 scale. Captures the guest's holistic assessment of their experience including service, ambiance, food, and value.",
+                formula: "AVG(OVERALL_SATISFACTION) from FACT_GUEST_FEEDBACK",
+                unit: "Score (1-5)",
+                direction: "Higher is better (>4.0 good)",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK.OVERALL_SATISFACTION",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Food Quality Rating",
+                category: "Guest Experience",
+                icon: "🍔",
+                definition: "Average guest rating for food quality, taste, presentation, and freshness on a 1-5 scale. Reflects kitchen execution and ingredient quality across all F&B outlets.",
+                formula: "AVG(FOOD_RATING) from FACT_GUEST_FEEDBACK",
+                unit: "Score (1-5)",
+                direction: "Higher is better",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK.FOOD_RATING",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Service Rating",
+                category: "Guest Experience",
+                icon: "🤝",
+                definition: "Average guest rating for staff friendliness, attentiveness, and professionalism on a 1-5 scale. Directly correlates with tip percentages and repeat visit likelihood.",
+                formula: "AVG(SERVICE_RATING) from FACT_GUEST_FEEDBACK",
+                unit: "Score (1-5)",
+                direction: "Higher is better",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK.SERVICE_RATING",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Cleanliness Rating",
+                category: "Guest Experience",
+                icon: "✨",
+                definition: "Average guest rating for venue cleanliness, hygiene, and restroom condition on a 1-5 scale. A non-negotiable baseline metric — scores below 4.0 indicate actionable issues.",
+                formula: "AVG(CLEANLINESS_RATING) from FACT_GUEST_FEEDBACK",
+                unit: "Score (1-5)",
+                direction: "Higher is better",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK.CLEANLINESS_RATING",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Value Perception Rating",
+                category: "Guest Experience",
+                icon: "💎",
+                definition: "Average guest rating for perceived value-for-money on a 1-5 scale. Compares what the guest received against what they paid. Most price-sensitive metric — drops when prices increase without perceived quality gains.",
+                formula: "AVG(VALUE_RATING) from FACT_GUEST_FEEDBACK",
+                unit: "Score (1-5)",
+                direction: "Higher is better",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK.VALUE_RATING",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Complaint Rate",
+                category: "Guest Experience",
+                icon: "⚠️",
+                definition: "Percentage of guest feedback responses that include a formal complaint or negative flag. Monitored for service recovery and quality control. Rates above 8% trigger operational review.",
+                formula: "Complaints / Total Feedback Responses × 100",
+                unit: "Percentage (%)",
+                direction: "Lower is better (<5% target)",
+                dashboards: ["DB-05"],
+                source: "Derived from FACT_GUEST_FEEDBACK",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Survey Response Volume",
+                category: "Guest Experience",
+                icon: "📝",
+                definition: "Total number of completed guest feedback surveys received. Higher response volumes increase statistical confidence in satisfaction scores. Target is 15%+ of total covers.",
+                formula: "COUNT(*) from FACT_GUEST_FEEDBACK",
+                unit: "Count",
+                direction: "Higher is better (more data)",
+                dashboards: ["DB-05"],
+                source: "FACT_GUEST_FEEDBACK",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+
+            // ── LABOR ──
+            {
+                name: "Total Wage Cost",
+                category: "Labor",
+                icon: "💼",
+                definition: "Total compensation paid to all hourly and salaried employees including base wages, overtime premiums, shift differentials, and holiday pay. The single largest operating expense for hospitality businesses.",
+                formula: "SUM(TOTAL_WAGE_COST) from FACT_LABOR_SHIFTS",
+                unit: "Currency ($)",
+                direction: "Lower is better (as % of revenue)",
+                dashboards: ["DB-06", "DB-09"],
+                source: "FACT_LABOR_SHIFTS.TOTAL_WAGE_COST",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Labor Cost % of Sales",
+                category: "Labor",
+                icon: "📊",
+                definition: "Total labor costs expressed as a percentage of net revenue. The primary labor efficiency metric in hospitality. Industry benchmarks: Hotels 25-35%, Full-Service Restaurants 28-35%, QSR/Bakery 22-28%.",
+                formula: "Total Wage Cost / Net Revenue × 100",
+                unit: "Percentage (%)",
+                direction: "Lower is better (target 25-32%)",
+                dashboards: ["DB-01", "DB-06"],
+                source: "Derived from FACT_LABOR_SHIFTS and FACT_REVENUE_TRANSACTIONS",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Scheduled Hours",
+                category: "Labor",
+                icon: "📅",
+                definition: "Total number of labor hours planned and scheduled across all shifts and locations. Compared against actual hours to measure scheduling accuracy and forecast quality.",
+                formula: "SUM(SCHEDULED_HOURS) from FACT_LABOR_SHIFTS",
+                unit: "Hours",
+                direction: "Close to Actual Hours is best",
+                dashboards: ["DB-06"],
+                source: "FACT_LABOR_SHIFTS.SCHEDULED_HOURS",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Actual Hours Worked",
+                category: "Labor",
+                icon: "⏰",
+                definition: "Total labor hours actually clocked by employees based on time & attendance records. Includes regular hours and overtime. Used for payroll calculation and productivity analysis.",
+                formula: "SUM(ACTUAL_HOURS) from FACT_LABOR_SHIFTS",
+                unit: "Hours",
+                direction: "Efficient utilization preferred",
+                dashboards: ["DB-06"],
+                source: "FACT_LABOR_SHIFTS.ACTUAL_HOURS",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Overtime Hours",
+                category: "Labor",
+                icon: "🔴",
+                definition: "Hours worked beyond the standard shift or 40-hour weekly threshold, paid at premium rates (typically 1.5x). Excessive overtime indicates understaffing or scheduling inefficiency.",
+                formula: "SUM(OVERTIME_HOURS) from FACT_LABOR_SHIFTS",
+                unit: "Hours",
+                direction: "Lower is better (<3% of total hours)",
+                dashboards: ["DB-06"],
+                source: "FACT_LABOR_SHIFTS.OVERTIME_HOURS",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "No-Show Count",
+                category: "Labor",
+                icon: "🚫",
+                definition: "Number of scheduled shifts where the employee did not report to work and did not provide advance notice. No-shows create immediate operational disruptions and require costly last-minute coverage.",
+                formula: "COUNT where NO_SHOW_FLAG = TRUE from FACT_LABOR_SHIFTS",
+                unit: "Count",
+                direction: "Lower is better (target <1%)",
+                dashboards: ["DB-06"],
+                source: "FACT_LABOR_SHIFTS.NO_SHOW_FLAG",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Total Covers Served",
+                category: "Labor",
+                icon: "🍽️",
+                definition: "Total number of individual guests (covers) served across all F&B and dining outlets. A cover represents one guest served one meal. Used for demand analysis and labor productivity calculations.",
+                formula: "SUM(COVERS_SERVED) from FACT_LABOR_SHIFTS",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-06"],
+                source: "FACT_LABOR_SHIFTS.COVERS_SERVED",
+                frequency: "Daily / Weekly / Monthly / Yearly"
+            },
+            {
+                name: "Covers per Labor Hour",
+                category: "Labor",
+                icon: "⚡",
+                definition: "Number of guests served per labor hour worked. The primary front-of-house productivity metric. Higher values indicate better staffing efficiency. Benchmarks: Full-Service 4-6, QSR 8-12.",
+                formula: "Total Covers / Total Actual Hours",
+                unit: "Ratio",
+                direction: "Higher is better",
+                dashboards: ["DB-06"],
+                source: "Derived from FACT_LABOR_SHIFTS",
+                frequency: "Weekly / Monthly / Quarterly / Yearly"
+            },
+
+            // ── INVENTORY ──
+            {
+                name: "Total Inventory Cost",
+                category: "Inventory",
+                icon: "📦",
+                definition: "Total dollar value of all inventory purchased and processed across all locations. Includes food ingredients, beverages, cleaning supplies, and hotel consumables.",
+                formula: "SUM(TOTAL_COST) from FACT_INVENTORY_MOVEMENTS",
+                unit: "Currency ($)",
+                direction: "Controlled relative to revenue",
+                dashboards: ["DB-07"],
+                source: "FACT_INVENTORY_MOVEMENTS.TOTAL_COST",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Waste Cost",
+                category: "Inventory",
+                icon: "🗑️",
+                definition: "Dollar value of inventory that was discarded, spoiled, or expired before use. Includes food waste, beverage spoilage, and damaged goods. A direct hit to profitability with sustainability implications.",
+                formula: "SUM(WASTE_COST) from FACT_INVENTORY_MOVEMENTS",
+                unit: "Currency ($)",
+                direction: "Lower is better",
+                dashboards: ["DB-07", "DB-09"],
+                source: "FACT_INVENTORY_MOVEMENTS.WASTE_COST",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Waste Rate",
+                category: "Inventory",
+                icon: "📉",
+                definition: "Waste Cost as a percentage of Total Inventory Cost. Measures how much of purchased inventory goes unused. Industry target is below 2%. Rates above 3% indicate procurement or storage issues.",
+                formula: "Waste Cost / Total Inventory Cost × 100",
+                unit: "Percentage (%)",
+                direction: "Lower is better (target <2%)",
+                dashboards: ["DB-07"],
+                source: "Derived from FACT_INVENTORY_MOVEMENTS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Quantity Received",
+                category: "Inventory",
+                icon: "📥",
+                definition: "Total units of inventory received from suppliers across all categories and locations. Tracked to monitor procurement volumes, supplier reliability, and demand forecasting accuracy.",
+                formula: "SUM(QUANTITY_RECEIVED) from FACT_INVENTORY_MOVEMENTS",
+                unit: "Units",
+                direction: "Aligned with demand",
+                dashboards: ["DB-07"],
+                source: "FACT_INVENTORY_MOVEMENTS.QUANTITY_RECEIVED",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Quantity Used",
+                category: "Inventory",
+                icon: "📤",
+                definition: "Total units of inventory consumed in production or service. Compared against received quantities to calculate utilization rate and identify over-ordering or under-ordering patterns.",
+                formula: "SUM(QUANTITY_USED) from FACT_INVENTORY_MOVEMENTS",
+                unit: "Units",
+                direction: "Close to Received is best",
+                dashboards: ["DB-07"],
+                source: "FACT_INVENTORY_MOVEMENTS.QUANTITY_USED",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Quantity Wasted",
+                category: "Inventory",
+                icon: "🗑️",
+                definition: "Total units of inventory discarded due to spoilage, expiration, damage, or preparation errors. The volume counterpart to Waste Cost. Used for root-cause waste analysis by category.",
+                formula: "SUM(QUANTITY_WASTED) from FACT_INVENTORY_MOVEMENTS",
+                unit: "Units",
+                direction: "Lower is better",
+                dashboards: ["DB-07"],
+                source: "FACT_INVENTORY_MOVEMENTS.QUANTITY_WASTED",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Inventory Turnover Ratio",
+                category: "Inventory",
+                icon: "🔄",
+                definition: "How many times inventory is fully cycled (sold and replaced) in a period. Higher turnover means fresher inventory and less capital tied up. Calculated as quantity used divided by average on-hand inventory.",
+                formula: "Quantity Used / Average Inventory On-Hand",
+                unit: "Ratio (x times)",
+                direction: "Higher is better (target >12x/year)",
+                dashboards: ["DB-07"],
+                source: "Derived from FACT_INVENTORY_MOVEMENTS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+
+            // ── MARKETING ──
+            {
+                name: "Impressions",
+                category: "Marketing",
+                icon: "👁️",
+                definition: "Total number of times social media content was displayed on users' screens across all platforms (Instagram, Facebook, TikTok, etc.). One user may generate multiple impressions.",
+                formula: "SUM(IMPRESSIONS) from FACT_SOCIAL_METRICS",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS.IMPRESSIONS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Reach",
+                category: "Marketing",
+                icon: "📡",
+                definition: "Total number of unique users who saw the brand's social media content. Unlike impressions, reach counts each user only once regardless of how many times they viewed content.",
+                formula: "SUM(REACH) from FACT_SOCIAL_METRICS",
+                unit: "Count (unique users)",
+                direction: "Higher is better",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS.REACH",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Engagements",
+                category: "Marketing",
+                icon: "💬",
+                definition: "Total user interactions with social media content including likes, comments, shares, saves, clicks, and reactions. Measures content resonance and audience involvement.",
+                formula: "SUM(LIKES + COMMENTS + SHARES) from FACT_SOCIAL_METRICS",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS (LIKES, COMMENTS, SHARES)",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Engagement Rate",
+                category: "Marketing",
+                icon: "📊",
+                definition: "Engagements as a percentage of total Impressions. Measures how compelling content is to the audience. Industry benchmark for hospitality: 2-4%. Rates above 5% indicate highly resonant content.",
+                formula: "Total Engagements / Total Impressions × 100",
+                unit: "Percentage (%)",
+                direction: "Higher is better (>3% good)",
+                dashboards: ["DB-08"],
+                source: "Derived from FACT_SOCIAL_METRICS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Sentiment Score",
+                category: "Marketing",
+                icon: "😊",
+                definition: "Aggregate sentiment analysis score ranging from -1.0 (very negative) to +1.0 (very positive) based on natural language processing of comments and mentions. Scores above 0.6 are considered positive.",
+                formula: "AVG(SENTIMENT_SCORE) from FACT_SOCIAL_METRICS",
+                unit: "Score (-1.0 to +1.0)",
+                direction: "Higher is better (>0.6 positive)",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS.SENTIMENT_SCORE",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "App Downloads",
+                category: "Marketing",
+                icon: "📲",
+                definition: "Number of new installations of the Falcon Hotels & Restaurants mobile app. Tracks digital channel growth and guest acquisition via mobile. Correlates with digital key adoption and mobile ordering.",
+                formula: "SUM(APP_DOWNLOADS) from FACT_SOCIAL_METRICS",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS.APP_DOWNLOADS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+            {
+                name: "Follower Count",
+                category: "Marketing",
+                icon: "👥",
+                definition: "Total number of social media followers/subscribers across all brand accounts and platforms. Represents the owned audience base that can be reached organically without paid promotion.",
+                formula: "SUM(FOLLOWERS) from FACT_SOCIAL_METRICS",
+                unit: "Count",
+                direction: "Higher is better",
+                dashboards: ["DB-08"],
+                source: "FACT_SOCIAL_METRICS.FOLLOWERS",
+                frequency: "Monthly / Quarterly / Yearly"
+            },
+
+            // ── SCENARIO / WHAT-IF ──
+            {
+                name: "Revenue Ramp-Up Rate",
+                category: "Scenario",
+                icon: "📈",
+                definition: "The expected percentage of a mature location's revenue that a new location will achieve in its first year of operation. Accounts for brand awareness building, team training, and market penetration time. Typical range: 50-80%.",
+                formula: "User-defined scenario input (slider)",
+                unit: "Percentage (%)",
+                direction: "Realistic estimate preferred",
+                dashboards: ["DB-09"],
+                source: "What-If model assumption",
+                frequency: "Scenario-based"
+            },
+            {
+                name: "Menu Adoption Rate",
+                category: "Scenario",
+                icon: "📋",
+                definition: "Estimated percentage of existing transactions that will include a newly added menu item. Models the expected uptake when new food, beverage, or dessert items are introduced to the menu.",
+                formula: "New Item Orders / Total Existing Transactions × 100",
+                unit: "Percentage (%)",
+                direction: "Higher means more optimistic",
+                dashboards: ["DB-09"],
+                source: "What-If model assumption",
+                frequency: "Scenario-based"
+            },
+            {
+                name: "Labor Efficiency Gain",
+                category: "Scenario",
+                icon: "⚙️",
+                definition: "Projected percentage reduction in labor costs from operational improvements such as automation, scheduling optimization, cross-training, or technology adoption. Applied to total labor spend.",
+                formula: "Total Labor Cost × Efficiency % = Savings",
+                unit: "Percentage (%)",
+                direction: "Higher means more savings",
+                dashboards: ["DB-09"],
+                source: "What-If model assumption",
+                frequency: "Scenario-based"
+            },
+            {
+                name: "Waste Reduction Target",
+                category: "Scenario",
+                icon: "♻️",
+                definition: "Target percentage reduction in waste costs achievable through better inventory management, portion control, demand forecasting, and supplier coordination. Applied to historical waste cost baseline.",
+                formula: "Total Waste Cost × Reduction % = Savings",
+                unit: "Percentage (%)",
+                direction: "Higher means more savings",
+                dashboards: ["DB-09"],
+                source: "What-If model assumption",
+                frequency: "Scenario-based"
+            }
+        ];
+
+        // ========== CATEGORY CONFIG ==========
+        const categoryConfig = {
+            "Revenue":                { icon: "💰", order: 1 },
+            "Financial":              { icon: "📈", order: 2 },
+            "Hotel Operations":       { icon: "🏨", order: 3 },
+            "Restaurant Operations":  { icon: "🍽️", order: 4 },
+            "Guest Experience":       { icon: "⭐", order: 5 },
+            "Labor":                  { icon: "💼", order: 6 },
+            "Inventory":              { icon: "📦", order: 7 },
+            "Marketing":              { icon: "📣", order: 8 },
+            "Scenario":               { icon: "🔮", order: 9 }
+        };
+
+        let currentFilter = 'all';
+
+        // ========== RENDER ==========
+        function renderMetrics() {
+            const container = document.getElementById('metricsContainer');
+            container.innerHTML = '';
+
+            // Group by category
+            const grouped = {};
+            metrics.forEach(m => {
+                if (!grouped[m.category]) grouped[m.category] = [];
+                grouped[m.category].push(m);
+            });
+
+            // Sort categories
+            const sortedCats = Object.keys(grouped).sort((a, b) =>
+                (categoryConfig[a]?.order || 99) - (categoryConfig[b]?.order || 99)
+            );
+
+            sortedCats.forEach(cat => {
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                section.dataset.category = cat;
+
+                const config = categoryConfig[cat] || { icon: "📊" };
+
+                section.innerHTML = `
+                    <div class="category-header">
+                        <span class="cat-icon">${config.icon}</span>
+                        ${cat}
+                        <span class="cat-count">${grouped[cat].length} metrics</span>
+                    </div>
+                    <div class="metrics-list">
+                        ${grouped[cat].map(m => `
+                            <div class="metric-card" data-name="${m.name.toLowerCase()}" data-def="${m.definition.toLowerCase()}" data-dbs="${m.dashboards.join(' ').toLowerCase()}" data-cat="${m.category}">
+                                <div class="metric-header">
+                                    <div class="metric-name">${m.name}</div>
+                                    <div class="metric-tags">
+                                        ${m.dashboards.map(d => `<span class="tag tag-db">${d}</span>`).join('')}
+                                        <span class="tag tag-type">${m.unit}</span>
+                                    </div>
+                                </div>
+                                <div class="metric-definition">${m.definition}</div>
+                                <div class="metric-details">
+                                    <div class="detail-item"><span class="detail-label">Formula:</span><span class="detail-value">${m.formula}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Direction:</span><span class="detail-value">${m.direction}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Source:</span><span class="detail-value">${m.source}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Frequency:</span><span class="detail-value">${m.frequency}</span></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+
+            document.getElementById('totalCount').textContent = metrics.length;
+            updateVisibleCount();
+        }
+
+        function filterMetrics() {
+            const query = document.getElementById('searchBox').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.metric-card');
+
+            cards.forEach(card => {
+                const matchesSearch = !query ||
+                    card.dataset.name.includes(query) ||
+                    card.dataset.def.includes(query) ||
+                    card.dataset.dbs.includes(query);
+                const matchesFilter = currentFilter === 'all' || card.dataset.cat === currentFilter;
+                card.classList.toggle('hidden', !(matchesSearch && matchesFilter));
+            });
+
+            // Hide empty categories
+            document.querySelectorAll('.category-section').forEach(section => {
+                const visibleCards = section.querySelectorAll('.metric-card:not(.hidden)');
+                section.style.display = visibleCards.length === 0 ? 'none' : 'block';
+            });
+
+            updateVisibleCount();
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterMetrics();
+        }
+
+        function updateVisibleCount() {
+            const visible = document.querySelectorAll('.metric-card:not(.hidden)').length;
+            document.getElementById('visibleCount').textContent = visible;
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', renderMetrics);
+    </script>
+</body>
+</html>

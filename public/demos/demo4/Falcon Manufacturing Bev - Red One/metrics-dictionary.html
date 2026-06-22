@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metrics Dictionary — Rush Energy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0D1B2A;
+      color: #FFFFFF;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Background */
+    
+    
+
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+
+    /* Header */
+    .header { padding: 40px 20px 20px; text-align: center; background: linear-gradient(135deg, #0F2136 0%, #142238 100%) 100%); border-bottom: 3px solid #DC2626; }
+    .header h1 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 48px; letter-spacing: 4px; margin-bottom: 10px; text-transform: uppercase; color: #FFFFFF; }
+    .header p { color: #8B9DB7; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* Controls */
+    .controls-section { padding: 20px; background: #0F2136; border-bottom: 2px solid #1E3A5F; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .back-link { display: inline-block; padding: 10px 20px; background: #142238; color: #DC2626; text-decoration: none; border-radius: 4px; font-weight: 600; transition: all 0.3s; border: 2px solid #DC2626; }
+    .back-link:hover { background: #DC2626; color: #000; transform: translateX(-5px); }
+
+    /* Search */
+    .search-container { display: flex; gap: 10px; align-items: center; flex: 1; max-width: 500px; }
+    .search-input { flex: 1; padding: 10px 16px; background: #142238; border: 2px solid #1E3A5F; border-radius: 4px; color: #FFFFFF; font-family: 'Inter', sans-serif; font-size: 14px; outline: none; transition: border-color 0.3s; }
+    .search-input:focus { border-color: #DC2626; }
+    .search-input::placeholder { color: #94A3B8; }
+
+    /* Domain Filter Tabs */
+    .domain-tabs { padding: 20px; background: #0F1D30; border-bottom: 1px solid #1E3A5F; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .domain-tab { padding: 8px 16px; background: #142238; color: #8B9DB7; border: 1px solid #1E3A5F; border-radius: 20px; cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s; }
+    .domain-tab:hover { border-color: #DC2626; color: #DC2626; }
+    .domain-tab.active { background: #DC2626; color: #000; border-color: #DC2626; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+
+    /* Stats Bar */
+    .stats-bar { padding: 15px 20px; background: #142238; border-bottom: 1px solid #1E3A5F; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .stats-text { font-size: 13px; color: #8B9DB7; }
+    .stats-text span { color: #DC2626; font-weight: 700; }
+
+    /* Metric Cards */
+    .metrics-container { padding: 30px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+
+    .metric-card { background: #142238; border: 1px solid #1E3A5F; border-left: 4px solid #DC2626; border-radius: 8px; padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+    .metric-card:hover { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); border-color: #DC2626; transform: translateY(-2px); }
+    .metric-card::after { content: '\2605'; position: absolute; font-size: 50px; color: rgba(0, 0, 0, 0.3); bottom: -10px; right: -5px; }
+
+    .metric-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; color: #DC2626; margin-bottom: 8px; text-transform: uppercase; }
+
+    .metric-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .badge { padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+    .badge-domain { background: rgba(0, 0, 0, 0.3); color: #DC2626; border: 1px solid rgba(0, 0, 0, 0.3); }
+    .badge-type-metric { background: rgba(0, 0, 0, 0.3); color: #DC2626; border: 1px solid rgba(0, 0, 0, 0.3); }
+    .badge-type-dimension { background: rgba(232,168,37,0.15); color: #D97706; border: 1px solid rgba(232,168,37,0.3); }
+    .badge-type-kpi { background: rgba(123,193,66,0.15); color: #16A34A; border: 1px solid rgba(123,193,66,0.3); }
+    .badge-type-rate { background: rgba(155,89,182,0.15); color: #7C3AED; border: 1px solid rgba(155,89,182,0.3); }
+    .badge-type-financial { background: rgba(255,140,66,0.15); color: #EA580C; border: 1px solid rgba(255,140,66,0.3); }
+
+    .metric-description { font-size: 13px; color: #ccc; line-height: 1.6; margin-bottom: 12px; }
+
+    .metric-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-detail { font-size: 11px; color: #8B9DB7; }
+    .metric-detail strong { color: #aaa; }
+
+    .metric-formula { background: #0F1D30; border: 1px solid #1E3A5F; border-radius: 4px; padding: 8px 12px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 12px; color: #DC2626; }
+
+    /* Footer */
+    .footer { text-align: center; padding: 30px 20px; border-top: 2px solid #1E3A5F; color: #8B9DB7; font-size: 12px; }
+
+    
+    
+    
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 32px; }
+      .metrics-container { grid-template-columns: 1fr; }
+      .controls-section { flex-direction: column; align-items: stretch; }
+      .search-container { max-width: 100%; }
+    }
+  
+    /* Dark Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0D1B2A; }
+    ::-webkit-scrollbar-thumb { background: #1E3A5F; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2A4A6F; }
+  
+    /* === Navigation Bar === */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 30px;
+      background: #0F2136;
+      border-bottom: 1px solid #1E3A5F;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .nav-bar .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: #142238;
+      color: #DB0A40;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      border: 1px solid #1E3A5F;
+    }
+    .nav-bar .back-link:hover {
+      background: #DB0A40;
+      color: #FFFFFF;
+      border-color: #DB0A40;
+    }
+    .nav-bar .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .nav-bar .nav-link {
+      padding: 8px 18px;
+      background: #142238;
+      color: #C9D6E3;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid #1E3A5F;
+      transition: all 0.3s ease;
+    }
+    .nav-bar .nav-link:hover {
+      background: #DB0A40;
+      color: #FFFFFF;
+      border-color: #DB0A40;
+    }
+    .nav-bar .filter-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8B9DB7;
+    }
+    .nav-bar .quarter-btn {
+      padding: 6px 14px;
+      background: #142238;
+      color: #C9D6E3;
+      border: 1px solid #1E3A5F;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .nav-bar .quarter-btn:hover {
+      border-color: #DB0A40;
+      color: #DB0A40;
+    }
+    .nav-bar .quarter-btn.active {
+      background: #DB0A40;
+      color: #FFFFFF;
+      border-color: #DB0A40;
+    }
+    /* === Dashboard Header === */
+    .dash-header {
+      padding: 25px 30px 15px;
+      background: linear-gradient(135deg, #0F2136 0%, #142238 100%);
+      border-bottom: 3px solid #DB0A40;
+    }
+    .dash-header h1 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 36px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      margin: 0;
+    }
+    .dash-header h1 .dash-num {
+      color: #1E3A5F;
+      margin-right: 12px;
+    }
+    .dash-header .dash-subtitle {
+      color: #8B9DB7;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Dashboard Header -->
+  <div class="dash-header" style="border-bottom-color:#DB0A40;">
+    <h1><span class="dash-num">09</span>METRICS DICTIONARY</h1>
+    <p class="dash-subtitle">RUSH ENERGY CO. | DATA CATALOG</p>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="nav-bar">
+    <a href="index.html" class="back-link">← BACK TO HOME</a>
+    <div class="nav-right">
+      
+      
+        <input type="text" id="navSearchInput" placeholder="Search metrics..."
+          style="padding:8px 14px;background:#142238;color:#FFFFFF;border:1px solid #1E3A5F;border-radius:4px;font-size:13px;width:250px;outline:none;"
+          oninput="if(typeof handleSearch==='function')handleSearch(this.value)">
+    </div>
+  </div>
+
+  <!-- Domain Filter Tabs -->
+  <div class="domain-tabs" id="domainTabs">
+    <div class="domain-tab active" data-domain="all">ALL DOMAINS</div>
+    <div class="domain-tab" data-domain="executive">EXECUTIVE</div>
+    <div class="domain-tab" data-domain="sales">SALES</div>
+    <div class="domain-tab" data-domain="inventory">INVENTORY</div>
+    <div class="domain-tab" data-domain="supply-chain">SUPPLY CHAIN</div>
+    <div class="domain-tab" data-domain="production">PRODUCTION</div>
+    <div class="domain-tab" data-domain="quality">QUALITY</div>
+    <div class="domain-tab" data-domain="marketing">MARKETING</div>
+    <div class="domain-tab" data-domain="esg">ESG</div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stats-text">Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> metrics</div>
+    <div class="stats-text">Across <span>8</span> business domains</div>
+  </div>
+
+  <!-- Metric Cards Container -->
+  <div class="metrics-container" id="metricsContainer"></div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>&#9733; RUSH ENERGY METRICS DICTIONARY &#9733; | 8 Domains | Complete Data Catalog</p>
+  </div>
+
+  <script>
+    // ============================================
+    // COMPLETE METRICS DATA
+    // ============================================
+    const METRICS = [
+      // EXECUTIVE SUMMARY
+      {name:"Gross Revenue",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"GROSS_REVENUE_USD",type:"financial",unit:"USD",description:"Total revenue before any deductions, discounts, or returns. Represents the full value of all invoiced sales.",formula:"SUM(line_item_price \u00d7 quantity)",tags:["revenue","top-line","sales"]},
+      {name:"Total Discounts",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"TOTAL_DISCOUNTS_USD",type:"financial",unit:"USD",description:"Total dollar value of all discounts applied across channels, including volume discounts, promotions, and trade allowances.",formula:"SUM(discount_amount)",tags:["discount","pricing","promotion"]},
+      {name:"Net Revenue",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"NET_REVENUE_USD",type:"kpi",unit:"USD",description:"Revenue after all discounts and allowances. The primary top-line KPI for business performance.",formula:"Gross Revenue \u2212 Total Discounts",tags:["revenue","net","kpi"]},
+      {name:"Cost of Goods Sold (COGS)",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"COGS_USD",type:"financial",unit:"USD",description:"Total direct costs attributable to producing goods sold \u2014 raw materials, direct labor, and manufacturing overhead.",formula:"SUM(material_cost + labor_cost + overhead)",tags:["cost","manufacturing","margin"]},
+      {name:"Gross Profit",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"GROSS_PROFIT_USD",type:"kpi",unit:"USD",description:"Profit remaining after subtracting COGS from net revenue. Indicates core product profitability before operating expenses.",formula:"Net Revenue \u2212 COGS",tags:["profit","margin","kpi"]},
+      {name:"Gross Margin %",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"GROSS_MARGIN_PCT",type:"rate",unit:"%",description:"Percentage of net revenue retained as gross profit. Measures production efficiency and pricing power.",formula:"(Gross Profit \u00f7 Net Revenue) \u00d7 100",tags:["margin","efficiency","kpi"]},
+      {name:"EBITDA",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"EBITDA_USD",type:"kpi",unit:"USD",description:"Earnings Before Interest, Taxes, Depreciation, and Amortization. Core operating profitability measure that removes non-cash and financing effects.",formula:"Net Profit + Interest + Taxes + Depreciation + Amortization",tags:["profitability","operations","kpi"]},
+      {name:"Net Profit",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"NET_PROFIT_USD",type:"kpi",unit:"USD",description:"Bottom-line profit after all expenses including taxes, interest, depreciation, and operating costs.",formula:"EBITDA \u2212 Operating Expenses \u2212 Taxes \u2212 Interest",tags:["profit","bottom-line","kpi"]},
+      {name:"Net Margin %",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"NET_MARGIN_PCT",type:"rate",unit:"%",description:"Percentage of net revenue that translates to bottom-line profit. The ultimate profitability indicator.",formula:"(Net Profit \u00f7 Net Revenue) \u00d7 100",tags:["margin","profitability","kpi"]},
+      {name:"Marketing Spend",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"MARKETING_SPEND_USD",type:"financial",unit:"USD",description:"Total expenditure on marketing campaigns, advertising, and brand promotion across all channels.",formula:"SUM(campaign_spend)",tags:["marketing","spend","budget"]},
+      {name:"Units Ordered",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"UNITS_ORDERED",type:"metric",unit:"units",description:"Total number of product units ordered by customers across all channels and regions.",formula:"SUM(order_quantity)",tags:["volume","demand","orders"]},
+      {name:"Units Shipped",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"UNITS_SHIPPED",type:"metric",unit:"units",description:"Total number of product units physically shipped to customers. May differ from ordered due to stockouts or partial fulfillment.",formula:"SUM(shipped_quantity)",tags:["fulfillment","logistics","volume"]},
+      {name:"Units Returned",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"UNITS_RETURNED",type:"metric",unit:"units",description:"Total number of product units returned by customers due to quality issues, damage, or preference.",formula:"SUM(return_quantity)",tags:["returns","quality","satisfaction"]},
+      {name:"Return Rate %",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"RETURN_RATE_PCT",type:"rate",unit:"%",description:"Percentage of shipped units that were returned. Key indicator of product quality and customer satisfaction.",formula:"(Units Returned \u00f7 Units Shipped) \u00d7 100",tags:["returns","quality","rate"]},
+      {name:"Total Orders",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"TOTAL_ORDERS",type:"metric",unit:"count",description:"Total count of distinct customer orders placed across all channels.",formula:"COUNT(DISTINCT order_id)",tags:["orders","volume","demand"]},
+      {name:"Avg Order Value",domain:"executive",table:"VW_EXECUTIVE_SUMMARY",column:"AVG_ORDER_VALUE_USD",type:"kpi",unit:"USD",description:"Average dollar value per order. Indicates purchasing behavior and upsell effectiveness.",formula:"Net Revenue \u00f7 Total Orders",tags:["aov","pricing","basket"]},
+
+      // SALES PERFORMANCE
+      {name:"Gross Revenue (Sales)",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"GROSS_REVENUE_USD",type:"financial",unit:"USD",description:"Total invoiced revenue by product, channel, and region before discounts.",formula:"SUM(unit_price \u00d7 quantity)",tags:["revenue","sales","channel"]},
+      {name:"Net Revenue (Sales)",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"NET_REVENUE_USD",type:"kpi",unit:"USD",description:"Revenue net of discounts at the product-channel-region level. Primary measure for sales performance analysis.",formula:"Gross Revenue \u2212 Discounts",tags:["revenue","net","performance"]},
+      {name:"Gross Profit (Sales)",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"GROSS_PROFIT_USD",type:"financial",unit:"USD",description:"Profit at the product level after deducting product-specific COGS from net revenue.",formula:"Net Revenue \u2212 Product COGS",tags:["profit","product","margin"]},
+      {name:"Discount Amount",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"DISCOUNT_USD",type:"financial",unit:"USD",description:"Dollar amount of discounts applied per product-channel combination. Tracks trade spend and promotional impact.",formula:"SUM(line_discount_amount)",tags:["discount","trade","promotion"]},
+      {name:"Gross Margin % (Sales)",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"GROSS_MARGIN_PCT",type:"rate",unit:"%",description:"Product-level gross margin percentage. Identifies high/low margin products and channel profitability.",formula:"(Gross Profit \u00f7 Net Revenue) \u00d7 100",tags:["margin","product","channel"]},
+      {name:"Avg List Price",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"AVG_LIST_PRICE",type:"metric",unit:"USD",description:"Average manufacturer's suggested retail price (MSRP) before any discounts or negotiated pricing.",formula:"AVG(list_price)",tags:["pricing","msrp","product"]},
+      {name:"Avg Actual Price",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"AVG_ACTUAL_PRICE",type:"metric",unit:"USD",description:"Average price actually paid by customers after discounts. Reveals true realized price per unit.",formula:"AVG(actual_selling_price)",tags:["pricing","realized","discount"]},
+      {name:"Avg Discount %",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"AVG_DISCOUNT_PCT",type:"rate",unit:"%",description:"Average percentage discount across orders. Tracks pricing discipline and promotional intensity.",formula:"AVG((List Price \u2212 Actual Price) \u00f7 List Price) \u00d7 100",tags:["discount","pricing","promotion"]},
+      {name:"Fill Rate %",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"FILL_RATE_PCT",type:"rate",unit:"%",description:"Percentage of ordered units that were successfully shipped. Measures fulfillment capability and inventory availability.",formula:"(Units Shipped \u00f7 Units Ordered) \u00d7 100",tags:["fulfillment","availability","service"]},
+      {name:"Delayed Orders",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"DELAYED_ORDERS",type:"metric",unit:"count",description:"Number of orders that shipped later than the promised delivery date.",formula:"COUNT(orders WHERE ship_date > promised_date)",tags:["delivery","delay","service"]},
+      {name:"Delay Rate %",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"DELAY_RATE_PCT",type:"rate",unit:"%",description:"Percentage of total orders that experienced shipping delays. Key customer satisfaction indicator.",formula:"(Delayed Orders \u00f7 Total Orders) \u00d7 100",tags:["delay","service","fulfillment"]},
+      {name:"Avg Delay Days",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"AVG_DELAY_DAYS",type:"metric",unit:"days",description:"Average number of days delayed for late orders. Measures severity of delivery issues.",formula:"AVG(ship_date \u2212 promised_date) WHERE delayed",tags:["delay","logistics","service"]},
+
+      // SALES DIMENSIONS
+      {name:"Category",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"CATEGORY",type:"dimension",unit:"\u2014",description:"Product category classification: Energy Drink, Energy Drink, Sparkling Water, Juice.",formula:"\u2014",tags:["product","segment","category"]},
+      {name:"Channel Name",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"CHANNEL_NAME",type:"dimension",unit:"\u2014",description:"Sales distribution channel: Distributor, Supermarket, Retail Store, Restaurant & Cafe, Online Store, Direct-to-Consumer.",formula:"\u2014",tags:["channel","distribution","sales"]},
+      {name:"Region",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"REGION",type:"dimension",unit:"\u2014",description:"Geographic sales region: Midwest, West, Northeast, Southeast, International.",formula:"\u2014",tags:["geography","region","market"]},
+      {name:"Market Type",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"MARKET_TYPE",type:"dimension",unit:"\u2014",description:"Market classification (e.g., Urban, Suburban, Rural) for demographic segmentation.",formula:"\u2014",tags:["market","demographic","segment"]},
+      {name:"Account Tier",domain:"sales",table:"VW_SALES_PERFORMANCE",column:"ACCOUNT_TIER",type:"dimension",unit:"\u2014",description:"Customer account tier ranking based on volume and strategic importance (e.g., Gold, Silver, Bronze).",formula:"\u2014",tags:["customer","tier","segment"]},
+
+      // INVENTORY HEALTH
+      {name:"Avg Opening Stock",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"AVG_OPENING_STOCK",type:"metric",unit:"units",description:"Average inventory units at the start of each period. Baseline for inventory movement analysis.",formula:"AVG(opening_stock_qty)",tags:["stock","opening","inventory"]},
+      {name:"Avg Closing Stock",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"AVG_CLOSING_STOCK",type:"metric",unit:"units",description:"Average inventory units remaining at end of period. Used to assess stock adequacy.",formula:"AVG(closing_stock_qty)",tags:["stock","closing","inventory"]},
+      {name:"Total Receipts",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"TOTAL_RECEIPTS",type:"metric",unit:"units",description:"Total units received into inventory from production or procurement.",formula:"SUM(receipt_qty)",tags:["inbound","receiving","inventory"]},
+      {name:"Total Issues",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"TOTAL_ISSUES",type:"metric",unit:"units",description:"Total units issued out of inventory for sales, transfers, or consumption.",formula:"SUM(issue_qty)",tags:["outbound","consumption","inventory"]},
+      {name:"Total Adjustments",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"TOTAL_ADJUSTMENTS",type:"metric",unit:"units",description:"Net inventory adjustments from cycle counts, write-offs, damages, or corrections.",formula:"SUM(adjustment_qty)",tags:["adjustment","shrinkage","correction"]},
+      {name:"Days of Stock",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"AVG_DAYS_OF_STOCK",type:"kpi",unit:"days",description:"Average number of days current inventory can sustain demand. Key supply planning metric \u2014 too high means tied-up capital, too low means stockout risk.",formula:"AVG(closing_stock \u00f7 daily_demand)",tags:["dos","planning","availability"]},
+      {name:"Inventory Value",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"AVG_INVENTORY_VALUE_USD",type:"financial",unit:"USD",description:"Average dollar value of inventory on hand. Measures working capital tied up in stock.",formula:"AVG(closing_stock \u00d7 unit_cost)",tags:["value","capital","stock"]},
+      {name:"Units Near Expiry",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"TOTAL_UNITS_NEAR_EXPIRY",type:"metric",unit:"units",description:"Units within 30 days of expiration date. Critical for beverage industry waste reduction.",formula:"SUM(units WHERE days_to_expiry \u2264 30)",tags:["expiry","waste","freshness"]},
+      {name:"Units Expired",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"TOTAL_UNITS_EXPIRED",type:"metric",unit:"units",description:"Units that have passed their expiration date and must be written off. Direct waste cost.",formula:"SUM(units WHERE expiry_date < today)",tags:["expired","waste","write-off"]},
+      {name:"Stockout Occurrences",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"STOCKOUT_OCCURRENCES",type:"metric",unit:"count",description:"Number of times a product hit zero available stock. Each occurrence represents potential lost sales.",formula:"COUNT(events WHERE available_qty = 0)",tags:["stockout","availability","lost-sales"]},
+      {name:"Stockout Rate %",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"STOCKOUT_RATE_PCT",type:"rate",unit:"%",description:"Percentage of inventory records that experienced a stockout. Measures supply reliability.",formula:"(Stockout Occurrences \u00f7 Total Records) \u00d7 100",tags:["stockout","rate","availability"]},
+      {name:"Slow Moving Occurrences",domain:"inventory",table:"VW_INVENTORY_HEALTH",column:"SLOW_MOVING_OCCURRENCES",type:"metric",unit:"count",description:"Number of products classified as slow-moving based on turnover thresholds. Flags potential obsolescence.",formula:"COUNT(products WHERE turnover < threshold)",tags:["slow-moving","obsolescence","optimization"]},
+
+      // SUPPLY CHAIN
+      {name:"Reliability Rating",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"RELIABILITY_RATING",type:"kpi",unit:"score (1-5)",description:"Supplier reliability score based on delivery performance, quality, and consistency. Used for supplier scorecards.",formula:"Composite: on-time + quality + consistency",tags:["supplier","reliability","scorecard"]},
+      {name:"Qty Ordered (Supply)",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"QTY_ORDERED",type:"metric",unit:"units",description:"Total quantity of raw materials ordered from suppliers.",formula:"SUM(po_quantity)",tags:["procurement","ordering","materials"]},
+      {name:"Qty Received",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"QTY_RECEIVED",type:"metric",unit:"units",description:"Total quantity of raw materials actually received and accepted into inventory.",formula:"SUM(received_qty)",tags:["receiving","materials","inbound"]},
+      {name:"Qty Rejected",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"QTY_REJECTED",type:"metric",unit:"units",description:"Quantity of received materials rejected due to quality issues or damage during inspection.",formula:"SUM(rejected_qty)",tags:["quality","rejection","materials"]},
+      {name:"Rejection Rate %",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"REJECTION_RATE_PCT",type:"rate",unit:"%",description:"Percentage of received materials that were rejected. Key supplier quality indicator.",formula:"(Qty Rejected \u00f7 Qty Received) \u00d7 100",tags:["quality","rejection","supplier"]},
+      {name:"Total Procurement Cost",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"TOTAL_COST_USD",type:"financial",unit:"USD",description:"Total dollar cost of raw materials procured from suppliers.",formula:"SUM(unit_price \u00d7 qty_received)",tags:["cost","procurement","materials"]},
+      {name:"Avg Unit Price (Supply)",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"AVG_UNIT_PRICE_USD",type:"metric",unit:"USD",description:"Average price paid per unit of raw material. Tracks procurement cost efficiency.",formula:"AVG(unit_price)",tags:["pricing","procurement","efficiency"]},
+      {name:"Actual Lead Time",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"AVG_ACTUAL_LEAD_DAYS",type:"kpi",unit:"days",description:"Average number of days from purchase order to delivery. Critical for production planning.",formula:"AVG(delivery_date \u2212 order_date)",tags:["lead-time","delivery","planning"]},
+      {name:"Standard Lead Time",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"AVG_STD_LEAD_DAYS",type:"metric",unit:"days",description:"Expected/contractual lead time in days. Baseline for measuring supplier performance.",formula:"AVG(contracted_lead_days)",tags:["lead-time","standard","benchmark"]},
+      {name:"Late Deliveries",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"LATE_DELIVERIES",type:"metric",unit:"count",description:"Number of supplier deliveries that arrived after the contracted delivery date.",formula:"COUNT(deliveries WHERE actual > expected)",tags:["late","delivery","supplier"]},
+      {name:"Late Delivery Rate %",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"LATE_RATE_PCT",type:"rate",unit:"%",description:"Percentage of supplier deliveries that were late. Key supply chain reliability metric.",formula:"(Late Deliveries \u00f7 Total Orders) \u00d7 100",tags:["late","rate","reliability"]},
+      {name:"Avg Delay Days (Supply)",domain:"supply-chain",table:"VW_SUPPLY_CHAIN",column:"AVG_DELAY_DAYS_WHEN_LATE",type:"metric",unit:"days",description:"Average number of days late for delayed deliveries only. Measures severity of supply disruptions.",formula:"AVG(actual_date \u2212 expected_date) WHERE late",tags:["delay","severity","supply"]},
+
+      // PRODUCTION EFFICIENCY
+      {name:"Max Daily Capacity",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"MAX_DAILY_CAPACITY_UNITS",type:"metric",unit:"units/day",description:"Maximum production capacity per day per plant. Theoretical upper bound for production planning.",formula:"Plant-specific capacity configuration",tags:["capacity","plant","planning"]},
+      {name:"Planned Units",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"PLANNED_UNITS",type:"metric",unit:"units",description:"Number of units scheduled for production based on demand forecast and capacity allocation.",formula:"SUM(planned_production_qty)",tags:["planning","forecast","production"]},
+      {name:"Actual Units Produced",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"ACTUAL_UNITS_PRODUCED",type:"metric",unit:"units",description:"Number of units actually produced (good + defective). Shows actual output vs plan.",formula:"SUM(produced_qty)",tags:["output","production","actual"]},
+      {name:"Defective Units",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"DEFECTIVE_UNITS",type:"metric",unit:"units",description:"Number of produced units that failed quality inspection and cannot be sold as-is.",formula:"SUM(defective_qty)",tags:["defects","quality","waste"]},
+      {name:"Capacity Utilization %",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"AVG_CAPACITY_UTIL_PCT",type:"kpi",unit:"%",description:"Percentage of available production capacity actually used. Target: 75-90%. Below = underutilized assets, above = strain risk.",formula:"(Actual Output \u00f7 Max Capacity) \u00d7 100",tags:["utilization","efficiency","capacity"]},
+      {name:"Production Yield %",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"AVG_YIELD_PCT",type:"kpi",unit:"%",description:"Percentage of produced units that pass quality checks. Measures manufacturing quality. Target: >97%.",formula:"((Actual \u2212 Defective) \u00f7 Actual) \u00d7 100",tags:["yield","quality","efficiency"]},
+      {name:"Defect Rate %",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"AVG_DEFECT_RATE_PCT",type:"rate",unit:"%",description:"Percentage of produced units that are defective. Inverse of yield. Target: <3%.",formula:"(Defective Units \u00f7 Actual Units) \u00d7 100",tags:["defects","rate","quality"]},
+      {name:"Total Downtime Hours",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"TOTAL_DOWNTIME_HRS",type:"metric",unit:"hours",description:"Total hours of unplanned production downtime due to equipment failure, maintenance, or supply issues.",formula:"SUM(downtime_hours)",tags:["downtime","maintenance","availability"]},
+      {name:"Total Labor Hours",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"TOTAL_LABOR_HRS",type:"metric",unit:"hours",description:"Total labor hours consumed in production. Used for workforce planning and cost allocation.",formula:"SUM(labor_hours)",tags:["labor","workforce","cost"]},
+      {name:"Total Production Cost",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"TOTAL_PRODUCTION_COST_USD",type:"financial",unit:"USD",description:"Total cost of production including materials, labor, and overhead for the period.",formula:"SUM(material + labor + overhead costs)",tags:["cost","production","manufacturing"]},
+      {name:"Cost Per Unit",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"COST_PER_UNIT_USD",type:"kpi",unit:"USD/unit",description:"Average cost to produce one unit. Critical for pricing decisions and margin analysis.",formula:"Total Production Cost \u00f7 Actual Good Units",tags:["unit-cost","efficiency","pricing"]},
+      {name:"Delayed Batches",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"DELAYED_BATCHES",type:"metric",unit:"count",description:"Number of production batches that completed behind schedule.",formula:"COUNT(batches WHERE actual_end > planned_end)",tags:["delay","scheduling","production"]},
+      {name:"Recalled Batches",domain:"production",table:"VW_PRODUCTION_EFFICIENCY",column:"RECALLED_BATCHES",type:"metric",unit:"count",description:"Number of production batches recalled after release due to quality or safety concerns.",formula:"COUNT(batches WHERE recalled = true)",tags:["recall","safety","quality"]},
+
+      // QUALITY & COMPLIANCE
+      {name:"Units Inspected",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"TOTAL_UNITS_INSPECTED",type:"metric",unit:"units",description:"Total number of product units subjected to quality inspection across all inspection types.",formula:"SUM(inspected_qty)",tags:["inspection","quality","volume"]},
+      {name:"Units Passed",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"TOTAL_UNITS_PASSED",type:"metric",unit:"units",description:"Number of inspected units that met all quality criteria and were approved for sale.",formula:"SUM(passed_qty)",tags:["quality","passed","compliance"]},
+      {name:"Units Failed",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"TOTAL_UNITS_FAILED",type:"metric",unit:"units",description:"Number of inspected units that failed one or more quality criteria.",formula:"SUM(failed_qty)",tags:["quality","failed","defect"]},
+      {name:"Pass Rate %",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"AVG_PASS_RATE_PCT",type:"kpi",unit:"%",description:"Percentage of inspected units that passed quality checks. Primary quality KPI. Target: >98%.",formula:"(Units Passed \u00f7 Units Inspected) \u00d7 100",tags:["pass-rate","quality","kpi"]},
+      {name:"FDA Violations",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"FDA_VIOLATIONS",type:"metric",unit:"count",description:"Number of FDA regulatory violations identified during inspections. Zero tolerance target.",formula:"COUNT(violation_events)",tags:["fda","regulatory","compliance"]},
+      {name:"FDA Violation Rate %",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"FDA_VIOLATION_RATE_PCT",type:"rate",unit:"%",description:"Rate of FDA violations per inspection. Critical regulatory compliance metric.",formula:"(FDA Violations \u00f7 Total Inspections) \u00d7 100",tags:["fda","rate","compliance"]},
+      {name:"Product Recalls",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"RECALLS",type:"metric",unit:"count",description:"Number of product recall events initiated due to safety or quality issues. High severity metric.",formula:"COUNT(recall_events)",tags:["recall","safety","compliance"]},
+      {name:"Recall Units",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"TOTAL_RECALL_UNITS",type:"metric",unit:"units",description:"Total number of individual units recalled from market. Measures recall severity and financial impact.",formula:"SUM(recalled_qty)",tags:["recall","units","severity"]},
+      {name:"Recall Rate %",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"RECALL_RATE_PCT",type:"rate",unit:"%",description:"Percentage of inspections that resulted in a recall action.",formula:"(Recalls \u00f7 Total Inspections) \u00d7 100",tags:["recall","rate","quality"]},
+      {name:"Labeling Issues",domain:"quality",table:"VW_QUALITY_COMPLIANCE",column:"LABELING_ISSUES",type:"metric",unit:"count",description:"Number of labeling non-conformances including incorrect ingredients, allergen declarations, or nutritional information.",formula:"COUNT(labeling_events)",tags:["labeling","compliance","packaging"]},
+
+      // MARKETING ROI
+      {name:"Total Impressions",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_IMPRESSIONS",type:"metric",unit:"count",description:"Total number of times marketing content was displayed to users across all platforms.",formula:"SUM(impression_count)",tags:["reach","awareness","digital"]},
+      {name:"Total Clicks",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_CLICKS",type:"metric",unit:"count",description:"Total number of user clicks on marketing content (ads, emails, social posts).",formula:"SUM(click_count)",tags:["engagement","clicks","digital"]},
+      {name:"Total Conversions",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_CONVERSIONS",type:"metric",unit:"count",description:"Number of desired actions completed (purchases, signups, trials) attributed to marketing efforts.",formula:"SUM(conversion_count)",tags:["conversion","sales","performance"]},
+      {name:"Click-Through Rate (CTR) %",domain:"marketing",table:"VW_MARKETING_ROI",column:"AVG_CTR_PCT",type:"rate",unit:"%",description:"Percentage of impressions that resulted in a click. Measures content relevance and creative effectiveness.",formula:"(Clicks \u00f7 Impressions) \u00d7 100",tags:["ctr","engagement","effectiveness"]},
+      {name:"Conversion Rate (CVR) %",domain:"marketing",table:"VW_MARKETING_ROI",column:"AVG_CVR_PCT",type:"rate",unit:"%",description:"Percentage of clicks that resulted in a conversion. Measures landing page and offer effectiveness.",formula:"(Conversions \u00f7 Clicks) \u00d7 100",tags:["cvr","conversion","effectiveness"]},
+      {name:"Total Likes",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_LIKES",type:"metric",unit:"count",description:"Total social media likes/reactions across all platforms. Measures content resonance.",formula:"SUM(like_count)",tags:["social","engagement","brand"]},
+      {name:"Total Shares",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_SHARES",type:"metric",unit:"count",description:"Total social media shares/reposts. Measures organic amplification and viral potential.",formula:"SUM(share_count)",tags:["social","viral","amplification"]},
+      {name:"Total Comments",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_COMMENTS",type:"metric",unit:"count",description:"Total comments/replies on social media content. Measures audience engagement depth.",formula:"SUM(comment_count)",tags:["social","engagement","conversation"]},
+      {name:"Organic Traffic",domain:"marketing",table:"VW_MARKETING_ROI",column:"ORGANIC_TRAFFIC",type:"metric",unit:"visits",description:"Website visits from non-paid sources (search engines, direct, referrals). Measures brand equity and SEO effectiveness.",formula:"SUM(organic_sessions)",tags:["traffic","organic","seo"]},
+      {name:"Paid Traffic",domain:"marketing",table:"VW_MARKETING_ROI",column:"PAID_TRAFFIC",type:"metric",unit:"visits",description:"Website visits from paid advertising campaigns (PPC, display, social ads).",formula:"SUM(paid_sessions)",tags:["traffic","paid","advertising"]},
+      {name:"Marketing Spend (Campaign)",domain:"marketing",table:"VW_MARKETING_ROI",column:"TOTAL_SPEND_USD",type:"financial",unit:"USD",description:"Total marketing dollars spent at the campaign level. Basis for ROI calculations.",formula:"SUM(campaign_spend)",tags:["spend","budget","campaign"]},
+      {name:"Revenue Attributed",domain:"marketing",table:"VW_MARKETING_ROI",column:"REVENUE_ATTRIBUTED_USD",type:"financial",unit:"USD",description:"Revenue directly attributed to marketing campaigns through tracking and attribution models.",formula:"SUM(attributed_revenue)",tags:["revenue","attribution","performance"]},
+      {name:"Marketing ROI",domain:"marketing",table:"VW_MARKETING_ROI",column:"MARKETING_ROI",type:"kpi",unit:"ratio",description:"Return on marketing investment. Values >1 indicate positive return. Primary marketing effectiveness KPI.",formula:"Revenue Attributed \u00f7 Marketing Spend",tags:["roi","effectiveness","kpi"]},
+      {name:"Cost Per Acquisition (CPA)",domain:"marketing",table:"VW_MARKETING_ROI",column:"AVG_CPA_USD",type:"kpi",unit:"USD",description:"Average cost to acquire one customer/conversion. Lower is better. Key efficiency metric.",formula:"Marketing Spend \u00f7 Conversions",tags:["cpa","efficiency","acquisition"]},
+      {name:"Budget Utilization %",domain:"marketing",table:"VW_MARKETING_ROI",column:"BUDGET_UTILISATION_PCT",type:"rate",unit:"%",description:"Percentage of allocated marketing budget actually spent. Tracks execution discipline.",formula:"(Actual Spend \u00f7 Budgeted Spend) \u00d7 100",tags:["budget","utilization","planning"]},
+
+      // ESG & SUSTAINABILITY
+      {name:"Carbon Emissions (kg)",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_CARBON_KG",type:"metric",unit:"kg",description:"Total carbon dioxide equivalent emissions in kilograms from plant operations.",formula:"SUM(carbon_kg)",tags:["carbon","emissions","environment"]},
+      {name:"Carbon Emissions (tonnes)",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_CARBON_TONNES",type:"kpi",unit:"tonnes",description:"Total carbon emissions in metric tonnes. Primary carbon footprint KPI for reporting.",formula:"SUM(carbon_kg) \u00f7 1000",tags:["carbon","footprint","kpi"]},
+      {name:"Water Usage (litres)",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_WATER_LITRES",type:"metric",unit:"litres",description:"Total water consumed in production operations including process water and cleaning.",formula:"SUM(water_litres)",tags:["water","consumption","resource"]},
+      {name:"Water Usage (m\u00b3)",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_WATER_M3",type:"kpi",unit:"m\u00b3",description:"Total water consumption in cubic meters. Standard reporting unit for water stewardship.",formula:"SUM(water_litres) \u00f7 1000",tags:["water","stewardship","kpi"]},
+      {name:"Energy Consumption",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_ENERGY_KWH",type:"metric",unit:"kWh",description:"Total electrical energy consumed across plant operations.",formula:"SUM(energy_kwh)",tags:["energy","consumption","operations"]},
+      {name:"Renewable Energy %",domain:"esg",table:"VW_ESG_SCORECARD",column:"AVG_RENEWABLE_ENERGY_PCT",type:"kpi",unit:"%",description:"Percentage of total energy sourced from renewable sources (solar, wind, hydro). ESG commitment indicator.",formula:"(Renewable Energy \u00f7 Total Energy) \u00d7 100",tags:["renewable","green","energy"]},
+      {name:"Total Waste",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_WASTE_KG",type:"metric",unit:"kg",description:"Total solid waste generated from production operations in kilograms.",formula:"SUM(waste_kg)",tags:["waste","solid","environment"]},
+      {name:"Plastic Waste",domain:"esg",table:"VW_ESG_SCORECARD",column:"TOTAL_PLASTIC_WASTE_KG",type:"metric",unit:"kg",description:"Total plastic waste generated, a key focus area for beverage industry sustainability.",formula:"SUM(plastic_waste_kg)",tags:["plastic","waste","packaging"]},
+      {name:"Eco-Packaging %",domain:"esg",table:"VW_ESG_SCORECARD",column:"AVG_ECO_PACKAGING_PCT",type:"kpi",unit:"%",description:"Percentage of packaging using eco-friendly materials (recycled, biodegradable, compostable).",formula:"(Eco-Packaging Units \u00f7 Total Units) \u00d7 100",tags:["packaging","eco","sustainability"]},
+      {name:"Glass Recycled",domain:"esg",table:"VW_ESG_SCORECARD",column:"GLASS_RECYCLED_UNITS",type:"metric",unit:"units",description:"Number of glass bottles successfully recycled through return and recycling programs.",formula:"SUM(glass_recycled_qty)",tags:["recycling","glass","circular"]},
+      {name:"Bottles Returned",domain:"esg",table:"VW_ESG_SCORECARD",column:"BOTTLES_RETURNED_UNITS",type:"metric",unit:"units",description:"Number of bottles returned through deposit/return programs. Measures circular economy participation.",formula:"SUM(bottles_returned_qty)",tags:["returns","bottles","circular"]},
+      {name:"Carbon per MWh",domain:"esg",table:"VW_ESG_SCORECARD",column:"CARBON_PER_MWH_KG",type:"rate",unit:"kg/MWh",description:"Carbon intensity \u2014 emissions per megawatt-hour of energy used. Measures energy efficiency of operations.",formula:"Total Carbon (kg) \u00f7 (Total Energy kWh \u00f7 1000)",tags:["intensity","carbon","efficiency"]},
+      {name:"Water per MWh",domain:"esg",table:"VW_ESG_SCORECARD",column:"WATER_PER_MWH_LITRES",type:"rate",unit:"L/MWh",description:"Water intensity \u2014 litres of water per megawatt-hour. Tracks water efficiency relative to energy use.",formula:"Total Water (L) \u00f7 (Total Energy kWh \u00f7 1000)",tags:["intensity","water","efficiency"]}
+    ];
+
+    // ============================================
+    // STATE
+    // ============================================
+    let activeDomain = 'all';
+    let searchQuery = '';
+
+    // ============================================
+    // RENDERING
+    // ============================================
+    function getTypeBadgeClass(type) {
+      const map = { metric: 'badge-type-metric', dimension: 'badge-type-dimension', kpi: 'badge-type-kpi', rate: 'badge-type-rate', financial: 'badge-type-financial' };
+      return map[type] || 'badge-type-metric';
+    }
+
+    function getDomainLabel(d) {
+      const map = { executive: 'Executive', sales: 'Sales', inventory: 'Inventory', 'supply-chain': 'Supply Chain', production: 'Production', quality: 'Quality', marketing: 'Marketing', esg: 'ESG' };
+      return map[d] || d;
+    }
+
+    function renderMetrics() {
+      const container = document.getElementById('metricsContainer');
+      container.innerHTML = '';
+
+      let filtered = METRICS;
+
+      if (activeDomain !== 'all') {
+        filtered = filtered.filter(m => m.domain === activeDomain);
+      }
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(m =>
+          m.name.toLowerCase().includes(q) ||
+          m.description.toLowerCase().includes(q) ||
+          m.column.toLowerCase().includes(q) ||
+          m.table.toLowerCase().includes(q) ||
+          m.domain.toLowerCase().includes(q) ||
+          m.tags.some(t => t.includes(q))
+        );
+      }
+
+      document.getElementById('visibleCount').textContent = filtered.length;
+      document.getElementById('totalCount').textContent = METRICS.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#8B9DB7;"><p style="font-family:Anton,sans-serif;font-size:24px;color:#DC2626;margin-bottom:10px;">NO METRICS FOUND</p><p>Try adjusting your search or domain filter.</p></div>';
+        return;
+      }
+
+      filtered.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'metric-card';
+
+        const unitDisplay = m.unit !== '\u2014' ? '<div class="metric-detail"><strong>Unit:</strong> ' + m.unit + '</div>' : '';
+        const formulaHtml = m.formula !== '\u2014' ? '<div class="metric-formula">' + m.formula + '</div>' : '';
+
+        card.innerHTML =
+          '<div class="metric-name">' + m.name + '</div>' +
+          '<div class="metric-badges">' +
+            '<span class="badge badge-domain">' + getDomainLabel(m.domain) + '</span>' +
+            '<span class="badge ' + getTypeBadgeClass(m.type) + '">' + m.type + '</span>' +
+          '</div>' +
+          '<div class="metric-description">' + m.description + '</div>' +
+          '<div class="metric-details">' +
+            '<div class="metric-detail"><strong>Table:</strong> ' + m.table + '</div>' +
+            '<div class="metric-detail"><strong>Column:</strong> ' + m.column + '</div>' +
+            unitDisplay +
+            '<div class="metric-detail"><strong>Tags:</strong> ' + m.tags.join(', ') + '</div>' +
+          '</div>' +
+          formulaHtml;
+
+        container.appendChild(card);
+      });
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    document.querySelectorAll('.domain-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.domain-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeDomain = tab.dataset.domain;
+        renderMetrics();
+      });
+    });
+
+    document.getElementById('navSearchInput').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderMetrics();
+    });
+
+    // ============================================
+    // FIZZ BUBBLES
+    // ============================================
+    // ============================================
+    // INIT
+    // ============================================
+    window.addEventListener('load', () => { renderMetrics(); });
+  
+    // Bridge: nav search → existing search logic
+    function handleSearch(val) {
+      searchQuery = val;
+      renderMetrics();
+    }
+
+  </script>
+</body>
+</html>

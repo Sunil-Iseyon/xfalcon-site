@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 7: Provider Workload Distribution</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2C5F8A;
+            margin-bottom: 5px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f9f9fb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-phys {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-mid {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-pcp {
+            background-color: #e8f5e9;
+            color: #5BA67D;
+        }
+
+        .badge-in {
+            background-color: #e8f5e9;
+            color: #5BA67D;
+        }
+
+        .badge-out {
+            background-color: #ffeaea;
+            color: #C75B5B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 7: Provider Workload Distribution</h1>
+            <p>100 Providers | 20 Specialties | Jan 2023 – Dec 2025 | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Providers</div>
+                <div class="kpi-value">100</div>
+                <div class="kpi-detail">across encounters</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Busiest Providers</div>
+                <div class="kpi-value">25</div>
+                <div class="kpi-detail">Linda Smith, DO / Sarah Green, NP</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Provider Types</div>
+                <div class="kpi-value">2</div>
+                <div class="kpi-detail">Physician, Mid-Level</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Enc/Provider</div>
+                <div class="kpi-value">15</div>
+                <div class="kpi-detail">encounters per provider</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Specialty</div>
+                <div class="kpi-value">Nephrology</div>
+                <div class="kpi-detail">168 encounters, 10 providers</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <div class="chart-title">Top 20 Providers by Encounters</div>
+                <div class="chart-container tall">
+                    <canvas id="topProvidersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Provider Type Distribution</div>
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top 15 Specialties by Volume</div>
+                <div class="chart-container">
+                    <canvas id="specialtyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <div class="chart-title">Encounters per Provider by Specialty</div>
+                <div class="chart-container">
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="chart-title">Top 20 Providers</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Provider Name</th>
+                        <th>Specialty</th>
+                        <th>Type</th>
+                        <th>PCP?</th>
+                        <th>Network Status</th>
+                        <th>Encounters</th>
+                        <th>Total Billed</th>
+                        <th>Avg Billed</th>
+                        <th>Unique Patients</th>
+                    </tr>
+                </thead>
+                <tbody id="providerTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Generated March 11, 2026 | Clinical Analytics Dashboard | Data Period: Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const providers = [
+            {name:"Linda Smith, DO",spec:"Orthopedic Surgery",type:"Physician",pcp:false,net:"In-Network",enc:25,billed:244664,avg:9787,patients:24},
+            {name:"Sarah Green, NP",spec:"Pediatrics",type:"Mid-Level",pcp:true,net:"In-Network",enc:25,billed:258428,avg:10337,patients:24},
+            {name:"Matthew Scott, DO",spec:"OB/GYN",type:"Physician",pcp:false,net:"Out-of-Network",enc:23,billed:123103,avg:5352,patients:23},
+            {name:"Lisa Martinez, DO",spec:"Neurology",type:"Physician",pcp:false,net:"In-Network",enc:22,billed:67295,avg:3059,patients:22},
+            {name:"Donna Jackson, MD",spec:"Hematology/Oncology",type:"Physician",pcp:false,net:"In-Network",enc:21,billed:117189,avg:5580,patients:21},
+            {name:"Ronald Allen, DO",spec:"Surgery",type:"Physician",pcp:false,net:"In-Network",enc:21,billed:39979,avg:1904,patients:21},
+            {name:"Kevin Scott, MD",spec:"Psychiatry",type:"Physician",pcp:false,net:"In-Network",enc:21,billed:381582,avg:18171,patients:21},
+            {name:"Stephanie Robinson, NP",spec:"Emergency Medicine",type:"Mid-Level",pcp:false,net:"In-Network",enc:21,billed:135009,avg:6429,patients:21},
+            {name:"Daniel Carter, MD",spec:"Nephrology",type:"Physician",pcp:false,net:"In-Network",enc:21,billed:46459,avg:2212,patients:21},
+            {name:"Susan Hall, MD",spec:"OB/GYN",type:"Physician",pcp:false,net:"In-Network",enc:20,billed:122385,avg:6119,patients:20},
+            {name:"John Baker, PA",spec:"Endocrinology",type:"Mid-Level",pcp:false,net:"In-Network",enc:20,billed:191825,avg:9591,patients:20},
+            {name:"Deborah Jackson, MD",spec:"Nephrology",type:"Physician",pcp:false,net:"In-Network",enc:20,billed:56372,avg:2819,patients:20},
+            {name:"William Lee, DO",spec:"Nephrology",type:"Physician",pcp:false,net:"In-Network",enc:20,billed:48876,avg:2444,patients:20},
+            {name:"Mary Green, DO",spec:"Hematology/Oncology",type:"Physician",pcp:false,net:"In-Network",enc:20,billed:155379,avg:7769,patients:20},
+            {name:"Timothy White, MD",spec:"Diagnostic Radiology",type:"Physician",pcp:false,net:"In-Network",enc:19,billed:84162,avg:4430,patients:19},
+            {name:"William Hill, MD",spec:"Pulmonary Disease",type:"Physician",pcp:false,net:"In-Network",enc:19,billed:196161,avg:10324,patients:19},
+            {name:"Michelle Adams, DO",spec:"Nephrology",type:"Physician",pcp:false,net:"In-Network",enc:19,billed:137915,avg:7259,patients:19},
+            {name:"Karen Martinez, DO",spec:"Psychiatry",type:"Physician",pcp:false,net:"Out-of-Network",enc:19,billed:40513,avg:2132,patients:19},
+            {name:"Margaret Lee, DO",spec:"Hematology/Oncology",type:"Physician",pcp:false,net:"In-Network",enc:19,billed:176209,avg:9274,patients:19},
+            {name:"Joseph Moore, MD",spec:"General Practice",type:"Physician",pcp:true,net:"In-Network",enc:18,billed:49065,avg:2726,patients:18}
+        ];
+
+        const specialties = [
+            {spec:"Nephrology",provs:10,enc:168,billed:1146038,avg:6822,patients:137},
+            {spec:"OB/GYN",provs:10,enc:148,billed:1591378,avg:10753,patients:133},
+            {spec:"Hematology/Oncology",provs:8,enc:125,billed:969377,avg:7755,patients:110},
+            {spec:"Orthopedic Surgery",provs:8,enc:118,billed:1568497,avg:13292,patients:111},
+            {spec:"General Practice",provs:7,enc:104,billed:700212,avg:6733,patients:92},
+            {spec:"Gastroenterology",provs:7,enc:90,billed:747469,avg:8305,patients:84},
+            {spec:"Cardiovascular Disease",provs:7,enc:84,billed:472142,avg:5621,patients:79},
+            {spec:"Neurology",provs:5,enc:84,billed:462447,avg:5505,patients:78},
+            {spec:"Emergency Medicine",provs:5,enc:82,billed:472369,avg:5761,patients:79},
+            {spec:"Surgery",provs:5,enc:80,billed:494241,avg:6178,patients:72},
+            {spec:"Psychiatry",provs:4,enc:66,billed:650107,avg:9850,patients:64},
+            {spec:"Infectious Disease",provs:4,enc:55,billed:317421,avg:5771,patients:50},
+            {spec:"Pediatrics",provs:3,enc:51,billed:343183,avg:6729,patients:50},
+            {spec:"Diagnostic Radiology",provs:3,enc:50,billed:523697,avg:10474,patients:47},
+            {spec:"Endocrinology",provs:3,enc:44,billed:260562,avg:5922,patients:43}
+        ];
+
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Populate table
+        const tbody = document.getElementById('providerTableBody');
+        providers.forEach(p => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${p.name}</strong></td>
+                <td>${p.spec}</td>
+                <td><span class="badge ${p.type === 'Physician' ? 'badge-phys' : 'badge-mid'}">${p.type}</span></td>
+                <td><span class="badge ${p.pcp ? 'badge-pcp' : ''}">${p.pcp ? 'Yes' : 'No'}</span></td>
+                <td><span class="badge ${p.net === 'In-Network' ? 'badge-in' : 'badge-out'}">${p.net}</span></td>
+                <td>${p.enc}</td>
+                <td>$${p.billed.toLocaleString()}</td>
+                <td>$${p.avg.toLocaleString()}</td>
+                <td>${p.patients}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Top Providers
+        const sortedProviders = [...providers].sort((a, b) => a.enc - b.enc);
+        const ctx1 = document.getElementById('topProvidersChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: sortedProviders.map(p => p.name),
+                datasets: [{
+                    label: 'Encounters',
+                    data: sortedProviders.map(p => p.enc),
+                    backgroundColor: colors.primary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+
+        // Provider Type Distribution
+        const physicianEnc = providers.filter(p => p.type === 'Physician').reduce((a, p) => a + p.enc, 0);
+        const midlevelEnc = providers.filter(p => p.type === 'Mid-Level').reduce((a, p) => a + p.enc, 0);
+
+        const ctx2 = document.getElementById('typeChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Physician', 'Mid-Level'],
+                datasets: [{
+                    data: [physicianEnc, midlevelEnc],
+                    backgroundColor: [colors.primary, colors.purple]
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Specialty Volume
+        const ctx3 = document.getElementById('specialtyChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: specialties.map(s => s.spec),
+                datasets: [{
+                    label: 'Encounters',
+                    data: specialties.map(s => s.enc),
+                    backgroundColor: colors.secondary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+
+        // Efficiency (Enc per Provider by Specialty)
+        const effData = specialties.slice(0, 10).map(s => s.enc / s.provs);
+        const ctx4 = document.getElementById('efficiencyChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: specialties.slice(0, 10).map(s => s.spec),
+                datasets: [{
+                    label: 'Enc per Provider',
+                    data: effData,
+                    backgroundColor: colors.success,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - 06. Learning & Development</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --chart-primary: #006AFF;
+      --chart-secondary: #1A7F64;
+      --chart-tertiary: #94A3B8;
+      --chart-ext1: #0EA5E9;
+      --chart-ext2: #F59E0B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      background: linear-gradient(90deg, #141E30 0%, #1A2540 100%);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .logo-x { color: #00D4FF; }
+    .logo-f { color: #FF6B35; }
+
+    .topbar-title {
+      flex: 1;
+      margin-left: 24px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #00D4FF;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      background-color: rgba(0, 212, 255, 0.1);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 12px 32px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .filter-bar label {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .filter-bar select {
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-text-tertiary);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-bar select:hover {
+      border-color: #00D4FF;
+    }
+
+    .filter-bar select:focus {
+      outline: none;
+      border-color: #00D4FF;
+      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+    }
+
+    .container {
+      padding: 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #00D4FF;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+
+    .chart-card:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.1);
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    .table-section {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+
+    .table-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 500px;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 212, 255, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background-color: var(--color-base-darkest);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      background-color: #141E30;
+      color: var(--color-text-primary);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    tbody tr:hover {
+      background-color: rgba(0, 212, 255, 0.05);
+    }
+
+    .status-completed {
+      color: #7CFF01;
+      font-weight: 600;
+    }
+
+    .status-in-progress {
+      color: #FFB800;
+      font-weight: 600;
+    }
+
+    .status-not-started {
+      color: #FF3366;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+    <div class="topbar-title">06 | Learning & Development
+      <div class="topbar-subtitle" id="reporting-period">Reporting Period: Jan–Dec 2024</div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="filter-bar">
+    <label>FILTERS:</label>
+    <select id="filterDept" onchange="applyFilters()">
+      <option value="All">All Departments</option>
+    </select>
+    <select id="filterLoc" onchange="applyFilters()">
+      <option value="All">All Locations</option>
+    </select>
+    <select id="filterYear" onchange="applyFilters()">
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+    </select>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-enrollments">0</div>
+        <div class="kpi-delta neutral">total in period</div>
+        <div class="kpi-label">Total Enrollments</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-completed">0</div>
+        <div class="kpi-delta neutral">finished</div>
+        <div class="kpi-label">Completed</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-completion-rate">0%</div>
+        <div class="kpi-delta neutral">completion rate</div>
+        <div class="kpi-label">Completion Rate</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-score">0</div>
+        <div class="kpi-delta neutral">average</div>
+        <div class="kpi-label">Avg Score</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-inprogress">0</div>
+        <div class="kpi-delta neutral">in progress</div>
+        <div class="kpi-label">In-Progress</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-overdue">0</div>
+        <div class="kpi-delta neutral">overdue</div>
+        <div class="kpi-label">Overdue</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-yoy-change">+0%</div>
+        <div class="kpi-delta neutral">yoy change</div>
+        <div class="kpi-label">YoY Change</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-programs-offered">5</div>
+        <div class="kpi-delta neutral">program types</div>
+        <div class="kpi-label">Programs Offered</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">Enrollment Trend by Year</div>
+        <div class="chart-container">
+          <canvas id="chart-enrollment-trend"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Enrollments by Program Type (All Time)</div>
+        <div class="chart-container">
+          <canvas id="chart-program-type"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Completion Rate by Type (2023)</div>
+        <div class="chart-container">
+          <canvas id="chart-completion-rate"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Avg Score by Program Type (2023)</div>
+        <div class="chart-container">
+          <canvas id="chart-avg-score"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Delivery Mode Distribution</div>
+        <div class="chart-container">
+          <canvas id="chart-delivery-mode"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">2023 vs 2024 Enrollment Comparison</div>
+        <div class="chart-container">
+          <canvas id="chart-yoy-comparison"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-title">Enrollment Drill-Down</div>
+      <div class="table-wrapper">
+        <table id="enrollments-table">
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>City</th>
+              <th>Year</th>
+              <th>Type</th>
+              <th>Completed</th>
+              <th>Total</th>
+              <th>Avg Score</th>
+            </tr>
+          </thead>
+          <tbody id="enr-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+
+    var TRAIN_DATA = [
+      {dept:'Backend Engineering',city:'Austin',yr:2022,type:'Mandatory',completed:2,total:2,avgScore:85.5},
+      {dept:'Backend Engineering',city:'Austin',yr:2023,type:'Mandatory',completed:3,total:4,avgScore:94.7},
+      {dept:'Backend Engineering',city:'Austin',yr:2023,type:'Optional',completed:1,total:1,avgScore:93},
+      {dept:'Backend Engineering',city:'Austin',yr:2023,type:'Technical',completed:1,total:1,avgScore:93},
+      {dept:'Backend Engineering',city:'Austin',yr:2024,type:'Mandatory',completed:13,total:13,avgScore:88.2},
+      {dept:'Backend Engineering',city:'Bangalore',yr:2022,type:'Mandatory',completed:1,total:4,avgScore:85},
+      {dept:'Backend Engineering',city:'Bangalore',yr:2023,type:'Mandatory',completed:2,total:4,avgScore:87.5},
+      {dept:'Backend Engineering',city:'Bangalore',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:85},
+      {dept:'Backend Engineering',city:'London',yr:2022,type:'Mandatory',completed:3,total:5,avgScore:84},
+      {dept:'Backend Engineering',city:'London',yr:2023,type:'Mandatory',completed:1,total:2,avgScore:89},
+      {dept:'Backend Engineering',city:'London',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:89.5},
+      {dept:'Backend Engineering',city:'New York',yr:2022,type:'Mandatory',completed:6,total:10,avgScore:76},
+      {dept:'Backend Engineering',city:'New York',yr:2023,type:'Mandatory',completed:3,total:6,avgScore:78},
+      {dept:'Backend Engineering',city:'New York',yr:2024,type:'Mandatory',completed:23,total:23,avgScore:87.2},
+      {dept:'Backend Engineering',city:'Remote',yr:2022,type:'Mandatory',completed:0,total:4,avgScore:0},
+      {dept:'Backend Engineering',city:'Remote',yr:2023,type:'Mandatory',completed:2,total:5,avgScore:89.5},
+      {dept:'Backend Engineering',city:'Remote',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:86.5},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2022,type:'Mandatory',completed:6,total:14,avgScore:88.2},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2023,type:'Mandatory',completed:2,total:10,avgScore:94},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2024,type:'Mandatory',completed:34,total:34,avgScore:86.4},
+      {dept:'Backend Engineering',city:'Singapore',yr:2022,type:'Mandatory',completed:1,total:4,avgScore:86},
+      {dept:'Backend Engineering',city:'Singapore',yr:2023,type:'Mandatory',completed:2,total:6,avgScore:78.5},
+      {dept:'Backend Engineering',city:'Singapore',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:86},
+      {dept:'Customer Success',city:'Austin',yr:2022,type:'Mandatory',completed:3,total:3,avgScore:81.5},
+      {dept:'Customer Success',city:'Austin',yr:2023,type:'Mandatory',completed:0,total:3,avgScore:0},
+      {dept:'Customer Success',city:'Austin',yr:2024,type:'Mandatory',completed:9,total:9,avgScore:88},
+      {dept:'Customer Success',city:'Bangalore',yr:2022,type:'Mandatory',completed:2,total:4,avgScore:85},
+      {dept:'Customer Success',city:'Bangalore',yr:2023,type:'Mandatory',completed:1,total:4,avgScore:90},
+      {dept:'Customer Success',city:'Bangalore',yr:2024,type:'Mandatory',completed:12,total:12,avgScore:84.2},
+      {dept:'Customer Success',city:'New York',yr:2022,type:'Mandatory',completed:1,total:4,avgScore:99},
+      {dept:'Customer Success',city:'New York',yr:2023,type:'Mandatory',completed:3,total:6,avgScore:88},
+      {dept:'Customer Success',city:'New York',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:89},
+      {dept:'Customer Success',city:'Remote',yr:2022,type:'Mandatory',completed:3,total:6,avgScore:78},
+      {dept:'Customer Success',city:'Remote',yr:2023,type:'Mandatory',completed:2,total:2,avgScore:82},
+      {dept:'Customer Success',city:'Remote',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:87.9},
+      {dept:'Customer Success',city:'San Francisco',yr:2022,type:'Mandatory',completed:1,total:4,avgScore:96},
+      {dept:'Customer Success',city:'San Francisco',yr:2023,type:'Mandatory',completed:2,total:5,avgScore:93.5},
+      {dept:'Customer Success',city:'San Francisco',yr:2024,type:'Mandatory',completed:12,total:12,avgScore:88},
+      {dept:'Data & AI',city:'London',yr:2022,type:'Mandatory',completed:1,total:1,avgScore:78},
+      {dept:'Data & AI',city:'London',yr:2023,type:'Mandatory',completed:2,total:2,avgScore:82},
+      {dept:'Data & AI',city:'London',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:86},
+      {dept:'Data & AI',city:'New York',yr:2022,type:'Mandatory',completed:2,total:2,avgScore:82},
+      {dept:'Data & AI',city:'New York',yr:2023,type:'Mandatory',completed:1,total:3,avgScore:76},
+      {dept:'Data & AI',city:'New York',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:87},
+      {dept:'Data & AI',city:'San Francisco',yr:2022,type:'Mandatory',completed:4,total:6,avgScore:90},
+      {dept:'Data & AI',city:'San Francisco',yr:2023,type:'Mandatory',completed:3,total:5,avgScore:85},
+      {dept:'Data & AI',city:'San Francisco',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:85},
+      {dept:'Data & AI',city:'Singapore',yr:2022,type:'Mandatory',completed:2,total:2,avgScore:84},
+      {dept:'Data & AI',city:'Singapore',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:80},
+      {dept:'Data & AI',city:'Singapore',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:87},
+      {dept:'Frontend Engineering',city:'Austin',yr:2022,type:'Mandatory',completed:2,total:2,avgScore:80},
+      {dept:'Frontend Engineering',city:'Austin',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:85},
+      {dept:'Frontend Engineering',city:'Austin',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:87},
+      {dept:'Frontend Engineering',city:'London',yr:2022,type:'Mandatory',completed:1,total:1,avgScore:78},
+      {dept:'Frontend Engineering',city:'London',yr:2023,type:'Mandatory',completed:2,total:2,avgScore:84},
+      {dept:'Frontend Engineering',city:'London',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:88},
+      {dept:'Frontend Engineering',city:'New York',yr:2022,type:'Mandatory',completed:5,total:8,avgScore:82},
+      {dept:'Frontend Engineering',city:'New York',yr:2023,type:'Mandatory',completed:3,total:5,avgScore:85},
+      {dept:'Frontend Engineering',city:'New York',yr:2024,type:'Mandatory',completed:22,total:22,avgScore:87},
+      {dept:'Frontend Engineering',city:'Remote',yr:2022,type:'Mandatory',completed:1,total:2,avgScore:80},
+      {dept:'Frontend Engineering',city:'Remote',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:83},
+      {dept:'Frontend Engineering',city:'Remote',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:86},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2022,type:'Mandatory',completed:8,total:14,avgScore:86},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2023,type:'Mandatory',completed:4,total:8,avgScore:88},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2024,type:'Mandatory',completed:23,total:23,avgScore:87},
+      {dept:'Frontend Engineering',city:'Singapore',yr:2022,type:'Mandatory',completed:3,total:5,avgScore:84},
+      {dept:'Frontend Engineering',city:'Singapore',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:80},
+      {dept:'Frontend Engineering',city:'Singapore',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:85},
+      {dept:'Human Resources',city:'London',yr:2022,type:'Mandatory',completed:2,total:4,avgScore:85},
+      {dept:'Human Resources',city:'London',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:86},
+      {dept:'Human Resources',city:'London',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:88},
+      {dept:'Human Resources',city:'New York',yr:2022,type:'Mandatory',completed:3,total:4,avgScore:84},
+      {dept:'Human Resources',city:'New York',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:82},
+      {dept:'Human Resources',city:'New York',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:87},
+      {dept:'Human Resources',city:'San Francisco',yr:2022,type:'Mandatory',completed:5,total:8,avgScore:86},
+      {dept:'Human Resources',city:'San Francisco',yr:2023,type:'Mandatory',completed:3,total:6,avgScore:84},
+      {dept:'Human Resources',city:'San Francisco',yr:2024,type:'Mandatory',completed:12,total:12,avgScore:86},
+      {dept:'Human Resources',city:'Singapore',yr:2022,type:'Mandatory',completed:1,total:2,avgScore:82},
+      {dept:'Human Resources',city:'Singapore',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:80},
+      {dept:'Human Resources',city:'Singapore',yr:2024,type:'Mandatory',completed:10,total:10,avgScore:88},
+      {dept:'SMB Sales',city:'Austin',yr:2022,type:'Mandatory',completed:2,total:2,avgScore:82},
+      {dept:'SMB Sales',city:'Austin',yr:2023,type:'Mandatory',completed:2,total:3,avgScore:85},
+      {dept:'SMB Sales',city:'Austin',yr:2024,type:'Mandatory',completed:12,total:12,avgScore:86},
+      {dept:'SMB Sales',city:'Bangalore',yr:2022,type:'Mandatory',completed:2,total:2,avgScore:84},
+      {dept:'SMB Sales',city:'Bangalore',yr:2023,type:'Mandatory',completed:1,total:2,avgScore:80},
+      {dept:'SMB Sales',city:'Bangalore',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:85},
+      {dept:'SMB Sales',city:'New York',yr:2022,type:'Mandatory',completed:4,total:6,avgScore:80},
+      {dept:'SMB Sales',city:'New York',yr:2023,type:'Mandatory',completed:2,total:4,avgScore:84},
+      {dept:'SMB Sales',city:'New York',yr:2024,type:'Mandatory',completed:12,total:12,avgScore:87},
+      {dept:'SMB Sales',city:'Remote',yr:2022,type:'Mandatory',completed:2,total:3,avgScore:78},
+      {dept:'SMB Sales',city:'Remote',yr:2023,type:'Mandatory',completed:1,total:2,avgScore:82},
+      {dept:'SMB Sales',city:'Remote',yr:2024,type:'Mandatory',completed:11,total:11,avgScore:86},
+      {dept:'SMB Sales',city:'San Francisco',yr:2022,type:'Mandatory',completed:1,total:2,avgScore:80},
+      {dept:'SMB Sales',city:'San Francisco',yr:2023,type:'Mandatory',completed:2,total:2,avgScore:86},
+      {dept:'SMB Sales',city:'San Francisco',yr:2024,type:'Mandatory',completed:9,total:9,avgScore:84}
+    ];
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) { chartInstances[id].destroy(); }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var yr = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, yr: yr };
+    }
+
+    function filterData(data) {
+      var f = getFilters();
+      return data.filter(function(row) {
+        var deptOk = f.dept === 'All' || row.dept === f.dept;
+        var locOk = f.loc === 'All' || row.city === f.loc;
+        var yrOk = f.yr === 'All' || String(row.yr) === f.yr;
+        return deptOk && locOk && yrOk;
+      });
+    }
+
+    function initializeFilters() {
+      var deptSelect = document.getElementById('filterDept');
+      var depts = ['Backend Engineering', 'Customer Success', 'Data & AI', 'Frontend Engineering', 'Human Resources', 'SMB Sales'];
+      depts.forEach(function(dept) {
+        var opt = document.createElement('option');
+        opt.value = dept;
+        opt.textContent = dept;
+        deptSelect.appendChild(opt);
+      });
+
+      var locSelect = document.getElementById('filterLoc');
+      var locs = ['Austin', 'Bangalore', 'London', 'New York', 'Remote', 'San Francisco', 'Singapore'];
+      locs.forEach(function(loc) {
+        var opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = loc;
+        locSelect.appendChild(opt);
+      });
+
+      var yearSelect = document.getElementById('filterYear');
+      var years = ['2024', '2023', '2022'];
+      years.forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+      });
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years' : 'Reporting Period: Jan–Dec ' + yr;
+      document.querySelector('.topbar-subtitle').textContent = text;
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function updateKPIs(filteredData) {
+      var totalEnrollments = 0;
+      var totalCompleted = 0;
+      var totalScore = 0;
+      var scoreCount = 0;
+
+      filteredData.forEach(function(d) {
+        totalEnrollments += d.total;
+        totalCompleted += d.completed;
+        if (d.avgScore > 0) {
+          totalScore += d.avgScore;
+          scoreCount += 1;
+        }
+      });
+
+      var completionRate = totalEnrollments > 0 ? ((totalCompleted / totalEnrollments) * 100).toFixed(1) : 0;
+      var avgScore = scoreCount > 0 ? (totalScore / scoreCount).toFixed(1) : 0;
+
+      document.getElementById('kpi-enrollments').textContent = totalEnrollments;
+      document.getElementById('kpi-completed').textContent = totalCompleted;
+      document.getElementById('kpi-completion-rate').textContent = completionRate + '%';
+      document.getElementById('kpi-avg-score').textContent = avgScore;
+      document.getElementById('kpi-inprogress').textContent = '0';
+      document.getElementById('kpi-overdue').textContent = '0';
+      document.getElementById('kpi-yoy-change').textContent = '+0%';
+      document.getElementById('kpi-programs-offered').textContent = '5';
+    }
+
+    function updateCharts(filteredData) {
+      var yearEnrollments = {2022: 0, 2023: 0, 2024: 0};
+      var deptCounts = {};
+      var locationCounts = {};
+      var typeData = {};
+
+      filteredData.forEach(function(d) {
+        yearEnrollments[d.yr] += d.total;
+        if (!deptCounts[d.dept]) deptCounts[d.dept] = 0;
+        deptCounts[d.dept] += d.total;
+        if (!locationCounts[d.city]) locationCounts[d.city] = 0;
+        locationCounts[d.city] += d.total;
+        if (!typeData[d.type]) typeData[d.type] = {total: 0, completed: 0, totalScore: 0, count: 0};
+        typeData[d.type].total += d.total;
+        typeData[d.type].completed += d.completed;
+        if (d.avgScore > 0) {
+          typeData[d.type].totalScore += d.avgScore;
+          typeData[d.type].count += 1;
+        }
+      });
+
+      mk('chart-enrollment-trend', {
+        type: 'bar',
+        data: {
+          labels: ['2022', '2023', '2024'],
+          datasets: [{
+            label: 'Enrollments',
+            data: [yearEnrollments[2022], yearEnrollments[2023], yearEnrollments[2024]],
+            backgroundColor: '#006AFF',
+            borderColor: '#006AFF',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      var deptLabels = Object.keys(deptCounts);
+      var deptValues = deptLabels.map(function(d) { return deptCounts[d]; });
+
+      mk('chart-completion-rate', {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [{
+            label: 'Enrollments',
+            data: deptValues,
+            backgroundColor: '#006AFF',
+            borderColor: '#006AFF',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            x: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      var typeLabels = Object.keys(typeData);
+      var typeValues = typeLabels.map(function(t) { return typeData[t].total; });
+      var typeColors = {'Mandatory': '#006AFF', 'Technical': '#1A7F64', 'Leadership': '#0EA5E9', 'Optional': '#F59E0B', 'Compliance': '#94A3B8'};
+      var typeBgColors = typeLabels.map(function(t) { return typeColors[t] || '#94A3B8'; });
+
+      mk('chart-program-type', {
+        type: 'doughnut',
+        data: {
+          labels: typeLabels,
+          datasets: [{
+            data: typeValues,
+            backgroundColor: typeBgColors,
+            borderColor: typeBgColors,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#8B95A5', font: {size: 12}, padding: 16 } },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          }
+        }
+      });
+
+      var scoreLabels = Object.keys(typeData);
+      var scoreValues = scoreLabels.map(function(t) {
+        return typeData[t].count > 0 ? (typeData[t].totalScore / typeData[t].count).toFixed(1) : 0;
+      });
+
+      mk('chart-avg-score', {
+        type: 'bar',
+        data: {
+          labels: scoreLabels,
+          datasets: [{
+            label: 'Avg Score',
+            data: scoreValues,
+            backgroundColor: scoreLabels.map(function(t) { return typeColors[t] || '#94A3B8'; }),
+            borderColor: scoreLabels.map(function(t) { return typeColors[t] || '#94A3B8'; }),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 100, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      var locLabels = Object.keys(locationCounts);
+      var locValues = locLabels.map(function(l) { return locationCounts[l]; });
+
+      mk('chart-delivery-mode', {
+        type: 'doughnut',
+        data: {
+          labels: locLabels,
+          datasets: [{
+            data: locValues,
+            backgroundColor: ['#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B', '#F59E0B', '#F59E0B', '#94A3B8'],
+            borderColor: ['#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B', '#F59E0B', '#F59E0B', '#94A3B8'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#8B95A5', font: {size: 12}, padding: 16 } },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          }
+        }
+      });
+
+      var yoyData2023 = TRAIN_DATA.filter(function(d) { return d.yr === 2023; });
+      var yoyData2024 = TRAIN_DATA.filter(function(d) { return d.yr === 2024; });
+      var yoy2023Total = 0, yoy2024Total = 0;
+      yoyData2023.forEach(function(d) { yoy2023Total += d.total; });
+      yoyData2024.forEach(function(d) { yoy2024Total += d.total; });
+
+      mk('chart-yoy-comparison', {
+        type: 'bar',
+        data: {
+          labels: ['2023', '2024'],
+          datasets: [{
+            label: 'Total Enrollments',
+            data: [yoy2023Total, yoy2024Total],
+            backgroundColor: ['#94A3B8', '#006AFF'],
+            borderColor: ['#94A3B8', '#006AFF'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, titleFont: {size: 12}, bodyFont: {size: 12} }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function updateTable(filteredData) {
+      var tbody = document.getElementById('enr-tbody');
+      tbody.innerHTML = '';
+
+      filteredData.slice(0, 20).forEach(function(row) {
+        var tr = document.createElement('tr');
+        var completionRate = row.total > 0 ? ((row.completed / row.total) * 100).toFixed(0) : 0;
+        tr.innerHTML = '<td>' + row.dept + '</td><td>' + row.city + '</td><td>' + row.yr + '</td><td>' + row.type + '</td><td>' + row.completed + '</td><td>' + row.total + '</td><td>' + (row.avgScore > 0 ? row.avgScore.toFixed(1) : 'N/A') + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      var filtered = filterData(TRAIN_DATA);
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    function init() {
+      initializeFilters();
+      applyFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

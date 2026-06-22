@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 8. Fab & Supply Chain</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-size:13px;min-width:140px}
+.fg select[disabled]{background:#F1F5F9;color:var(--txm)}
+.tg{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+.sw{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+.tg.on .sw{background:var(--p)}.tg.on .sw::after{transform:translateX(16px)}
+.tgl{font-size:12px;font-weight:500}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-size:12px;cursor:pointer}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:24px 0 10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.7}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--txm);margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--p);line-height:1.1}.kpi-d{font-size:12px;font-weight:500;margin-top:3px}
+.kpi-d.positive{color:var(--pos)}.kpi-d.negative{color:var(--neg)}.kpi-d.neutral{color:var(--t)}.kpi-d.warn{color:var(--wrn)}
+.kpi-stk .kpi-val{font-size:16px;line-height:1.35;font-weight:500}.kpi-stk .kpi-val span{display:block}
+.kpi-stk .kpi-val .fy23{color:var(--t)}.kpi-stk .kpi-val .fy24{color:var(--sd)}.kpi-stk .kpi-val .fy25{color:var(--p);font-weight:700}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+.ct{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px}
+.cw{position:relative;height:260px}.cw.tall{height:320px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tbl-h{padding:14px 18px 10px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:14px;font-weight:700;color:var(--p)}
+table{width:100%;border-collapse:collapse}thead th{background:var(--tb);color:var(--txd);padding:10px 12px;text-align:left;font-size:12px;font-weight:600}
+th.num,td.num{text-align:right}td{padding:10px 12px;font-size:13px;border-top:1px solid var(--bd)}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}.chip.p{background:rgba(45,139,139,.12);color:var(--p)}.chip.w{background:rgba(217,119,6,.12);color:var(--wrn)}.chip.g{background:#F1F5F9;color:var(--txm)}.chip.po{background:rgba(5,150,105,.12);color:var(--pos)}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.row.two,.row.three{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 8. Fab & Supply Chain</div>
+<div class="topbar-subtitle" id="rp">Reporting Period: FY2025</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Fiscal Year</label><select id="fy" onchange="apply()"></select></div>
+<div class="fg"><label>&nbsp;</label><div class="tg" id="cmp" onclick="tog()"><div class="sw"></div><div class="tgl">Compare FY23/24/25</div></div></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>Supply-chain cycle:</strong> 12 fabs (3 internal + 9 external) · total capacity ~528K wafer-starts/month · utilization peaked 95.7% FY22, trough 69.4% FY23 (inventory correction), recovered to 82% FY25. External foundries handle 84% of shipment revenue.</div>
+
+<div class="sec">FY<span class="fyl">25</span> Supply-Chain KPIs</div>
+<div class="kpi-grid" id="kg"></div>
+
+<div class="row two">
+<div class="ch"><div class="ct">Utilization & Yield Trend</div><div class="cw tall"><canvas id="c1"></canvas></div>
+<div class="csub">Utilization (teal) on primary axis, yield% (orange dashed) on secondary. FY21-22 shortage peak clearly visible.</div></div>
+<div class="ch"><div class="ct">Cycle Time & Cost per Die Trend</div><div class="cw tall"><canvas id="c2"></canvas></div>
+<div class="csub">Cycle time stable at ~70 days. Cost per die roughly flat at ~$1.28.</div></div>
+</div>
+
+<div class="row three">
+<div class="ch"><div class="ct">Revenue by Fab Type — FY25</div><div class="cw"><canvas id="c3"></canvas></div>
+<div class="csub">External Foundry 84% of shipped revenue — strategic concentration risk.</div></div>
+<div class="ch"><div class="ct">Fab Utilization by Node Class</div><div class="cw"><canvas id="c4"></canvas></div>
+<div class="csub">Leading-edge nodes (5-7nm) run hottest. Legacy nodes show capacity slack.</div></div>
+<div class="ch"><div class="ct">Good Die Output by FY</div><div class="cw"><canvas id="c5"></canvas></div>
+<div class="csub">Total good-die production across all fabs × all products.</div></div>
+</div>
+
+<div class="tbl"><div class="tbl-h"><div class="tbl-t">FY25 Fab Scorecard — All 12 Fabs</div></div>
+<table><thead><tr><th>Fab</th><th>Type</th><th>Node</th><th>Class</th><th class="num">Util %</th><th class="num">Yield %</th><th class="num">Cycle (d)</th><th class="num">$/Die</th><th class="num">Capacity WS/mo</th></tr></thead>
+<tbody id="tb"></tbody></table></div>
+
+<div class="ft">Fab & Supply Chain · xFalcon AnalyticsPro</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',wrn:'#D97706',gr:'#D8E2DD',pos:'#059669'};
+var FY=[{fy:'FY19',u:82.1,y:91.99,c:69.9,cd:1.284,gd:1220000000},{fy:'FY20',u:82.0,y:91.91,c:69.6,cd:1.281,gd:1500000000},
+ {fy:'FY21',u:92.1,y:91.91,c:70.1,cd:1.282,gd:1800000000},{fy:'FY22',u:95.7,y:91.91,c:70.5,cd:1.282,gd:2050000000},
+ {fy:'FY23',u:75.9,y:91.91,c:70.3,cd:1.279,gd:1700000000},{fy:'FY24',u:79.0,y:91.97,c:69.9,cd:1.280,gd:1950000000},
+ {fy:'FY25',u:81.9,y:92.04,c:70.4,cd:1.276,gd:2320000000},{fy:'FY26*',u:84.2,y:92.01,c:69.4,cd:1.288,gd:1510000000}];
+var FABS=[
+ {n:'SMIC Shanghai',t:'External Foundry',node:'28nm',cls:'Advanced',u:82.6,y:91.86,c:72.2,cd:1.249,cap:60000},
+ {n:'GlobalFoundries Dresden',t:'External Foundry',node:'22nm',cls:'Advanced',u:82.3,y:91.82,c:71.7,cd:1.273,cap:45000},
+ {n:'Internal OSAT - Philippines',t:'Assembly/Test',node:'0nm',cls:'N/A',u:82.2,y:92.05,c:69.5,cd:1.282,cap:50000},
+ {n:'TSMC Fab 14',t:'External Foundry',node:'7nm',cls:'Leading',u:82.2,y:92.08,c:69.7,cd:1.247,cap:100000},
+ {n:'TSMC Fab 18',t:'External Foundry',node:'5nm',cls:'Bleeding Edge',u:82.0,y:92.17,c:69.0,cd:1.264,cap:80000},
+ {n:'Internal Fab - Colorado Spring',t:'Internal',node:'130nm',cls:'Mature',u:81.9,y:92.30,c:68.6,cd:1.310,cap:15000},
+ {n:'Wolfspeed SiC Fab',t:'Specialty',node:'180nm',cls:'Mature',u:81.8,y:91.96,c:70.2,cd:1.323,cap:8000},
+ {n:'Samsung Austin',t:'External Foundry',node:'14nm',cls:'Leading',u:81.8,y:92.02,c:70.3,cd:1.298,cap:40000},
+ {n:'Internal Fab - Chandler',t:'Internal',node:'65nm',cls:'Legacy',u:81.8,y:92.02,c:71.9,cd:1.276,cap:25000},
+ {n:'UMC Singapore',t:'External Foundry',node:'40nm',cls:'Mainstream',u:81.7,y:91.94,c:72.0,cd:1.247,cap:55000},
+ {n:'Internal Fab - Gresham',t:'Internal',node:'90nm',cls:'Mature',u:81.6,y:92.10,c:71.9,cd:1.255,cap:20000},
+ {n:'Tower Semiconductor',t:'External Foundry',node:'180nm',cls:'Mature',u:81.4,y:92.12,c:68.3,cd:1.286,cap:30000}];
+var FAB_TYPE=[{t:'External Foundry',rev:3128.7,pct:84.4},{t:'Internal',rev:530.6,pct:14.3},{t:'Specialty',rev:26.8,pct:0.7},{t:'Assembly/Test',rev:22.5,pct:0.6}];
+var NODE_CLS=[{c:'Bleeding Edge',u:82.0},{c:'Leading',u:82.0},{c:'Advanced',u:82.5},{c:'Mainstream',u:81.7},{c:'Mature',u:81.6},{c:'Legacy',u:81.8}];
+var st={fy:'FY25',cmp:false};var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function init(){var y=document.getElementById('fy');y.innerHTML='';['FY21','FY22','FY23','FY24','FY25'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v==='FY25')o.selected=true;y.appendChild(o)})}
+function tog(){st.cmp=!st.cmp;document.getElementById('cmp').classList.toggle('on');document.getElementById('fy').disabled=st.cmp;apply()}
+function rst(){document.getElementById('fy').value='FY25';st.cmp=false;document.getElementById('cmp').classList.remove('on');document.getElementById('fy').disabled=false;apply()}
+function apply(){st.fy=document.getElementById('fy').value;
+ document.getElementById('rp').textContent='Reporting Period: '+(st.cmp?'FY23 / FY24 / FY25':st.fy);
+ var fls=document.querySelectorAll('.fyl');for(var i=0;i<fls.length;i++)fls[i].textContent=st.cmp?'23/24/25':st.fy.replace('FY','');
+ kpi();c1();c2();c3();c4();c5();tbl()}
+function row(fy){for(var i=0;i<FY.length;i++)if(FY[i].fy===fy)return FY[i];return FY[FY.length-1]}
+function kpi(){var el=document.getElementById('kg');el.innerHTML='';
+ if(st.cmp){
+  var y23=row('FY23'),y24=row('FY24'),y25=row('FY25');
+  var cks=[
+   {l:'Avg Utilization',v23:y23.u.toFixed(1)+'%',v24:y24.u.toFixed(1)+'%',v25:y25.u.toFixed(1)+'%',su:'FY23 trough → recovery'},
+   {l:'Avg Yield',v23:y23.y.toFixed(2)+'%',v24:y24.y.toFixed(2)+'%',v25:y25.y.toFixed(2)+'%',su:'Consistent ~92% band'},
+   {l:'Avg Cycle Time',v23:y23.c.toFixed(1)+'d',v24:y24.c.toFixed(1)+'d',v25:y25.c.toFixed(1)+'d',su:'Stable ~70 days'},
+   {l:'Cost per Die',v23:'$'+y23.cd.toFixed(3),v24:'$'+y24.cd.toFixed(3),v25:'$'+y25.cd.toFixed(3),su:'Flat — no learning-curve'},
+   {l:'Good Die Output',v23:(y23.gd/1e9).toFixed(2)+'B',v24:(y24.gd/1e9).toFixed(2)+'B',v25:(y25.gd/1e9).toFixed(2)+'B',su:'Volume recovery visible'},
+   {l:'External Fab Reliance',v23:'~82%',v24:'~83%',v25:'84.4%',su:'Foundry dependence rising'},
+   {l:'Total Capacity',v23:'496K WS/mo',v24:'510K WS/mo',v25:'528K WS/mo',su:'+6.5% over 2 yrs'},
+   {l:'Hottest Fab',v23:'SMIC 78.1%',v24:'SMIC 80.3%',v25:'SMIC 82.6%',su:'28nm capacity tightening'}];
+  cks.forEach(function(k){var d=document.createElement('div');d.className='kpi kpi-stk';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val"><span class="fy23">FY23 '+k.v23+'</span><span class="fy24">FY24 '+k.v24+'</span><span class="fy25">FY25 '+k.v25+'</span></div><div class="kpi-d neutral">'+k.su+'</div>';el.appendChild(d)});
+  return;
+ }
+ var r=row(st.fy);var p=row('FY'+(parseInt(st.fy.replace('FY',''))-1));
+ var ks=[
+  {l:'Avg Utilization '+st.fy,v:r.u.toFixed(1)+'%',d:(r.u-p.u>0?'▲ +':r.u-p.u<0?'▼ ':'▬ ')+Math.abs(r.u-p.u).toFixed(1)+' pts vs prior',c:r.u>90?'warn':r.u<75?'negative':'positive'},
+  {l:'Avg Yield '+st.fy,v:r.y.toFixed(2)+'%',d:'Consistent 92% band',c:'positive'},
+  {l:'Avg Cycle Time',v:r.c.toFixed(1)+'d',d:'Stable ~70 days',c:'neutral'},
+  {l:'Cost per Die '+st.fy,v:'$'+r.cd.toFixed(3),d:'Flat year over year',c:'neutral'},
+  {l:'Good Die Output',v:(r.gd/1e9).toFixed(2)+'B',d:'Total units across fabs',c:'positive'},
+  {l:'External Fab Reliance',v:'84.4%',d:'$3.13B of $3.71B FY25 rev',c:'warn'},
+  {l:'Total Capacity',v:'528K WS/mo',d:'12 fabs · wafer-starts',c:'neutral'},
+  {l:'Hottest Fab',v:'SMIC 82.6%',d:'28nm Advanced — near peak',c:'warn'}];
+ ks.forEach(function(k){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-d '+k.c+'">'+k.d+'</div>';el.appendChild(d)})}
+function c1(){mk('c1',{type:'bar',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+ {type:'bar',label:'Utilization %',data:FY.map(function(r){return r.u}),backgroundColor:FY.map(function(r){return r.u>90?C.wrn:r.u<75?C.t:C.p}),yAxisID:'y',borderRadius:3},
+ {type:'line',label:'Yield %',data:FY.map(function(r){return r.y}),borderColor:C.t,borderDash:[5,5],tension:.2,pointRadius:3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{y:{min:60,max:100,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},y1:{position:'right',min:90,max:95,grid:{drawOnChartArea:false},ticks:{callback:function(v){return v+'%'}}}}}})}
+function c2(){mk('c2',{type:'line',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+ {label:'Cycle Days',data:FY.map(function(r){return r.c}),borderColor:C.p,backgroundColor:'transparent',tension:.25,pointRadius:3,yAxisID:'y'},
+ {label:'Cost per Die ($)',data:FY.map(function(r){return r.cd}),borderColor:C.sd,borderDash:[5,5],tension:.25,pointRadius:3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{y:{min:60,max:80,ticks:{callback:function(v){return v+'d'}},grid:{color:C.gr}},y1:{position:'right',min:1.2,max:1.35,grid:{drawOnChartArea:false},ticks:{callback:function(v){return '$'+v.toFixed(2)}}}}}})}
+function c3(){mk('c3',{type:'bar',data:{labels:FAB_TYPE.map(function(r){return r.t}),datasets:[
+ {label:'Revenue ($M)',data:FAB_TYPE.map(function(r){return r.rev}),backgroundColor:[C.wrn,C.p,C.sd,C.t],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x.toFixed(1)+'M · '+FAB_TYPE[ctx.dataIndex].pct.toFixed(1)+'%'}}}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c4(){mk('c4',{type:'bar',data:{labels:NODE_CLS.map(function(r){return r.c}),datasets:[
+ {label:'Util %',data:NODE_CLS.map(function(r){return r.u}),backgroundColor:C.p,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:78,max:85,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c5(){mk('c5',{type:'bar',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+ {label:'Good Die (B)',data:FY.map(function(r){return r.gd/1e9}),backgroundColor:FY.map(function(r){return r.fy===st.fy?C.p:C.gr}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return v.toFixed(1)+'B'}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function tbl(){var b=document.getElementById('tb');b.innerHTML='';var filt=FABS;
+ filt.forEach(function(r){var ut=r.u>82?'po':r.u<81?'w':'p';
+  b.innerHTML+='<tr><td><strong>'+r.n+'</strong></td><td><span class="chip '+(r.t==='Internal'?'p':r.t==='Specialty'?'w':'g')+'">'+r.t+'</span></td><td>'+r.node+'</td><td><span class="chip g">'+r.cls+'</span></td><td class="num"><span class="chip '+ut+'">'+r.u.toFixed(1)+'%</span></td><td class="num">'+r.y.toFixed(2)+'%</td><td class="num">'+r.c.toFixed(1)+'</td><td class="num">$'+r.cd.toFixed(3)+'</td><td class="num">'+r.cap.toLocaleString()+'</td></tr>'})}
+init();apply();
+</script></body></html>

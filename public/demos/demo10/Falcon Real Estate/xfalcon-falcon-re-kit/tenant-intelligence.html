@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Intelligence - Falcon Real Estate</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: #006AFF;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .topbar-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .topbar-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .back-link {
+            color: #006AFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-subtext {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .kpi-highlight {
+            color: #006AFF;
+        }
+
+        .kpi-critical {
+            color: #D32F2F;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #006AFF;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .charts-row-half {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-row-half {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 11px;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-strong {
+            background: #e0edff;
+            color: #0052cc;
+        }
+
+        .badge-moderate {
+            background: #d4f0e8;
+            color: #0b5345;
+        }
+
+        .badge-weak {
+            background: #f0f0f0;
+            color: #5a5a5a;
+        }
+
+        .badge-critical {
+            background: #fce4e4;
+            color: #b71c1c;
+        }
+
+        .badge-yes {
+            background: #e0edff;
+            color: #0052cc;
+        }
+
+        .badge-no {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .row-critical {
+            background: #fef2f2;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #6b7280;
+            font-size: 12px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 2rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">xF</div>
+            <div>
+                <div class="topbar-title">Falcon Real Estate / Tenant Intelligence</div>
+                <div class="topbar-subtitle">Portfolio Analysis & Risk Assessment</div>
+            </div>
+        </div>
+        <a href="index.html" class="back-link">Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <!-- KPI CARDS -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Tenants</div>
+                <div class="kpi-value">140</div>
+                <div class="kpi-subtext">Active leases across portfolio</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total Annual Rent</div>
+                <div class="kpi-value">$194.6M</div>
+                <div class="kpi-subtext">Base rent at risk</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Covenant Score</div>
+                <div class="kpi-value">60.4</div>
+                <div class="kpi-subtext">Moderate strength</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Investment Grade</div>
+                <div class="kpi-value">84 <span class="kpi-highlight">(60%)</span></div>
+                <div class="kpi-subtext">Credit-rated tenants</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Anchor Tenants</div>
+                <div class="kpi-value">5 <span class="kpi-highlight">(3.6%)</span></div>
+                <div class="kpi-subtext">Strategic stabilizers</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Critical Risk</div>
+                <div class="kpi-value kpi-critical">29</div>
+                <div class="kpi-subtext">Covenant < 40</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Renewal Prob</div>
+                <div class="kpi-value">66.6%</div>
+                <div class="kpi-subtext">Likelihood of renewal</div>
+            </div>
+        </div>
+
+        <!-- COVENANT DISTRIBUTION -->
+        <div class="section">
+            <div class="section-title">Covenant Score Risk Distribution</div>
+            <div class="charts-row">
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="covenantChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INDUSTRY & COLLECTION -->
+        <div class="section">
+            <div class="charts-row-half">
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="industryChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="collectionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RENEWAL & CONCENTRATION -->
+        <div class="section">
+            <div class="charts-row-half">
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="renewalChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="concentrationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP 50 TENANTS TABLE -->
+        <div class="section">
+            <div class="section-title">Top 50 Tenants by Annual Rent</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tenant Name</th>
+                            <th>Type</th>
+                            <th>Industry</th>
+                            <th>Covenant</th>
+                            <th>IG</th>
+                            <th>Anchor</th>
+                            <th>Credit</th>
+                            <th>Annual Rent</th>
+                            <th>Expiry</th>
+                            <th>Renewal %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Generated by xFalcon RetailEdge | Data as of 2025-12-31
+    </footer>
+
+    <script>
+        const mk = (tag, props = {}, ...children) => {
+            const el = document.createElement(tag);
+            Object.assign(el, props);
+            children.forEach(child => {
+                if (typeof child === 'string') el.appendChild(document.createTextNode(child));
+                else if (child) el.appendChild(child);
+            });
+            return el;
+        };
+
+        const formatCurrency = (val) => {
+            if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`;
+            if (val >= 1000) return `$${(val / 1000).toFixed(0)}K`;
+            return `$${val.toFixed(0)}`;
+        };
+
+        const formatPercent = (val) => `${parseFloat(val).toFixed(1)}%`;
+
+        const getTierColor = (score) => {
+            if (score >= 80) return '#006AFF';
+            if (score >= 60) return '#1A7F64';
+            if (score >= 40) return '#94A3B8';
+            return '#D32F2F';
+        };
+
+        const getTierBadge = (score) => {
+            if (score >= 80) return 'strong';
+            if (score >= 60) return 'moderate';
+            if (score >= 40) return 'weak';
+            return 'critical';
+        };
+
+        // COVENANT DISTRIBUTION CHART
+        const covenantCtx = document.getElementById('covenantChart').getContext('2d');
+        new Chart(covenantCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Strong (80-100)', 'Moderate (60-79)', 'Weak (40-59)', 'Critical (0-39)'],
+                datasets: [
+                    {
+                        label: 'Tenant Count',
+                        data: [33, 34, 44, 29],
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Total Rent at Risk ($M)',
+                        data: [59.25, 34.59, 69.16, 31.64],
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 12 }, usePointStyle: true, padding: 15 }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Tenant Count' },
+                        ticks: { font: { size: 11 } },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Rent at Risk ($M)' },
+                        ticks: { font: { size: 11 } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // INDUSTRY CONCENTRATION CHART
+        const industryCtx = document.getElementById('industryChart').getContext('2d');
+        new Chart(industryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Telecom', 'Healthcare', 'Food & Bev', 'Retail', 'Legal', 'Insurance', 'Media', 'Non-Profit', 'Finance', 'Fitness', 'Prof Services', 'Personal', 'Education', 'Manufacturing', 'Logistics', 'Technology', 'Energy', 'Government'],
+                datasets: [{
+                    label: 'Total Annual Rent ($M)',
+                    data: [43.09, 30.96, 19.06, 17.80, 14.25, 9.60, 9.51, 8.97, 7.69, 7.60, 7.54, 7.47, 4.17, 3.07, 2.22, 1.57, 0.03, 0.03],
+                    backgroundColor: '#006AFF'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { size: 11 }, callback: v => `$${v}M` }
+                    },
+                    y: {
+                        ticks: { font: { size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // COLLECTION RATE BY TIER
+        const collectionCtx = document.getElementById('collectionChart').getContext('2d');
+        new Chart(collectionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Strong (80-100)', 'Moderate (60-79)', 'Weak (40-59)', 'Critical (0-39)'],
+                datasets: [{
+                    label: 'Collection Rate (%)',
+                    data: [94.6, 94.4, 91.7, 92.8],
+                    backgroundColor: ['#006AFF', '#1A7F64', '#94A3B8', '#F59E0B']
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        min: 85,
+                        max: 100,
+                        ticks: { font: { size: 11 }, callback: v => `${v}%` }
+                    },
+                    y: {
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // RENEWAL PROBABILITY BY TIER
+        const renewalCtx = document.getElementById('renewalChart').getContext('2d');
+        new Chart(renewalCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Strong (80-100)', 'Moderate (60-79)', 'Weak (40-59)', 'Critical (0-39)'],
+                datasets: [{
+                    label: 'Avg Renewal Probability (%)',
+                    data: [71.38, 67.69, 64.80, 62.83],
+                    backgroundColor: ['#006AFF', '#1A7F64', '#94A3B8', '#F59E0B']
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        min: 55,
+                        max: 100,
+                        ticks: { font: { size: 11 }, callback: v => `${v}%` }
+                    },
+                    y: {
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // RENT CONCENTRATION - TOP 10 TENANTS
+        const concentrationCtx = document.getElementById('concentrationChart').getContext('2d');
+        new Chart(concentrationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sunrise Sr.', 'Prime Realty', 'Ridge Services', 'Valley Services', 'Summit Spectrum', 'Ridge Systems', 'Harbor Partners', 'Apex Mobile', 'Wellness360', 'Sterling Corp'],
+                datasets: [{
+                    label: 'Annual Rent ($M)',
+                    data: [6.69, 6.64, 4.95, 4.74, 4.46, 4.12, 3.92, 3.78, 3.78, 3.77],
+                    backgroundColor: '#006AFF'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { size: 11 }, callback: v => `$${v}M` }
+                    },
+                    y: {
+                        ticks: { font: { size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // TOP 50 TENANTS TABLE DATA
+        const tenantData = [
+            { name: 'Sunrise Senior Living Ops #161', type: 'Corporate', industry: 'Healthcare', covenant: 69.88, ig: true, anchor: false, credit: 'BBB', rent: 6687749.41, expiry: 38, renewal: 88.56 },
+            { name: 'Prime Realty 915', type: 'Corporate', industry: 'Legal Services', covenant: 46.16, ig: true, anchor: false, credit: 'A+', rent: 6640220.25, expiry: 19, renewal: 86.39 },
+            { name: 'Ridge Services 265', type: 'Individual', industry: 'Food & Beverage', covenant: 53.22, ig: false, anchor: false, credit: 'B+', rent: 4954320.60, expiry: 80, renewal: 44.48 },
+            { name: 'Valley Services 762', type: 'Corporate', industry: 'Food & Beverage', covenant: 46.78, ig: true, anchor: false, credit: 'A', rent: 4740316.62, expiry: 36, renewal: 55.51 },
+            { name: 'Summit Spectrum LLC (Site 75)', type: 'Carrier', industry: 'Telecommunications', covenant: 96.38, ig: true, anchor: false, credit: 'AA-', rent: 4457541.53, expiry: 27, renewal: 65.72 },
+            { name: 'Ridge Systems 841', type: 'Individual', industry: 'Telecommunications', covenant: 49.48, ig: true, anchor: false, credit: 'BBB-', rent: 4124209.55, expiry: 45, renewal: 67.30 },
+            { name: 'Harbor Partners 108', type: 'Corporate', industry: 'Finance', covenant: 38.15, ig: false, anchor: false, credit: 'BB', rent: 3915672.65, expiry: 34, renewal: 57.69 },
+            { name: 'Apex Mobile Corp (Site 73)', type: 'Carrier', industry: 'Telecommunications', covenant: 89.96, ig: true, anchor: false, credit: 'A+', rent: 3783620.28, expiry: 2, renewal: 71.17 },
+            { name: 'Wellness360 Fitness', type: 'Corporate', industry: 'Retail Trade', covenant: 86.42, ig: true, anchor: true, credit: 'A-', rent: 3776398.03, expiry: 45, renewal: 38.69 },
+            { name: 'Sterling Corp 346', type: 'Corporate', industry: 'Healthcare', covenant: 91.38, ig: true, anchor: false, credit: 'AAA', rent: 3765880.35, expiry: 24, renewal: 75.43 },
+            { name: 'Prime Health Operators #133', type: 'Corporate', industry: 'Healthcare', covenant: 79.83, ig: true, anchor: false, credit: 'BBB+', rent: 3737672.78, expiry: 18, renewal: 39.48 },
+            { name: 'Coastal Services', type: 'Corporate', industry: 'Non-Profit', covenant: 35.44, ig: false, anchor: false, credit: 'B+', rent: 3707253.26, expiry: 79, renewal: 47.17 },
+            { name: 'Elite Ventures 692', type: 'Individual', industry: 'Legal Services', covenant: 54.13, ig: false, anchor: false, credit: 'B-', rent: 3682934.67, expiry: 37, renewal: 30.98 },
+            { name: 'Central Mobile Inc (Site 109)', type: 'Carrier', industry: 'Telecommunications', covenant: 95.69, ig: true, anchor: false, credit: 'A+', rent: 3677245.94, expiry: 33, renewal: 40.67 },
+            { name: 'Atlantic Realty 264', type: 'Corporate', industry: 'Personal Services', covenant: 32.84, ig: false, anchor: false, credit: 'None', rent: 3648256.27, expiry: 14, renewal: 73.76 },
+            { name: 'Valley Health Systems #136', type: 'Corporate', industry: 'Healthcare', covenant: 67.81, ig: true, anchor: false, credit: 'BBB+', rent: 3616620.52, expiry: 18, renewal: 71.74 },
+            { name: 'Elite Realty 806', type: 'Corporate', industry: 'Insurance', covenant: 24.30, ig: false, anchor: false, credit: 'None', rent: 3545585.84, expiry: 33, renewal: 69.91 },
+            { name: 'Harbor Corp 238', type: 'Corporate', industry: 'Retail Trade', covenant: 34.44, ig: false, anchor: false, credit: 'B', rent: 3507701.22, expiry: 54, renewal: 66.71 },
+            { name: 'Global Solutions 671', type: 'Corporate', industry: 'Food & Beverage', covenant: 63.87, ig: true, anchor: false, credit: 'BBB', rent: 3319992.79, expiry: 39, renewal: 74.29 },
+            { name: 'Coastal Capital 981', type: 'Corporate', industry: 'Professional Services', covenant: 50.91, ig: false, anchor: false, credit: 'None', rent: 3259319.13, expiry: 13, renewal: 63.53 },
+            { name: 'Ridge Properties 224', type: 'Individual', industry: 'Food & Beverage', covenant: 46.24, ig: true, anchor: false, credit: 'BBB+', rent: 3153432.52, expiry: 27, renewal: 75.59 },
+            { name: 'Prime Systems 978', type: 'Corporate', industry: 'Fitness & Wellness', covenant: 46.31, ig: false, anchor: false, credit: 'CCC', rent: 3126651.41, expiry: 7, renewal: 100.00 },
+            { name: 'Core Enterprises 806', type: 'Corporate', industry: 'Telecommunications', covenant: 88.88, ig: true, anchor: false, credit: 'BBB', rent: 3074838.56, expiry: 52, renewal: 95.73 },
+            { name: 'Atlantic Solutions 826', type: 'Individual', industry: 'Media & Entertainment', covenant: 52.15, ig: false, anchor: false, credit: 'BB-', rent: 3059369.93, expiry: 24, renewal: 77.68 },
+            { name: 'Summit Resources 922', type: 'Corporate', industry: 'Education', covenant: 88.05, ig: true, anchor: false, credit: 'A-', rent: 2897184.42, expiry: 122, renewal: 86.87 },
+            { name: 'Pacific Wireless Co (Site 107)', type: 'Carrier', industry: 'Telecommunications', covenant: 91.85, ig: true, anchor: false, credit: 'A-', rent: 2809793.87, expiry: 10, renewal: 75.82 },
+            { name: 'Summit Capital 619', type: 'Corporate', industry: 'Manufacturing', covenant: 47.67, ig: true, anchor: false, credit: 'AAA', rent: 2794912.86, expiry: 16, renewal: 54.97 },
+            { name: 'Core Corp 310', type: 'Individual', industry: 'Insurance', covenant: 90.71, ig: true, anchor: false, credit: 'AAA', rent: 2688883.44, expiry: 2, renewal: 59.73 },
+            { name: 'Ridge Corp 391', type: 'Corporate', industry: 'Professional Services', covenant: 51.93, ig: true, anchor: false, credit: 'BBB', rent: 2607886.95, expiry: 96, renewal: 52.91 },
+            { name: 'Ridge Resources 120', type: 'Corporate', industry: 'Non-Profit', covenant: 91.11, ig: true, anchor: false, credit: 'A-', rent: 2581813.98, expiry: 31, renewal: 79.48 },
+            { name: 'National Cellular Partners (Si', type: 'Carrier', industry: 'Telecommunications', covenant: 85.76, ig: true, anchor: false, credit: 'AA-', rent: 2578531.51, expiry: 34, renewal: 69.15 },
+            { name: 'Metro PCS Solutions (Site 106)', type: 'Carrier', industry: 'Telecommunications', covenant: 96.17, ig: true, anchor: false, credit: 'A+', rent: 2578130.22, expiry: 34, renewal: 52.84 },
+            { name: 'National Cellular Partners (Si', type: 'Carrier', industry: 'Telecommunications', covenant: 92.21, ig: true, anchor: false, credit: 'A-', rent: 2574466.59, expiry: 49, renewal: 84.25 },
+            { name: 'Metro Associates 554', type: 'Corporate', industry: 'Healthcare', covenant: 57.27, ig: false, anchor: false, credit: 'BB+', rent: 2547814.77, expiry: 62, renewal: 70.73 },
+            { name: 'Central Systems 598', type: 'Corporate', industry: 'Media & Entertainment', covenant: 49.70, ig: true, anchor: false, credit: 'AA-', rent: 2541536.81, expiry: 10, renewal: 75.49 },
+            { name: 'Harbor Capital 557', type: 'Corporate', industry: 'Media & Entertainment', covenant: 57.24, ig: false, anchor: false, credit: 'B-', rent: 2537902.24, expiry: 2, renewal: 45.48 },
+            { name: 'Metro Capital 346', type: 'Corporate', industry: 'Telecommunications', covenant: 70.66, ig: true, anchor: false, credit: 'A', rent: 2519155.12, expiry: 10, renewal: 71.29 },
+            { name: 'National Cellular Partners (Si', type: 'Carrier', industry: 'Telecommunications', covenant: 84.25, ig: true, anchor: false, credit: 'AA-', rent: 2467252.45, expiry: 1, renewal: 48.50 },
+            { name: 'Harbor Ventures 972', type: 'Corporate', industry: 'Healthcare', covenant: 83.84, ig: true, anchor: false, credit: 'A+', rent: 2292936.19, expiry: 219, renewal: 42.25 },
+            { name: 'Sterling Group 706', type: 'Corporate', industry: 'Insurance', covenant: 29.92, ig: false, anchor: false, credit: 'BB-', rent: 2245550.19, expiry: 100, renewal: 50.93 },
+            { name: 'Harbor Systems 860', type: 'Corporate', industry: 'Personal Services', covenant: 50.37, ig: true, anchor: false, credit: 'BBB-', rent: 2138030.97, expiry: 33, renewal: 73.82 },
+            { name: 'Summit Resources 573', type: 'Corporate', industry: 'Retail Trade', covenant: 80.05, ig: true, anchor: false, credit: 'AAA', rent: 1963703.17, expiry: 5, renewal: 55.95 },
+            { name: 'Core Systems 186', type: 'Individual', industry: 'Telecommunications', covenant: 50.50, ig: true, anchor: false, credit: 'A+', rent: 1897687.96, expiry: 212, renewal: 64.49 },
+            { name: 'Lakeview Inc 528', type: 'Corporate', industry: 'Fitness & Wellness', covenant: 49.82, ig: false, anchor: false, credit: 'BB+', rent: 1857288.00, expiry: 9, renewal: 57.44 },
+            { name: 'Harbor Systems', type: 'Corporate', industry: 'Legal Services', covenant: 84.04, ig: true, anchor: false, credit: 'BBB+', rent: 1785544.11, expiry: 20, renewal: 81.59 },
+            { name: 'Central Mobile Inc (Site 119)', type: 'Carrier', industry: 'Telecommunications', covenant: 83.76, ig: true, anchor: false, credit: 'A+', rent: 1658255.04, expiry: 41, renewal: 100.00 },
+            { name: 'Ridge Industries 963', type: 'Corporate', industry: 'Personal Services', covenant: 47.15, ig: false, anchor: false, credit: 'B', rent: 1646868.72, expiry: 39, renewal: 96.92 },
+            { name: 'Atlantic Management 243', type: 'Corporate', industry: 'Finance', covenant: 53.81, ig: true, anchor: false, credit: 'AA-', rent: 1645705.99, expiry: 108, renewal: 61.69 },
+            { name: 'Apex Mobile Corp (Site 113)', type: 'Carrier', industry: 'Telecommunications', covenant: 97.54, ig: true, anchor: false, credit: 'BBB+', rent: 1610179.46, expiry: 50, renewal: 72.15 },
+            { name: 'Apex Services', type: 'Corporate', industry: 'Non-Profit', covenant: 75.42, ig: true, anchor: false, credit: 'A', rent: 1552855.04, expiry: 68, renewal: 42.96 }
+        ];
+
+        const tbody = document.getElementById('tenantsTableBody');
+        tenantData.forEach(t => {
+            const badgeClass = `badge-${getTierBadge(t.covenant)}`;
+            const isCritical = t.covenant < 40;
+            const row = mk('tr', { className: isCritical ? 'row-critical' : '' },
+                mk('td', {}, t.name),
+                mk('td', {}, t.type),
+                mk('td', {}, t.industry),
+                mk('td', {}, mk('span', { className: `badge ${badgeClass}` }, t.covenant.toFixed(1))),
+                mk('td', {}, mk('span', { className: `badge ${t.ig ? 'badge-yes' : 'badge-no'}` }, t.ig ? 'Yes' : 'No')),
+                mk('td', {}, mk('span', { className: `badge ${t.anchor ? 'badge-yes' : 'badge-no'}` }, t.anchor ? 'Yes' : 'No')),
+                mk('td', {}, t.credit || '—'),
+                mk('td', {}, formatCurrency(t.rent)),
+                mk('td', {}, `${t.expiry}m`),
+                mk('td', {}, formatPercent(t.renewal))
+            );
+            tbody.appendChild(row);
+        });
+    </script>
+</body>
+</html>

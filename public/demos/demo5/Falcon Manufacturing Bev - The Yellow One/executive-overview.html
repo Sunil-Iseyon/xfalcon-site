@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview - Pop Lab Craft Soda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fizz bubble background animation */
+        .bubble {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.1;
+            pointer-events: none;
+            background: radial-gradient(circle at 30% 30%, rgba(76, 224, 210, 0.4), rgba(76, 224, 210, 0.1));
+            animation: float 8s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.05; }
+            50% { transform: translateY(-100px) translateX(30px); opacity: 0.15; }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #4CE0D2 0%, #FF1654 50%, #4CE0D2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            color: #4CE0D2;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #FF1654;
+            text-shadow: 0 0 10px rgba(255, 22, 84, 0.5);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #111111;
+            border: 1px solid #333333;
+            border-top: 4px solid #4CE0D2;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 0 20px rgba(76, 224, 210, 0.1);
+        }
+
+        .filter-label {
+            font-family: 'Anton', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4CE0D2;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 0;
+        }
+
+        select {
+            background: #000000;
+            border: 1px solid #333333;
+            color: #FFFFFF;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover,
+        select:focus {
+            border-color: #4CE0D2;
+            box-shadow: 0 0 10px rgba(76, 224, 210, 0.3);
+            outline: none;
+        }
+
+        select option {
+            background: #111111;
+            color: #FFFFFF;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .kpi-card {
+            background: #111111;
+            border: 1px solid #333333;
+            border-top: 4px solid #4CE0D2;
+            padding: 25px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(76, 224, 210, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            border-color: #4CE0D2;
+            box-shadow: 0 10px 30px rgba(76, 224, 210, 0.2);
+        }
+
+        .kpi-card::before {
+            content: '★';
+            position: absolute;
+            top: -5px;
+            right: 20px;
+            font-size: 4rem;
+            color: rgba(76, 224, 210, 0.1);
+            z-index: 0;
+        }
+
+        .kpi-label {
+            font-family: 'Anton', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888888;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-family: 'Anton', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #4CE0D2;
+            word-break: break-word;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(76, 224, 210, 0.3);
+        }
+
+        /* Chart Section */
+        .chart-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .chart-card {
+            background: #111111;
+            border: 1px solid #333333;
+            border-top: 4px solid #FF1654;
+            padding: 25px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(76, 224, 210, 0.1);
+        }
+
+        .chart-card:nth-child(2) {
+            border-top-color: #7BC142;
+        }
+
+        .chart-card:nth-child(3) {
+            border-top-color: #E8A825;
+        }
+
+        .chart-card:nth-child(4) {
+            border-top-color: #FF8C42;
+        }
+
+        .chart-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        canvas {
+            max-height: 350px;
+        }
+
+        /* Insights Section */
+        .insights-section {
+            background: #111111;
+            border: 1px solid #333333;
+            border-top: 4px solid #9B59B6;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(76, 224, 210, 0.1);
+        }
+
+        .insights-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #9B59B6;
+        }
+
+        .insight-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(76, 224, 210, 0.05);
+            border-left: 3px solid #4CE0D2;
+            border-radius: 4px;
+        }
+
+        .insight-item:nth-child(2) {
+            border-left-color: #FF1654;
+            background: rgba(255, 22, 84, 0.05);
+        }
+
+        .insight-item:nth-child(3) {
+            border-left-color: #7BC142;
+            background: rgba(123, 193, 66, 0.05);
+        }
+
+        .insight-item:nth-child(4) {
+            border-left-color: #E8A825;
+            background: rgba(232, 168, 37, 0.05);
+        }
+
+        .insight-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #FFFFFF;
+        }
+
+        .insight-metric {
+            color: #4CE0D2;
+            font-weight: 600;
+        }
+
+        /* Film Strip Divider */
+        .filmstrip {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            padding: 15px;
+            background: #111111;
+            border-top: 1px solid #333333;
+            border-bottom: 1px solid #333333;
+        }
+
+        .filmstrip-cell {
+            width: 20px;
+            height: 25px;
+            background: #333333;
+            border-radius: 2px;
+            margin: 0 3px;
+        }
+
+        .filmstrip-star {
+            font-size: 1.2rem;
+            color: #FF1654;
+            margin: 0 15px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid #333333;
+            color: #888888;
+            margin-top: 40px;
+        }
+
+        .footer-text {
+            font-size: 0.85rem;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 900px) {
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Bubbles -->
+    <div class="bubble" style="width: 100px; height: 100px; top: 10%; left: 5%; animation-delay: 0s;"></div>
+    <div class="bubble" style="width: 150px; height: 150px; top: 40%; left: 85%; animation-delay: 2s;"></div>
+    <div class="bubble" style="width: 80px; height: 80px; top: 60%; left: 10%; animation-delay: 4s;"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="header-title"><span style="color:#333;margin-right:12px;">01</span> EXECUTIVE OVERVIEW</h1>
+            <a href="index.html" class="back-link">← BACK TO HUB</a>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-controls">
+                <div>
+                    <label class="filter-label">YEAR</label>
+                    <select id="yearFilter">
+                        <option value="all">All Years</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="filter-label">QUARTER</label>
+                    <select id="quarterFilter">
+                        <option value="all">All Quarters</option>
+                        <option value="1">Q1</option>
+                        <option value="2">Q2</option>
+                        <option value="3">Q3</option>
+                        <option value="4">Q4</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">NET REVENUE</div>
+                <div class="kpi-value" id="kpiNetRevenue">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">GROSS PROFIT</div>
+                <div class="kpi-value" id="kpiGrossProfit">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">AVG MARGIN %</div>
+                <div class="kpi-value" id="kpiAvgMargin">0%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">EBITDA</div>
+                <div class="kpi-value" id="kpiEBITDA">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">NET PROFIT</div>
+                <div class="kpi-value" id="kpiNetProfit">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL UNITS</div>
+                <div class="kpi-value" id="kpiTotalUnits">0</div>
+            </div>
+        </div>
+
+        <!-- Film Strip Divider -->
+        <div class="filmstrip">
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-star">★</div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-section">
+            <div class="chart-card">
+                <div class="chart-title">REVENUE & PROFIT TREND</div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">EBITDA VS NET PROFIT</div>
+                <div class="chart-container">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">MARGIN % TREND</div>
+                <div class="chart-container">
+                    <canvas id="marginChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">MARKETING SPEND VS REVENUE</div>
+                <div class="chart-container">
+                    <canvas id="mktChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Film Strip Divider -->
+        <div class="filmstrip">
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-star">★</div>
+            <div class="filmstrip-cell"></div>
+            <div class="filmstrip-cell"></div>
+        </div>
+
+        <!-- Insights Section -->
+        <div class="insights-section">
+            <div class="insights-title">KEY INSIGHTS</div>
+            <div class="insight-item">
+                <div class="insight-text">Current period shows <span class="insight-metric">strong revenue momentum</span> with consistent margin performance driving profitability.</div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-text">EBITDA efficiency indicates <span class="insight-metric">healthy operational leverage</span> across manufacturing and distribution.</div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-text">Marketing spend optimization demonstrates <span class="insight-metric">improved ROI efficiency</span> in customer acquisition.</div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-text">Unit sales growth combined with margin stability suggests <span class="insight-metric">successful scaling</span> of production capabilities.</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-text">Pop Lab Craft Soda Executive Dashboard</div>
+            <div class="footer-text">Data Updated Daily | All metrics in USD except percentages and units</div>
+        </div>
+    </div>
+
+    <script>
+        const DATA = [
+            {year:2020,quarter:2,netRevenue:14713.92,grossProfit:7004.88,avgMarginPct:47.6,ebitda:10728669,netProfit:8368362,totalUnits:8748,totalOrders:3,mktSpend:5386517},
+            {year:2020,quarter:3,netRevenue:5031.42,grossProfit:2401.17,avgMarginPct:47.7,ebitda:1757042,netProfit:1370493,totalUnits:4221,totalOrders:1,mktSpend:1366780},
+            {year:2020,quarter:4,netRevenue:18686.73,grossProfit:8788.41,avgMarginPct:47.0,ebitda:17839446,netProfit:13914768,totalUnits:11457,totalOrders:5,mktSpend:5313488},
+            {year:2021,quarter:1,netRevenue:11443.35,grossProfit:5638.20,avgMarginPct:49.2,ebitda:7125596,netProfit:5557965,totalUnits:5679,totalOrders:2,mktSpend:4742639},
+            {year:2021,quarter:2,netRevenue:7181.04,grossProfit:3481.56,avgMarginPct:48.5,ebitda:6141203,netProfit:4790139,totalUnits:4263,totalOrders:1,mktSpend:2086863},
+            {year:2021,quarter:3,netRevenue:35730.48,grossProfit:17583.69,avgMarginPct:49.2,ebitda:4652684,netProfit:3629094,totalUnits:32484,totalOrders:1,mktSpend:1508719},
+            {year:2021,quarter:4,netRevenue:33068.76,grossProfit:15996.57,avgMarginPct:48.5,ebitda:22930718,netProfit:17885960,totalUnits:17319,totalOrders:5,mktSpend:9439818},
+            {year:2022,quarter:2,netRevenue:33711.12,grossProfit:15490.14,avgMarginPct:46.0,ebitda:22026343,netProfit:17180547,totalUnits:21507,totalOrders:5,mktSpend:8883078},
+            {year:2022,quarter:3,netRevenue:26942.52,grossProfit:12297.06,avgMarginPct:45.5,ebitda:23557713,netProfit:18375016,totalUnits:16389,totalOrders:3,mktSpend:5443317},
+            {year:2022,quarter:4,netRevenue:3588.00,grossProfit:1665.54,avgMarginPct:46.4,ebitda:3645895,netProfit:2843798,totalUnits:3390,totalOrders:1,mktSpend:1446802},
+            {year:2023,quarter:1,netRevenue:6429.87,grossProfit:3116.16,avgMarginPct:48.3,ebitda:8088263,netProfit:6308845,totalUnits:3921,totalOrders:2,mktSpend:2489096},
+            {year:2023,quarter:2,netRevenue:21128.07,grossProfit:10326.09,avgMarginPct:49.4,ebitda:21495645,netProfit:16766603,totalUnits:10824,totalOrders:4,mktSpend:7501891},
+            {year:2023,quarter:3,netRevenue:15842.73,grossProfit:7685.16,avgMarginPct:48.5,ebitda:15128803,netProfit:11800467,totalUnits:10614,totalOrders:2,mktSpend:6682146},
+            {year:2023,quarter:4,netRevenue:58815.03,grossProfit:28551.06,avgMarginPct:48.7,ebitda:46078869,netProfit:35941518,totalUnits:31926,totalOrders:7,mktSpend:14065851},
+            {year:2024,quarter:1,netRevenue:13976.01,grossProfit:7021.92,avgMarginPct:50.4,ebitda:9968598,netProfit:7775506,totalUnits:5958,totalOrders:2,mktSpend:3695520},
+            {year:2024,quarter:2,netRevenue:12319.41,grossProfit:6264.33,avgMarginPct:50.9,ebitda:8995140,netProfit:7016209,totalUnits:5745,totalOrders:2,mktSpend:2766773},
+            {year:2024,quarter:3,netRevenue:6673.29,grossProfit:3412.59,avgMarginPct:51.1,ebitda:3361778,netProfit:2622187,totalUnits:2532,totalOrders:1,mktSpend:1370934},
+            {year:2024,quarter:4,netRevenue:30039.57,grossProfit:14869.74,avgMarginPct:49.6,ebitda:27507383,netProfit:21455759,totalUnits:13515,totalOrders:4,mktSpend:8851382},
+            {year:2025,quarter:1,netRevenue:3882.81,grossProfit:1954.20,avgMarginPct:50.3,ebitda:3946354,netProfit:3078156,totalUnits:2556,totalOrders:1,mktSpend:867378},
+            {year:2025,quarter:2,netRevenue:15805.05,grossProfit:7966.05,avgMarginPct:50.4,ebitda:12711824,netProfit:9915223,totalUnits:7533,totalOrders:2,mktSpend:5518797},
+            {year:2025,quarter:3,netRevenue:9097.98,grossProfit:4590.66,avgMarginPct:50.5,ebitda:8584521,netProfit:6695927,totalUnits:4881,totalOrders:2,mktSpend:3264846},
+            {year:2025,quarter:4,netRevenue:16192.05,grossProfit:8255.67,avgMarginPct:50.7,ebitda:13894543,netProfit:10837744,totalUnits:7866,totalOrders:3,mktSpend:5175869}
+        ];
+
+        const COLORS = ['#4CE0D2', '#FF1654', '#7BC142', '#E8A825', '#FF8C42', '#9B59B6', '#87CEEB', '#8B4513'];
+
+        // Helper functions
+        function formatDollars(value) {
+            if (value >= 1000000) {
+                return '$' + (value / 1000000).toFixed(1) + 'M';
+            } else if (value >= 1000) {
+                return '$' + (value / 1000).toFixed(1) + 'K';
+            }
+            return '$' + value.toFixed(2);
+        }
+
+        function formatNumber(value) {
+            return Math.round(value).toLocaleString();
+        }
+
+        function formatPercent(value) {
+            return value.toFixed(1) + '%';
+        }
+
+        // Filter data based on year and quarter
+        function getFilteredData() {
+            const yearVal = document.getElementById('yearFilter').value;
+            const quarterVal = document.getElementById('quarterFilter').value;
+
+            let filtered = DATA;
+
+            if (yearVal !== 'all') {
+                filtered = filtered.filter(d => d.year === parseInt(yearVal));
+            }
+
+            if (quarterVal !== 'all') {
+                filtered = filtered.filter(d => d.quarter === parseInt(quarterVal));
+            }
+
+            return filtered;
+        }
+
+        // Calculate KPIs
+        function calculateKPIs(data) {
+            const netRevenue = data.reduce((sum, d) => sum + d.netRevenue, 0);
+            const grossProfit = data.reduce((sum, d) => sum + d.grossProfit, 0);
+            const avgMarginPct = data.length > 0 ? data.reduce((sum, d) => sum + d.avgMarginPct, 0) / data.length : 0;
+            const ebitda = data.reduce((sum, d) => sum + d.ebitda, 0);
+            const netProfit = data.reduce((sum, d) => sum + d.netProfit, 0);
+            const totalUnits = data.reduce((sum, d) => sum + d.totalUnits, 0);
+
+            return { netRevenue, grossProfit, avgMarginPct, ebitda, netProfit, totalUnits };
+        }
+
+        // Update KPI displays
+        function updateKPIs() {
+            const filtered = getFilteredData();
+            const kpis = calculateKPIs(filtered);
+
+            document.getElementById('kpiNetRevenue').textContent = formatDollars(kpis.netRevenue);
+            document.getElementById('kpiGrossProfit').textContent = formatDollars(kpis.grossProfit);
+            document.getElementById('kpiAvgMargin').textContent = formatPercent(kpis.avgMarginPct);
+            document.getElementById('kpiEBITDA').textContent = formatDollars(kpis.ebitda);
+            document.getElementById('kpiNetProfit').textContent = formatDollars(kpis.netProfit);
+            document.getElementById('kpiTotalUnits').textContent = formatNumber(kpis.totalUnits);
+        }
+
+        // Chart instances
+        let chartRevenue, chartProfit, chartMargin, chartMkt;
+
+        // Create Revenue & Profit Trend Chart
+        function createRevenueChart() {
+            const filtered = getFilteredData();
+            if (!filtered.length) return;
+
+            const sorted = filtered.sort((a, b) => a.year === b.year ? a.quarter - b.quarter : a.year - b.year);
+            const labels = sorted.map(d => `${d.year} Q${d.quarter}`);
+
+            if (chartRevenue) chartRevenue.destroy();
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            chartRevenue = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Net Revenue',
+                            data: sorted.map(d => d.netRevenue),
+                            backgroundColor: COLORS[0],
+                            borderColor: COLORS[0],
+                            borderWidth: 0,
+                            yAxisID: 'y',
+                            barThickness: 20
+                        },
+                        {
+                            label: 'Gross Profit',
+                            data: sorted.map(d => d.grossProfit),
+                            borderColor: COLORS[1],
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            type: 'line',
+                            yAxisID: 'y',
+                            tension: 0.4,
+                            fill: false,
+                            pointBackgroundColor: COLORS[1],
+                            pointBorderColor: '#000',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF',
+                                font: { family: "'Inter', sans-serif", size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' },
+                            beginAtZero: true
+                        },
+                        x: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create EBITDA vs Net Profit Chart
+        function createProfitChart() {
+            const filtered = getFilteredData();
+            if (!filtered.length) return;
+
+            const sorted = filtered.sort((a, b) => a.year === b.year ? a.quarter - b.quarter : a.year - b.year);
+            const labels = sorted.map(d => `${d.year} Q${d.quarter}`);
+
+            if (chartProfit) chartProfit.destroy();
+
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            chartProfit = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'EBITDA',
+                            data: sorted.map(d => d.ebitda),
+                            backgroundColor: COLORS[2],
+                            borderColor: COLORS[2],
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Net Profit',
+                            data: sorted.map(d => d.netProfit),
+                            backgroundColor: COLORS[3],
+                            borderColor: COLORS[3],
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF',
+                                font: { family: "'Inter', sans-serif", size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' },
+                            stacked: false
+                        },
+                        y: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' },
+                            beginAtZero: true,
+                            stacked: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Margin % Trend Chart
+        function createMarginChart() {
+            const filtered = getFilteredData();
+            if (!filtered.length) return;
+
+            const sorted = filtered.sort((a, b) => a.year === b.year ? a.quarter - b.quarter : a.year - b.year);
+            const labels = sorted.map(d => `${d.year} Q${d.quarter}`);
+
+            if (chartMargin) chartMargin.destroy();
+
+            const ctx = document.getElementById('marginChart').getContext('2d');
+            chartMargin = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Margin %',
+                            data: sorted.map(d => d.avgMarginPct),
+                            borderColor: COLORS[4],
+                            backgroundColor: 'rgba(255, 140, 66, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: COLORS[4],
+                            pointBorderColor: '#000',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF',
+                                font: { family: "'Inter', sans-serif", size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' },
+                            beginAtZero: false,
+                            min: 40,
+                            max: 55
+                        },
+                        x: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Marketing Spend vs Revenue Chart
+        function createMktChart() {
+            const filtered = getFilteredData();
+            if (!filtered.length) return;
+
+            const sorted = filtered.sort((a, b) => a.year === b.year ? a.quarter - b.quarter : a.year - b.year);
+            const labels = sorted.map(d => `${d.year} Q${d.quarter}`);
+
+            if (chartMkt) chartMkt.destroy();
+
+            const ctx = document.getElementById('mktChart').getContext('2d');
+            chartMkt = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: sorted.map(d => d.netRevenue),
+                            backgroundColor: COLORS[1],
+                            borderColor: COLORS[1],
+                            borderWidth: 0,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Marketing Spend',
+                            data: sorted.map(d => d.mktSpend),
+                            backgroundColor: COLORS[5],
+                            borderColor: COLORS[5],
+                            borderWidth: 0,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF',
+                                font: { family: "'Inter', sans-serif", size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' },
+                            beginAtZero: true
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#888888' },
+                            grid: { drawOnChartArea: false },
+                            beginAtZero: true
+                        },
+                        x: {
+                            ticks: { color: '#888888' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update all charts
+        function updateAllCharts() {
+            createRevenueChart();
+            createProfitChart();
+            createMarginChart();
+            createMktChart();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateKPIs();
+            updateAllCharts();
+
+            document.getElementById('yearFilter').addEventListener('change', () => {
+                updateKPIs();
+                updateAllCharts();
+            });
+
+            document.getElementById('quarterFilter').addEventListener('change', () => {
+                updateKPIs();
+                updateAllCharts();
+            });
+        });
+    </script>
+</body>
+</html>

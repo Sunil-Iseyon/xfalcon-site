@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 2. Subscriber Performance</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root { --color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8; }
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);} .logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}
+.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}
+.back-link:hover{text-decoration:underline;}
+.filter-bar{background:#FFF;border-bottom:1px solid var(--color-border);padding:14px 24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.filter-group select{border:1px solid var(--color-border);background:#FFF;color:var(--color-text);padding:7px 10px;border-radius:4px;font-family:inherit;font-size:13px;min-width:130px;}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:7px 10px;border:1px solid var(--color-border);border-radius:4px;background:#FFF;}
+.toggle-switch{width:32px;height:18px;border-radius:10px;background:#CBD5E1;position:relative;transition:background 0.18s ease;}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#FFF;transition:left 0.18s ease;}
+.toggle-switch.active{background:var(--color-primary);} .toggle-switch.active::after{left:16px;}
+.toggle-label{font-size:13px;font-weight:500;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:32px 0 14px 0;display:flex;align-items:center;gap:10px;}
+.section-title:first-of-type{margin-top:8px;}
+.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;margin-bottom:6px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);line-height:1.1;letter-spacing:-0.5px;}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px;}
+.kpi-delta.positive{color:var(--color-positive);} .kpi-delta.negative{color:var(--color-negative);} .kpi-delta.neutral{color:var(--color-neutral);}
+.kpi-stack-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:var(--color-text-muted);}
+.kpi-stack-row .v{color:var(--color-text);font-weight:600;font-variant-numeric:tabular-nums;}
+.charts-row{display:grid;gap:16px;margin-top:8px;}
+.charts-row.two{grid-template-columns:1fr 1fr;}
+.charts-row.split{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.charts-row.two,.charts-row.split{grid-template-columns:1fr;}}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin:0 0 14px 0;}
+.chart-wrap{position:relative;height:280px;}
+.detail-table{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;width:100%;border-collapse:collapse;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.detail-table th{background:var(--color-secondary);color:var(--color-text-on-dark);text-align:left;padding:12px 14px;font-size:13px;font-weight:600;}
+.detail-table td{padding:10px 14px;font-size:13px;border-top:1px solid var(--color-border);}
+.detail-table tr:hover td{background:#F8FAFC;}
+.detail-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);line-height:1.5;}
+.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div>
+      <div class="topbar-title">Falcon Telecom &amp; Media / 2. Subscriber Performance</div>
+      <div class="topbar-subtitle" id="subtitle">Reporting Period: FY 2025</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <label for="yearSel">Year</label>
+    <select id="yearSel" onchange="applyFilters()">
+      <option value="2025" selected>2025</option><option value="2024">2024</option><option value="2023">2023</option>
+      <option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option>
+      <option value="2019">2019</option><option value="2018">2018</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>&nbsp;</label>
+    <div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div>
+  </div>
+  <div class="filter-group">
+    <label for="segSel">Segment</label>
+    <select id="segSel" onchange="applyFilters()">
+      <option value="All" selected>All segments</option><option value="Consumer">Consumer</option><option value="Family">Family</option>
+      <option value="Business Small">Business Small</option><option value="Business Mid">Business Mid</option><option value="Prepaid">Prepaid</option>
+    </select>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-title">Subscriber KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Lifecycle Trends</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Annual Events by Type — 2018–2025</div><div class="chart-wrap"><canvas id="eventsChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">2025 Event Mix</div><div class="chart-wrap"><canvas id="mixChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Demographics &amp; Churn</div>
+  <div class="charts-row two">
+    <div class="chart-card"><div class="chart-title">Active Subs by Segment × Age Band</div><div class="chart-wrap"><canvas id="demoChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Churn Reason Mix</div><div class="chart-wrap"><canvas id="churnChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Annual Lifecycle Events</div>
+  <table class="detail-table">
+    <thead><tr><th>Year</th><th class="num">New Activations</th><th class="num">Port-In</th><th class="num">Reactivations</th><th class="num">Plan Upgrades</th><th class="num">Churn</th><th class="num">Port-Out</th><th class="num">Net Adds</th></tr></thead>
+    <tbody id="annualTable"></tbody>
+  </table>
+
+  <div class="disclaimer">
+    <strong>Data:</strong> FACT_SUBSCRIBER_EVENTS · 1.4M lifecycle events · 8 event types · 2018–2026 ·
+    <strong>Filters:</strong> Inactive subscribers excluded from active counts · Prospect carriers default ·
+    <strong>Notes:</strong> Net Adds = Activations + Port-In + Reactivation − Churn − Port-Out · 8 churn reasons (Price 15.4% leads, near-uniform spread)
+  </div>
+
+</div>
+
+<script>
+// Annual events: [year, new_act, port_in, react, upg, downg, change, churn, port_out]
+var ANNUAL = [
+  [2018, 40931, 13933,  6790, 20730, 10830, 16724, 16392, 10546],
+  [2019, 43783, 14507,  7265, 21829, 11556, 17439, 17389, 11648],
+  [2020, 40925, 13635,  6902, 20664, 10940, 16561, 16324, 10932],
+  [2021, 48693, 16062,  8083, 24259, 12617, 19194, 19263, 12959],
+  [2022, 52363, 17151,  8755, 26060, 13661, 20965, 20616, 13805],
+  [2023, 54958, 18631,  9224, 27521, 14662, 22195, 21844, 14740],
+  [2024, 58139, 19532,  9782, 29351, 15619, 23440, 23162, 15610],
+  [2025, 61852, 20719, 10250, 30807, 16739, 24464, 24798, 16577]
+];
+// Top demo cells (segment, age_band, active_subs)
+var DEMO = [
+  ['Consumer','35-44',8891],['Consumer','25-34',8849],['Consumer','45-54',7029],
+  ['Family','35-44',6184],['Family','25-34',6096],['Family','45-54',4935],
+  ['Consumer','55-64',4247],['Consumer','18-24',3577],['Business Small','25-34',3337],
+  ['Business Small','35-44',3316],['Family','55-64',3039],['Consumer','65+',2660]
+];
+// Churn reasons (lifetime)
+var CHURN_REASONS = [
+  ['Price', 38060], ['Competitor Offer', 34712], ['Financial', 34547], ['Device Issue', 34518],
+  ['Moving', 34344], ['Coverage', 34309], ['Other', 34295], ['Service Quality', 34263]
+];
+
+var state = { year: 2025, compare: false, segment: 'All' };
+
+var chartInstances = {};
+function mk(id, cfg) { if (chartInstances[id]) chartInstances[id].destroy(); var ctx = document.getElementById(id).getContext('2d'); chartInstances[id] = new Chart(ctx, cfg); return chartInstances[id]; }
+function fmt(n, d) { d = (d === undefined) ? 1 : d; return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+function fmtInt(n) { return Math.round(n).toLocaleString('en-US'); }
+function getPalette() { var t = document.documentElement.getAttribute('data-theme') || 'spectrum'; if (t === 'tech') return { primary: '#00D4FF', secondary: '#7C3AED', tertiary: '#94A3B8', ext1: '#7CFF01', ext2: '#FF00C8', grid: 'rgba(255,255,255,0.06)', text: '#F1F5F9', textMuted: '#94A3B8' }; return { primary: '#0099D8', secondary: '#003057', tertiary: '#77787B', ext1: '#0EA5E9', ext2: '#F59E0B', grid: 'rgba(15,23,42,0.05)', text: '#0F172A', textMuted: '#64748B' }; }
+function fitKpiText() { var els = document.querySelectorAll('.kpi-value'); for (var i=0;i<els.length;i++){var l=els[i].textContent.length;els[i].style.fontSize=l>12?'18px':(l>8?'22px':'28px');} }
+function deltaPct(c,p){if(!p)return null;return (c-p)/p*100;}
+function deltaText(d){if(d===null||isNaN(d))return '<div class="kpi-delta neutral">—</div>';var cls=d>0?'positive':(d<0?'negative':'neutral');var arr=d>0?'↑ ':(d<0?'↓ ':'');return '<div class="kpi-delta '+cls+'">'+arr+fmt(Math.abs(d),1)+'% vs LY</div>';}
+function rowFor(yr){for(var i=0;i<ANNUAL.length;i++)if(ANNUAL[i][0]===yr)return ANNUAL[i];return null;}
+function netAdds(r){return r[1]+r[2]+r[3]-r[7]-r[8];}
+function totalAcq(r){return r[1]+r[2]+r[3];}
+function totalChurn(r){return r[7]+r[8];}
+
+function renderKpis() {
+  var grid = document.getElementById('kpiGrid');
+  if (state.compare) {
+    var rows = ANNUAL.filter(function(r){return r[0]>=2023;});
+    grid.innerHTML =
+      kpiCompareCard('Active Subscribers', rows, function(){return 88000;}) + // snapshot, doesn't change by year
+      kpiCompareCard('New Acquisitions', rows, totalAcq) +
+      kpiCompareCard('Gross Churn', rows, totalChurn) +
+      kpiCompareCard('Net Adds', rows, netAdds) +
+      kpiCompareCard('Plan Upgrades', rows, function(r){return r[4];}) +
+      kpiCompareCard('Plan Downgrades', rows, function(r){return r[5];}) +
+      kpiCompareCard('Reactivations', rows, function(r){return r[3];}) +
+      kpiCompareCard('Port-Out (lost)', rows, function(r){return r[8];});
+  } else {
+    var r = rowFor(state.year), p = rowFor(state.year - 1);
+    grid.innerHTML =
+      kpiSingle('Active Subs (snapshot)', '88.0K', null, '88% of 100K base') +
+      kpiSingle('New Acquisitions ' + state.year, fmtInt(totalAcq(r)), p ? deltaPct(totalAcq(r), totalAcq(p)) : null) +
+      kpiSingle('Gross Churn ' + state.year, fmtInt(totalChurn(r)), p ? deltaPct(totalChurn(r), totalChurn(p)) : null) +
+      kpiSingle('Net Adds ' + state.year, fmtInt(netAdds(r)), p ? deltaPct(netAdds(r), netAdds(p)) : null) +
+      kpiSingle('Plan Upgrades ' + state.year, fmtInt(r[4]), p ? deltaPct(r[4], p[4]) : null) +
+      kpiSingle('Plan Downgrades ' + state.year, fmtInt(r[5]), p ? deltaPct(r[5], p[5]) : null) +
+      kpiSingle('Reactivations ' + state.year, fmtInt(r[3]), p ? deltaPct(r[3], p[3]) : null) +
+      kpiSingle('Port-Out ' + state.year, fmtInt(r[8]), p ? deltaPct(r[8], p[8]) : null);
+  }
+  fitKpiText();
+}
+function kpiSingle(label, val, delta, sub) { return '<div class="kpi-card"><div class="kpi-label">'+label+'</div><div class="kpi-value">'+val+'</div>'+(sub?'<div class="kpi-delta neutral">'+sub+'</div>':deltaText(delta))+'</div>'; }
+function kpiCompareCard(label, rows, deriveFn) {
+  var html = '<div class="kpi-card"><div class="kpi-label">'+label+'</div>';
+  var first=null,last=null;
+  for (var i=0;i<rows.length;i++) { var r=rows[i]; var v=deriveFn(r); if (first===null) first=v; last=v;
+    html += '<div class="kpi-stack-row"><span>'+r[0]+'</span><span class="v">'+fmtInt(v)+'</span></div>'; }
+  var n = rows.length-1;
+  if (n>0 && first>0) { var c = (Math.pow(last/first,1/n)-1)*100; var cls=c>0?'positive':(c<0?'negative':'neutral'); html += '<div class="kpi-delta '+cls+'" style="margin-top:8px;">CAGR: '+(c>0?'+':'')+fmt(c,1)+'%</div>'; }
+  return html + '</div>';
+}
+
+function renderEvents() {
+  var p = getPalette();
+  var labels = ANNUAL.map(function(r){return String(r[0]);});
+  mk('eventsChart', { type:'bar',
+    data:{labels:labels, datasets:[
+      {label:'New Activations', data:ANNUAL.map(function(r){return r[1];}), backgroundColor:p.primary, stack:'a'},
+      {label:'Port-In', data:ANNUAL.map(function(r){return r[2];}), backgroundColor:p.secondary, stack:'a'},
+      {label:'Reactivations', data:ANNUAL.map(function(r){return r[3];}), backgroundColor:p.tertiary, stack:'a'},
+      {label:'Churn', data:ANNUAL.map(function(r){return -r[7];}), backgroundColor:p.ext2, stack:'b'},
+      {label:'Port-Out', data:ANNUAL.map(function(r){return -r[8];}), backgroundColor:p.ext1, stack:'b'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}}, tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(Math.abs(c.parsed.y));}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}}, y:{grid:{color:p.grid},ticks:{color:p.textMuted}}}}
+  });
+}
+
+function renderMix() {
+  var p = getPalette();
+  var r = rowFor(state.year) || rowFor(2025);
+  mk('mixChart', { type:'bar',
+    data:{labels:['Activation','Port-In','React.','Upgrade','Downgrade','Change','Churn','Port-Out'],
+          datasets:[{label:'Events ('+r[0]+')', data:[r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8]], backgroundColor:p.primary, borderColor:p.primary, borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return fmtInt(c.parsed.x)+' events';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}}, y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderDemo() {
+  var p = getPalette();
+  var data = DEMO.filter(function(d){return state.segment==='All' || d[0]===state.segment;});
+  var labels = data.map(function(d){return d[0]+' · '+d[1];});
+  mk('demoChart', { type:'bar',
+    data:{labels:labels, datasets:[{label:'Active Subs', data:data.map(function(d){return d[2];}), backgroundColor:p.primary, borderColor:p.primary, borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return fmtInt(c.parsed.x)+' active';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}}, y:{grid:{display:false},ticks:{color:p.text,font:{size:10}}}}}
+  });
+}
+
+function renderChurn() {
+  var p = getPalette();
+  mk('churnChart', { type:'bar',
+    data:{labels:CHURN_REASONS.map(function(r){return r[0];}),
+          datasets:[{label:'Lifetime Churn (count)', data:CHURN_REASONS.map(function(r){return r[1];}), backgroundColor:p.secondary, borderColor:p.secondary, borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return fmtInt(c.parsed.x)+' churns';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}}, y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderTable() {
+  var tbody = document.getElementById('annualTable'); tbody.innerHTML = '';
+  for (var i=0;i<ANNUAL.length;i++) {
+    var r = ANNUAL[i]; var tr = document.createElement('tr');
+    var cells = [String(r[0]), fmtInt(r[1]), fmtInt(r[2]), fmtInt(r[3]), fmtInt(r[4]), fmtInt(r[7]), fmtInt(r[8]), fmtInt(netAdds(r))];
+    var cls = ['','num','num','num','num','num','num','num'];
+    for (var j=0;j<cells.length;j++){var td=document.createElement('td');td.textContent=cells[j];if(cls[j])td.className=cls[j];tr.appendChild(td);}
+    tbody.appendChild(tr);
+  }
+}
+
+function applyFilters() {
+  state.year = parseInt(document.getElementById('yearSel').value, 10);
+  state.segment = document.getElementById('segSel').value;
+  document.getElementById('subtitle').textContent = state.compare ? 'Reporting Period: All Years (Compare)' : 'Reporting Period: FY ' + state.year;
+  renderKpis(); renderEvents(); renderMix(); renderDemo(); renderChurn(); renderTable();
+}
+function toggleCompare(){state.compare=!state.compare;var s=document.getElementById('cmpSwitch');if(state.compare)s.classList.add('active');else s.classList.remove('active');document.getElementById('yearSel').disabled=state.compare;applyFilters();}
+document.addEventListener('DOMContentLoaded', applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

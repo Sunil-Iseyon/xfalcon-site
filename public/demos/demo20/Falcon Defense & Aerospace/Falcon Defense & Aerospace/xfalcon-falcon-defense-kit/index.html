@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / Portfolio Portal</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: var(--color-topbar);
+      color: var(--color-text-on-dark);
+      height: 56px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .logo { font-weight: 800; font-size: 24px; letter-spacing: -0.02em; }
+    .logo-x { color: var(--color-primary); }
+    .logo-f { color: var(--color-secondary); }
+    [data-theme="modern-minimalist"] .logo-x { color: #FFFFFF; }
+    [data-theme="modern-minimalist"] .logo-f { color: #A8B3BD; }
+    [data-theme="clean-light"] .logo-x { color: #60A5FA; }
+    [data-theme="clean-light"] .logo-f { color: #86EFAC; }
+    .topbar-titleblock { display: flex; flex-direction: column; gap: 2px; }
+    .topbar-title { font-size: 16px; font-weight: 600; color: var(--color-text-on-dark); }
+    .topbar-subtitle { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.7); }
+    .topbar-right { display: flex; align-items: center; gap: 20px; }
+
+    /* Filter bar */
+    .filter-bar {
+      background: var(--color-surface-alt);
+      border-bottom: 1px solid var(--color-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+    }
+    .filter-group select {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--color-text);
+      min-width: 140px;
+      cursor: pointer;
+    }
+    .filter-group select:focus { outline: 2px solid var(--color-primary); outline-offset: -1px; }
+
+    /* Main content */
+    .content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin: 32px 0 16px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .section-subtitle {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-top: -12px;
+      margin-bottom: 16px;
+    }
+
+    /* KPI grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+    }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.1;
+    }
+    .kpi-delta { font-size: 13px; font-weight: 500; margin-top: 4px; }
+    .kpi-delta.positive { color: var(--color-positive); }
+    .kpi-delta.negative { color: var(--color-negative); }
+    .kpi-delta.neutral  { color: var(--color-text-muted); }
+
+    /* Chart grid */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .chart-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+    .chart-subtitle {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+    }
+    .chart-canvas-wrap { position: relative; height: 280px; }
+
+    /* Dashboard directory */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .dashboard-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-primary);
+      border-radius: 8px;
+      padding: 20px;
+      text-decoration: none;
+      color: var(--color-text);
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+      display: block;
+      box-shadow: var(--shadow-card);
+    }
+    .dashboard-card:hover {
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-1px);
+    }
+    .dashboard-card-number {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .dashboard-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+    .dashboard-card-desc {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      line-height: 1.45;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--color-positive);
+      color: #FFFFFF;
+      margin-left: 8px;
+      vertical-align: middle;
+      letter-spacing: 0.04em;
+    }
+    .status-badge.pending { background: var(--color-warning); }
+    .status-badge.preview { background: var(--color-info); }
+    .status-badge.ready { background: var(--color-positive); }
+    .dashboard-card.reference { border-left-color: var(--color-secondary); }
+    .dashboard-card.reference .dashboard-card-number { color: var(--color-secondary); }
+
+    /* Disclaimer */
+    .disclaimer {
+      margin-top: 32px;
+      padding: 16px 20px;
+      background: var(--color-surface-alt);
+      border-left: 3px solid var(--color-text-dim);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+    .disclaimer strong { color: var(--color-text); font-weight: 600; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .topbar { padding: 0 16px; }
+      .topbar-subtitle { display: none; }
+      .content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace</div>
+        <div class="topbar-subtitle">Portfolio Portal &middot; Reporting Period: Jan&ndash;Dec 2024</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="filter-group" style="flex-direction:row;align-items:center;gap:8px;">
+        <label for="themeSel" style="color:rgba(255,255,255,0.7);margin:0;">Theme</label>
+        <select id="themeSel">
+          <option value="modern-minimalist">Modern Minimalist</option>
+          <option value="clean-light">Clean Light</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="domainSel">Domain</label>
+      <select id="domainSel">
+        <option value="All">All</option>
+        <option value="Air">Air</option>
+        <option value="Land">Land</option>
+        <option value="Sea">Sea</option>
+        <option value="Space">Space</option>
+        <option value="Cyber">Cyber</option>
+        <option value="Multi-Domain">Multi-Domain</option>
+      </select>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Global filters shown here are for demo context. Drill into a dashboard for interactive filtering.</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- TOP KPI SNAPSHOT -->
+    <div class="section-title">Portfolio Snapshot &mdash; 2024</div>
+    <div class="section-subtitle">Headline figures from FACT_CONTRACT_REVENUE and FACT_PROGRAM_BUDGET (Revised baseline). Validated 2026-04-20.</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Recognized Revenue 2024</div>
+        <div class="kpi-value">$61,789M</div>
+        <div class="kpi-delta negative">&darr; 12.6% vs 2023</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Fee Earned 2024</div>
+        <div class="kpi-value">$2,524M</div>
+        <div class="kpi-delta negative">&darr; 14.4% vs 2023</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Incurred Cost 2024</div>
+        <div class="kpi-value">$63,041M</div>
+        <div class="kpi-delta negative">&darr; 12.6% vs 2023</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Portfolio CPI 2024</div>
+        <div class="kpi-value">0.97</div>
+        <div class="kpi-delta neutral">Target &ge; 1.00</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Portfolio SPI 2024</div>
+        <div class="kpi-value">0.95</div>
+        <div class="kpi-delta neutral">Target &ge; 1.00</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Programs</div>
+        <div class="kpi-value">15</div>
+        <div class="kpi-delta neutral">All domains covered</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Suppliers</div>
+        <div class="kpi-value">198</div>
+        <div class="kpi-delta neutral">T1&middot;10 T2&middot;16 T3&middot;172</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Workforce</div>
+        <div class="kpi-value">3,772</div>
+        <div class="kpi-delta neutral">89.8% of 4,200</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY CHARTS -->
+    <div class="section-title">5-Year Trends</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">Recognized Revenue by Year ($M)</div>
+        <div class="chart-subtitle">2023 peak &middot; 2024 step-down reflects program cycle shift</div>
+        <div class="chart-canvas-wrap"><canvas id="chRev"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">2024 Recognized Revenue by Agency ($M)</div>
+        <div class="chart-subtitle">Top 8 &middot; DoD dominant (97% excl. DHS)</div>
+        <div class="chart-canvas-wrap"><canvas id="chAgency"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Budget vs Actual by Year ($M, Revised baseline)</div>
+        <div class="chart-subtitle">Consistent 1.7&ndash;2.3% overrun &middot; tight portfolio discipline</div>
+        <div class="chart-canvas-wrap"><canvas id="chBudget"></canvas></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD DIRECTORY -->
+    <div class="section-title">Dashboard Directory</div>
+    <div class="section-subtitle">Eight dashboards covering Finance, PMO, Supply Chain, and Workforce. Click any card to drill in.</div>
+    <div class="dashboard-grid">
+      <a href="01-executive-overview.html" class="dashboard-card">
+        <div class="dashboard-card-number">01 &middot; Executive</div>
+        <div class="dashboard-card-title">Executive Overview <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Portfolio P&amp;L snapshot, EVM index averages, top programs/agencies, monthly revenue trend, 5-year Compare Years.</div>
+      </a>
+      <a href="02-program-financial.html" class="dashboard-card">
+        <div class="dashboard-card-number">02 &middot; PMO</div>
+        <div class="dashboard-card-title">Program Financial Performance <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Budget vs Actual vs Forecast by program &times; cost element (Revised only). Original-Revised baseline shift callout.</div>
+      </a>
+      <a href="03-earned-value-management.html" class="dashboard-card">
+        <div class="dashboard-card-number">03 &middot; PMO</div>
+        <div class="dashboard-card-title">Earned Value Management (CPI/SPI) <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Program &amp; contract CPI/SPI with health tiers, monthly trend, top-20 at-risk contracts ranked by CPI.</div>
+      </a>
+      <a href="04-billing-vs-cost.html" class="dashboard-card">
+        <div class="dashboard-card-number">04 &middot; Finance</div>
+        <div class="dashboard-card-title">Billing vs Incurred Cost <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Billed vs Recognized vs Incurred cadence, billing lag, fee realization, FY-end September surge visualization.</div>
+      </a>
+      <a href="05-agency-program-rollups.html" class="dashboard-card">
+        <div class="dashboard-card-number">05 &middot; Finance</div>
+        <div class="dashboard-card-title">Agency &amp; Program Roll-ups <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Revenue by customer agency, program, warfighting domain. Prime vs Mod vs Task Order mix.</div>
+      </a>
+      <a href="06-supply-chain.html" class="dashboard-card">
+        <div class="dashboard-card-number">06 &middot; Supply Chain</div>
+        <div class="dashboard-card-title">Supply Chain Performance <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">OTD by tier, first-pass yield, PPV, sole-source concentration, top-20 at-risk suppliers, DCAA coverage.</div>
+      </a>
+      <a href="07-labor-utilization.html" class="dashboard-card">
+        <div class="dashboard-card-number">07 &middot; Workforce</div>
+        <div class="dashboard-card-title">Labor Utilization &amp; Workforce <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Direct/indirect hours, utilization trend, clearance-level capacity, classified split, facility headcount vs charge hours.</div>
+      </a>
+      <a href="08-contract-portfolio.html" class="dashboard-card">
+        <div class="dashboard-card-number">08 &middot; Business Dev</div>
+        <div class="dashboard-card-title">Contract Portfolio Health <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Contract-type mix (FAR Part 16), ceiling-funded-incurred waterfall, period-of-perf expiry radar, set-aside and vehicle mix.</div>
+      </a>
+    </div>
+
+    <!-- INSIGHT REPORTS (AutoExplore placeholder - populated after run) -->
+    <div class="section-title">Insight Reports</div>
+    <div class="section-subtitle">AutoExplore output &mdash; directed exploration of supply chain vulnerabilities. Builds after the 8 dashboards ship.</div>
+    <div class="dashboard-grid">
+      <a href="autoexplore-dashboard.html" class="dashboard-card" style="border-left-color: var(--color-warning);">
+        <div class="dashboard-card-number" style="color:var(--color-warning);">Evidence Dashboard</div>
+        <div class="dashboard-card-title">Supply Chain Vulnerability Findings <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Finding cards with Chart.js evidence for each hypothesis: tier concentration, sole-source, quality gaps, DCAA risk.</div>
+      </a>
+      <a href="autoexplore-memo.html" class="dashboard-card" style="border-left-color: var(--color-info);">
+        <div class="dashboard-card-number" style="color:var(--color-info);">Long-form Memo</div>
+        <div class="dashboard-card-title">Supply Chain Risk Memo <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Executive narrative with numbered findings, methodology, null results, prioritized recommendations.</div>
+      </a>
+    </div>
+
+    <!-- REFERENCE -->
+    <div class="section-title">Reference</div>
+    <div class="dashboard-grid">
+      <a href="metrics-definitions.html" class="dashboard-card reference">
+        <div class="dashboard-card-number">Reference</div>
+        <div class="dashboard-card-title">Metrics &amp; KPI Definitions <span class="status-badge ready">Ready</span></div>
+        <div class="dashboard-card-desc">Searchable reference for every KPI used across the 8 dashboards &mdash; name, definition, formula, unit, which dashboards use it.</div>
+      </a>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      <strong>Data scope &amp; filters.</strong>
+      Dataset covers 2020-01-01 &rarr; 2024-12-31 (5 full calendar years).
+      Fiscal calendar: US Federal FY (Oct&ndash;Sep).
+      <strong>BUDGET_VERSION = 'Revised'</strong> is applied to all headline program-budget metrics (grain test confirmed 2&times; inflation without this filter).
+      Labor and supply dashboards filter to <strong>IS_ACTIVE = TRUE</strong> on the relevant dimension table.
+      Contract portfolio health uses <strong>PERIOD_OF_PERF_END &ge; CURRENT_DATE</strong> as the "active contract" definition (DIM_CONTRACT has no IS_ACTIVE flag).
+      All dollar values are nominal USD, displayed in millions ($M) unless noted.
+      This is a demo environment &mdash; all classification, agency, and program data is synthetic.
+    </div>
+
+  </main>
+
+  <!-- CHARTS -->
+  <script>
+    var theme = document.documentElement.getAttribute('data-theme') || 'modern-minimalist';
+    var colorPrimary   = theme === 'clean-light' ? '#006AFF' : '#36454F';
+    var colorSecondary = theme === 'clean-light' ? '#1A7F64' : '#708090';
+    var colorTertiary  = '#94A3B8';
+    var colorGridBorder = theme === 'clean-light' ? '#E5E7EB' : '#E2E8F0';
+    var colorAxisText   = theme === 'clean-light' ? '#475569' : '#5A6472';
+
+    Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = colorAxisText;
+
+    var chartInstances = {};
+    function mk(id, cfg) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    // 5-year revenue trend
+    mk('chRev', {
+      type: 'line',
+      data: {
+        labels: ['2020', '2021', '2022', '2023', '2024'],
+        datasets: [{
+          label: 'Recognized Revenue ($M)',
+          data: [49611, 44299, 52193, 70698, 61789],
+          borderColor: colorPrimary,
+          backgroundColor: 'rgba(54, 69, 79, 0.08)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 3,
+          pointRadius: 5,
+          pointBackgroundColor: colorPrimary,
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: { color: colorGridBorder },
+            ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'B'; } }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // 2024 Revenue by Agency (horizontal bar)
+    mk('chAgency', {
+      type: 'bar',
+      data: {
+        labels: ['Army', 'Navy', 'Air Force', 'DARPA', 'DHS', 'Space Force', 'MDA', 'USMC'],
+        datasets: [{
+          label: 'Revenue ($M)',
+          data: [13996, 12996, 10811, 8427, 4699, 4243, 3874, 2744],
+          backgroundColor: colorPrimary,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            grid: { color: colorGridBorder },
+            ticks: { callback: function(v) { return '$' + (v/1000).toFixed(1) + 'B'; } }
+          },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Budget vs Actual by year (grouped bar)
+    mk('chBudget', {
+      type: 'bar',
+      data: {
+        labels: ['2020', '2021', '2022', '2023', '2024'],
+        datasets: [
+          {
+            label: 'Budget (Revised, $M)',
+            data: [6570, 9150, 10898, 11671, 11912],
+            backgroundColor: colorSecondary,
+            borderRadius: 4
+          },
+          {
+            label: 'Actual ($M)',
+            data: [6722, 9313, 11106, 11866, 12148],
+            backgroundColor: colorPrimary,
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 12, boxHeight: 12 } } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: colorGridBorder },
+            ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'B'; } }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  </script>
+
+  <script src="theme.js"></script>
+</body>
+</html>

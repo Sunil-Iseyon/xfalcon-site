@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Retail — Q4 FY2025 Quarterly Business Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1A1A1A;
+            --bg2: #2D2D2D;
+            --bg3: #252525;
+            --gold: #C9A84C;
+            --gold-dim: #8B6F3A;
+            --text: #F5F0E8;
+            --muted: #9A9590;
+            --dim: #6B6560;
+            --green: #4CAF50;
+            --red: #E74C3C;
+            --blue: #6A9BC3;
+            --orange: #E8913A;
+            --purple: #8E6BBF;
+            --teal: #4ECDC4;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* ── Slide System ── */
+        .slide {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            padding: 2.5rem 3.5rem;
+            position: absolute;
+            top: 0; left: 0;
+            overflow-y: auto;
+            animation: fadeIn 0.4s ease;
+        }
+        .slide.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Navigation Bar ── */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--bg2);
+            border-top: 2px solid var(--gold-dim);
+            padding: 0.6rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+        .nav-bar .nav-left { display: flex; align-items: center; gap: 1rem; }
+        .nav-bar .nav-center { display: flex; gap: 6px; }
+        .nav-bar .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .nav-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--gold-dim);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .nav-dot.active { background: var(--gold); transform: scale(1.3); }
+        .nav-dot:hover { background: var(--gold); }
+        .nav-btn {
+            background: none;
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            padding: 0.4rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover { background: var(--gold); color: var(--bg); }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+        .nav-btn:disabled:hover { background: none; color: var(--gold); }
+        .slide-counter { font-size: 0.8rem; color: var(--muted); min-width: 60px; text-align: center; }
+        .home-link { color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold-dim); padding: 0.3rem 0.8rem; border-radius: 4px; }
+        .home-link:hover { background: var(--gold); color: var(--bg); }
+
+        /* ── Slide Layouts ── */
+        .slide-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.25rem;
+        }
+        .slide-subtitle {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+        }
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .kpi {
+            background: var(--bg3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            padding: 1.1rem 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--gold);
+        }
+        .kpi-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.4rem; }
+        .kpi-val { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; color: var(--gold); line-height: 1.1; }
+        .kpi-chg { font-size: 0.75rem; margin-top: 0.3rem; font-weight: 600; }
+        .kpi-chg.up { color: var(--green); }
+        .kpi-chg.down { color: var(--red); }
+        .kpi-chg.flat { color: var(--muted); }
+        .charts-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; flex: 1; min-height: 0; }
+        .charts-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; flex: 1; min-height: 0; }
+        .charts-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 1.25rem; flex: 1; min-height: 0; }
+        .chart-box {
+            background: var(--bg3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .chart-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+            flex-shrink: 0;
+        }
+        .chart-wrap { flex: 1; position: relative; min-height: 0; }
+        .chart-wrap canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+
+        /* ── Tables ── */
+        .data-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .data-tbl th { padding: 0.6rem 0.75rem; text-align: left; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--gold-dim); background: rgba(201,168,76,0.05); }
+        .data-tbl td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(139,111,58,0.2); }
+        .data-tbl tr:hover { background: rgba(201,168,76,0.03); }
+        .pos { color: var(--green); font-weight: 600; }
+        .neg { color: var(--red); font-weight: 600; }
+
+        /* ── Title Slide ── */
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .title-diamond {
+            width: 56px; height: 56px;
+            border: 2px solid var(--gold);
+            transform: rotate(45deg);
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+        .title-diamond::after {
+            content: '';
+            position: absolute;
+            top: 8px; left: 8px; right: 8px; bottom: 8px;
+            background: var(--gold);
+            opacity: 0.2;
+        }
+        .title-main {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .title-sub {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .title-period {
+            font-size: 1rem;
+            color: var(--muted);
+            letter-spacing: 2px;
+            margin-bottom: 2.5rem;
+        }
+        .title-meta { font-size: 0.85rem; color: var(--dim); }
+
+        /* ── Insight Callout ── */
+        .insight {
+            background: rgba(201,168,76,0.06);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 6px 6px 0;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+        .insight strong { color: var(--gold); }
+
+        /* ── Quadrant Boxes ── */
+        .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; flex: 1; }
+        .quad-box {
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        .quad-box h4 { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .quad-item { font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text); }
+        .quad-item strong { color: inherit; }
+
+        /* ── Full-width chart ── */
+        .chart-full {
+            background: var(--bg3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .chart-full h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        /* hide scrollbar on slides */
+        .slide::-webkit-scrollbar { display: none; }
+        .slide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* bottom padding for nav bar */
+        .slide { padding-bottom: 4.5rem; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════ SLIDE 0: TITLE ═══════════ -->
+<div class="slide title-slide active" data-slide="0">
+    <div class="title-diamond"></div>
+    <div class="title-main">Falcon Retail</div>
+    <div class="title-sub">Quarterly Business Review</div>
+    <div class="title-period">Q4 FY2025 &nbsp;|&nbsp; November 2025 — January 2026</div>
+    <div class="title-meta">Presented March 17, 2026 &nbsp;&middot;&nbsp; Data as of January 31, 2026</div>
+</div>
+
+<!-- ═══════════ SLIDE 1: EXECUTIVE SUMMARY ═══════════ -->
+<div class="slide" data-slide="1">
+    <div class="slide-title">Executive Summary</div>
+    <div class="slide-subtitle">Q4 FY2025 Performance vs Prior Quarter, Prior Year, and Plan</div>
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi-label">Net Sales</div>
+            <div class="kpi-val">$62.3M</div>
+            <div class="kpi-chg down">-0.3% vs Q3 &nbsp;|&nbsp; -7.0% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Gross Margin</div>
+            <div class="kpi-val">$26.1M</div>
+            <div class="kpi-chg down">-0.2% vs Q3 &nbsp;|&nbsp; -6.9% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Margin Rate</div>
+            <div class="kpi-val">41.8%</div>
+            <div class="kpi-chg flat">+0.1pp vs Q3 &nbsp;|&nbsp; +0.0pp vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Transactions</div>
+            <div class="kpi-val">161.5K</div>
+            <div class="kpi-chg down">+0.1% vs Q3 &nbsp;|&nbsp; -6.8% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Units Sold</div>
+            <div class="kpi-val">403.4K</div>
+            <div class="kpi-chg flat">+0.0% vs Q3 &nbsp;|&nbsp; -6.9% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Avg Transaction</div>
+            <div class="kpi-val">$385.82</div>
+            <div class="kpi-chg down">-0.5% vs Q3 &nbsp;|&nbsp; -0.2% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Customers</div>
+            <div class="kpi-val">72.1K</div>
+            <div class="kpi-chg down">+0.2% vs Q3 &nbsp;|&nbsp; -3.0% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">vs Plan</div>
+            <div class="kpi-val" style="font-size:1.5rem;">$62.3M / $60.9M</div>
+            <div class="kpi-chg up">+2.4% above plan</div>
+        </div>
+    </div>
+    <div class="insight"><strong>Key Takeaway:</strong> Q4 finished flat vs Q3 and beat plan by 2.4%, but trails LY by 7% across all metrics. Margin rate held steady at 41.8% despite increased promotional activity. Customer count erosion of 3% YoY is the primary concern.</div>
+    <div class="charts-2" style="margin-top:1rem;">
+        <div class="chart-box">
+            <h3>Quarterly Net Sales Trend</h3>
+            <div class="chart-wrap"><canvas id="c1-qtrSales"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Quarterly Margin Trend</h3>
+            <div class="chart-wrap"><canvas id="c1-qtrMargin"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ SLIDE 2: MONTHLY TREND ═══════════ -->
+<div class="slide" data-slide="2">
+    <div class="slide-title">Monthly Revenue Trajectory</div>
+    <div class="slide-subtitle">FY2025 vs FY2026 month-by-month comparison</div>
+    <div class="chart-full" style="flex:1;">
+        <h3>Monthly Net Sales — FY2025 vs FY2026</h3>
+        <div class="chart-wrap"><canvas id="c2-monthly"></canvas></div>
+    </div>
+    <div class="insight"><strong>Trend:</strong> December was the Q4 peak at $21.4M, consistent with seasonal holiday patterns. November and January bookended at ~$19.7M–$21.2M. FY2026 months are tracking in line with FY2025 through the first quarter.</div>
+</div>
+
+<!-- ═══════════ SLIDE 3: CATEGORY PERFORMANCE ═══════════ -->
+<div class="slide" data-slide="3">
+    <div class="slide-title">Category Performance</div>
+    <div class="slide-subtitle">Q4 FY2025 vs Q4 FY2024 (Prior Year) by product category</div>
+    <div class="charts-2">
+        <div class="chart-box">
+            <h3>Net Sales by Category — Q4 FY2025 vs Q4 FY2024</h3>
+            <div class="chart-wrap"><canvas id="c3-catSales"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Category Detail</h3>
+            <div style="overflow-y:auto;flex:1;">
+                <table class="data-tbl">
+                    <thead><tr><th>Category</th><th>Q4 FY25</th><th>Q4 FY24</th><th>YoY %</th><th>Margin</th></tr></thead>
+                    <tbody id="tbl-cat"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="insight"><strong>Insight:</strong> All 8 categories declined YoY (5–7%). Bottoms held up best (-5.1%), while Activewear saw the steepest drop (-5.3%). Margin rates remained stable across all categories at ~41.5–42.2%.</div>
+</div>
+
+<!-- ═══════════ SLIDE 4: CHANNEL MIX ═══════════ -->
+<div class="slide" data-slide="4">
+    <div class="slide-title">Channel Performance</div>
+    <div class="slide-subtitle">Q4 FY2025 channel mix vs prior year and current quarter</div>
+    <div class="charts-2">
+        <div class="chart-box">
+            <h3>Channel Revenue — Q4 FY2025</h3>
+            <div class="chart-wrap"><canvas id="c4-channelBar"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Channel Mix Share</h3>
+            <div class="chart-wrap"><canvas id="c4-channelDoughnut"></canvas></div>
+        </div>
+    </div>
+    <div class="insight"><strong>Channel Shift:</strong> Curbside led in Q4 ($12.6M), overtaking In-Store which dropped to 5th. Digital channels (E-Commerce + Mobile App + BOPIS) captured 60.2% of total sales. In-Store share declined from 20.2% LY to 19.7%.</div>
+</div>
+
+<!-- ═══════════ SLIDE 5: REGIONAL ═══════════ -->
+<div class="slide" data-slide="5">
+    <div class="slide-title">Regional Performance</div>
+    <div class="slide-subtitle">Q4 FY2025 vs Q4 FY2024 by region</div>
+    <div class="charts-2">
+        <div class="chart-box">
+            <h3>Regional Revenue — TY vs LY</h3>
+            <div class="chart-wrap"><canvas id="c5-region"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Regional Breakdown</h3>
+            <div style="overflow-y:auto;flex:1;">
+                <table class="data-tbl">
+                    <thead><tr><th>Region</th><th>Q4 FY25</th><th>Q4 FY24</th><th>YoY %</th><th>Share</th></tr></thead>
+                    <tbody id="tbl-region"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="insight"><strong>Regional:</strong> Southeast remains the #1 region at $17.4M (27.9% share) but declined 7.4% YoY. Southwest saw the largest decline at 8.1%. Mountain held steady as the smallest region at $2.5M.</div>
+</div>
+
+<!-- ═══════════ SLIDE 6: STORE LEADERBOARD ═══════════ -->
+<div class="slide" data-slide="6">
+    <div class="slide-title">Store Leaderboard</div>
+    <div class="slide-subtitle">Top 15 stores by net sales — Q4 FY2025</div>
+    <div class="chart-box" style="flex:1;">
+        <h3>Top 15 Stores by Net Sales</h3>
+        <div class="chart-wrap"><canvas id="c6-stores"></canvas></div>
+    </div>
+    <div class="insight"><strong>Top Performer:</strong> Arcline St. Louis led the quarter at $2.57M, followed closely by Boston ($2.55M) and Portland ($2.54M). The top 15 stores are tightly clustered within a $85K range — performance is well-distributed.</div>
+</div>
+
+<!-- ═══════════ SLIDE 7: ECOMMERCE & TRAFFIC ═══════════ -->
+<div class="slide" data-slide="7">
+    <div class="slide-title">Digital & Store Traffic</div>
+    <div class="slide-subtitle">E-Commerce sessions, conversion, and in-store foot traffic</div>
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi-label">E-Com Sessions</div>
+            <div class="kpi-val">2.43M</div>
+            <div class="kpi-chg down">-5.5% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">E-Com Orders</div>
+            <div class="kpi-val">150.3K</div>
+            <div class="kpi-chg down">-4.1% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">E-Com Conversion</div>
+            <div class="kpi-val">5.27%</div>
+            <div class="kpi-chg up">+0.09pp vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">E-Com Revenue</div>
+            <div class="kpi-val">$24.1M</div>
+            <div class="kpi-chg down">-3.2% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Store Traffic</div>
+            <div class="kpi-val">1.16M</div>
+            <div class="kpi-chg down">-5.4% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Store Conversion</div>
+            <div class="kpi-val">24.8%</div>
+            <div class="kpi-chg flat">-0.1pp vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Avg Basket</div>
+            <div class="kpi-val">$98.82</div>
+            <div class="kpi-chg up">+1.9% vs LY</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Email Captures</div>
+            <div class="kpi-val">33.1K</div>
+            <div class="kpi-chg down">-5.6% vs LY</div>
+        </div>
+    </div>
+    <div class="charts-2" style="flex:1;">
+        <div class="chart-box">
+            <h3>E-Commerce: Sessions vs Orders</h3>
+            <div class="chart-wrap"><canvas id="c7-ecom"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Store Traffic & Conversion</h3>
+            <div class="chart-wrap"><canvas id="c7-traffic"></canvas></div>
+        </div>
+    </div>
+    <div class="insight"><strong>Digital Health:</strong> Despite session decline, e-com conversion improved to 5.27%. Store basket size grew +1.9% — customers visiting stores are spending more per trip. Email capture decline (-5.6%) mirrors traffic trends.</div>
+</div>
+
+<!-- ═══════════ SLIDE 8: INVENTORY HEALTH ═══════════ -->
+<div class="slide" data-slide="8">
+    <div class="slide-title">Inventory Health</div>
+    <div class="slide-subtitle">Sell-through rates, weeks of supply, and markdown depth by category — Q4 FY2025</div>
+    <div class="charts-2">
+        <div class="chart-box">
+            <h3>Sell-Through Rate by Category</h3>
+            <div class="chart-wrap"><canvas id="c8-str"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Weeks of Supply vs Markdown Depth</h3>
+            <div class="chart-wrap"><canvas id="c8-wos"></canvas></div>
+        </div>
+    </div>
+    <div class="insight"><strong>Inventory Risk:</strong> Footwear (86.5% STR) and Denim (82.3%) are star performers. Bottoms (34.8% STR) and Outerwear (44.3%) need aggressive clearance. Stockout events concentrated in Activewear (89) suggesting demand forecasting gaps.</div>
+</div>
+
+<!-- ═══════════ SLIDE 9: CUSTOMER & LOYALTY ═══════════ -->
+<div class="slide" data-slide="9">
+    <div class="slide-title">Customer & Loyalty</div>
+    <div class="slide-subtitle">Loyalty tier performance — Q4 FY2025 vs Q4 FY2024</div>
+    <div class="charts-2">
+        <div class="chart-box">
+            <h3>Revenue by Loyalty Tier</h3>
+            <div class="chart-wrap"><canvas id="c9-loyalty"></canvas></div>
+        </div>
+        <div class="chart-box">
+            <h3>Loyalty Tier Detail</h3>
+            <div style="overflow-y:auto;flex:1;">
+                <table class="data-tbl">
+                    <thead><tr><th>Tier</th><th>Customers</th><th>Revenue</th><th>$/Customer</th><th>YoY Rev %</th></tr></thead>
+                    <tbody id="tbl-loyalty"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="insight"><strong>Loyalty:</strong> Bronze tier dominates at 68.4% of revenue but spend per customer fell 4.3% YoY ($938→$897). Platinum showed the strongest retention (nearly flat customer count) but spend per customer dropped 6.2%. Opportunity: re-engage lapsed Silver/Gold members.</div>
+</div>
+
+<!-- ═══════════ SLIDE 10: PLAN ATTAINMENT ═══════════ -->
+<div class="slide" data-slide="10">
+    <div class="slide-title">Plan Attainment</div>
+    <div class="slide-subtitle">Q4 FY2025 actual vs planned targets by fiscal period</div>
+    <div class="chart-full" style="flex:1;">
+        <h3>Monthly Sales: Actual vs Plan — FY2025 Q4</h3>
+        <div class="chart-wrap"><canvas id="c10-plan"></canvas></div>
+    </div>
+    <div class="insight"><strong>Plan Performance:</strong> Q4 beat overall sales plan by +2.4% ($62.3M vs $60.9M plan). All three months of the quarter exceeded their individual targets: November +44.6%, December +56.5%, January +55.6%. Strong execution across all periods.</div>
+</div>
+
+<!-- ═══════════ SLIDE 11: KEY ACTIONS ═══════════ -->
+<div class="slide" data-slide="11">
+    <div class="slide-title">Key Actions & Outlook</div>
+    <div class="slide-subtitle">Strategic priorities for Q1 FY2026 based on Q4 results</div>
+    <div class="quad-grid">
+        <div class="quad-box" style="background:rgba(76,175,80,0.06);border:1px solid var(--green);">
+            <h4 style="color:var(--green);">Accelerate</h4>
+            <div class="quad-item"><strong>Footwear & Denim:</strong> Highest STR and GMROI — increase OTB allocation by 15%</div>
+            <div class="quad-item"><strong>Curbside channel:</strong> #1 channel by revenue — invest in curbside infrastructure and staffing</div>
+            <div class="quad-item"><strong>E-Commerce conversion:</strong> Up +0.09pp YoY — double down on UX improvements and personalization</div>
+        </div>
+        <div class="quad-box" style="background:rgba(231,76,60,0.06);border:1px solid var(--red);">
+            <h4 style="color:var(--red);">Fix</h4>
+            <div class="quad-item"><strong>Bottoms inventory:</strong> 34.8% STR — launch 20%+ markdown clearance event</div>
+            <div class="quad-item"><strong>Customer erosion:</strong> -3% YoY unique customers — activate win-back campaign for lapsed buyers</div>
+            <div class="quad-item"><strong>Activewear stockouts:</strong> 89 events — improve demand forecasting and safety stock levels</div>
+        </div>
+        <div class="quad-box" style="background:rgba(201,168,76,0.06);border:1px solid var(--gold);">
+            <h4 style="color:var(--gold);">Monitor</h4>
+            <div class="quad-item"><strong>In-Store channel:</strong> Share declining (20.2%→19.7%) — evaluate store experience investments</div>
+            <div class="quad-item"><strong>Outerwear:</strong> Largest inventory position, lowest STR — seasonal clearance timing critical</div>
+            <div class="quad-item"><strong>Bronze loyalty spend:</strong> -4.3% per customer — are we over-promoting to price-sensitive segment?</div>
+        </div>
+        <div class="quad-box" style="background:rgba(106,155,195,0.06);border:1px solid var(--blue);">
+            <h4 style="color:var(--blue);">Explore</h4>
+            <div class="quad-item"><strong>Mobile App growth:</strong> 3rd largest channel — test exclusive app-only promotions</div>
+            <div class="quad-item"><strong>Platinum tier expansion:</strong> Only 1,819 customers — create targeted upgrade path from Gold</div>
+            <div class="quad-item"><strong>Regional rebalancing:</strong> Mountain region underserved — evaluate market expansion</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ NAV BAR ═══════════ -->
+<div class="nav-bar">
+    <div class="nav-left">
+        <a href="index.html" class="home-link">← Home</a>
+    </div>
+    <div class="nav-center" id="nav-dots"></div>
+    <div class="nav-right">
+        <button class="nav-btn" id="btn-prev" onclick="goSlide(current-1)">← Prev</button>
+        <span class="slide-counter" id="slide-counter"></span>
+        <button class="nav-btn" id="btn-next" onclick="goSlide(current+1)">Next →</button>
+    </div>
+</div>
+
+<script>
+// ─── Slide Navigation ───
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let current = 0;
+
+function goSlide(n) {
+    if (n < 0 || n >= totalSlides) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    updateNav();
+    // Trigger chart resize for the new slide
+    setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 50);
+}
+
+function updateNav() {
+    document.getElementById('slide-counter').textContent = (current + 1) + ' / ' + totalSlides;
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === totalSlides - 1;
+    document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+}
+
+// Build dots
+const dotsContainer = document.getElementById('nav-dots');
+for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goSlide(i);
+    dotsContainer.appendChild(dot);
+}
+updateNav();
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goSlide(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goSlide(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); goSlide(0); }
+    if (e.key === 'End') { e.preventDefault(); goSlide(totalSlides - 1); }
+});
+
+// ─── Chart Colors & Helpers ───
+const CC = ['#C9A84C','#6A9BC3','#5BA67D','#E8913A','#C75B5B','#8E6BBF','#4ECDC4','#D4A843'];
+const chartOpts = (extra = {}) => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#F5F0E8', font: { size: 10 } } }, ...extra.plugins },
+    scales: extra.scales || {}
+});
+const axColor = { ticks: { color: '#9A9590', font: { size: 9 } }, grid: { color: 'rgba(139,111,58,0.15)' } };
+const axClean = { ticks: { color: '#9A9590', font: { size: 9 } }, grid: { display: false } };
+const fmtM = v => '$' + (v/1e6).toFixed(1) + 'M';
+const fmtK = v => (v/1e3).toFixed(0) + 'K';
+
+// ─── SLIDE 1: Executive Summary Charts ───
+new Chart(document.getElementById('c1-qtrSales'), {
+    type: 'bar',
+    data: {
+        labels: ['Q4 FY24', 'Q3 FY25', 'Q4 FY25', 'Q1 FY26'],
+        datasets: [{
+            label: 'Net Sales',
+            data: [67023169, 62546032, 62327866, 62823208],
+            backgroundColor: ['#6A9BC3', '#6A9BC3', '#C9A84C', '#6A9BC388'],
+            borderRadius: 4
+        }]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, x: axClean } }
+});
+
+new Chart(document.getElementById('c1-qtrMargin'), {
+    type: 'bar',
+    data: {
+        labels: ['Q4 FY24', 'Q3 FY25', 'Q4 FY25', 'Q1 FY26'],
+        datasets: [
+            { label: 'Gross Margin', data: [28019556, 26138549, 26073704, 26331078], backgroundColor: ['#5BA67D', '#5BA67D', '#C9A84C', '#5BA67D88'], borderRadius: 4 },
+            { label: 'Margin %', data: [41.8, 41.8, 41.8, 41.9], type: 'line', borderColor: '#E8913A', backgroundColor: '#E8913A', pointRadius: 5, yAxisID: 'y1' }
+        ]
+    },
+    options: {
+        ...chartOpts(),
+        scales: {
+            y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } },
+            y1: { position: 'right', min: 40, max: 43, ticks: { color: '#E8913A', callback: v => v + '%' }, grid: { display: false } },
+            x: axClean
+        }
+    }
+});
+
+// ─── SLIDE 2: Monthly Trend ───
+const fy25Months = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
+const fy25Sales = [18812225,21305184,20803500,20963463,20575572,21185441,21324264,20410336,21525184,20420862,21363153,21225168];
+const fy26Sales = [19555167,21096463,20747653,21257124,20655622,21231715,21125138,20391464,21148347,20592654,20655764,null];
+new Chart(document.getElementById('c2-monthly'), {
+    type: 'line',
+    data: {
+        labels: fy25Months,
+        datasets: [
+            { label: 'FY2025', data: fy25Sales, borderColor: '#C9A84C', backgroundColor: 'rgba(201,168,76,0.08)', fill: true, tension: 0.3, pointRadius: 4 },
+            { label: 'FY2026', data: fy26Sales, borderColor: '#6A9BC3', backgroundColor: 'rgba(106,155,195,0.08)', fill: true, tension: 0.3, pointRadius: 4, borderDash: [5,3] }
+        ]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, x: axClean } }
+});
+
+// ─── SLIDE 3: Category Performance ───
+const cats25 = [
+    {c:'Bottoms',s25:8241180,s24:8682537,m25:3476911,m24:3617970},
+    {c:'Outerwear',s25:8164580,s24:8789790,m25:3425688,m24:3686582},
+    {c:'Footwear',s25:8074832,s24:8703054,m25:3394574,m24:3628826},
+    {c:'Tops',s25:7990183,s24:8608852,m25:3345237,m24:3607611},
+    {c:'Accessories',s25:7863068,s24:8484140,m25:3309463,m24:3549652},
+    {c:'Denim',s25:7512300,s24:8202286,m25:3112246,m24:3450605},
+    {c:'Loungewear',s25:7310192,s24:7980355,m25:3026382,m24:3322967},
+    {c:'Activewear',s25:7171531,s24:7572156,m25:2983204,m24:3155343}
+];
+new Chart(document.getElementById('c3-catSales'), {
+    type: 'bar',
+    data: {
+        labels: cats25.map(c=>c.c),
+        datasets: [
+            { label: 'Q4 FY25', data: cats25.map(c=>c.s25), backgroundColor: '#C9A84C', borderRadius: 4 },
+            { label: 'Q4 FY24', data: cats25.map(c=>c.s24), backgroundColor: '#6A9BC388', borderRadius: 4 }
+        ]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, x: axClean } }
+});
+// Populate cat table
+const catTbody = document.getElementById('tbl-cat');
+cats25.forEach(c => {
+    const yoy = ((c.s25 - c.s24)/c.s24*100).toFixed(1);
+    const mPct = (c.m25/c.s25*100).toFixed(1);
+    catTbody.insertAdjacentHTML('beforeend', `<tr>
+        <td style="font-weight:600">${c.c}</td>
+        <td>${fmtM(c.s25)}</td><td>${fmtM(c.s24)}</td>
+        <td class="${yoy>=0?'pos':'neg'}">${yoy}%</td>
+        <td>${mPct}%</td>
+    </tr>`);
+});
+
+// ─── SLIDE 4: Channel Performance ───
+const ch25 = [{c:'Curbside',s:12615502},{c:'BOPIS',s:12608683},{c:'Mobile App',s:12456648},{c:'E-Commerce',s:12364790},{c:'In-Store',s:12282243}];
+new Chart(document.getElementById('c4-channelBar'), {
+    type: 'bar',
+    data: {
+        labels: ch25.map(c=>c.c),
+        datasets: [{ label: 'Net Sales', data: ch25.map(c=>c.s), backgroundColor: CC, borderRadius: 4 }]
+    },
+    options: { indexAxis: 'y', ...chartOpts(), scales: { x: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, y: axClean } }
+});
+new Chart(document.getElementById('c4-channelDoughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: ch25.map(c=>c.c),
+        datasets: [{ data: ch25.map(c=>c.s), backgroundColor: CC, borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#F5F0E8', font: { size: 10 } }, position: 'bottom' } } }
+});
+
+// ─── SLIDE 5: Regional ───
+const regions = [
+    {r:'Southeast',s25:17403098,s24:18790111},
+    {r:'West',s25:14993295,s24:15949552},
+    {r:'Midwest',s25:10036642,s24:10801123},
+    {r:'Southwest',s25:9964119,s24:10843772},
+    {r:'Northeast',s25:7427517,s24:7928856},
+    {r:'Mountain',s25:2503195,s24:2709754}
+];
+new Chart(document.getElementById('c5-region'), {
+    type: 'bar',
+    data: {
+        labels: regions.map(r=>r.r),
+        datasets: [
+            { label: 'Q4 FY25', data: regions.map(r=>r.s25), backgroundColor: '#C9A84C', borderRadius: 4 },
+            { label: 'Q4 FY24', data: regions.map(r=>r.s24), backgroundColor: '#6A9BC388', borderRadius: 4 }
+        ]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, x: axClean } }
+});
+const regTbody = document.getElementById('tbl-region');
+const totalReg = regions.reduce((a,r)=>a+r.s25,0);
+regions.forEach(r => {
+    const yoy = ((r.s25-r.s24)/r.s24*100).toFixed(1);
+    regTbody.insertAdjacentHTML('beforeend', `<tr>
+        <td style="font-weight:600">${r.r}</td>
+        <td>${fmtM(r.s25)}</td><td>${fmtM(r.s24)}</td>
+        <td class="${yoy>=0?'pos':'neg'}">${yoy}%</td>
+        <td>${(r.s25/totalReg*100).toFixed(1)}%</td>
+    </tr>`);
+});
+
+// ─── SLIDE 6: Store Leaderboard ───
+const stores = [
+    {n:'St. Louis',s:2565781},{n:'Boston',s:2547244},{n:'Portland',s:2542092},
+    {n:'Minneapolis',s:2539258},{n:'Orlando',s:2536352},{n:'Seattle',s:2528701},
+    {n:'San Diego',s:2526665},{n:'Phoenix',s:2519095},{n:'Los Angeles',s:2512049},
+    {n:'Dallas',s:2511183},{n:'Charlotte',s:2506662},{n:'Denver',s:2503195},
+    {n:'Atlanta',s:2487956},{n:'Houston',s:2480697},{n:'Tampa',s:2480200}
+];
+new Chart(document.getElementById('c6-stores'), {
+    type: 'bar',
+    data: {
+        labels: stores.map(s=>'Arcline '+s.n),
+        datasets: [{ label: 'Net Sales', data: stores.map(s=>s.s), backgroundColor: stores.map((_,i) => i===0?'#C9A84C':i<3?'#5BA67D':'#6A9BC3'), borderRadius: 4 }]
+    },
+    options: { indexAxis: 'y', ...chartOpts(), scales: { x: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, y: { ...axClean, ticks: { ...axClean.ticks, font: { size: 9 } } } } }
+});
+
+// ─── SLIDE 7: E-Commerce & Traffic ───
+new Chart(document.getElementById('c7-ecom'), {
+    type: 'bar',
+    data: {
+        labels: ['Q4 FY24', 'Q4 FY25'],
+        datasets: [
+            { label: 'Sessions', data: [2576523, 2434211], backgroundColor: '#6A9BC3', borderRadius: 4 },
+            { label: 'Orders', data: [156725, 150257], backgroundColor: '#C9A84C', borderRadius: 4 }
+        ]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtK } }, x: axClean } }
+});
+new Chart(document.getElementById('c7-traffic'), {
+    type: 'bar',
+    data: {
+        labels: ['Q4 FY24', 'Q4 FY25'],
+        datasets: [
+            { label: 'Visitors', data: [1221002, 1155368], backgroundColor: '#5BA67D', borderRadius: 4, yAxisID: 'y' },
+            { label: 'Conversion %', data: [24.84, 24.76], type: 'line', borderColor: '#E8913A', backgroundColor: '#E8913A', pointRadius: 6, yAxisID: 'y1' }
+        ]
+    },
+    options: {
+        ...chartOpts(),
+        scales: {
+            y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtK } },
+            y1: { position: 'right', min: 24, max: 26, ticks: { color: '#E8913A', callback: v => v + '%' }, grid: { display: false } },
+            x: axClean
+        }
+    }
+});
+
+// ─── SLIDE 8: Inventory Health ───
+const inv = [
+    {c:'Footwear',str:86.5,wos:14.2,md:43.3,so:24},
+    {c:'Denim',str:82.3,wos:16.4,md:41.2,so:18},
+    {c:'Accessories',str:70.8,wos:16.8,md:35.3,so:33},
+    {c:'Loungewear',str:63.5,wos:17.6,md:31.8,so:10},
+    {c:'Activewear',str:62.0,wos:14.7,md:31.0,so:89},
+    {c:'Tops',str:58.4,wos:16.3,md:29.1,so:26},
+    {c:'Outerwear',str:44.3,wos:15.2,md:22.2,so:74},
+    {c:'Bottoms',str:34.8,wos:15.8,md:17.3,so:27}
+];
+new Chart(document.getElementById('c8-str'), {
+    type: 'bar',
+    data: {
+        labels: inv.map(i=>i.c),
+        datasets: [{ label: 'Sell-Through %', data: inv.map(i=>i.str), backgroundColor: inv.map(i => i.str>=70?'#4CAF50':i.str>=50?'#F39C12':'#E74C3C'), borderRadius: 4 }]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, max: 100, ticks: { ...axColor.ticks, callback: v=>v+'%' } }, x: axClean } }
+});
+new Chart(document.getElementById('c8-wos'), {
+    type: 'bubble',
+    data: {
+        datasets: inv.map((d,i) => ({
+            label: d.c,
+            data: [{ x: d.wos, y: d.md, r: Math.max(6, d.so/8) }],
+            backgroundColor: CC[i] + '99',
+            borderColor: CC[i], borderWidth: 2
+        }))
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color:'#F5F0E8', font:{size:9}, boxWidth:10 }, position:'bottom' },
+            tooltip: { callbacks: { label: ctx => { const d = inv[ctx.datasetIndex]; return `${d.c}: WOS ${d.wos}, MD ${d.md}%, Stockouts ${d.so}`; } } }
+        },
+        scales: {
+            x: { ...axColor, title: { display:true, text:'Weeks of Supply', color:'#C9A84C', font:{size:10} } },
+            y: { ...axColor, title: { display:true, text:'Markdown Depth %', color:'#C9A84C', font:{size:10} }, ticks: { ...axColor.ticks, callback: v=>v+'%' } }
+        }
+    }
+});
+
+// ─── SLIDE 9: Customer & Loyalty ───
+const loy = [
+    {t:'Bronze',c25:47507,s25:42627502,c24:49200,s24:46142946},
+    {t:'Silver',c25:15390,s25:12225700,c24:15722,s24:12921547},
+    {t:'Gold',c25:7377,s25:5945404,c24:7608,s24:6325838},
+    {t:'Platinum',c25:1819,s25:1529260,c24:1821,s24:1632838}
+];
+new Chart(document.getElementById('c9-loyalty'), {
+    type: 'bar',
+    data: {
+        labels: loy.map(l=>l.t),
+        datasets: [
+            { label: 'Q4 FY25', data: loy.map(l=>l.s25), backgroundColor: '#C9A84C', borderRadius: 4 },
+            { label: 'Q4 FY24', data: loy.map(l=>l.s24), backgroundColor: '#6A9BC388', borderRadius: 4 }
+        ]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, x: axClean } }
+});
+const loyTbody = document.getElementById('tbl-loyalty');
+loy.forEach(l => {
+    const yoy = ((l.s25-l.s24)/l.s24*100).toFixed(1);
+    loyTbody.insertAdjacentHTML('beforeend', `<tr>
+        <td style="font-weight:600">${l.t}</td>
+        <td>${(l.c25/1000).toFixed(1)}K</td>
+        <td>${fmtM(l.s25)}</td>
+        <td>$${(l.s25/l.c25).toFixed(0)}</td>
+        <td class="${yoy>=0?'pos':'neg'}">${yoy}%</td>
+    </tr>`);
+});
+
+// ─── SLIDE 10: Plan Attainment ───
+// FY2025 Q4 = periods 10,11,12; actual monthly sales from query
+const planMonths = ['November','December','January'];
+const planActual = [19739545, 21363153, 21225168];
+const planTarget = [13571024, 13644890, 13422430];
+new Chart(document.getElementById('c10-plan'), {
+    type: 'bar',
+    data: {
+        labels: planMonths,
+        datasets: [
+            { label: 'Actual', data: planActual, backgroundColor: '#C9A84C', borderRadius: 4 },
+            { label: 'Plan', data: planTarget, backgroundColor: '#6A9BC388', borderRadius: 4 }
+        ]
+    },
+    options: { ...chartOpts(), scales: { y: { ...axColor, ticks: { ...axColor.ticks, callback: fmtM } }, x: axClean } }
+});
+</script>
+</body>
+</html>

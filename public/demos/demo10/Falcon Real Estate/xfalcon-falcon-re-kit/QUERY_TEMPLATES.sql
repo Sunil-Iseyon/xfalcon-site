@@ -1,0 +1,513 @@
+-- ============================================================
+-- FALCON REAL ESTATE — QUERY TEMPLATES
+-- Pre-aggregated queries for dashboard data embedding
+-- All queries filter IS_ACTIVE = TRUE and return < 200 rows
+-- ============================================================
+
+-- ============================================================
+-- DASHBOARD 1: PORTFOLIO OVERVIEW
+-- ============================================================
+
+-- Q1.1: Portfolio KPI Summary (latest month)
+SELECT
+  SUM(n.TOTAL_REVENUE_USD) AS total_revenue,
+  SUM(n.NOI_USD) AS total_noi,
+  AVG(n.NOI_MARGIN_PCT) AS avg_noi_margin,
+  SUM(n.BUDGET_NOI_USD) AS budget_noi,
+  AVG(n.NOI_VS_BUDGET_PCT) AS avg_budget_variance,
+  AVG(n.NOI_YOY_GROWTH_PCT) AS avg_yoy_growth
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025 AND t.MONTH = 12;
+
+-- Q1.2: Portfolio Occupancy KPI (latest month)
+SELECT
+  AVG(o.OCCUPANCY_RATE_PCT) AS avg_occupancy,
+  AVG(o.ECONOMIC_OCCUPANCY_PCT) AS avg_economic_occupancy,
+  SUM(o.VACANCY_LOSS_USD) AS total_vacancy_loss,
+  SUM(o.NEW_LEASES_SIGNED) AS new_leases,
+  SUM(o.RENEWALS_SIGNED) AS renewals,
+  SUM(o.MOVE_OUTS) AS move_outs
+FROM FACT_OCCUPANCY o
+JOIN DIM_PROPERTY p ON o.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON o.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025 AND t.MONTH = 12;
+
+-- Q1.3: NOI by Asset Class (current year)
+SELECT
+  ac.ASSET_CLASS_NAME,
+  COUNT(DISTINCT p.PROPERTY_ID) AS property_count,
+  SUM(n.TOTAL_REVENUE_USD) AS total_revenue,
+  SUM(n.NOI_USD) AS total_noi,
+  AVG(n.NOI_MARGIN_PCT) AS avg_noi_margin,
+  AVG(o.OCCUPANCY_RATE_PCT) AS avg_occupancy
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN FACT_OCCUPANCY o ON n.PROPERTY_ID = o.PROPERTY_ID AND n.MONTH_ID = o.MONTH_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY ac.ASSET_CLASS_NAME
+ORDER BY total_noi DESC;
+
+-- Q1.4: Monthly NOI Trend (last 24 months)
+SELECT
+  t.MONTH_YEAR_LABEL,
+  t.FULL_DATE,
+  SUM(n.NOI_USD) AS total_noi,
+  SUM(n.BUDGET_NOI_USD) AS budget_noi,
+  AVG(n.NOI_MARGIN_PCT) AS avg_margin
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.FULL_DATE >= '2024-01-01'
+GROUP BY t.MONTH_YEAR_LABEL, t.FULL_DATE
+ORDER BY t.FULL_DATE;
+
+-- Q1.5: Top/Bottom 5 Properties by NOI (current year)
+SELECT
+  p.PROPERTY_NAME,
+  ac.ASSET_CLASS_NAME,
+  m.MARKET_NAME,
+  SUM(n.NOI_USD) AS ytd_noi,
+  AVG(n.NOI_MARGIN_PCT) AS avg_margin,
+  AVG(n.NOI_VS_BUDGET_PCT) AS avg_budget_var
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN DIM_MARKET m ON p.MARKET_ID = m.MARKET_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY p.PROPERTY_NAME, ac.ASSET_CLASS_NAME, m.MARKET_NAME
+ORDER BY ytd_noi DESC
+LIMIT 10;
+
+-- ============================================================
+-- DASHBOARD 2: NOI & FINANCIAL PERFORMANCE
+-- ============================================================
+
+-- Q2.1: Revenue Waterfall (current year)
+SELECT
+  SUM(n.RENTAL_REVENUE_USD) AS rental_revenue,
+  SUM(n.OTHER_INCOME_USD) AS other_income,
+  SUM(n.TOTAL_REVENUE_USD) AS total_revenue,
+  SUM(n.PROPERTY_TAX_USD) AS property_tax,
+  SUM(n.INSURANCE_USD) AS insurance,
+  SUM(n.UTILITIES_USD) AS utilities,
+  SUM(n.MAINTENANCE_OPEX_USD) AS maintenance,
+  SUM(n.MANAGEMENT_FEE_USD) AS management_fee,
+  SUM(n.ADMIN_AND_OTHER_OPEX_USD) AS admin_other,
+  SUM(n.TOTAL_OPERATING_EXPENSES_USD) AS total_opex,
+  SUM(n.NOI_USD) AS noi
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025;
+
+-- Q2.2: Expense Breakdown by Category (current year, monthly)
+SELECT
+  t.MONTH_YEAR_LABEL,
+  t.FULL_DATE,
+  SUM(n.PROPERTY_TAX_USD) AS property_tax,
+  SUM(n.INSURANCE_USD) AS insurance,
+  SUM(n.UTILITIES_USD) AS utilities,
+  SUM(n.MAINTENANCE_OPEX_USD) AS maintenance,
+  SUM(n.MANAGEMENT_FEE_USD) AS management_fee,
+  SUM(n.ADMIN_AND_OTHER_OPEX_USD) AS admin_other
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY t.MONTH_YEAR_LABEL, t.FULL_DATE
+ORDER BY t.FULL_DATE;
+
+-- Q2.3: NOI Budget Variance by Property (current year)
+SELECT
+  p.PROPERTY_NAME,
+  p.PROPERTY_CLASS,
+  ac.ASSET_CLASS_NAME,
+  SUM(n.NOI_USD) AS actual_noi,
+  SUM(n.BUDGET_NOI_USD) AS budget_noi,
+  ROUND(SUM(n.NOI_USD - n.BUDGET_NOI_USD), 0) AS variance_usd,
+  ROUND(AVG(n.NOI_VS_BUDGET_PCT), 1) AS variance_pct
+FROM FACT_NOI n
+JOIN DIM_PROPERTY p ON n.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY p.PROPERTY_NAME, p.PROPERTY_CLASS, ac.ASSET_CLASS_NAME
+ORDER BY variance_pct DESC;
+
+-- ============================================================
+-- DASHBOARD 3: OCCUPANCY ANALYTICS
+-- ============================================================
+
+-- Q3.1: Monthly Occupancy Trend (last 24 months)
+SELECT
+  t.MONTH_YEAR_LABEL,
+  t.FULL_DATE,
+  AVG(o.OCCUPANCY_RATE_PCT) AS avg_physical_occ,
+  AVG(o.ECONOMIC_OCCUPANCY_PCT) AS avg_economic_occ,
+  SUM(o.VACANCY_LOSS_USD) AS vacancy_loss,
+  SUM(o.CONCESSION_AMOUNT_USD) AS concessions,
+  t.IS_COVID_PERIOD,
+  t.IS_RATE_HIKE_PERIOD
+FROM FACT_OCCUPANCY o
+JOIN DIM_PROPERTY p ON o.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON o.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.FULL_DATE >= '2024-01-01'
+GROUP BY t.MONTH_YEAR_LABEL, t.FULL_DATE, t.IS_COVID_PERIOD, t.IS_RATE_HIKE_PERIOD
+ORDER BY t.FULL_DATE;
+
+-- Q3.2: Occupancy by Asset Class (current year)
+SELECT
+  ac.ASSET_CLASS_NAME,
+  ac.OCCUPANCY_METRIC_LABEL,
+  AVG(o.OCCUPANCY_RATE_PCT) AS avg_occupancy,
+  AVG(o.ECONOMIC_OCCUPANCY_PCT) AS avg_economic_occ,
+  AVG(o.AVG_RENT_PER_UNIT_SQFT) AS avg_rent,
+  AVG(o.ASKING_RENT_PER_UNIT_SQFT) AS asking_rent,
+  AVG(o.AVG_DAYS_VACANT_PER_UNIT) AS avg_days_vacant
+FROM FACT_OCCUPANCY o
+JOIN DIM_PROPERTY p ON o.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN DIM_TIME t ON o.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY ac.ASSET_CLASS_NAME, ac.OCCUPANCY_METRIC_LABEL
+ORDER BY avg_occupancy DESC;
+
+-- Q3.3: Leasing Activity (monthly)
+SELECT
+  t.MONTH_YEAR_LABEL,
+  t.FULL_DATE,
+  SUM(o.NEW_LEASES_SIGNED) AS new_leases,
+  SUM(o.RENEWALS_SIGNED) AS renewals,
+  SUM(o.MOVE_OUTS) AS move_outs,
+  SUM(o.NEW_LEASES_SIGNED) + SUM(o.RENEWALS_SIGNED) - SUM(o.MOVE_OUTS) AS net_absorption
+FROM FACT_OCCUPANCY o
+JOIN DIM_PROPERTY p ON o.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON o.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY t.MONTH_YEAR_LABEL, t.FULL_DATE
+ORDER BY t.FULL_DATE;
+
+-- ============================================================
+-- DASHBOARD 4: RENT COLLECTION & DELINQUENCY
+-- ============================================================
+
+-- Q4.1: Monthly Collection Rate Trend
+SELECT
+  t.MONTH_YEAR_LABEL,
+  t.FULL_DATE,
+  ROUND(SUM(rc.RENT_COLLECTED_USD) / NULLIF(SUM(rc.TOTAL_CHARGED_USD), 0) * 100, 1) AS collection_rate,
+  SUM(rc.TOTAL_CHARGED_USD) AS total_charged,
+  SUM(rc.RENT_COLLECTED_USD) AS total_collected,
+  SUM(rc.BAD_DEBT_WRITTEN_OFF_USD) AS bad_debt,
+  SUM(rc.ABATEMENT_AMOUNT_USD) AS abatements
+FROM FACT_RENT_COLLECTION rc
+JOIN DIM_PROPERTY p ON rc.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON rc.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.FULL_DATE >= '2024-01-01'
+GROUP BY t.MONTH_YEAR_LABEL, t.FULL_DATE
+ORDER BY t.FULL_DATE;
+
+-- Q4.2: At-Risk Tenants (current consecutive delinquency)
+SELECT
+  ten.TENANT_NAME,
+  ten.INDUSTRY_SECTOR,
+  ten.COVENANT_SCORE,
+  ten.IS_INVESTMENT_GRADE,
+  p.PROPERTY_NAME,
+  ac.ASSET_CLASS_NAME,
+  rc.CONSECUTIVE_DELINQUENT_MONTHS,
+  rc.TOTAL_CHARGED_USD,
+  rc.RENT_COLLECTED_USD,
+  rc.COLLECTION_RATE_PCT
+FROM FACT_RENT_COLLECTION rc
+JOIN DIM_TENANT ten ON rc.TENANT_ID = ten.TENANT_ID
+JOIN DIM_PROPERTY p ON rc.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN DIM_TIME t ON rc.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE
+  AND rc.CONSECUTIVE_DELINQUENT_MONTHS >= 3
+  AND t.YEAR = 2025 AND t.MONTH = 12
+ORDER BY rc.CONSECUTIVE_DELINQUENT_MONTHS DESC;
+
+-- Q4.3: Collection Rate by Asset Class
+SELECT
+  ac.ASSET_CLASS_NAME,
+  ROUND(SUM(rc.RENT_COLLECTED_USD) / NULLIF(SUM(rc.TOTAL_CHARGED_USD), 0) * 100, 1) AS collection_rate,
+  SUM(CASE WHEN rc.DELINQUENCY_FLAG THEN 1 ELSE 0 END) AS delinquent_count,
+  COUNT(*) AS total_records,
+  ROUND(SUM(CASE WHEN rc.DELINQUENCY_FLAG THEN 1.0 ELSE 0 END) / COUNT(*) * 100, 1) AS delinquency_rate
+FROM FACT_RENT_COLLECTION rc
+JOIN DIM_PROPERTY p ON rc.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN DIM_TIME t ON rc.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY ac.ASSET_CLASS_NAME
+ORDER BY collection_rate ASC;
+
+-- ============================================================
+-- DASHBOARD 5: LEASE MANAGEMENT & EXPIRY WALL
+-- ============================================================
+
+-- Q5.1: Lease Expiry Wall (rent at risk by year)
+SELECT
+  EXTRACT(YEAR FROM l.LEASE_EXPIRY_DATE) AS expiry_year,
+  COUNT(*) AS lease_count,
+  SUM(l.ANNUAL_RENT_AT_EXPIRY_USD) AS rent_at_risk,
+  AVG(l.RENEWAL_PROBABILITY_SCORE) AS avg_renewal_prob
+FROM FACT_LEASE l
+JOIN DIM_PROPERTY p ON l.PROPERTY_ID = p.PROPERTY_ID
+WHERE p.IS_ACTIVE = TRUE AND l.LEASE_STATUS = 'Active'
+GROUP BY EXTRACT(YEAR FROM l.LEASE_EXPIRY_DATE)
+ORDER BY expiry_year;
+
+-- Q5.2: Lease Expiry Detail (next 18 months)
+SELECT
+  l.LEASE_ID,
+  p.PROPERTY_NAME,
+  ten.TENANT_NAME,
+  ten.COVENANT_SCORE,
+  ten.IS_INVESTMENT_GRADE,
+  ac.ASSET_CLASS_NAME,
+  l.LEASE_EXPIRY_DATE,
+  l.MONTHS_TO_EXPIRY_AT_SNAPSHOT,
+  l.ANNUAL_RENT_AT_EXPIRY_USD,
+  l.RENEWAL_PROBABILITY_SCORE,
+  l.RENT_ESCALATION_PCT
+FROM FACT_LEASE l
+JOIN DIM_PROPERTY p ON l.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TENANT ten ON l.TENANT_ID = ten.TENANT_ID
+JOIN DIM_ASSET_CLASS ac ON p.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+WHERE p.IS_ACTIVE = TRUE
+  AND l.LEASE_STATUS = 'Active'
+  AND l.MONTHS_TO_EXPIRY_AT_SNAPSHOT <= 18
+ORDER BY l.ANNUAL_RENT_AT_EXPIRY_USD DESC;
+
+-- Q5.3: Renewal Outcomes Summary
+SELECT
+  tr.OUTCOME,
+  COUNT(*) AS event_count,
+  AVG(tr.RENT_CHANGE_PCT) AS avg_rent_change,
+  AVG(tr.DECISION_LEAD_DAYS) AS avg_lead_days,
+  SUM(tr.TOTAL_DOWNTIME_COST_USD) AS total_downtime_cost,
+  AVG(tr.DAYS_VACANT_AFTER_EXPIRY) AS avg_vacancy_days
+FROM FACT_TENANT_RENEWAL tr
+JOIN DIM_PROPERTY p ON tr.PROPERTY_ID = p.PROPERTY_ID
+WHERE p.IS_ACTIVE = TRUE
+GROUP BY tr.OUTCOME;
+
+-- ============================================================
+-- DASHBOARD 6: MAINTENANCE OPERATIONS
+-- ============================================================
+
+-- Q6.1: Reactive vs. Planned Mix by Year (Scenario 3)
+SELECT
+  t.YEAR,
+  wo.WO_TYPE,
+  COUNT(*) AS wo_count,
+  AVG(wo.ACTUAL_COST_USD) AS avg_cost,
+  SUM(wo.ACTUAL_COST_USD) AS total_cost,
+  ROUND(AVG(wo.DAYS_TO_COMPLETE), 1) AS avg_days,
+  SUM(CASE WHEN wo.SLA_BREACHED THEN 1 ELSE 0 END) AS sla_breaches
+FROM FACT_MAINTENANCE_WO wo
+JOIN DIM_PROPERTY p ON wo.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON wo.REPORTED_DATE_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE
+GROUP BY t.YEAR, wo.WO_TYPE
+ORDER BY t.YEAR, wo.WO_TYPE;
+
+-- Q6.2: Maintenance by Category (current year)
+SELECT
+  mc.CATEGORY_NAME,
+  mc.MAINTENANCE_TYPE,
+  mc.TRADE,
+  COUNT(*) AS wo_count,
+  AVG(wo.ACTUAL_COST_USD) AS avg_cost,
+  SUM(wo.ACTUAL_COST_USD) AS total_cost,
+  AVG(wo.DAYS_TO_COMPLETE) AS avg_days,
+  AVG(wo.TENANT_SATISFACTION_SCORE) AS avg_satisfaction,
+  SUM(CASE WHEN wo.IS_RECURRING THEN 1 ELSE 0 END) AS recurring_count
+FROM FACT_MAINTENANCE_WO wo
+JOIN DIM_MAINTENANCE_CATEGORY mc ON wo.CATEGORY_ID = mc.CATEGORY_ID
+JOIN DIM_PROPERTY p ON wo.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON wo.REPORTED_DATE_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY mc.CATEGORY_NAME, mc.MAINTENANCE_TYPE, mc.TRADE
+ORDER BY total_cost DESC;
+
+-- Q6.3: Vendor Performance
+SELECT
+  wo.VENDOR_NAME,
+  wo.VENDOR_TYPE,
+  COUNT(*) AS wo_count,
+  AVG(wo.ACTUAL_COST_USD) AS avg_cost,
+  AVG(wo.DAYS_TO_COMPLETE) AS avg_days,
+  ROUND(SUM(CASE WHEN wo.SLA_BREACHED THEN 1.0 ELSE 0 END) / COUNT(*) * 100, 1) AS sla_breach_rate,
+  AVG(wo.TENANT_SATISFACTION_SCORE) AS avg_satisfaction
+FROM FACT_MAINTENANCE_WO wo
+JOIN DIM_PROPERTY p ON wo.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_TIME t ON wo.REPORTED_DATE_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY wo.VENDOR_NAME, wo.VENDOR_TYPE
+HAVING COUNT(*) >= 5
+ORDER BY avg_satisfaction DESC;
+
+-- ============================================================
+-- DASHBOARD 7: CAPEX PROJECT TRACKER
+-- ============================================================
+
+-- Q7.1: CapEx Summary by Category
+SELECT
+  cc.CATEGORY_NAME,
+  cc.CAPEX_TYPE,
+  COUNT(*) AS project_count,
+  SUM(cp.ORIGINAL_BUDGET_USD) AS total_budget,
+  SUM(cp.SPENT_TO_DATE_USD) AS total_spent,
+  AVG(cp.BUDGET_VARIANCE_PCT) AS avg_budget_variance,
+  AVG(cp.ROI_PROJECTED_PCT) AS avg_projected_roi,
+  AVG(cp.ROI_ACTUAL_PCT) AS avg_actual_roi
+FROM FACT_CAPEX_PROJECT cp
+JOIN DIM_CAPEX_CATEGORY cc ON cp.CAPEX_CATEGORY_ID = cc.CAPEX_CATEGORY_ID
+JOIN DIM_PROPERTY p ON cp.PROPERTY_ID = p.PROPERTY_ID
+WHERE p.IS_ACTIVE = TRUE
+GROUP BY cc.CATEGORY_NAME, cc.CAPEX_TYPE
+ORDER BY total_spent DESC;
+
+-- Q7.2: ROI Underperformers (Scenario 4)
+SELECT
+  cp.PROJECT_NAME,
+  p.PROPERTY_NAME,
+  cc.CATEGORY_NAME,
+  cp.PROJECT_PHASE,
+  cp.ORIGINAL_BUDGET_USD,
+  cp.SPENT_TO_DATE_USD,
+  cp.NOI_UPLIFT_PROJECTED_USD,
+  cp.NOI_UPLIFT_ACTUAL_USD,
+  cp.ROI_PROJECTED_PCT,
+  cp.ROI_ACTUAL_PCT,
+  ROUND(cp.NOI_UPLIFT_ACTUAL_USD / NULLIF(cp.NOI_UPLIFT_PROJECTED_USD, 0) * 100, 1) AS uplift_attainment
+FROM FACT_CAPEX_PROJECT cp
+JOIN DIM_PROPERTY p ON cp.PROPERTY_ID = p.PROPERTY_ID
+JOIN DIM_CAPEX_CATEGORY cc ON cp.CAPEX_CATEGORY_ID = cc.CAPEX_CATEGORY_ID
+WHERE p.IS_ACTIVE = TRUE
+  AND cp.NOI_UPLIFT_ACTUAL_USD IS NOT NULL
+ORDER BY uplift_attainment ASC
+LIMIT 20;
+
+-- ============================================================
+-- DASHBOARD 8: MARKET BENCHMARKING
+-- ============================================================
+
+-- Q8.1: Portfolio vs. Market Occupancy by Market
+SELECT
+  m.MARKET_NAME,
+  m.REGION,
+  m.MARKET_TIER,
+  m.IS_SUN_BELT,
+  ac.ASSET_CLASS_NAME,
+  AVG(mb.PORTFOLIO_OCCUPANCY_PCT) AS portfolio_occ,
+  AVG(mb.MARKET_OCCUPANCY_PCT) AS market_occ,
+  AVG(mb.PORTFOLIO_VS_MARKET_OCC_DELTA) AS occ_delta,
+  AVG(mb.PORTFOLIO_AVG_RENT_PSF) AS portfolio_rent,
+  AVG(mb.MARKET_AVG_RENT_PSF) AS market_rent,
+  AVG(mb.PORTFOLIO_VS_MARKET_RENT_DELTA) AS rent_delta
+FROM FACT_MARKET_BENCHMARK mb
+JOIN DIM_MARKET m ON mb.MARKET_ID = m.MARKET_ID
+JOIN DIM_ASSET_CLASS ac ON mb.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+JOIN DIM_TIME t ON mb.QUARTER_ID = t.DATE_ID
+WHERE t.YEAR = 2025
+GROUP BY m.MARKET_NAME, m.REGION, m.MARKET_TIER, m.IS_SUN_BELT, ac.ASSET_CLASS_NAME
+ORDER BY occ_delta ASC;
+
+-- Q8.2: Market Cap Rate Trend (quarterly)
+SELECT
+  t.YEAR,
+  t.QUARTER,
+  ac.ASSET_CLASS_NAME,
+  AVG(mb.MARKET_CAP_RATE_PCT) AS avg_cap_rate,
+  AVG(mb.MARKET_VACANCY_RATE_PCT) AS avg_vacancy,
+  SUM(mb.NEW_SUPPLY_UNITS_SQFT) AS new_supply,
+  SUM(mb.NET_ABSORPTION_UNITS_SQFT) AS net_absorption
+FROM FACT_MARKET_BENCHMARK mb
+JOIN DIM_TIME t ON mb.QUARTER_ID = t.DATE_ID
+JOIN DIM_ASSET_CLASS ac ON mb.ASSET_CLASS_ID = ac.ASSET_CLASS_ID
+WHERE t.YEAR >= 2023
+GROUP BY t.YEAR, t.QUARTER, ac.ASSET_CLASS_NAME
+ORDER BY t.YEAR, t.QUARTER;
+
+-- ============================================================
+-- DASHBOARD 9: PROPERTY MANAGER SCORECARD
+-- ============================================================
+
+-- Q9.1: Manager Performance Summary (current year)
+SELECT
+  pm.MANAGER_NAME,
+  pm.MANAGER_TYPE,
+  pm.REGION,
+  pm.PORTFOLIO_COUNT,
+  AVG(o.OCCUPANCY_RATE_PCT) AS avg_occupancy,
+  AVG(n.NOI_MARGIN_PCT) AS avg_noi_margin,
+  AVG(n.NOI_VS_BUDGET_PCT) AS avg_budget_var,
+  pm.REACTIVE_MAINTENANCE_PCT,
+  pm.AVG_TENANT_SATISFACTION_SCORE,
+  pm.AVG_MAINTENANCE_RESOLUTION_DAYS
+FROM DIM_PROPERTY_MANAGER pm
+JOIN DIM_PROPERTY p ON pm.MANAGER_ID = p.MANAGER_ID
+JOIN FACT_NOI n ON p.PROPERTY_ID = n.PROPERTY_ID
+JOIN FACT_OCCUPANCY o ON p.PROPERTY_ID = o.PROPERTY_ID AND n.MONTH_ID = o.MONTH_ID
+JOIN DIM_TIME t ON n.MONTH_ID = t.DATE_ID
+WHERE p.IS_ACTIVE = TRUE AND t.YEAR = 2025
+GROUP BY pm.MANAGER_NAME, pm.MANAGER_TYPE, pm.REGION, pm.PORTFOLIO_COUNT,
+         pm.REACTIVE_MAINTENANCE_PCT, pm.AVG_TENANT_SATISFACTION_SCORE,
+         pm.AVG_MAINTENANCE_RESOLUTION_DAYS
+ORDER BY avg_occupancy DESC;
+
+-- ============================================================
+-- DASHBOARD 10: TENANT INTELLIGENCE
+-- ============================================================
+
+-- Q10.1: Tenant Risk Dashboard
+SELECT
+  ten.TENANT_NAME,
+  ten.TENANT_TYPE,
+  ten.INDUSTRY_SECTOR,
+  ten.COVENANT_SCORE,
+  ten.IS_INVESTMENT_GRADE,
+  ten.IS_ANCHOR_TENANT,
+  ten.CREDIT_RATING,
+  l.BASE_RENT_ANNUAL_USD,
+  l.MONTHS_TO_EXPIRY_AT_SNAPSHOT,
+  l.RENEWAL_PROBABILITY_SCORE
+FROM DIM_TENANT ten
+JOIN FACT_LEASE l ON ten.TENANT_ID = l.TENANT_ID
+JOIN DIM_PROPERTY p ON l.PROPERTY_ID = p.PROPERTY_ID
+WHERE p.IS_ACTIVE = TRUE AND l.LEASE_STATUS = 'Active'
+ORDER BY l.BASE_RENT_ANNUAL_USD DESC
+LIMIT 50;
+
+-- Q10.2: Tenant Covenant Score Distribution
+SELECT
+  CASE
+    WHEN ten.COVENANT_SCORE >= 80 THEN 'Strong (80-100)'
+    WHEN ten.COVENANT_SCORE >= 60 THEN 'Moderate (60-79)'
+    WHEN ten.COVENANT_SCORE >= 40 THEN 'Weak (40-59)'
+    ELSE 'Critical (0-39)'
+  END AS risk_tier,
+  COUNT(DISTINCT ten.TENANT_ID) AS tenant_count,
+  SUM(l.BASE_RENT_ANNUAL_USD) AS total_rent_at_risk,
+  AVG(l.RENEWAL_PROBABILITY_SCORE) AS avg_renewal_prob
+FROM DIM_TENANT ten
+JOIN FACT_LEASE l ON ten.TENANT_ID = l.TENANT_ID
+JOIN DIM_PROPERTY p ON l.PROPERTY_ID = p.PROPERTY_ID
+WHERE p.IS_ACTIVE = TRUE AND l.LEASE_STATUS = 'Active'
+GROUP BY CASE
+    WHEN ten.COVENANT_SCORE >= 80 THEN 'Strong (80-100)'
+    WHEN ten.COVENANT_SCORE >= 60 THEN 'Moderate (60-79)'
+    WHEN ten.COVENANT_SCORE >= 40 THEN 'Weak (40-59)'
+    ELSE 'Critical (0-39)'
+  END
+ORDER BY total_rent_at_risk DESC;

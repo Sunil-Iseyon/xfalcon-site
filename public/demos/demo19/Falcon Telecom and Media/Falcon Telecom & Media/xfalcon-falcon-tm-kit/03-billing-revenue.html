@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 3. Billing & Revenue</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root { --color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8; }
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.filter-bar{background:#FFF;border-bottom:1px solid var(--color-border);padding:14px 24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.filter-group select{border:1px solid var(--color-border);background:#FFF;color:var(--color-text);padding:7px 10px;border-radius:4px;font-family:inherit;font-size:13px;min-width:130px;}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:7px 10px;border:1px solid var(--color-border);border-radius:4px;background:#FFF;}
+.toggle-switch{width:32px;height:18px;border-radius:10px;background:#CBD5E1;position:relative;transition:background 0.18s ease;}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#FFF;transition:left 0.18s ease;}
+.toggle-switch.active{background:var(--color-primary);}.toggle-switch.active::after{left:16px;}.toggle-label{font-size:13px;font-weight:500;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:32px 0 14px 0;display:flex;align-items:center;gap:10px;}
+.section-title:first-of-type{margin-top:8px;}.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;margin-bottom:6px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);line-height:1.1;letter-spacing:-0.5px;}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px;}
+.kpi-delta.positive{color:var(--color-positive);}.kpi-delta.negative{color:var(--color-negative);}.kpi-delta.neutral{color:var(--color-neutral);}
+.kpi-stack-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:var(--color-text-muted);}
+.kpi-stack-row .v{color:var(--color-text);font-weight:600;font-variant-numeric:tabular-nums;}
+.charts-row{display:grid;gap:16px;margin-top:8px;}.charts-row.two{grid-template-columns:1fr 1fr;}.charts-row.split{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.charts-row.two,.charts-row.split{grid-template-columns:1fr;}}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin:0 0 14px 0;}.chart-wrap{position:relative;height:280px;}
+.detail-table{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;width:100%;border-collapse:collapse;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.detail-table th{background:var(--color-secondary);color:var(--color-text-on-dark);text-align:left;padding:12px 14px;font-size:13px;font-weight:600;}
+.detail-table td{padding:10px 14px;font-size:13px;border-top:1px solid var(--color-border);}
+.detail-table tr:hover td{background:#F8FAFC;}.detail-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);line-height:1.5;}.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media / 3. Billing &amp; Revenue</div><div class="topbar-subtitle" id="subtitle">Reporting Period: FY 2025</div></div>
+  </div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+<div class="filter-bar">
+  <div class="filter-group"><label for="yearSel">Year</label>
+    <select id="yearSel" onchange="applyFilters()"><option value="2025" selected>2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select>
+  </div>
+  <div class="filter-group"><label>&nbsp;</label><div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div></div>
+  <div class="filter-group"><label for="carrierSel">Carrier Lens</label><select id="carrierSel" onchange="applyFilters()"><option value="prospect" selected>Prospects only (5)</option><option value="all">All carriers (8)</option></select></div>
+</div>
+<div class="container">
+  <div class="section-title">Billing KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Annual Trends</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Billed Revenue Components — 2018–2025</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Monthly Trend — Selected Year vs LY</div><div class="chart-wrap"><canvas id="monthChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Carrier &amp; Payment Health</div>
+  <div class="charts-row two">
+    <div class="chart-card"><div class="chart-title">Lifetime Billing by Carrier</div><div class="chart-wrap"><canvas id="carrierChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Payment Status Mix (Lifetime)</div><div class="chart-wrap"><canvas id="payChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Annual Billing Snapshot</div>
+  <table class="detail-table">
+    <thead><tr><th>Year</th><th class="num">Total Billed</th><th class="num">Base Charge</th><th class="num">Overage+Roam</th><th class="num">Equipment</th><th class="num">Taxes/Fees</th><th class="num">ARPU</th><th class="num">Autopay %</th><th class="num">Late %</th></tr></thead>
+    <tbody id="annualTable"></tbody>
+  </table>
+
+  <div class="disclaimer"><strong>Data:</strong> FACT_BILLING · 1.0M monthly bills · 8 carriers · ARPU stable ~$92 across years · <strong>Filters:</strong> Disputed bills (2%) included by default · Active subscribers only on ARPU on-base · <strong>Notes:</strong> Charter leads at $17.6M lifetime, Verizon $15.5M, Comcast $15.2M</div>
+</div>
+
+<script>
+// [year, billed_M, base_M, overage+roam_M, equip_M, tax_fee_M, arpu, autopay_rate, late_rate]
+var ANNUAL = [
+  [2018, 9.04, 7.57, 0.137, 0.363, 0.968, 91.94, 0.6506, 0.0595],
+  [2019, 9.53, 7.98, 0.145, 0.387, 1.021, 92.04, 0.6498, 0.0594],
+  [2020, 9.01, 7.54, 0.136, 0.363, 0.965, 92.22, 0.6508, 0.0601],
+  [2021,10.57, 8.85, 0.160, 0.430, 1.133, 91.88, 0.6497, 0.0593],
+  [2022,11.36, 9.51, 0.171, 0.457, 1.217, 92.10, 0.6510, 0.0600],
+  [2023,12.04,10.09, 0.183, 0.483, 1.290, 91.89, 0.6502, 0.0596],
+  [2024,12.86,10.77, 0.195, 0.516, 1.377, 92.20, 0.6488, 0.0596],
+  [2025,13.57,11.36, 0.205, 0.548, 1.454, 92.14, 0.6493, 0.0585]
+];
+// Monthly 2024 vs 2025
+var MONTH_24 = [1085253,918809,1039540,1022037,1081267,1057198,1120208,1150738,1025870,1040697,1114597,1199175];
+var MONTH_25 = [1158263,956369,1111887,1076143,1132331,1091397,1191151,1221381,1095213,1107337,1154423,1274189];
+// Carriers (lifetime billing $M)
+var CARRIERS = [
+  ['Charter Communications', 17.58, true],
+  ['Verizon',                15.49, true],
+  ['Comcast',                15.22, true],
+  ['T-Mobile US',            15.14, true],
+  ['AT&T',                   14.89, true],
+  ['Lumen Technologies',      8.13, false],
+  ['US Cellular',             2.98, false],
+  ['Dish Network',            2.62, false]
+];
+// Payment status (lifetime share approx)
+var PAY_STATUS = [['Paid', 88], ['Paid Late', 6], ['Disputed', 2], ['Defaulted', 4]];
+
+var state = { year: 2025, compare: false, carrier: 'prospect' };
+var chartInstances = {};
+function mk(id, cfg){if(chartInstances[id])chartInstances[id].destroy();var ctx=document.getElementById(id).getContext('2d');chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+function fmt(n,d){d=(d===undefined)?1:d;return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtInt(n){return Math.round(n).toLocaleString('en-US');}
+function fmtPct(p){return fmt(p*100,1)+'%';}
+function getPalette(){var t=document.documentElement.getAttribute('data-theme')||'spectrum';if(t==='tech')return{primary:'#00D4FF',secondary:'#7C3AED',tertiary:'#94A3B8',ext1:'#7CFF01',ext2:'#FF00C8',grid:'rgba(255,255,255,0.06)',text:'#F1F5F9',textMuted:'#94A3B8'};return{primary:'#0099D8',secondary:'#003057',tertiary:'#77787B',ext1:'#0EA5E9',ext2:'#F59E0B',grid:'rgba(15,23,42,0.05)',text:'#0F172A',textMuted:'#64748B'};}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var l=els[i].textContent.length;els[i].style.fontSize=l>12?'18px':(l>8?'22px':'28px');}}
+function deltaPct(c,p){if(!p)return null;return (c-p)/p*100;}
+function deltaText(d){if(d===null||isNaN(d))return '<div class="kpi-delta neutral">—</div>';var cls=d>0?'positive':(d<0?'negative':'neutral');var arr=d>0?'↑ ':(d<0?'↓ ':'');return '<div class="kpi-delta '+cls+'">'+arr+fmt(Math.abs(d),1)+'% vs LY</div>';}
+function rowFor(yr){for(var i=0;i<ANNUAL.length;i++)if(ANNUAL[i][0]===yr)return ANNUAL[i];return null;}
+
+function renderKpis(){
+  var grid=document.getElementById('kpiGrid');
+  if(state.compare){
+    var rows=ANNUAL.filter(function(r){return r[0]>=2023;});
+    grid.innerHTML =
+      kpiCompare('Total Billed', rows, function(r){return r[1];}, function(v){return '$'+fmt(v,2)+'M';}) +
+      kpiCompare('Base Charge', rows, function(r){return r[2];}, function(v){return '$'+fmt(v,2)+'M';}) +
+      kpiCompare('Overage+Roam', rows, function(r){return r[3];}, function(v){return '$'+fmt(v*1000,0)+'K';}) +
+      kpiCompare('Equipment', rows, function(r){return r[4];}, function(v){return '$'+fmt(v*1000,0)+'K';}) +
+      kpiCompare('ARPU', rows, function(r){return r[6];}, function(v){return '$'+fmt(v,2);}) +
+      kpiCompare('Autopay %', rows, function(r){return r[7]*100;}, function(v){return fmt(v,1)+'%';}) +
+      kpiCompare('Late Pay %', rows, function(r){return r[8]*100;}, function(v){return fmt(v,2)+'%';}) +
+      kpiCompare('Taxes & Fees', rows, function(r){return r[5];}, function(v){return '$'+fmt(v,2)+'M';});
+  } else {
+    var r=rowFor(state.year), p=rowFor(state.year-1);
+    grid.innerHTML =
+      kpiSingle('Total Billed '+state.year, '$'+fmt(r[1],2)+'M', p?deltaPct(r[1],p[1]):null) +
+      kpiSingle('Base Charge '+state.year, '$'+fmt(r[2],2)+'M', p?deltaPct(r[2],p[2]):null) +
+      kpiSingle('Overage+Roam '+state.year, '$'+fmt(r[3]*1000,0)+'K', p?deltaPct(r[3],p[3]):null) +
+      kpiSingle('Equipment '+state.year, '$'+fmt(r[4]*1000,0)+'K', p?deltaPct(r[4],p[4]):null) +
+      kpiSingle('ARPU '+state.year, '$'+fmt(r[6],2), p?deltaPct(r[6],p[6]):null) +
+      kpiSingle('Autopay % '+state.year, fmt(r[7]*100,1)+'%', p?deltaPct(r[7],p[7]):null) +
+      kpiSingle('Late Pay % '+state.year, fmt(r[8]*100,2)+'%', p?deltaPct(r[8],p[8]):null) +
+      kpiSingle('Taxes & Fees '+state.year, '$'+fmt(r[5],2)+'M', p?deltaPct(r[5],p[5]):null);
+  }
+  fitKpiText();
+}
+function kpiSingle(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div>'+deltaText(d)+'</div>';}
+function kpiCompare(label, rows, deriveFn, fmtFn){
+  var html='<div class="kpi-card"><div class="kpi-label">'+label+'</div>';
+  var first=null,last=null;
+  for(var i=0;i<rows.length;i++){var r=rows[i];var v=deriveFn(r);if(first===null)first=v;last=v;
+    html+='<div class="kpi-stack-row"><span>'+r[0]+'</span><span class="v">'+fmtFn(v)+'</span></div>';}
+  var n=rows.length-1;
+  if(n>0&&first>0){var c=(Math.pow(last/first,1/n)-1)*100;var cls=c>0?'positive':(c<0?'negative':'neutral');html+='<div class="kpi-delta '+cls+'" style="margin-top:8px;">CAGR: '+(c>0?'+':'')+fmt(c,1)+'%</div>';}
+  return html+'</div>';
+}
+
+function renderTrend(){
+  var p=getPalette();
+  var labels=ANNUAL.map(function(r){return String(r[0]);});
+  mk('trendChart',{type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Base Charge', data:ANNUAL.map(function(r){return r[2];}), backgroundColor:p.primary, stack:'a'},
+      {label:'Equipment',   data:ANNUAL.map(function(r){return r[4];}), backgroundColor:p.secondary, stack:'a'},
+      {label:'Taxes & Fees',data:ANNUAL.map(function(r){return r[5];}), backgroundColor:p.tertiary, stack:'a'},
+      {label:'Overage+Roam',data:ANNUAL.map(function(r){return r[3];}), backgroundColor:p.ext1, stack:'a'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{mode:'index',intersect:false,callbacks:{label:function(c){return c.dataset.label+': $'+fmt(c.parsed.y,2)+'M';}}}},
+      scales:{x:{stacked:true,grid:{color:p.grid},ticks:{color:p.textMuted}},y:{stacked:true,grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}}}}
+  });
+}
+
+function renderMonth(){
+  var p=getPalette();
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var cur = state.year >= 2025 ? MONTH_25 : MONTH_24;
+  var prev = state.year >= 2025 ? MONTH_24 : null;
+  var datasets = [{label:String(state.year), data:cur, borderColor:p.primary, backgroundColor:p.primary, borderWidth:2.5, tension:0.3, fill:false}];
+  if (prev) datasets.push({label:String(state.year-1), data:prev, borderColor:p.tertiary, backgroundColor:p.tertiary, borderWidth:2, tension:0.3, fill:false, borderDash:[5,5]});
+  mk('monthChart',{type:'line',data:{labels:months,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fmtInt(c.parsed.y);}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+(v/1000).toFixed(0)+'K';}}}}}
+  });
+}
+
+function renderCarrier(){
+  var p=getPalette();
+  var data = state.carrier==='prospect' ? CARRIERS.filter(function(c){return c[2];}) : CARRIERS;
+  mk('carrierChart',{type:'bar',
+    data:{labels:data.map(function(c){return c[0];}),datasets:[{label:'Lifetime Billing ($M)',data:data.map(function(c){return c[1];}),backgroundColor:data.map(function(c){return c[2]?p.primary:p.tertiary;}),borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.x,2)+'M'+(CARRIERS[c.dataIndex] && !CARRIERS[c.dataIndex][2]?' (reference)':'');}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderPay(){
+  var p=getPalette();
+  mk('payChart',{type:'bar',
+    data:{labels:PAY_STATUS.map(function(r){return r[0];}),datasets:[{label:'Share %',data:PAY_STATUS.map(function(r){return r[1];}),backgroundColor:[p.primary,p.secondary,p.ext2,p.tertiary],borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+'% of bills';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return v+'%';}}}}}
+  });
+}
+
+function renderTable(){
+  var tbody=document.getElementById('annualTable');tbody.innerHTML='';
+  for(var i=0;i<ANNUAL.length;i++){
+    var r=ANNUAL[i];var tr=document.createElement('tr');
+    var cells=[String(r[0]),'$'+fmt(r[1],2)+'M','$'+fmt(r[2],2)+'M','$'+fmt(r[3]*1000,0)+'K','$'+fmt(r[4]*1000,0)+'K','$'+fmt(r[5],2)+'M','$'+fmt(r[6],2),fmt(r[7]*100,1)+'%',fmt(r[8]*100,2)+'%'];
+    var cls=['','num','num','num','num','num','num','num','num'];
+    for(var j=0;j<cells.length;j++){var td=document.createElement('td');td.textContent=cells[j];if(cls[j])td.className=cls[j];tr.appendChild(td);}
+    tbody.appendChild(tr);
+  }
+}
+
+function applyFilters(){
+  state.year=parseInt(document.getElementById('yearSel').value,10);
+  state.carrier=document.getElementById('carrierSel').value;
+  document.getElementById('subtitle').textContent=state.compare?'Reporting Period: All Years (Compare)':'Reporting Period: FY '+state.year;
+  renderKpis();renderTrend();renderMonth();renderCarrier();renderPay();renderTable();
+}
+function toggleCompare(){state.compare=!state.compare;var s=document.getElementById('cmpSwitch');if(state.compare)s.classList.add('active');else s.classList.remove('active');document.getElementById('yearSel').disabled=state.compare;applyFilters();}
+document.addEventListener('DOMContentLoaded',applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05 — Inventory Health | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html" class="active">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Inventory Health <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Distributor Warehouse Inventory Snapshots | Monthly with Prior Year Comparison</div>
+    <div class="dash-num">05</div>
+</div>
+
+<div class="container">
+
+<!-- ═══ KPI CARDS ═══ -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ═══ MONTHLY INVENTORY TREND ═══ -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Inventory Levels — FY2025</h3>
+        <div class="chart-subtitle">Stacked view: Cases on Hand, On Order, and In Transit</div>
+        <canvas id="monthlyStackChart" height="70"></canvas>
+    </div>
+</div>
+
+<!-- ═══ MONTHLY DAYS OF SUPPLY ═══ -->
+<div class="section-label">Supply Metrics — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Average Days of Supply by Month</h3>
+        <div class="chart-subtitle">Days of supply comparison — FY25 vs FY24</div>
+        <canvas id="dosChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Out-of-Stock Rate by Month</h3>
+        <div class="chart-subtitle">Percentage of SKUs out of stock — FY25 vs FY24</div>
+        <canvas id="oosChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR PERFORMANCE ═══ -->
+<div class="section-label">Distributor Performance — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Cases on Hand by Distributor</h3>
+        <div class="chart-subtitle">Total warehouse inventory — all 12 distributors</div>
+        <canvas id="distChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ PRODUCT & GEOGRAPHY ═══ -->
+<div class="section-label">Product Categories & Geography — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Cases on Hand by Category</h3>
+        <div class="chart-subtitle">Category breakdown with days of supply</div>
+        <canvas id="catChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Top 10 States: Inventory Levels</h3>
+        <div class="chart-subtitle">State-level warehouse inventory</div>
+        <canvas id="stateChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ INVENTORY STATUS & AGING ═══ -->
+<div class="section-label">Inventory Health — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Inventory by Age (Days Old)</h3>
+        <div class="chart-subtitle">Distribution of inventory aging buckets</div>
+        <canvas id="ageChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Distributor Inventory Detail — FY2025</h3>
+    <div class="chart-subtitle">Cases on hand, days of supply, out-of-stock rate, and aging by distributor</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Distributor</th>
+            <th class="num">Cases on Hand</th><th class="num">Days of Supply</th>
+            <th class="num">Out-of-Stock Count</th><th class="num">OOS Rate</th>
+            <th class="num">Avg Age (Days)</th>
+        </tr></thead>
+        <tbody id="distTable"></tbody>
+        <tfoot id="distTfoot"></tfoot>
+    </table>
+</div>
+
+<!-- ═══ MONTHLY DETAIL TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Inventory Detail — FY2025</h3>
+    <div class="chart-subtitle">Cases on hand, on order, in transit with supply metrics by fiscal period</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Cases on Hand</th><th class="num">On Order</th><th class="num">In Transit</th>
+            <th class="num">Days Supply</th><th class="num">Weeks Supply</th>
+            <th class="num">OOS Count</th><th class="num">Avg Age</th>
+        </tr></thead>
+        <tbody id="monthTable"></tbody>
+        <tfoot id="monthTfoot"></tfoot>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 05 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+// ── THEME ──
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+// ── MONTHLY FY25 DATA ──
+const fy25 = [
+    {m:'Jul',q:1,coh:81955.9,coo:20884.2,cit:8167.2,dos:48.4,wos:6.9,oos:68,total:3240,age:61.2},
+    {m:'Aug',q:1,coh:86667.3,coo:21403.9,cit:8781.1,dos:48.2,wos:6.9,oos:69,total:3240,age:61.7},
+    {m:'Sep',q:1,coh:84365.3,coo:21097.3,cit:8602.4,dos:48.8,wos:6.9,oos:66,total:3240,age:61.1},
+    {m:'Oct',q:2,coh:82719.9,coo:20454.9,cit:8533.2,dos:48.6,wos:6.9,oos:76,total:3240,age:61.6},
+    {m:'Nov',q:2,coh:85294.9,coo:21202.8,cit:8761.2,dos:48.7,wos:6.9,oos:74,total:3240,age:61.8},
+    {m:'Dec',q:2,coh:85514.8,coo:21447.0,cit:8312.5,dos:47.8,wos:6.8,oos:66,total:3240,age:60.8},
+    {m:'Jan',q:3,coh:83815.5,coo:21192.0,cit:8528.9,dos:48.2,wos:6.9,oos:59,total:3240,age:61.4},
+    {m:'Feb',q:3,coh:84344.4,coo:21420.3,cit:8447.7,dos:48.2,wos:6.9,oos:77,total:3240,age:62.1},
+    {m:'Mar',q:3,coh:83881.2,coo:21106.6,cit:8158.9,dos:49.5,wos:7.1,oos:69,total:3240,age:61.5},
+    {m:'Apr',q:4,coh:85409.4,coo:21872.1,cit:8667.9,dos:48.5,wos:6.9,oos:67,total:3240,age:61.8},
+    {m:'May',q:4,coh:83847.1,coo:20887.8,cit:8429.8,dos:48.9,wos:7.0,oos:78,total:3240,age:60.8},
+    {m:'Jun',q:4,coh:86151.0,coo:21583.9,cit:8586.8,dos:47.5,wos:6.8,oos:77,total:3240,age:61.4}
+];
+
+// ── MONTHLY FY24 DATA ──
+const fy24 = [
+    {m:'Jul',dos:47.9,wos:6.8,oos:63},{m:'Aug',dos:49.2,wos:7.0,oos:74},{m:'Sep',dos:48.4,wos:6.9,oos:68},
+    {m:'Oct',dos:47.9,wos:6.8,oos:75},{m:'Nov',dos:48.3,wos:6.9,oos:63},{m:'Dec',dos:48.6,wos:6.9,oos:78},
+    {m:'Jan',dos:48.5,wos:6.9,oos:73},{m:'Feb',dos:49.3,wos:7.0,oos:82},{m:'Mar',dos:48.4,wos:6.9,oos:66},
+    {m:'Apr',dos:48.7,wos:6.9,oos:69},{m:'May',dos:48.3,wos:6.9,oos:58},{m:'Jun',dos:48.8,wos:6.9,oos:70}
+];
+
+// ── DISTRIBUTOR DATA ──
+const distData = [
+    {n:'Republic National Distributing',coh:216101.1,dos:48.4,oos:140,total:4800,age:61.4},
+    {n:'Southern Wine & Spirits Partne',coh:214726.7,dos:48.2,oos:277,total:10080,age:61.0},
+    {n:'Breakthru Beverage Holdings',coh:174745.9,dos:48.0,oos:80,total:7680,age:61.8},
+    {n:"Young's Market Company",coh:132760.4,dos:48.8,oos:74,total:3840,age:61.6},
+    {n:'Empire Merchants Distribution',coh:63802.9,dos:49.1,oos:0,total:1440,age:61.8},
+    {n:'Heidelberg Distributing',coh:46936.8,dos:49.3,oos:6,total:1920,age:60.3},
+    {n:'Winesellers Ltd',coh:38905.0,dos:47.6,oos:0,total:960,age:64.7},
+    {n:'Capitol Beverage Sales',coh:31920.9,dos:49.5,oos:107,total:2400,age:62.1},
+    {n:'Horizon Beverage Group',coh:29323.2,dos:47.8,oos:121,total:2880,age:61.2},
+    {n:'Lipman Brothers',coh:29053.0,dos:49.5,oos:2,total:1440,age:61.4},
+    {n:'Fedway Associates',coh:19154.7,dos:48.9,oos:39,total:960,age:61.8},
+    {n:'State Control Board',coh:16536.1,dos:49.3,oos:0,total:480,age:58.8}
+];
+
+// ── CATEGORY DATA ──
+const catData = [
+    {n:'Premium Vodka',coh:234576.6,dos:48.2},{n:'Canadian Whisky',coh:150524.6,dos:48.9},
+    {n:'Scotch Whisky',coh:139895.1,dos:48.0},{n:'Spiced Rum',coh:129638.9,dos:48.6},
+    {n:'Premium Tequila',coh:62379.5,dos:48.2},{n:'Ultra-Premium Vodka',coh:57947.2,dos:48.4},
+    {n:'Super-Premium Vodka',coh:54226.7,dos:48.4},{n:'Bourbon',coh:48630.3,dos:49.4},
+    {n:'Premium Gin',coh:46184.3,dos:48.5},{n:'Cream Liqueur',coh:43458.9,dos:48.2},
+    {n:'Ultra-Premium Tequila',coh:34442.0,dos:48.9},{n:'Stout',coh:12062.6,dos:48.6}
+];
+
+// ── STATE DATA ──
+const stData = [
+    {s:'California',coh:155431.4,dos:48.5},{s:'New York',coh:75751.4,dos:47.5},{s:'Texas',coh:56421.1,dos:48.5},
+    {s:'Illinois',coh:50655.6,dos:47.7},{s:'Ohio',coh:44853.6,dos:49.8},{s:'Florida',coh:43967.8,dos:49.9},
+    {s:'New Jersey',coh:35787.3,dos:49.4},{s:'Virginia',coh:33871.8,dos:49.5},
+    {s:'Washington',coh:29255.3,dos:48.2},{s:'Tennessee',coh:27105.8,dos:48.6}
+];
+
+// ── AGING DATA ──
+const ageData = [
+    {a:'0-30 days',c:9211,coh:237420.7},{a:'31-60 days',c:9952,coh:259665.4},
+    {a:'61-90 days',c:9887,coh:258445.7},{a:'91-120 days',c:9830,coh:258434.9}
+];
+
+// ── TOTALS ──
+const t25={coh:0,coo:0,cit:0,dos:0,wos:0,oos:0,age:0};
+fy25.forEach(d=>{t25.coh+=d.coh;t25.coo+=d.coo;t25.cit+=d.cit;t25.oos+=d.oos;t25.age+=d.age;});
+t25.dos=(t25.dos/12); t25.wos=(t25.wos/12); t25.age=t25.age/12;
+fy25.forEach(d=>t25.dos+=d.dos); fy25.forEach(d=>t25.wos+=d.wos);
+t25.dos=t25.dos/12; t25.wos=t25.wos/12;
+
+// ── KPI CARDS ──
+const kpis = [
+    {label:'Cases on Hand',val:t25.coh,prev:null,sub:'Total warehouse inventory',isCases:true},
+    {label:'Cases on Order',val:t25.coo,prev:null,sub:'Incoming inventory',isCases:true},
+    {label:'Cases in Transit',val:t25.cit,prev:null,sub:'Currently in shipment',isCases:true},
+    {label:'Avg Days of Supply',val:48.4,prev:null,sub:'Inventory runway (days)',isSmall:true},
+    {label:'OOS Rate %',val:(t25.oos/(3240*12)*100),prev:null,sub:'Out-of-stock occurrences',isRate:true},
+    {label:'Avg Age (Days)',val:61.4,prev:null,sub:'Average inventory age',isSmall:true}
+];
+
+const kpiRow = document.getElementById('kpiRow');
+kpis.forEach(k=>{
+    const displayVal = k.isCount ? k.val : k.isSmall ? k.val.toFixed(1) : k.isCases ? fmtK(k.val) : k.isRate ? k.val.toFixed(2) : fmt$(k.val);
+    const sparkVals = fy25.map(d => d.coh);
+    const sparkMax = Math.max(...sparkVals);
+    const bars = sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');
+    kpiRow.innerHTML += `<div class="kpi-card">
+        <div class="label">${k.label}</div>
+        <div class="value">${displayVal}</div>
+        <div class="sub-value">${k.sub}</div>
+        <div class="sparkline-row">${bars}</div>
+    </div>`;
+});
+
+// ── MONTHLY STACKED (COH + COO + CIT) ──
+new Chart(document.getElementById('monthlyStackChart'),{type:'bar',data:{
+    labels:months,
+    datasets:[
+        {label:'Cases on Hand',data:fy25.map(d=>d.coh),backgroundColor:G,borderRadius:2},
+        {label:'Cases on Order',data:fy25.map(d=>d.coo),backgroundColor:DG,borderRadius:2},
+        {label:'Cases in Transit',data:fy25.map(d=>d.cit),backgroundColor:LG,borderRadius:2}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmtK(ctx.raw)}}},scales:{y:{stacked:true,ticks:{callback:v=>fmtK(v)},grid:{color:GL}},x:{stacked:true,grid:{display:false}}}}});
+
+// ── DOS TREND FY25 vs FY24 ──
+new Chart(document.getElementById('dosChart'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25.map(d=>d.dos),borderColor:G,tension:.3,pointRadius:4,borderWidth:2,pointBackgroundColor:G},
+        {label:'FY2024',data:fy24.map(d=>d.dos),borderColor:PY,tension:.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(1)+' days'}}},scales:{y:{min:47,max:50,ticks:{callback:v=>v+' days'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── OOS RATE FY25 vs FY24 ──
+new Chart(document.getElementById('oosChart'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'FY2025',data:fy25.map(d=>(d.oos/d.total*100)),borderColor:G,tension:.3,pointRadius:4,borderWidth:2,pointBackgroundColor:G},
+        {label:'FY2024',data:fy24.map(d=>(d.oos/3240*100)),borderColor:PY,tension:.3,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(2)+'%'}}},scales:{y:{min:1,max:3.5,ticks:{callback:v=>v+'%'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── DISTRIBUTOR BAR ──
+new Chart(document.getElementById('distChart'),{type:'bar',data:{
+    labels:distData.map(d=>d.n),
+    datasets:[{data:distData.map(d=>d.coh),backgroundColor:G,borderRadius:3}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── CATEGORY BAR ──
+new Chart(document.getElementById('catChart'),{type:'bar',data:{
+    labels:catData.map(d=>d.n),
+    datasets:[{data:catData.map(d=>d.coh),backgroundColor:G,borderRadius:3}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+// ── STATE BAR ──
+new Chart(document.getElementById('stateChart'),{type:'bar',data:{
+    labels:stData.map(d=>d.s),
+    datasets:[{data:stData.map(d=>d.coh),backgroundColor:G,borderRadius:3}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── AGING DISTRIBUTION (BARS) ──
+new Chart(document.getElementById('ageChart'),{type:'bar',data:{
+    labels:ageData.map(d=>d.a),
+    datasets:[{data:ageData.map(d=>d.coh),backgroundColor:G,borderRadius:4}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},y:{grid:{display:false}}}}});
+
+// ── DISTRIBUTOR TABLE ──
+const dtb = document.getElementById('distTable');
+let tdCoh=0,tdOos=0,tdAge=0,tdDos=0;
+distData.forEach(d=>{
+    const oosr=(d.oos/d.total*100).toFixed(2);
+    tdCoh+=d.coh; tdOos+=d.oos; tdAge+=d.age; tdDos+=d.dos;
+    dtb.innerHTML+=`<tr>
+        <td>${d.n}</td>
+        <td class="num">${fmtK(d.coh)}</td><td class="num">${d.dos.toFixed(1)}</td>
+        <td class="num">${d.oos}</td><td class="num">${oosr}%</td>
+        <td class="num">${d.age.toFixed(1)}</td>
+    </tr>`;
+});
+document.getElementById('distTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td>
+    <td class="num" style="color:#D4A843">${fmtK(tdCoh)}</td><td class="num" style="color:#D4A843">${(tdDos/12).toFixed(1)}</td>
+    <td class="num" style="color:#D4A843">${tdOos}</td><td class="num" style="color:#D4A843">${((tdOos/(distData.length*12))*100).toFixed(2)}%</td>
+    <td class="num" style="color:#D4A843">${(tdAge/12).toFixed(1)}</td>
+</tr>`;
+
+// ── MONTHLY TABLE ──
+const mtb = document.getElementById('monthTable');
+let mtCoh=0,mtCoo=0,mtCit=0,mtDos=0,mtWos=0,mtOos=0,mtAge=0;
+fy25.forEach(d=>{
+    mtCoh+=d.coh; mtCoo+=d.coo; mtCit+=d.cit; mtDos+=d.dos; mtWos+=d.wos; mtOos+=d.oos; mtAge+=d.age;
+    mtb.innerHTML+=`<tr>
+        <td>${d.m}</td><td>Q${d.q}</td>
+        <td class="num">${fmtK(d.coh)}</td><td class="num">${fmtK(d.coo)}</td><td class="num">${fmtK(d.cit)}</td>
+        <td class="num">${d.dos.toFixed(1)}</td><td class="num">${d.wos.toFixed(1)}</td>
+        <td class="num">${d.oos}</td><td class="num">${d.age.toFixed(1)}</td>
+    </tr>`;
+});
+document.getElementById('monthTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td><td>FY25</td>
+    <td class="num" style="color:#D4A843">${fmtK(mtCoh)}</td><td class="num" style="color:#D4A843">${fmtK(mtCoo)}</td><td class="num" style="color:#D4A843">${fmtK(mtCit)}</td>
+    <td class="num" style="color:#D4A843">${(mtDos/12).toFixed(1)}</td><td class="num" style="color:#D4A843">${(mtWos/12).toFixed(1)}</td>
+    <td class="num" style="color:#D4A843">${mtOos}</td><td class="num" style="color:#D4A843">${(mtAge/12).toFixed(1)}</td>
+</tr>`;
+</script>
+</body>
+</html>

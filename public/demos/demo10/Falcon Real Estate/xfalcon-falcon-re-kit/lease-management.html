@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lease Management &amp; Expiry Wall</title>
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F8F9FA;
+            color: #1F2937;
+            line-height: 1.5;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .topbar-logo {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #006AFF;
+            letter-spacing: 0.05em;
+        }
+
+        .topbar-title {
+            flex: 1;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .topbar-back {
+            padding: 0.5rem 1rem;
+            background: #F3F4F6;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            color: #4B5563;
+            font-weight: 500;
+        }
+
+        .topbar-back:hover {
+            background: #E5E7EB;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-card-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6B7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card-note {
+            font-size: 0.75rem;
+            color: #9CA3AF;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            position: relative;
+            height: 400px;
+        }
+
+        .chart-container.full {
+            grid-column: 1 / -1;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .grid-2 .chart-container {
+            height: 350px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        .table-container {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .table thead {
+            background: #F9FAFB;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .table th {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .table tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+        .renewal-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .renewal-high {
+            background: #DBEAFE;
+            color: #0369A1;
+        }
+
+        .renewal-medium {
+            background: #CCFBF1;
+            color: #0D6E6E;
+        }
+
+        .renewal-low {
+            background: #FECACA;
+            color: #7F1D1D;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #9CA3AF;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .analysis-box {
+            background: #FFFBEB;
+            border-left: 4px solid #F59E0B;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #78350F;
+        }
+
+        .analysis-box strong {
+            color: #92400E;
+        }
+
+        canvas {
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-logo">xF</div>
+        <div class="topbar-title">Falcon Real Estate / Lease Management &amp; Expiry Wall</div>
+        <a href="index.html" class="topbar-back">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <!-- KPI CARDS -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-card-label">Active Leases</div>
+                <div class="kpi-card-value">140</div>
+                <div class="kpi-card-note">All active portfolio leases</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">Total Base Rent</div>
+                <div class="kpi-card-value">$194.6M</div>
+                <div class="kpi-card-note">Current annual base rent</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">WALT</div>
+                <div class="kpi-card-value">100.4 mo</div>
+                <div class="kpi-card-note">Weighted average lease term</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">12-Month Expiry Exposure</div>
+                <div class="kpi-card-value">$40.1M</div>
+                <div class="kpi-card-note">Annual rent at risk in next year</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">Leases Expiring 12m</div>
+                <div class="kpi-card-value">31</div>
+                <div class="kpi-card-note">22% of portfolio at risk</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">Avg Renewal Probability</div>
+                <div class="kpi-card-value">66.6%</div>
+                <div class="kpi-card-note">2/3 leases likely to renew</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">Avg Escalation</div>
+                <div class="kpi-card-value">2.55%</div>
+                <div class="kpi-card-note">Expected annual rent growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card-label">Renewal Rate</div>
+                <div class="kpi-card-value">78.4%</div>
+                <div class="kpi-card-note">73 Pending / 106 historical outcomes</div>
+            </div>
+        </div>
+
+        <!-- ANALYSIS BOX -->
+        <div class="analysis-box">
+            <strong>Portfolio Health Summary:</strong> Your 140-asset lease portfolio spans $243M in rent-at-risk through 2053. The immediate focus is 31 leases expiring in the next 12 months ($40.1M exposure). With a 66.6% average renewal probability and healthy 78.4% historical renewal rate, the portfolio shows solid fundamentals. Office sector leads in total rent-at-risk ($92.5M), while Retail has highest count (38 leases). Peak expiry years are 2026 (31 leases, $40.1M), 2027 (21 leases, $46.5M), and 2028 (13 leases, $43.9M). Strategic focus on high-value industrial and data center leases expiring 2026-2027 is critical.
+        </div>
+
+        <!-- LEASE EXPIRY WALL (Full Width) -->
+        <div class="section">
+            <h2 class="section-title">Lease Expiry Wall &amp; Renewal Confidence</h2>
+            <div class="chart-container full">
+                <canvas id="expiryWallChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TWO-COLUMN SECTION -->
+        <div class="grid-2">
+            <div class="section">
+                <h2 class="section-title">Rent at Risk by Asset Class</h2>
+                <div class="chart-container">
+                    <canvas id="rentByAssetChart"></canvas>
+                </div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Renewal Outcomes Summary</h2>
+                <div class="chart-container">
+                    <canvas id="renewalOutcomesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECOND TWO-COLUMN SECTION -->
+        <div class="grid-2">
+            <div class="section">
+                <h2 class="section-title">Renewal Rate by Asset Class</h2>
+                <div class="chart-container">
+                    <canvas id="renewalRateByAssetChart"></canvas>
+                </div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Downtime Cost by Outcome</h2>
+                <div class="chart-container">
+                    <canvas id="downtimeCostChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP 20 EXPIRING LEASES TABLE -->
+        <div class="section">
+            <h2 class="section-title">Top 20 Leases Expiring in Next 18 Months</h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tenant</th>
+                            <th>Property</th>
+                            <th>Asset Class</th>
+                            <th>Expiry Date</th>
+                            <th>Months Left</th>
+                            <th>Annual Rent at Expiry</th>
+                            <th>Renewal Probability</th>
+                            <th>Escalation %</th>
+                            <th>Covenant Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiringLeasesTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            Generated by xFalcon RetailEdge | Data as of 2025-12-31
+        </div>
+    </div>
+
+    <script>
+        // Utility helpers
+        const mk = (val, type = 'number') => {
+            if (val === null || val === undefined) return '—';
+            if (type === 'currency') return '$' + (val / 1e6).toFixed(1) + 'M';
+            if (type === 'percent') return (val).toFixed(1) + '%';
+            if (type === 'integer') return Math.round(val).toLocaleString();
+            return val.toLocaleString();
+        };
+
+        const dateFormat = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        // Global chart config
+        Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+        Chart.defaults.color = '#6B7280';
+
+        // Q1 Data: Lease Expiry Wall by Year
+        const q1Data = [
+            { year: 2026, leases: 31, rent: 40064773.01, prob: 59.73 },
+            { year: 2027, leases: 21, rent: 46495431.09, prob: 68.02 },
+            { year: 2028, leases: 13, rent: 43864006.38, prob: 68.99 },
+            { year: 2029, leases: 8, rent: 31645905.02, prob: 70.00 },
+            { year: 2030, leases: 8, rent: 17698539.63, prob: 78.89 },
+            { year: 2031, leases: 8, rent: 10716586.61, prob: 62.52 },
+            { year: 2032, leases: 4, rent: 15108687.37, prob: 62.61 },
+            { year: 2033, leases: 2, rent: 4378617.05, prob: 52.52 },
+            { year: 2034, leases: 5, rent: 7974108.50, prob: 66.28 },
+            { year: 2035, leases: 3, rent: 3902674.06, prob: 67.11 }
+        ];
+
+        // Chart 1: Expiry Wall
+        const ctxWall = document.getElementById('expiryWallChart').getContext('2d');
+        new Chart(ctxWall, {
+            type: 'bar',
+            data: {
+                labels: q1Data.map(d => d.year),
+                datasets: [
+                    {
+                        label: 'Rent at Risk (USD)',
+                        data: q1Data.map(d => d.rent),
+                        backgroundColor: '#006AFF',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        yAxisID: 'y',
+                        borderRadius: 4,
+                        barThickness: 'flex'
+                    },
+                    {
+                        label: 'Avg Renewal Probability (%)',
+                        data: q1Data.map(d => d.prob),
+                        borderColor: '#1A7F64',
+                        backgroundColor: 'rgba(26, 127, 100, 0.1)',
+                        borderWidth: 3,
+                        type: 'line',
+                        yAxisID: 'y1',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#1A7F64',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { usePointStyle: true, padding: 15 }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1F2937',
+                        titleFont: { weight: 600 },
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: (ctx) => {
+                                if (ctx.dataset.yAxisID === 'y') {
+                                    return ctx.dataset.label + ': $' + (ctx.parsed.y / 1e6).toFixed(1) + 'M';
+                                } else {
+                                    return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Rent at Risk (USD)', font: { weight: 600 } },
+                        ticks: {
+                            callback: (v) => '$' + (v / 1e6).toFixed(0) + 'M'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Renewal Probability (%)', font: { weight: 600 } },
+                        min: 40,
+                        max: 85,
+                        ticks: { callback: (v) => v + '%' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+
+        // Q5 Data: Expiry by Asset Class
+        const q5Data = [
+            { class: 'Office', leases: 27, rent: 92496956.08, prob: 68.38, rent12m: 11879947.31 },
+            { class: 'Retail', leases: 38, rent: 47730388.28, prob: 61.49, rent12m: 16395055.44 },
+            { class: 'Industrial', leases: 16, rent: 40909202.38, prob: 70.28, rent12m: 5785790.34 },
+            { class: 'Healthcare', leases: 16, rent: 33079082.60, prob: 65.95, rent12m: 0 },
+            { class: 'Data Center', leases: 8, rent: 26936126.16, prob: 69.96, rent12m: 5690030.57 },
+            { class: 'Telecom Tower', leases: 29, rent: 1598626.53, prob: 70.69, rent12m: 0 },
+            { class: 'Residential', leases: 6, rent: 313949.35, prob: 59.61, rent12m: 313949.35 }
+        ].sort((a, b) => b.rent - a.rent);
+
+        // Chart 2: Rent by Asset Class
+        const ctxRent = document.getElementById('rentByAssetChart').getContext('2d');
+        new Chart(ctxRent, {
+            type: 'bar',
+            data: {
+                labels: q5Data.map(d => d.class),
+                datasets: [{
+                    label: 'Total Rent at Risk (USD)',
+                    data: q5Data.map(d => d.rent),
+                    backgroundColor: '#006AFF',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1F2937',
+                        padding: 10,
+                        callbacks: {
+                            label: (ctx) => '$' + (ctx.parsed.x / 1e6).toFixed(1) + 'M'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { callback: (v) => '$' + (v / 1e6).toFixed(0) + 'M' }
+                    }
+                }
+            }
+        });
+
+        // Q3 Data: Renewal Outcomes
+        const q3Data = [
+            { outcome: 'Pending', count: 73, rentChange: 7.03, downtime: null },
+            { outcome: 'Not Renewed', count: 23, rentChange: null, downtime: 10305875.18 },
+            { outcome: 'Relocated', count: 6, rentChange: null, downtime: 3820318.27 },
+            { outcome: 'Downsized', count: 4, rentChange: null, downtime: 81605.90 }
+        ];
+
+        // Chart 3: Renewal Outcomes
+        const ctxOutcome = document.getElementById('renewalOutcomesChart').getContext('2d');
+        new Chart(ctxOutcome, {
+            type: 'bar',
+            data: {
+                labels: ['Renewed/Pending', 'Not Renewed', 'Relocated', 'Downsized'],
+                datasets: [{
+                    label: 'Count',
+                    data: [73, 23, 6, 4],
+                    backgroundColor: ['#006AFF', '#0EA5E9', '#94A3B8', '#94A3B8'],
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1F2937',
+                        padding: 10,
+                        callbacks: {
+                            label: (ctx) => 'Count: ' + ctx.parsed.x
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { stepSize: 20 }
+                    }
+                }
+            }
+        });
+
+        // Q6 Data: Renewal by Asset Class
+        const renewalByAsset = {
+            'Office': { Pending: 5, NotRenewed: 2 },
+            'Retail': { Pending: 6, NotRenewed: 3 },
+            'Industrial': { Pending: 3, NotRenewed: 1 },
+            'Data Center': { Pending: 8, NotRenewed: 2, Relocated: 2 },
+            'Residential': { Pending: 51, NotRenewed: 15, Downsized: 4, Relocated: 4 }
+        };
+
+        const assetClasses = Object.keys(renewalByAsset);
+        const renewalRates = assetClasses.map(ac => {
+            const data = renewalByAsset[ac];
+            const pending = data.Pending || 0;
+            const total = Object.values(data).reduce((a, b) => a + b, 0);
+            return total > 0 ? (pending / total) * 100 : 0;
+        });
+
+        // Chart 4: Renewal Rate by Asset Class
+        const ctxRenewRate = document.getElementById('renewalRateByAssetChart').getContext('2d');
+        new Chart(ctxRenewRate, {
+            type: 'bar',
+            data: {
+                labels: assetClasses,
+                datasets: [{
+                    label: 'Renewal Rate (%)',
+                    data: renewalRates,
+                    backgroundColor: '#1A7F64',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1F2937',
+                        padding: 10,
+                        callbacks: {
+                            label: (ctx) => ctx.parsed.y.toFixed(1) + '%'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        max: 100,
+                        ticks: { callback: (v) => v + '%' }
+                    }
+                }
+            }
+        });
+
+        // Chart 5: Downtime Cost
+        const downtimeData = [
+            { outcome: 'Not Renewed', cost: 10305875.18 },
+            { outcome: 'Relocated', cost: 3820318.27 },
+            { outcome: 'Downsized', cost: 81605.90 }
+        ].sort((a, b) => b.cost - a.cost);
+
+        const ctxDowntime = document.getElementById('downtimeCostChart').getContext('2d');
+        new Chart(ctxDowntime, {
+            type: 'bar',
+            data: {
+                labels: downtimeData.map(d => d.outcome),
+                datasets: [{
+                    label: 'Total Downtime Cost (USD)',
+                    data: downtimeData.map(d => d.cost),
+                    backgroundColor: '#F59E0B',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1F2937',
+                        padding: 10,
+                        callbacks: {
+                            label: (ctx) => '$' + (ctx.parsed.y / 1e6).toFixed(1) + 'M'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { callback: (v) => '$' + (v / 1e6).toFixed(0) + 'M' }
+                    }
+                }
+            }
+        });
+
+        // Q2 Data: Expiring Leases Table
+        const q2Data = [
+            { tenant: 'Prime Health Operators #133', property: 'Hartsfield Cargo Hub', class: 'Industrial', expiry: '2027-06-26', months: 18, rent: 4650559.04, prob: 39.48, escalation: 3.22, covenant: 79.83 },
+            { tenant: 'Apex Mobile Corp (Site 73)', property: 'Chicago Colocation Hub', class: 'Data Center', expiry: '2026-03-16', months: 2, rent: 4078687.85, prob: 71.17, escalation: 2.57, covenant: 89.96 },
+            { tenant: 'Atlantic Realty 264', property: 'Chicago Colocation Hub', class: 'Data Center', expiry: '2027-02-14', months: 14, rent: 3971237.48, prob: 73.76, escalation: 2.91, covenant: 32.84 },
+            { tenant: 'Valley Health Systems #136', property: 'Energy Corridor Office Houston', class: 'Office', expiry: '2027-07-06', months: 18, rent: 3918972.25, prob: 71.74, escalation: 1.64, covenant: 67.81 },
+            { tenant: 'Coastal Capital 981', property: 'DFW Data Center Park', class: 'Data Center', expiry: '2027-02-03', months: 13, rent: 3838372.95, prob: 63.53, escalation: 3.37, covenant: 50.91 },
+            { tenant: 'Prime Systems 978', property: 'Pennsylvania Avenue Office', class: 'Office', expiry: '2026-07-26', months: 7, rent: 3836657.35, prob: 100.00, escalation: 3.01, covenant: 46.31 },
+            { tenant: 'Pacific Wireless Co (Site 107)', property: 'Magnificent Mile Plaza', class: 'Retail', expiry: '2026-10-25', months: 10, rent: 3545556.38, prob: 75.82, escalation: 3.43, covenant: 91.85 },
+            { tenant: 'Summit Capital 619', property: 'Financial District Tower', class: 'Office', expiry: '2027-04-26', months: 16, rent: 3541122.46, prob: 54.97, escalation: 3.49, covenant: 47.67 },
+            { tenant: 'Metro Capital 346', property: 'Coral Gables Shoppes', class: 'Retail', expiry: '2026-10-25', months: 10, rent: 3158083.59, prob: 71.29, escalation: 3.33, covenant: 70.66 },
+            { tenant: 'Central Systems 598', property: 'Park Avenue Tower Office', class: 'Office', expiry: '2026-10-25', months: 10, rent: 2967843.22, prob: 75.49, escalation: 2.27, covenant: 49.70 },
+            { tenant: 'Harbor Capital 557', property: 'Las Vegas Industrial Park', class: 'Industrial', expiry: '2026-02-23', months: 2, rent: 2934084.45, prob: 45.48, escalation: 2.12, covenant: 57.24 },
+            { tenant: 'Core Corp 310', property: 'Desert Ridge Marketplace', class: 'Retail', expiry: '2026-03-06', months: 2, rent: 2916988.42, prob: 59.73, escalation: 1.66, covenant: 90.71 },
+            { tenant: 'National Cellular Partners', property: 'Downtown Detroit Office', class: 'Office', expiry: '2026-01-23', months: 1, rent: 2740356.97, prob: 48.50, escalation: 1.53, covenant: 84.25 },
+            { tenant: 'Summit Resources 573', property: 'Michigan Avenue Office Plex', class: 'Office', expiry: '2026-05-25', months: 5, rent: 2335089.77, prob: 55.95, escalation: 2.54, covenant: 80.05 },
+            { tenant: 'Lakeview Inc 528', property: 'Perimeter Mall Annex', class: 'Retail', expiry: '2026-09-25', months: 9, rent: 2208643.56, prob: 57.44, escalation: 2.54, covenant: 49.82 },
+            { tenant: 'Valley Ventures 711', property: 'Coral Gables Shoppes', class: 'Retail', expiry: '2027-01-24', months: 13, rent: 1718304.10, prob: 86.91, escalation: 3.00, covenant: 30.16 },
+            { tenant: 'Urban Inc 868', property: 'Ashburn Data Campus - Beta', class: 'Data Center', expiry: '2026-11-15', months: 11, rent: 1611342.72, prob: 86.37, escalation: 2.50, covenant: 24.82 },
+            { tenant: 'Elite Services', property: 'DFW Inland Port Warehouse', class: 'Industrial', expiry: '2026-03-06', months: 2, rent: 1540912.06, prob: 65.00, escalation: 2.73, covenant: 33.02 },
+            { tenant: 'MedFirst Healthcare Inc #154', property: 'Elk Grove Distribution Center', class: 'Industrial', expiry: '2026-11-05', months: 10, rent: 1310793.83, prob: 70.10, escalation: 3.06, covenant: 78.04 },
+            { tenant: 'National Senior Partners #124', property: 'Ashburn Data Campus - Alpha', class: 'Data Center', expiry: '2027-06-05', months: 17, rent: 1220291.95, prob: 73.01, escalation: 1.84, covenant: 71.30 }
+        ];
+
+        // Populate table
+        const tbody = document.getElementById('expiringLeasesTable');
+        q2Data.forEach(row => {
+            const tr = document.createElement('tr');
+            const probBadgeClass = row.prob >= 75 ? 'renewal-high' : row.prob >= 50 ? 'renewal-medium' : 'renewal-low';
+            tr.innerHTML = `
+                <td><strong>${row.tenant}</strong></td>
+                <td>${row.property}</td>
+                <td>${row.class}</td>
+                <td>${dateFormat(row.expiry)}</td>
+                <td>${row.months}</td>
+                <td>$${(row.rent / 1e6).toFixed(2)}M</td>
+                <td><span class="renewal-badge ${probBadgeClass}">${row.prob.toFixed(1)}%</span></td>
+                <td>${row.escalation.toFixed(2)}%</td>
+                <td>${row.covenant.toFixed(1)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>

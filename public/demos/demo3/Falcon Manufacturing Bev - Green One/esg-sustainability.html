@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG Sustainability Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #7CB701;
+            font-weight: 700;
+        }
+
+        .back-link {
+            color: #7CB701;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            padding: 8px 16px;
+            border: 1px solid #7CB701;
+            border-radius: 4px;
+        }
+
+        .back-link:hover {
+            color: #95D600;
+            border-color: #95D600;
+        }
+
+        .filters {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            border: 1px solid #7CB701;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #7CB701;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            border: 1px solid #7CB701;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: #95D600;
+            box-shadow: 0 0 8px rgba(123, 199, 1, 0.3);
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #95D600;
+            box-shadow: 0 0 12px rgba(149, 214, 0, 0.4);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #7CB701;
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 16px rgba(123, 199, 1, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            color: #9B999B;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #7CB701;
+        }
+
+        .kpi-unit {
+            color: #9B999B;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .charts-container {
+            display: grid;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #2A2A2A;
+        }
+
+        .chart-wrapper-full {
+            grid-column: 1 / -1;
+        }
+
+        .chart-wrapper-half {
+            grid-column: span 1;
+        }
+
+        @media (max-width: 1200px) {
+            .chart-wrapper-half {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .chart-title {
+            color: #7CB701;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #7CB701;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        .table-wrapper {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #2A2A2A;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .table-title {
+            color: #7CB701;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #7CB701;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #0D0D0D;
+        }
+
+        table thead th {
+            color: #7CB701;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #2A2A2A;
+            color: #FFFFFF;
+            font-size: 13px;
+        }
+
+        table tbody tr:hover {
+            background-color: #2A2A2A;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: rgba(123, 199, 1, 0.02);
+        }
+
+        .footer {
+            text-align: center;
+            color: #9B999B;
+            font-size: 13px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2A2A2A;
+        }
+
+        .charts-row-half {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-row-half {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ESG Sustainability Dashboard</h1>
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <div class="filters">
+        <div class="filter-group">
+            <label for="yearFilter">Year</label>
+            <select id="yearFilter">
+                <option value="">All Years</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="quarterFilter">Quarter</label>
+            <select id="quarterFilter">
+                <option value="">All Quarters</option>
+                <option value="1">Q1</option>
+                <option value="2">Q2</option>
+                <option value="3">Q3</option>
+                <option value="4">Q4</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="plantFilter">Plant</label>
+            <select id="plantFilter">
+                <option value="">All Plants</option>
+                <option value="FizzCo Atlanta Plant">FizzCo Atlanta Plant</option>
+                <option value="FizzCo Austin Plant">FizzCo Austin Plant</option>
+                <option value="FizzCo Chicago Plant">FizzCo Chicago Plant</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Carbon Emissions</div>
+            <div class="kpi-value" id="kpiCarbon">0</div>
+            <div class="kpi-unit">tonnes CO2e</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Water Usage</div>
+            <div class="kpi-value" id="kpiWater">0</div>
+            <div class="kpi-unit">m³</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Renewable Energy</div>
+            <div class="kpi-value" id="kpiRenewable">0</div>
+            <div class="kpi-unit">%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Eco-Packaging</div>
+            <div class="kpi-value" id="kpiEcoPackaging">0</div>
+            <div class="kpi-unit">%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Waste</div>
+            <div class="kpi-value" id="kpiWaste">0</div>
+            <div class="kpi-unit">kg</div>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-wrapper chart-wrapper-full">
+            <div class="chart-title">Carbon Emissions Trend by Quarter</div>
+            <div class="chart-container">
+                <canvas id="carbonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="charts-row-half">
+            <div class="chart-wrapper">
+                <div class="chart-title">Renewable Energy % Trend</div>
+                <div class="chart-container">
+                    <canvas id="renewableChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-title">Eco-Packaging % Trend</div>
+                <div class="chart-container">
+                    <canvas id="ecoPackagingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-row-half">
+            <div class="chart-wrapper">
+                <div class="chart-title">Water Usage by Plant</div>
+                <div class="chart-container">
+                    <canvas id="waterChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-title">Waste & Plastic Waste</div>
+                <div class="chart-container">
+                    <canvas id="wasteChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-row-half">
+            <div class="chart-wrapper">
+                <div class="chart-title">Glass Recycled & Bottles Returned</div>
+                <div class="chart-container">
+                    <canvas id="recyclingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <div class="table-title">ESG Summary Data</div>
+        <table id="esgTable">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Quarter</th>
+                    <th>Plant</th>
+                    <th>Carbon (tonnes)</th>
+                    <th>Water (m³)</th>
+                    <th>Energy (kWh)</th>
+                    <th>Renewable %</th>
+                    <th>Waste (kg)</th>
+                    <th>Plastic (kg)</th>
+                    <th>Eco-Pkg %</th>
+                    <th>Glass (kg)</th>
+                    <th>Bottles Returned</th>
+                </tr>
+            </thead>
+            <tbody id="esgTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Key Insights & Analysis Section -->
+    <div style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+        <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+        <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+        <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+        <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+    </div>
+
+    <div class="footer">
+        Generated by IDA Analytics
+    </div>
+
+    <script>
+        const esgData = [
+            {year:2020,quarter:1,plant:"FizzCo Atlanta Plant",carbon_tonnes:256.03,water_m3:22956,energy_kwh:1732163,renewable_pct:9.07,waste_kg:30428.00,plastic_waste_kg:6665.09,eco_packaging_pct:6.20,glass_recycled:141925,bottles_returned:29886},
+            {year:2020,quarter:1,plant:"FizzCo Austin Plant",carbon_tonnes:269.83,water_m3:22856,energy_kwh:1698377,renewable_pct:10.77,waste_kg:25322.55,plastic_waste_kg:5115.08,eco_packaging_pct:6.13,glass_recycled:169861,bottles_returned:69794},
+            {year:2020,quarter:1,plant:"FizzCo Chicago Plant",carbon_tonnes:244.42,water_m3:23367,energy_kwh:1726207,renewable_pct:11.37,waste_kg:26713.97,plastic_waste_kg:7820.61,eco_packaging_pct:6.03,glass_recycled:115574,bottles_returned:60439},
+            {year:2020,quarter:2,plant:"FizzCo Atlanta Plant",carbon_tonnes:286.76,water_m3:23623,energy_kwh:1709329,renewable_pct:11.10,waste_kg:29157.32,plastic_waste_kg:3902.96,eco_packaging_pct:6.17,glass_recycled:125627,bottles_returned:88859},
+            {year:2020,quarter:2,plant:"FizzCo Austin Plant",carbon_tonnes:328.48,water_m3:21530,energy_kwh:1879976,renewable_pct:8.43,waste_kg:26050.73,plastic_waste_kg:4854.44,eco_packaging_pct:6.63,glass_recycled:187695,bottles_returned:60874},
+            {year:2020,quarter:2,plant:"FizzCo Chicago Plant",carbon_tonnes:329.50,water_m3:22060,energy_kwh:2252266,renewable_pct:9.50,waste_kg:24696.15,plastic_waste_kg:7232.98,eco_packaging_pct:6.33,glass_recycled:106050,bottles_returned:102335},
+            {year:2020,quarter:3,plant:"FizzCo Atlanta Plant",carbon_tonnes:365.42,water_m3:32242,energy_kwh:1689758,renewable_pct:9.23,waste_kg:18106.18,plastic_waste_kg:6949.49,eco_packaging_pct:6.63,glass_recycled:149254,bottles_returned:80860},
+            {year:2020,quarter:3,plant:"FizzCo Austin Plant",carbon_tonnes:357.30,water_m3:32069,energy_kwh:1997409,renewable_pct:8.70,waste_kg:25757.39,plastic_waste_kg:5389.36,eco_packaging_pct:7.00,glass_recycled:129488,bottles_returned:56595},
+            {year:2020,quarter:3,plant:"FizzCo Chicago Plant",carbon_tonnes:363.57,water_m3:37013,energy_kwh:2314165,renewable_pct:8.53,waste_kg:27844.73,plastic_waste_kg:5312.15,eco_packaging_pct:6.57,glass_recycled:120696,bottles_returned:72539},
+            {year:2020,quarter:4,plant:"FizzCo Atlanta Plant",carbon_tonnes:307.78,water_m3:37056,energy_kwh:1827756,renewable_pct:11.13,waste_kg:27364.17,plastic_waste_kg:5125.18,eco_packaging_pct:6.73,glass_recycled:159235,bottles_returned:74582},
+            {year:2020,quarter:4,plant:"FizzCo Austin Plant",carbon_tonnes:309.08,water_m3:29714,energy_kwh:1722858,renewable_pct:9.67,waste_kg:38199.97,plastic_waste_kg:7350.72,eco_packaging_pct:6.33,glass_recycled:103628,bottles_returned:63813},
+            {year:2020,quarter:4,plant:"FizzCo Chicago Plant",carbon_tonnes:332.46,water_m3:25923,energy_kwh:2049037,renewable_pct:10.57,waste_kg:24086.41,plastic_waste_kg:5261.94,eco_packaging_pct:5.97,glass_recycled:157297,bottles_returned:41151},
+            {year:2021,quarter:1,plant:"FizzCo Atlanta Plant",carbon_tonnes:300.24,water_m3:22847,energy_kwh:1507163,renewable_pct:12.37,waste_kg:23198.83,plastic_waste_kg:5632.28,eco_packaging_pct:13.90,glass_recycled:146128,bottles_returned:69470},
+            {year:2021,quarter:1,plant:"FizzCo Austin Plant",carbon_tonnes:293.12,water_m3:22002,energy_kwh:1425481,renewable_pct:13.00,waste_kg:32858.12,plastic_waste_kg:5910.79,eco_packaging_pct:14.87,glass_recycled:79623,bottles_returned:86666},
+            {year:2021,quarter:1,plant:"FizzCo Chicago Plant",carbon_tonnes:263.29,water_m3:22127,energy_kwh:1601026,renewable_pct:14.50,waste_kg:20351.46,plastic_waste_kg:5637.11,eco_packaging_pct:16.17,glass_recycled:163471,bottles_returned:99984},
+            {year:2021,quarter:2,plant:"FizzCo Atlanta Plant",carbon_tonnes:320.48,water_m3:35993,energy_kwh:2124559,renewable_pct:14.00,waste_kg:26150.93,plastic_waste_kg:6952.82,eco_packaging_pct:14.20,glass_recycled:162767,bottles_returned:70805},
+            {year:2021,quarter:2,plant:"FizzCo Austin Plant",carbon_tonnes:307.30,water_m3:28628,energy_kwh:2112938,renewable_pct:14.77,waste_kg:20900.69,plastic_waste_kg:2853.19,eco_packaging_pct:15.60,glass_recycled:158927,bottles_returned:73725},
+            {year:2021,quarter:2,plant:"FizzCo Chicago Plant",carbon_tonnes:315.64,water_m3:24234,energy_kwh:1919129,renewable_pct:14.37,waste_kg:38136.88,plastic_waste_kg:4325.80,eco_packaging_pct:15.90,glass_recycled:161620,bottles_returned:45153},
+            {year:2021,quarter:3,plant:"FizzCo Atlanta Plant",carbon_tonnes:340.35,water_m3:26698,energy_kwh:2028014,renewable_pct:13.37,waste_kg:32924.82,plastic_waste_kg:5234.18,eco_packaging_pct:15.60,glass_recycled:75785,bottles_returned:75488},
+            {year:2021,quarter:3,plant:"FizzCo Austin Plant",carbon_tonnes:291.36,water_m3:29312,energy_kwh:2260152,renewable_pct:14.77,waste_kg:24945.51,plastic_waste_kg:5827.21,eco_packaging_pct:15.73,glass_recycled:185801,bottles_returned:60080},
+            {year:2021,quarter:3,plant:"FizzCo Chicago Plant",carbon_tonnes:377.36,water_m3:35276,energy_kwh:2097151,renewable_pct:15.33,waste_kg:27291.26,plastic_waste_kg:6054.99,eco_packaging_pct:14.07,glass_recycled:157624,bottles_returned:64998},
+            {year:2021,quarter:4,plant:"FizzCo Atlanta Plant",carbon_tonnes:293.89,water_m3:25280,energy_kwh:2234063,renewable_pct:14.37,waste_kg:19084.84,plastic_waste_kg:5591.30,eco_packaging_pct:15.60,glass_recycled:120793,bottles_returned:78043},
+            {year:2021,quarter:4,plant:"FizzCo Austin Plant",carbon_tonnes:282.29,water_m3:25948,energy_kwh:1951257,renewable_pct:13.83,waste_kg:23548.86,plastic_waste_kg:4378.22,eco_packaging_pct:14.33,glass_recycled:106621,bottles_returned:33481},
+            {year:2021,quarter:4,plant:"FizzCo Chicago Plant",carbon_tonnes:273.03,water_m3:26712,energy_kwh:1741793,renewable_pct:13.43,waste_kg:32979.14,plastic_waste_kg:3570.36,eco_packaging_pct:14.53,glass_recycled:112550,bottles_returned:45413},
+            {year:2022,quarter:1,plant:"FizzCo Atlanta Plant",carbon_tonnes:227.67,water_m3:27729,energy_kwh:1401312,renewable_pct:17.73,waste_kg:27555.93,plastic_waste_kg:5267.91,eco_packaging_pct:22.93,glass_recycled:150637,bottles_returned:60986},
+            {year:2022,quarter:1,plant:"FizzCo Austin Plant",carbon_tonnes:259.19,water_m3:28033,energy_kwh:1775986,renewable_pct:17.20,waste_kg:29484.68,plastic_waste_kg:3891.30,eco_packaging_pct:22.67,glass_recycled:165579,bottles_returned:85531},
+            {year:2022,quarter:1,plant:"FizzCo Chicago Plant",carbon_tonnes:260.58,water_m3:17822,energy_kwh:1764686,renewable_pct:19.07,waste_kg:20540.55,plastic_waste_kg:6102.75,eco_packaging_pct:24.40,glass_recycled:142356,bottles_returned:63761},
+            {year:2022,quarter:2,plant:"FizzCo Atlanta Plant",carbon_tonnes:331.19,water_m3:29319,energy_kwh:1628455,renewable_pct:18.20,waste_kg:15404.41,plastic_waste_kg:5784.10,eco_packaging_pct:24.30,glass_recycled:174380,bottles_returned:64015},
+            {year:2022,quarter:2,plant:"FizzCo Austin Plant",carbon_tonnes:294.61,water_m3:23662,energy_kwh:1815010,renewable_pct:17.43,waste_kg:27129.62,plastic_waste_kg:6580.21,eco_packaging_pct:24.17,glass_recycled:178341,bottles_returned:63303},
+            {year:2022,quarter:2,plant:"FizzCo Chicago Plant",carbon_tonnes:312.15,water_m3:23832,energy_kwh:2171648,renewable_pct:16.50,waste_kg:18986.04,plastic_waste_kg:6708.53,eco_packaging_pct:23.67,glass_recycled:84854,bottles_returned:73881},
+            {year:2022,quarter:3,plant:"FizzCo Atlanta Plant",carbon_tonnes:349.87,water_m3:28382,energy_kwh:1558781,renewable_pct:19.57,waste_kg:29407.00,plastic_waste_kg:3900.99,eco_packaging_pct:23.67,glass_recycled:152019,bottles_returned:79946},
+            {year:2022,quarter:3,plant:"FizzCo Austin Plant",carbon_tonnes:343.57,water_m3:29145,energy_kwh:1864271,renewable_pct:19.77,waste_kg:21992.99,plastic_waste_kg:7832.13,eco_packaging_pct:24.20,glass_recycled:212216,bottles_returned:54341},
+            {year:2022,quarter:3,plant:"FizzCo Chicago Plant",carbon_tonnes:317.83,water_m3:39780,energy_kwh:2267520,renewable_pct:17.70,waste_kg:19896.31,plastic_waste_kg:5475.23,eco_packaging_pct:24.33,glass_recycled:115734,bottles_returned:71032},
+            {year:2022,quarter:4,plant:"FizzCo Atlanta Plant",carbon_tonnes:286.72,water_m3:20040,energy_kwh:1880429,renewable_pct:17.63,waste_kg:19270.51,plastic_waste_kg:7529.51,eco_packaging_pct:24.07,glass_recycled:178034,bottles_returned:45747},
+            {year:2022,quarter:4,plant:"FizzCo Austin Plant",carbon_tonnes:282.00,water_m3:31752,energy_kwh:2056563,renewable_pct:15.80,waste_kg:21928.78,plastic_waste_kg:6960.26,eco_packaging_pct:23.80,glass_recycled:139185,bottles_returned:37388},
+            {year:2022,quarter:4,plant:"FizzCo Chicago Plant",carbon_tonnes:297.57,water_m3:22593,energy_kwh:1923831,renewable_pct:18.60,waste_kg:21066.54,plastic_waste_kg:5364.44,eco_packaging_pct:24.13,glass_recycled:190458,bottles_returned:72545},
+            {year:2023,quarter:1,plant:"FizzCo Atlanta Plant",carbon_tonnes:243.38,water_m3:23333,energy_kwh:1678046,renewable_pct:21.60,waste_kg:19277.77,plastic_waste_kg:4799.95,eco_packaging_pct:33.77,glass_recycled:98816,bottles_returned:58436},
+            {year:2023,quarter:1,plant:"FizzCo Austin Plant",carbon_tonnes:232.87,water_m3:22738,energy_kwh:1517048,renewable_pct:22.67,waste_kg:29509.73,plastic_waste_kg:8038.76,eco_packaging_pct:32.13,glass_recycled:141981,bottles_returned:56937},
+            {year:2023,quarter:1,plant:"FizzCo Chicago Plant",carbon_tonnes:242.68,water_m3:29762,energy_kwh:1723250,renewable_pct:21.43,waste_kg:21854.47,plastic_waste_kg:7030.57,eco_packaging_pct:33.03,glass_recycled:134656,bottles_returned:94372},
+            {year:2023,quarter:2,plant:"FizzCo Atlanta Plant",carbon_tonnes:264.45,water_m3:32432,energy_kwh:2085658,renewable_pct:20.47,waste_kg:21984.25,plastic_waste_kg:8496.50,eco_packaging_pct:32.97,glass_recycled:116156,bottles_returned:44943},
+            {year:2023,quarter:2,plant:"FizzCo Austin Plant",carbon_tonnes:326.85,water_m3:32609,energy_kwh:2143445,renewable_pct:22.63,waste_kg:20112.64,plastic_waste_kg:8098.20,eco_packaging_pct:33.30,glass_recycled:189035,bottles_returned:60885},
+            {year:2023,quarter:2,plant:"FizzCo Chicago Plant",carbon_tonnes:283.53,water_m3:30077,energy_kwh:1733326,renewable_pct:22.37,waste_kg:31206.98,plastic_waste_kg:1891.62,eco_packaging_pct:33.13,glass_recycled:163238,bottles_returned:68406},
+            {year:2023,quarter:3,plant:"FizzCo Atlanta Plant",carbon_tonnes:292.38,water_m3:28655,energy_kwh:1942979,renewable_pct:22.67,waste_kg:20664.33,plastic_waste_kg:6978.29,eco_packaging_pct:31.97,glass_recycled:134626,bottles_returned:44954},
+            {year:2023,quarter:3,plant:"FizzCo Austin Plant",carbon_tonnes:315.44,water_m3:35841,energy_kwh:1880767,renewable_pct:20.97,waste_kg:19713.86,plastic_waste_kg:6924.79,eco_packaging_pct:33.73,glass_recycled:205637,bottles_returned:79380},
+            {year:2023,quarter:3,plant:"FizzCo Chicago Plant",carbon_tonnes:344.17,water_m3:22293,energy_kwh:1878359,renewable_pct:20.20,waste_kg:16181.61,plastic_waste_kg:7527.73,eco_packaging_pct:33.43,glass_recycled:135974,bottles_returned:52075},
+            {year:2023,quarter:4,plant:"FizzCo Atlanta Plant",carbon_tonnes:287.22,water_m3:27182,energy_kwh:2494419,renewable_pct:22.20,waste_kg:21968.65,plastic_waste_kg:3744.07,eco_packaging_pct:32.27,glass_recycled:109749,bottles_returned:37793},
+            {year:2023,quarter:4,plant:"FizzCo Austin Plant",carbon_tonnes:281.30,water_m3:31588,energy_kwh:1670966,renewable_pct:22.87,waste_kg:18316.71,plastic_waste_kg:5247.97,eco_packaging_pct:32.73,glass_recycled:142481,bottles_returned:65298},
+            {year:2023,quarter:4,plant:"FizzCo Chicago Plant",carbon_tonnes:305.38,water_m3:29539,energy_kwh:1835023,renewable_pct:22.60,waste_kg:26974.63,plastic_waste_kg:3456.29,eco_packaging_pct:34.50,glass_recycled:104746,bottles_returned:63431},
+            {year:2024,quarter:1,plant:"FizzCo Atlanta Plant",carbon_tonnes:245.09,water_m3:26588,energy_kwh:1351454,renewable_pct:25.47,waste_kg:17552.58,plastic_waste_kg:6747.97,eco_packaging_pct:43.50,glass_recycled:177213,bottles_returned:78538},
+            {year:2024,quarter:1,plant:"FizzCo Austin Plant",carbon_tonnes:221.05,water_m3:23642,energy_kwh:1589011,renewable_pct:26.70,waste_kg:16049.39,plastic_waste_kg:4722.19,eco_packaging_pct:43.87,glass_recycled:173418,bottles_returned:76619},
+            {year:2024,quarter:1,plant:"FizzCo Chicago Plant",carbon_tonnes:217.61,water_m3:21177,energy_kwh:1725794,renewable_pct:25.07,waste_kg:18909.49,plastic_waste_kg:7641.71,eco_packaging_pct:44.47,glass_recycled:41608,bottles_returned:55185},
+            {year:2024,quarter:2,plant:"FizzCo Atlanta Plant",carbon_tonnes:284.69,water_m3:23348,energy_kwh:2283597,renewable_pct:27.97,waste_kg:20095.25,plastic_waste_kg:4449.63,eco_packaging_pct:43.67,glass_recycled:110931,bottles_returned:71053},
+            {year:2024,quarter:2,plant:"FizzCo Austin Plant",carbon_tonnes:264.35,water_m3:25801,energy_kwh:1744597,renewable_pct:25.70,waste_kg:16848.05,plastic_waste_kg:6446.34,eco_packaging_pct:43.90,glass_recycled:135746,bottles_returned:63384},
+            {year:2024,quarter:2,plant:"FizzCo Chicago Plant",carbon_tonnes:274.32,water_m3:24470,energy_kwh:2190720,renewable_pct:24.67,waste_kg:17213.16,plastic_waste_kg:3603.85,eco_packaging_pct:44.43,glass_recycled:98638,bottles_returned:89465},
+            {year:2024,quarter:3,plant:"FizzCo Atlanta Plant",carbon_tonnes:306.03,water_m3:28887,energy_kwh:1950636,renewable_pct:27.03,waste_kg:25649.56,plastic_waste_kg:4696.92,eco_packaging_pct:42.93,glass_recycled:146290,bottles_returned:44076},
+            {year:2024,quarter:3,plant:"FizzCo Austin Plant",carbon_tonnes:304.94,water_m3:32449,energy_kwh:2220640,renewable_pct:28.13,waste_kg:19180.20,plastic_waste_kg:6041.15,eco_packaging_pct:43.70,glass_recycled:144738,bottles_returned:81338},
+            {year:2024,quarter:3,plant:"FizzCo Chicago Plant",carbon_tonnes:333.56,water_m3:34852,energy_kwh:2233006,renewable_pct:25.17,waste_kg:19854.14,plastic_waste_kg:5359.33,eco_packaging_pct:42.37,glass_recycled:152000,bottles_returned:74015},
+            {year:2024,quarter:4,plant:"FizzCo Atlanta Plant",carbon_tonnes:281.24,water_m3:26884,energy_kwh:2314698,renewable_pct:27.30,waste_kg:17545.54,plastic_waste_kg:4170.23,eco_packaging_pct:43.73,glass_recycled:186314,bottles_returned:30991},
+            {year:2024,quarter:4,plant:"FizzCo Austin Plant",carbon_tonnes:304.26,water_m3:22284,energy_kwh:1890118,renewable_pct:24.93,waste_kg:27629.09,plastic_waste_kg:7340.06,eco_packaging_pct:44.83,glass_recycled:131403,bottles_returned:80167},
+            {year:2024,quarter:4,plant:"FizzCo Chicago Plant",carbon_tonnes:288.14,water_m3:23807,energy_kwh:2047114,renewable_pct:25.33,waste_kg:21135.63,plastic_waste_kg:5616.90,eco_packaging_pct:43.43,glass_recycled:164724,bottles_returned:67389},
+            {year:2025,quarter:1,plant:"FizzCo Atlanta Plant",carbon_tonnes:232.56,water_m3:23140,energy_kwh:1661032,renewable_pct:30.10,waste_kg:22721.60,plastic_waste_kg:4533.58,eco_packaging_pct:54.30,glass_recycled:107078,bottles_returned:74132},
+            {year:2025,quarter:1,plant:"FizzCo Austin Plant",carbon_tonnes:189.11,water_m3:18236,energy_kwh:2006558,renewable_pct:29.70,waste_kg:27764.69,plastic_waste_kg:4511.50,eco_packaging_pct:54.67,glass_recycled:164552,bottles_returned:87227},
+            {year:2025,quarter:1,plant:"FizzCo Chicago Plant",carbon_tonnes:254.97,water_m3:23430,energy_kwh:2188002,renewable_pct:29.97,waste_kg:21856.71,plastic_waste_kg:6220.51,eco_packaging_pct:52.87,glass_recycled:144810,bottles_returned:56034},
+            {year:2025,quarter:2,plant:"FizzCo Atlanta Plant",carbon_tonnes:225.10,water_m3:23688,energy_kwh:1968302,renewable_pct:28.20,waste_kg:20218.06,plastic_waste_kg:4535.08,eco_packaging_pct:54.40,glass_recycled:182545,bottles_returned:46685},
+            {year:2025,quarter:2,plant:"FizzCo Austin Plant",carbon_tonnes:274.06,water_m3:39087,energy_kwh:2368853,renewable_pct:30.77,waste_kg:20009.06,plastic_waste_kg:5349.88,eco_packaging_pct:54.03,glass_recycled:179622,bottles_returned:64391},
+            {year:2025,quarter:2,plant:"FizzCo Chicago Plant",carbon_tonnes:253.70,water_m3:26236,energy_kwh:2123608,renewable_pct:28.00,waste_kg:18619.09,plastic_waste_kg:7688.40,eco_packaging_pct:54.27,glass_recycled:95992,bottles_returned:63859},
+            {year:2025,quarter:3,plant:"FizzCo Atlanta Plant",carbon_tonnes:255.75,water_m3:29837,energy_kwh:2179212,renewable_pct:28.10,waste_kg:19647.84,plastic_waste_kg:4535.33,eco_packaging_pct:53.60,glass_recycled:129566,bottles_returned:64859},
+            {year:2025,quarter:3,plant:"FizzCo Austin Plant",carbon_tonnes:324.31,water_m3:34097,energy_kwh:2242466,renewable_pct:30.90,waste_kg:22363.33,plastic_waste_kg:5193.71,eco_packaging_pct:52.40,glass_recycled:122249,bottles_returned:68633},
+            {year:2025,quarter:3,plant:"FizzCo Chicago Plant",carbon_tonnes:259.54,water_m3:33574,energy_kwh:2073238,renewable_pct:30.20,waste_kg:24541.95,plastic_waste_kg:4981.52,eco_packaging_pct:54.10,glass_recycled:113543,bottles_returned:39811},
+            {year:2025,quarter:4,plant:"FizzCo Atlanta Plant",carbon_tonnes:254.11,water_m3:25184,energy_kwh:2150136,renewable_pct:29.43,waste_kg:15620.44,plastic_waste_kg:5681.87,eco_packaging_pct:53.70,glass_recycled:88986,bottles_returned:62475},
+            {year:2025,quarter:4,plant:"FizzCo Austin Plant",carbon_tonnes:262.29,water_m3:25940,energy_kwh:1833112,renewable_pct:29.40,waste_kg:27918.15,plastic_waste_kg:4891.28,eco_packaging_pct:55.07,glass_recycled:131987,bottles_returned:78539},
+            {year:2025,quarter:4,plant:"FizzCo Chicago Plant",carbon_tonnes:235.69,water_m3:29210,energy_kwh:2168599,renewable_pct:29.63,waste_kg:20433.54,plastic_waste_kg:6487.97,eco_packaging_pct:52.63,glass_recycled:145149,bottles_returned:64526}
+        ];
+
+        let charts = {};
+
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const quarter = document.getElementById('quarterFilter').value;
+            const plant = document.getElementById('plantFilter').value;
+
+            return esgData.filter(row => {
+                const yearMatch = !year || row.year == year;
+                const quarterMatch = !quarter || row.quarter == quarter;
+                const plantMatch = !plant || row.plant === plant;
+                return yearMatch && quarterMatch && plantMatch;
+            });
+        }
+
+        function formatNumber(num, decimals = 2) {
+            return parseFloat(num).toLocaleString('en-US', { maximumFractionDigits: decimals, minimumFractionDigits: decimals });
+        }
+
+        function updateKPIs() {
+            const filtered = getFilteredData();
+
+            const totalCarbon = filtered.reduce((sum, row) => sum + row.carbon_tonnes, 0);
+            const totalWater = filtered.reduce((sum, row) => sum + row.water_m3, 0);
+            const avgRenewable = filtered.length > 0 ? filtered.reduce((sum, row) => sum + row.renewable_pct, 0) / filtered.length : 0;
+            const avgEcoPackaging = filtered.length > 0 ? filtered.reduce((sum, row) => sum + row.eco_packaging_pct, 0) / filtered.length : 0;
+            const totalWaste = filtered.reduce((sum, row) => sum + row.waste_kg, 0);
+
+            document.getElementById('kpiCarbon').textContent = formatNumber(totalCarbon, 0);
+            document.getElementById('kpiWater').textContent = formatNumber(totalWater, 0);
+            document.getElementById('kpiRenewable').textContent = formatNumber(avgRenewable, 1);
+            document.getElementById('kpiEcoPackaging').textContent = formatNumber(avgEcoPackaging, 1);
+            document.getElementById('kpiWaste').textContent = formatNumber(totalWaste, 0);
+        }
+
+        function updateTable() {
+            const filtered = getFilteredData().sort((a, b) => {
+                if (a.year !== b.year) return a.year - b.year;
+                if (a.quarter !== b.quarter) return a.quarter - b.quarter;
+                return a.plant.localeCompare(b.plant);
+            });
+
+            const tbody = document.getElementById('esgTableBody');
+            tbody.innerHTML = '';
+
+            filtered.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.year}</td>
+                    <td>Q${row.quarter}</td>
+                    <td>${row.plant}</td>
+                    <td>${formatNumber(row.carbon_tonnes, 2)}</td>
+                    <td>${formatNumber(row.water_m3, 0)}</td>
+                    <td>${formatNumber(row.energy_kwh, 0)}</td>
+                    <td>${formatNumber(row.renewable_pct, 2)}</td>
+                    <td>${formatNumber(row.waste_kg, 2)}</td>
+                    <td>${formatNumber(row.plastic_waste_kg, 2)}</td>
+                    <td>${formatNumber(row.eco_packaging_pct, 2)}</td>
+                    <td>${formatNumber(row.glass_recycled, 0)}</td>
+                    <td>${formatNumber(row.bottles_returned, 0)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getCarbonChartData() {
+            const filtered = getFilteredData();
+            const byQuarter = {};
+
+            filtered.forEach(row => {
+                const key = `${row.year}-Q${row.quarter}`;
+                if (!byQuarter[key]) {
+                    byQuarter[key] = {
+                        atlanta: [], austin: [], chicago: []
+                    };
+                }
+                if (row.plant === 'FizzCo Atlanta Plant') byQuarter[key].atlanta.push(row.carbon_tonnes);
+                else if (row.plant === 'FizzCo Austin Plant') byQuarter[key].austin.push(row.carbon_tonnes);
+                else if (row.plant === 'FizzCo Chicago Plant') byQuarter[key].chicago.push(row.carbon_tonnes);
+            });
+
+            const labels = Object.keys(byQuarter).sort();
+            const atlantaData = labels.map(k => byQuarter[k].atlanta.length > 0 ? byQuarter[k].atlanta[0] : 0);
+            const austinData = labels.map(k => byQuarter[k].austin.length > 0 ? byQuarter[k].austin[0] : 0);
+            const chicagoData = labels.map(k => byQuarter[k].chicago.length > 0 ? byQuarter[k].chicago[0] : 0);
+
+            return {
+                labels: labels,
+                atlanta: atlantaData,
+                austin: austinData,
+                chicago: chicagoData
+            };
+        }
+
+        function initCarbonChart() {
+            const ctx = document.getElementById('carbonChart').getContext('2d');
+            const data = getCarbonChartData();
+
+            if (charts.carbon) charts.carbon.destroy();
+
+            charts.carbon = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'FizzCo Atlanta Plant',
+                            data: data.atlanta,
+                            borderColor: '#7CB701',
+                            backgroundColor: 'rgba(123, 199, 1, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#7CB701',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'FizzCo Austin Plant',
+                            data: data.austin,
+                            borderColor: '#95D600',
+                            backgroundColor: 'rgba(149, 214, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#95D600',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'FizzCo Chicago Plant',
+                            data: data.chicago,
+                            borderColor: '#FFB800',
+                            backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#FFB800',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF',
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initRenewableChart() {
+            const ctx = document.getElementById('renewableChart').getContext('2d');
+            const filtered = getFilteredData();
+            const byQuarter = {};
+
+            filtered.forEach(row => {
+                const key = `${row.year}-Q${row.quarter}`;
+                if (!byQuarter[key]) {
+                    byQuarter[key] = { atlanta: [], austin: [], chicago: [] };
+                }
+                if (row.plant === 'FizzCo Atlanta Plant') byQuarter[key].atlanta.push(row.renewable_pct);
+                else if (row.plant === 'FizzCo Austin Plant') byQuarter[key].austin.push(row.renewable_pct);
+                else if (row.plant === 'FizzCo Chicago Plant') byQuarter[key].chicago.push(row.renewable_pct);
+            });
+
+            const labels = Object.keys(byQuarter).sort();
+
+            if (charts.renewable) charts.renewable.destroy();
+
+            charts.renewable = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'FizzCo Atlanta Plant',
+                            data: labels.map(k => byQuarter[k].atlanta.length > 0 ? byQuarter[k].atlanta[0] : 0),
+                            borderColor: '#7CB701',
+                            backgroundColor: 'rgba(123, 199, 1, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#7CB701'
+                        },
+                        {
+                            label: 'FizzCo Austin Plant',
+                            data: labels.map(k => byQuarter[k].austin.length > 0 ? byQuarter[k].austin[0] : 0),
+                            borderColor: '#95D600',
+                            backgroundColor: 'rgba(149, 214, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#95D600'
+                        },
+                        {
+                            label: 'FizzCo Chicago Plant',
+                            data: labels.map(k => byQuarter[k].chicago.length > 0 ? byQuarter[k].chicago[0] : 0),
+                            borderColor: '#FFB800',
+                            backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#FFB800'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initEcoPackagingChart() {
+            const ctx = document.getElementById('ecoPackagingChart').getContext('2d');
+            const filtered = getFilteredData();
+            const byQuarter = {};
+
+            filtered.forEach(row => {
+                const key = `${row.year}-Q${row.quarter}`;
+                if (!byQuarter[key]) {
+                    byQuarter[key] = { atlanta: [], austin: [], chicago: [] };
+                }
+                if (row.plant === 'FizzCo Atlanta Plant') byQuarter[key].atlanta.push(row.eco_packaging_pct);
+                else if (row.plant === 'FizzCo Austin Plant') byQuarter[key].austin.push(row.eco_packaging_pct);
+                else if (row.plant === 'FizzCo Chicago Plant') byQuarter[key].chicago.push(row.eco_packaging_pct);
+            });
+
+            const labels = Object.keys(byQuarter).sort();
+
+            if (charts.ecoPackaging) charts.ecoPackaging.destroy();
+
+            charts.ecoPackaging = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'FizzCo Atlanta Plant',
+                            data: labels.map(k => byQuarter[k].atlanta.length > 0 ? byQuarter[k].atlanta[0] : 0),
+                            borderColor: '#7CB701',
+                            backgroundColor: 'rgba(123, 199, 1, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#7CB701'
+                        },
+                        {
+                            label: 'FizzCo Austin Plant',
+                            data: labels.map(k => byQuarter[k].austin.length > 0 ? byQuarter[k].austin[0] : 0),
+                            borderColor: '#95D600',
+                            backgroundColor: 'rgba(149, 214, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#95D600'
+                        },
+                        {
+                            label: 'FizzCo Chicago Plant',
+                            data: labels.map(k => byQuarter[k].chicago.length > 0 ? byQuarter[k].chicago[0] : 0),
+                            borderColor: '#FFB800',
+                            backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#FFB800'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initWaterChart() {
+            const ctx = document.getElementById('waterChart').getContext('2d');
+            const filtered = getFilteredData();
+            const plants = ['FizzCo Atlanta Plant', 'FizzCo Austin Plant', 'FizzCo Chicago Plant'];
+            const labels = [...new Set(filtered.map(r => `${r.year}-Q${r.quarter}`))].sort();
+
+            const datasets = plants.map((plant, idx) => {
+                const colors = ['#7CB701', '#95D600', '#FFB800'];
+                return {
+                    label: plant,
+                    data: labels.map(label => {
+                        const matching = filtered.filter(r => `${r.year}-Q${r.quarter}` === label && r.plant === plant);
+                        return matching.length > 0 ? matching[0].water_m3 : 0;
+                    }),
+                    backgroundColor: colors[idx]
+                };
+            });
+
+            if (charts.water) charts.water.destroy();
+
+            charts.water = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9B999B' }, grid: { color: '#2A2A2A' }, stacked: false },
+                        y: { ticks: { color: '#9B999B' }, grid: { color: '#2A2A2A' }, stacked: false }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        function initWasteChart() {
+            const ctx = document.getElementById('wasteChart').getContext('2d');
+            const filtered = getFilteredData();
+            const labels = [...new Set(filtered.map(r => `${r.year}-Q${r.quarter}`))].sort();
+
+            if (charts.waste) charts.waste.destroy();
+
+            charts.waste = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Waste (kg)',
+                            data: labels.map(label => {
+                                const matching = filtered.filter(r => `${r.year}-Q${r.quarter}` === label);
+                                return matching.reduce((sum, row) => sum + row.waste_kg, 0);
+                            }),
+                            backgroundColor: '#FF4444'
+                        },
+                        {
+                            label: 'Plastic Waste (kg)',
+                            data: labels.map(label => {
+                                const matching = filtered.filter(r => `${r.year}-Q${r.quarter}` === label);
+                                return matching.reduce((sum, row) => sum + row.plastic_waste_kg, 0);
+                            }),
+                            backgroundColor: '#FFB800'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9B999B' }, grid: { color: '#2A2A2A' } },
+                        y: { ticks: { color: '#9B999B' }, grid: { color: '#2A2A2A' }, stacked: true }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        function initRecyclingChart() {
+            const ctx = document.getElementById('recyclingChart').getContext('2d');
+            const filtered = getFilteredData();
+            const labels = [...new Set(filtered.map(r => `${r.year}-Q${r.quarter}`))].sort();
+
+            if (charts.recycling) charts.recycling.destroy();
+
+            charts.recycling = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Glass Recycled (kg)',
+                            data: labels.map(label => {
+                                const matching = filtered.filter(r => `${r.year}-Q${r.quarter}` === label);
+                                return matching.reduce((sum, row) => sum + row.glass_recycled, 0);
+                            }),
+                            backgroundColor: '#7CB701'
+                        },
+                        {
+                            label: 'Bottles Returned',
+                            data: labels.map(label => {
+                                const matching = filtered.filter(r => `${r.year}-Q${r.quarter}` === label);
+                                return matching.reduce((sum, row) => sum + row.bottles_returned, 0);
+                            }),
+                            backgroundColor: '#95D600'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9B999B' }, grid: { color: '#2A2A2A' } },
+                        y: { ticks: { color: '#9B999B' }, grid: { color: '#2A2A2A' }, stacked: false }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        function updateInsights() {
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                document.getElementById('focusAreas').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                return;
+            }
+
+            // Calculate metrics
+            const avgCarbon = filtered.reduce((sum, d) => sum + d.carbon_tonnes, 0) / filtered.length;
+            const avgRenewable = filtered.reduce((sum, d) => sum + d.renewable_pct, 0) / filtered.length;
+            const avgWater = filtered.reduce((sum, d) => sum + d.water_m3, 0) / filtered.length;
+            const avgWaste = filtered.reduce((sum, d) => sum + d.waste_kg, 0) / filtered.length;
+            const avgEcoPackaging = filtered.reduce((sum, d) => sum + d.eco_packaging_pct, 0) / filtered.length;
+            const avgPlasticWaste = filtered.reduce((sum, d) => sum + d.plastic_waste_kg, 0) / filtered.length;
+
+            // Get plant statistics
+            const plantData = {};
+            filtered.forEach(d => {
+                if (!plantData[d.plant]) {
+                    plantData[d.plant] = { carbon: [], renewable: [], ecoPackaging: [] };
+                }
+                plantData[d.plant].carbon.push(d.carbon_tonnes);
+                plantData[d.plant].renewable.push(d.renewable_pct);
+                plantData[d.plant].ecoPackaging.push(d.eco_packaging_pct);
+            });
+
+            // Calculate plant averages
+            const plantStats = Object.entries(plantData).map(([plant, data]) => ({
+                plant,
+                avgCarbon: data.carbon.reduce((a, b) => a + b, 0) / data.carbon.length,
+                avgRenewable: data.renewable.reduce((a, b) => a + b, 0) / data.renewable.length,
+                avgEcoPackaging: data.ecoPackaging.reduce((a, b) => a + b, 0) / data.ecoPackaging.length
+            }));
+
+            // Find best and worst performers
+            const highestCarbon = plantStats.reduce((a, b) => a.avgCarbon > b.avgCarbon ? a : b);
+            const lowestRenewable = plantStats.reduce((a, b) => a.avgRenewable < b.avgRenewable ? a : b);
+
+            // Assess trends
+            const renewableTrend = avgRenewable >= 50 ? 'exceeding' : avgRenewable >= 30 ? 'progressing toward' : 'below';
+            const carbonAssessment = avgCarbon < 250 ? 'improving' : avgCarbon < 350 ? 'moderate' : 'concerning';
+            const ecoPackagingAssessment = avgEcoPackaging > 30 ? 'strong' : avgEcoPackaging > 15 ? 'developing' : 'early stage';
+
+            // Generate insights HTML
+            const insightsHTML = `
+                <ul style="margin-left:20px;">
+                    <li style="margin-bottom:10px;">• Carbon emissions average <strong>${avgCarbon.toFixed(1)} tonnes</strong>, showing <strong>${carbonAssessment}</strong> trend</li>
+                    <li style="margin-bottom:10px;">• Renewable energy adoption at <strong>${avgRenewable.toFixed(1)}%</strong>, <strong>${renewableTrend}</strong> 50% target</li>
+                    <li style="margin-bottom:10px;">• Water consumption averages <strong>${avgWater.toFixed(0)} m³</strong> per data point</li>
+                    <li style="margin-bottom:10px;">• Eco-packaging adoption is <strong>${ecoPackagingAssessment}</strong> at <strong>${avgEcoPackaging.toFixed(1)}%</strong></li>
+                    <li style="margin-bottom:10px;">• Waste reduction shows average <strong>${avgWaste.toFixed(0)} kg</strong> across facilities</li>
+                </ul>
+            `;
+
+            // Generate focus areas HTML
+            const focusAreasHTML = `
+                <ul style="margin-left:20px;">
+                    ${highestCarbon.avgCarbon > 320 ? `<li style="margin-bottom:8px;">• ${highestCarbon.plant} has high emissions at ${highestCarbon.avgCarbon.toFixed(1)} tonnes - prioritize reduction initiatives</li>` : ''}
+                    ${lowestRenewable.avgRenewable < 20 ? `<li style="margin-bottom:8px;">• ${lowestRenewable.plant} at ${lowestRenewable.avgRenewable.toFixed(1)}% renewable energy - far below target</li>` : ''}
+                    ${avgRenewable < 50 ? `<li style="margin-bottom:8px;">• Renewable energy gap: Currently ${avgRenewable.toFixed(1)}% vs 50% target - accelerate transition</li>` : ''}
+                    ${avgWaste > 25000 ? `<li style="margin-bottom:8px;">• Waste generation at ${avgWaste.toFixed(0)} kg requires optimization programs</li>` : ''}
+                    ${avgEcoPackaging < 20 ? `<li style="margin-bottom:8px;">• Eco-packaging adoption is low at ${avgEcoPackaging.toFixed(1)}% - increase sustainable options</li>` : ''}
+                </ul>
+            `;
+
+            document.getElementById('insightsContent').innerHTML = insightsHTML;
+            document.getElementById('focusAreas').innerHTML = focusAreasHTML || '<li style="margin-bottom:8px;">• No critical focus areas - ESG performance is strong</li>';
+        }
+
+        function updateAllCharts() {
+            initCarbonChart();
+            initRenewableChart();
+            initEcoPackagingChart();
+            initWaterChart();
+            initWasteChart();
+            initRecyclingChart();
+        }
+
+        function refreshDashboard() {
+            updateKPIs();
+            updateTable();
+            updateAllCharts();
+            updateInsights();
+        }
+
+        document.getElementById('yearFilter').addEventListener('change', refreshDashboard);
+        document.getElementById('quarterFilter').addEventListener('change', refreshDashboard);
+        document.getElementById('plantFilter').addEventListener('change', refreshDashboard);
+
+        refreshDashboard();
+    </script>
+</body>
+</html>

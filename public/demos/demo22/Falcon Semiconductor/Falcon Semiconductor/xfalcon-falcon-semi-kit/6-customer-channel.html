@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 6. Customer & Channel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-size:13px;min-width:140px}
+.fg select[disabled]{background:#F1F5F9}
+.tg{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+.sw{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+.tg.on .sw{background:var(--p)}.tg.on .sw::after{transform:translateX(16px)}
+.tgl{font-size:12px;font-weight:500}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-size:12px;cursor:pointer}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:24px 0 10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.7}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--txm);margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--p);line-height:1.1}.kpi-d{font-size:12px;font-weight:500;margin-top:3px}
+.kpi-d.positive{color:var(--pos)}.kpi-d.negative{color:var(--neg)}.kpi-d.neutral{color:var(--t)}.kpi-d.warn{color:var(--wrn)}
+.kpi-stk .kpi-val{font-size:16px;line-height:1.35;font-weight:500}.kpi-stk .kpi-val span{display:block}
+.kpi-stk .kpi-val .fy23{color:var(--t)}.kpi-stk .kpi-val .fy24{color:var(--sd)}.kpi-stk .kpi-val .fy25{color:var(--p);font-weight:700}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+.ct{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px}
+.cw{position:relative;height:260px}.cw.tall{height:320px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tbl-h{padding:14px 18px 10px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:14px;font-weight:700;color:var(--p)}
+.tbl-w{max-height:440px;overflow-y:auto}table{width:100%;border-collapse:collapse}
+thead th{background:var(--tb);color:var(--txd);padding:10px 12px;text-align:left;font-size:12px;font-weight:600;position:sticky;top:0}
+th.num,td.num{text-align:right}td{padding:10px 12px;font-size:13px;border-top:1px solid var(--bd)}tr:hover td{background:#F8FAFB}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}.chip.p{background:rgba(45,139,139,.12);color:var(--p)}.chip.g{background:#F1F5F9;color:var(--txm)}.chip.w{background:rgba(217,119,6,.12);color:var(--wrn)}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.row.two,.row.three{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 6. Customer & Channel</div>
+<div class="topbar-subtitle" id="rp">Reporting Period: FY2025</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Fiscal Year</label><select id="fy" onchange="apply()"></select></div>
+<div class="fg"><label>&nbsp;</label><div class="tg" id="cmp" onclick="tog()"><div class="sw"></div><div class="tgl">Compare FY23/24/25</div></div></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>Data governance:</strong> 2,000 customers across 6 segments, 49 states, 4 regions. Top 3 customers (Stellar Dynamics, Onyx Devices, Orion Dynamics) generate 37% of FY25 revenue — concentration risk. Channel mix: DISTI 45.6% via 8 named distributors.</div>
+
+<div class="sec">FY<span class="fyl">25</span> Customer & Channel KPIs</div>
+<div class="kpi-grid" id="kg"></div>
+
+<div class="row two">
+<div class="ch"><div class="ct">Revenue by Customer Segment</div><div class="cw tall"><canvas id="c1"></canvas></div>
+<div class="csub">Tier 1 OEM at 45% of revenue despite 15% of customer count. Startup 18% — promising pipeline.</div></div>
+<div class="ch"><div class="ct">Channel Mix FY25</div><div class="cw tall"><canvas id="c2"></canvas></div>
+<div class="csub">DISTI dominates via 8 distributors (Arrow, Avnet, Digi-Key, etc.). Near-uniform 50.3% GM% across channels.</div></div>
+</div>
+
+<div class="row three">
+<div class="ch"><div class="ct">Revenue by US Region</div><div class="cw"><canvas id="c3"></canvas></div>
+<div class="csub">Revenue concentrated in South & West (tech/auto hubs).</div></div>
+<div class="ch"><div class="ct">Customer Concentration (Lorenz)</div><div class="cw"><canvas id="c4"></canvas></div>
+<div class="csub">Top 20 customers generate 72% of revenue. Top 3 = 37%.</div></div>
+<div class="ch"><div class="ct">Customer Count by Segment</div><div class="cw"><canvas id="c5"></canvas></div>
+<div class="csub">Segment count is roughly balanced — revenue imbalance comes from per-customer spend.</div></div>
+</div>
+
+<div class="row two">
+<div class="ch"><div class="ct">Avg Revenue per Customer by Segment</div><div class="cw"><canvas id="c6"></canvas></div>
+<div class="csub">Tier 1 OEMs average $5.5M per customer — 20× higher than Design Houses.</div></div>
+<div class="ch"><div class="ct">Distributor Performance — DISTI FY25</div><div class="cw"><canvas id="c7"></canvas></div>
+<div class="csub">8 distributors sharing $1.69B. Arrow & Avnet are Tier-1 with 6.6-6.7% commission.</div></div>
+</div>
+
+<div class="tbl"><div class="tbl-h"><div class="tbl-t">Top 20 Customers — FY25</div></div><div class="tbl-w">
+<table><thead><tr><th>#</th><th>Customer</th><th>Segment</th><th>Region</th><th class="num">Revenue ($M)</th><th class="num">Share %</th></tr></thead>
+<tbody id="tb"></tbody></table></div></div>
+
+<div class="ft">Customer & Channel · xFalcon AnalyticsPro</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',pos:'#059669',wrn:'#D97706',gr:'#D8E2DD'};
+var SEG=[{s:'Tier 1 OEM',n:304,rev:1670.1},{s:'Startup',n:334,rev:660.1},{s:'Tier 2 OEM',n:353,rev:484.6},{s:'Contract Mfr',n:338,rev:363.6},{s:'ODM',n:329,rev:270.7},{s:'Design House',n:342,rev:259.5}];
+var CH=[{c:'DISTI',rev:1692.5,gm:50.29},{c:'DIRECT',rev:1278.1,gm:50.36},{c:'OEM',rev:550.8,gm:50.35},{c:'ONLINE',rev:187.3,gm:50.33}];
+var REG=[{r:'South',rev:1400,n:620},{r:'West',rev:980,n:540},{r:'Midwest',rev:780,n:420},{r:'Northeast',rev:550,n:420}];
+// 8 distributors with approximate revenue share
+var DIST=[{n:'Arrow Electronics',rev:360,commPct:6.7},{n:'Avnet',rev:330,commPct:6.6},{n:'Digi-Key',rev:250,commPct:5.5},{n:'Mouser',rev:200,commPct:5.2},{n:'Future Electronics',rev:180,commPct:5.0},{n:'RS Components',rev:140,commPct:5.3},{n:'Newark',rev:130,commPct:5.4},{n:'Premier Farnell',rev:102.5,commPct:5.1}];
+var TOP=[{r:1,n:'Stellar Dynamics',s:'Tier 1 OEM',reg:'South',v:813.95},{r:2,n:'Onyx Devices',s:'Tier 1 OEM',reg:'West',v:364.90},{r:3,n:'Orion Dynamics',s:'Startup',reg:'Midwest',v:214.66},{r:4,n:'Nexus Devices',s:'Startup',reg:'West',v:146.80},{r:5,n:'Titan Devices',s:'Tier 2 OEM',reg:'Midwest',v:125.63},{r:6,n:'Lynx Manufacturing',s:'Tier 1 OEM',reg:'South',v:99.03},{r:7,n:'Omega Technologies',s:'Design House',reg:'Northeast',v:82.39},{r:8,n:'Vortex Solutions',s:'Tier 2 OEM',reg:'Northeast',v:70.89},{r:9,n:'Vortex Solutions',s:'Tier 1 OEM',reg:'Northeast',v:58.06},{r:10,n:'Vortex Systems',s:'Tier 1 OEM',reg:'Midwest',v:52.39},{r:11,n:'Nexus Devices',s:'Startup',reg:'South',v:49.73},{r:12,n:'Onyx Dynamics',s:'Contract Manufacturer',reg:'Northeast',v:43.72},{r:13,n:'Hawk Electronics',s:'Contract Manufacturer',reg:'South',v:36.44},{r:14,n:'Kappa Devices',s:'Tier 2 OEM',reg:'West',v:32.44},{r:15,n:'Summit Controls',s:'Tier 1 OEM',reg:'South',v:32.09},{r:16,n:'Titan Dynamics',s:'Tier 2 OEM',reg:'South',v:30.80},{r:17,n:'Atlas Technologies',s:'Startup',reg:'Northeast',v:29.11},{r:18,n:'Falcon Engineering',s:'Contract Manufacturer',reg:'South',v:26.70},{r:19,n:'Orion Solutions',s:'Contract Manufacturer',reg:'Northeast',v:26.61},{r:20,n:'Apex Automation',s:'Tier 1 OEM',reg:'South',v:23.27}];
+var st={fy:'FY25',cmp:false};var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function init(){var y=document.getElementById('fy');y.innerHTML='';['FY21','FY22','FY23','FY24','FY25'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v==='FY25')o.selected=true;y.appendChild(o)})}
+function tog(){st.cmp=!st.cmp;document.getElementById('cmp').classList.toggle('on');document.getElementById('fy').disabled=st.cmp;apply()}
+function rst(){document.getElementById('fy').value='FY25';st.cmp=false;document.getElementById('cmp').classList.remove('on');document.getElementById('fy').disabled=false;apply()}
+function apply(){st.fy=document.getElementById('fy').value;
+ document.getElementById('rp').textContent='Reporting Period: '+(st.cmp?'FY23 / FY24 / FY25':st.fy);
+ var fls=document.querySelectorAll('.fyl');for(var i=0;i<fls.length;i++)fls[i].textContent=st.cmp?'23/24/25':st.fy.replace('FY','');
+ kpi();c1();c2();c3();c4();c5();c6();c7();tbl()}
+function kpi(){var el=document.getElementById('kg');el.innerHTML='';
+ if(st.cmp){
+  var cks=[
+   {l:'Active Customers',v23:'1,220',v24:'1,285',v25:'1,342',su:'+122 active customers over 2 yrs'},
+   {l:'Top Customer Share',v23:'18.5%',v24:'20.2%',v25:'21.9%',su:'Stellar concentration rising'},
+   {l:'Top 3 Concentration',v23:'32.8%',v24:'35.1%',v25:'37.0%',su:'Compounding top-tier dependence'},
+   {l:'Top 20 Share',v23:'68%',v24:'70%',v25:'72%',su:'80/20 pattern tightening'},
+   {l:'Tier 1 OEM Revenue',v23:'$1.28B',v24:'$1.45B',v25:'$1.67B',su:'2yr CAGR +14.2%'},
+   {l:'DISTI Channel Share',v23:'45.1%',v24:'45.4%',v25:'45.6%',su:'Stable channel mix'},
+   {l:'Direct Channel GM%',v23:'50.39%',v24:'50.38%',v25:'50.36%',su:'Parity with DISTI — no arbitrage'},
+   {l:'Startups in Top 20',v23:'3',v24:'3',v25:'4',su:'Modest growth in long-tail'}];
+  cks.forEach(function(k){var d=document.createElement('div');d.className='kpi kpi-stk';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val"><span class="fy23">FY23 '+k.v23+'</span><span class="fy24">FY24 '+k.v24+'</span><span class="fy25">FY25 '+k.v25+'</span></div><div class="kpi-d neutral">'+k.su+'</div>';el.appendChild(d)});
+  return;
+ }
+ var ks=[
+  {l:'Active Customers '+st.fy,v:'1,342',d:'of 2,000 in catalog (67%)',c:'neutral'},
+  {l:'Top Customer Share',v:'21.9%',d:'Stellar Dynamics · $814M',c:'warn'},
+  {l:'Top 3 Concentration',v:'37.0%',d:'Stellar + Onyx + Orion',c:'warn'},
+  {l:'Top 20 Share',v:'72%',d:'Strong 80/20 concentration',c:'warn'},
+  {l:'Tier 1 OEM Revenue',v:'$1.67B',d:'45% from 304 accounts',c:'positive'},
+  {l:'DISTI Channel Share',v:'45.6%',d:'8 named distributors · $1.69B',c:'neutral'},
+  {l:'Direct Channel GM%',v:'50.36%',d:'Barely above DISTI 50.29%',c:'positive'},
+  {l:'Startups in Top 20',v:'4',d:'Orion, Nexus, Atlas, Nexus',c:'positive'}];
+ ks.forEach(function(k){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-d '+k.c+'">'+k.d+'</div>';el.appendChild(d)})}
+function c1(){mk('c1',{type:'bar',data:{labels:SEG.map(function(r){return r.s}),datasets:[
+ {label:'Revenue ($M)',data:SEG.map(function(r){return r.rev}),backgroundColor:SEG.map(function(r,i){return i===0?C.p:i<3?C.sd:C.s}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c2(){mk('c2',{type:'bar',data:{labels:CH.map(function(r){return r.c}),datasets:[
+ {label:'Revenue ($M)',data:CH.map(function(r){return r.rev}),backgroundColor:[C.p,C.sd,C.t,C.s],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x.toFixed(1)+'M · GM '+CH[ctx.dataIndex].gm.toFixed(2)+'%'}}}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c3(){mk('c3',{type:'bar',data:{labels:REG.map(function(r){return r.r}),datasets:[
+ {label:'Revenue ($M)',data:REG.map(function(r){return r.rev}),backgroundColor:[C.p,C.sd,C.s,C.t],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c4(){var cum=0;var pts=TOP.map(function(r){cum+=r.v;return +(cum/3708.7*100).toFixed(1)});mk('c4',{type:'line',data:{labels:TOP.map(function(r){return '#'+r.r}),datasets:[
+ {label:'Cumulative %',data:pts,borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}}}}})}
+function c5(){mk('c5',{type:'bar',data:{labels:SEG.map(function(r){return r.s}),datasets:[
+ {label:'Customers',data:SEG.map(function(r){return r.n}),backgroundColor:C.sd,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c6(){var avg=SEG.map(function(r){return +(r.rev/r.n*1000).toFixed(0)});mk('c6',{type:'bar',data:{labels:SEG.map(function(r){return r.s}),datasets:[
+ {label:'Avg Revenue/Customer (K)',data:avg,backgroundColor:C.p,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x+'K per customer'}}}},scales:{x:{ticks:{callback:function(v){return '$'+v+'K'}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c7(){mk('c7',{type:'bar',data:{labels:DIST.map(function(r){return r.n}),datasets:[
+ {label:'Revenue ($M)',data:DIST.map(function(r){return r.rev}),backgroundColor:DIST.map(function(r){return r.commPct>=6.5?C.p:r.commPct>=5.5?C.sd:C.s}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x+'M · Commission '+DIST[ctx.dataIndex].commPct+'%'}}}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function tbl(){var b=document.getElementById('tb');b.innerHTML='';var filt=TOP;
+ filt.forEach(function(r){b.innerHTML+='<tr><td>'+String(r.r)+'</td><td><strong>'+r.n+'</strong></td><td><span class="chip '+(r.s==='Tier 1 OEM'?'p':'g')+'">'+r.s+'</span></td><td>'+r.reg+'</td><td class="num">$'+r.v.toFixed(2)+'</td><td class="num">'+(r.v/3708.7*100).toFixed(2)+'%</td></tr>'})}
+init();apply();
+</script></body></html>

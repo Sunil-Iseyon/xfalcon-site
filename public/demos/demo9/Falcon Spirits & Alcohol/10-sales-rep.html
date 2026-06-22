@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 — Sales Rep Performance | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html" class="active">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Sales Rep Performance <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Territory Managers, Key Account & Field Team Performance | FY2025 with Prior Year Comparison</div>
+    <div class="dash-num">10</div>
+</div>
+
+<div class="container">
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="section-label">Sales Rep Performance — Top 25 Reps by Revenue</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Top 25 Reps: Depletion Revenue FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Field team performance ranking with prior year comparison</div>
+        <canvas id="repChart" height="80"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Role Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Revenue by Role: FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Five role types with year-over-year comparison</div>
+        <canvas id="roleChart"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Monthly Revenue Trend — FY2025 by Role</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Revenue by Role</h3>
+        <div class="chart-subtitle">12-month trend for each sales role (FY2025)</div>
+        <canvas id="monthlyRoleChart" height="70"></canvas>
+    </div>
+</div>
+
+<div class="section-label">Territory Performance — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Top 15 Territories: Revenue FY2025 vs FY2024</h3>
+        <div class="chart-subtitle">Territory-level performance ranking with prior year</div>
+        <canvas id="territoryChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Rep Count by Territory</h3>
+        <div class="chart-subtitle">Average reps per territory</div>
+        <canvas id="repCountChart"></canvas>
+    </div>
+</div>
+
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Top 25 Sales Rep Detail — FY2025</h3>
+    <div class="chart-subtitle">Revenue, cases, accounts, and YoY change by sales representative</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Rep Name</th><th>Role</th><th>Territory</th><th class="num">FY25 Revenue</th><th class="num">vs FY24</th>
+            <th class="num">Cases Depleted</th><th class="num">Accounts</th>
+        </tr></thead>
+        <tbody id="repTable"></tbody>
+        <tfoot id="repTfoot"></tfoot>
+    </table>
+</div>
+
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Role Summary — FY2025 vs FY2024</h3>
+    <div class="chart-subtitle">Aggregated performance by role with rep count and year-over-year change</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Role</th><th class="num">FY25 Revenue</th><th class="num">vs FY24</th>
+            <th class="num">FY25 Cases</th><th class="num">Reps</th><th class="num">Avg Rev/Rep</th>
+        </tr></thead>
+        <tbody id="roleTable"></tbody>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 10 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+const months=['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+const reps25=[{n:'Carmen Thompson',r:'Territory Manager',t:'Minnesota East',rev:271601.36,cases:5528.78,rets:1.50,acc:109},{n:'Robert Johnson',r:'Territory Manager',t:'Minnesota West',rev:267084.69,cases:5395.31,rets:1.22,acc:109},{n:'Fatima Young',r:'Territory Manager',t:'Colorado East',rev:205945.65,cases:4076.50,rets:0.99,acc:98},{n:'Carmen Davis',r:'Key Account Manager',t:'Colorado East',rev:204153.20,cases:4092.86,rets:0.76,acc:98},{n:'David White',r:'Territory Manager',t:'North Dakota East',rev:192206.84,cases:3820.99,rets:0.79,acc:71},{n:'John Young',r:'Territory Manager',t:'Montana West',rev:191891.58,cases:3819.59,rets:0.96,acc:69},{n:'Thomas Flores',r:'Territory Manager',t:'North Dakota East',rev:191291.01,cases:3833.91,rets:0.90,acc:71},{n:'Kofi Perez',r:'On-Premise Specialist',t:'Montana West',rev:190738.04,cases:3795.33,rets:0.90,acc:70},{n:'Miguel Flores',r:'On-Premise Specialist',t:'South Carolina East',rev:189100.64,cases:3745.65,rets:0.60,acc:96},{n:'Linda Scott',r:'Brand Ambassador',t:'Alabama Metro',rev:188347.64,cases:3733.62,rets:0.89,acc:99},{n:'Soo-jin Jackson',r:'Territory Manager',t:'South Carolina Metro',rev:186856.65,cases:3811.74,rets:0.81,acc:96},{n:'Carlos Moore',r:'On-Premise Specialist',t:'Alabama East',rev:183428.99,cases:3718.73,rets:0.80,acc:98},{n:'Kofi Walker',r:'Regional Director',t:'New Mexico South',rev:181814.65,cases:3655.22,rets:0.85,acc:75},{n:'Jessica Walker',r:'Territory Manager',t:'New Mexico East',rev:177545.18,cases:3589.14,rets:0.97,acc:75},{n:'Fatima Wilson',r:'On-Premise Specialist',t:'Kentucky West',rev:162090.59,cases:3228.84,rets:0.64,acc:90},{n:'Soo-jin Jones',r:'Regional Director',t:'Kentucky South',rev:160368.54,cases:3263.42,rets:0.89,acc:89},{n:'Karen White',r:'Territory Manager',t:'West Virginia Metro',rev:160192.72,cases:3203.49,rets:0.78,acc:63},{n:'Carlos Allen',r:'Brand Ambassador',t:'Oklahoma East',rev:158764.03,cases:3158.92,rets:0.86,acc:81},{n:'Robert Jones',r:'Regional Director',t:'West Virginia West',rev:158115.63,cases:3222.45,rets:0.70,acc:63},{n:'Michael Davis',r:'On-Premise Specialist',t:'Indiana Metro',rev:156458.17,cases:3123.04,rets:0.66,acc:105},{n:'Rosa King',r:'Territory Manager',t:'Louisiana East',rev:154607.18,cases:3110.81,rets:0.96,acc:80},{n:'Joseph King',r:'Regional Director',t:'Indiana West',rev:153434.37,cases:3115.17,rets:0.76,acc:104},{n:'Amara Scott',r:'On-Premise Specialist',t:'Indiana North',rev:152616.09,cases:3075.67,rets:0.71,acc:105},{n:'William Ramirez',r:'Brand Ambassador',t:'Oklahoma Central',rev:152501.36,cases:3149.90,rets:0.99,acc:81},{n:'Mary Clark',r:'Territory Manager',t:'Louisiana East',rev:151345.19,cases:3077.11,rets:0.69,acc:80}];
+
+const reps24=[{n:'Carmen Thompson',r:'Territory Manager',t:'Minnesota East',rev:250639.04,cases:5072.89,rets:1.16,acc:104},{n:'Robert Johnson',r:'Territory Manager',t:'Minnesota West',rev:245923.85,cases:5071.56,rets:1.22,acc:104},{n:'Carmen Davis',r:'Key Account Manager',t:'Colorado East',rev:205642.70,cases:4222.99,rets:0.83,acc:101},{n:'Fatima Young',r:'Territory Manager',t:'Colorado East',rev:200435.32,cases:4199.64,rets:0.98,acc:101},{n:'Thomas Flores',r:'Territory Manager',t:'North Dakota East',rev:188952.18,cases:3816.45,rets:0.92,acc:69},{n:'David White',r:'Territory Manager',t:'North Dakota East',rev:181192.20,cases:3775.81,rets:0.72,acc:69},{n:'Kofi Perez',r:'On-Premise Specialist',t:'Montana West',rev:176320.68,cases:3548.90,rets:0.66,acc:71},{n:'Soo-jin Jackson',r:'Territory Manager',t:'South Carolina Metro',rev:168389.82,cases:3490.80,rets:0.82,acc:90},{n:'Miguel Flores',r:'On-Premise Specialist',t:'South Carolina East',rev:167480.36,cases:3433.29,rets:0.75,acc:90},{n:'John Young',r:'Territory Manager',t:'Montana West',rev:165904.64,cases:3446.67,rets:0.85,acc:71},{n:'Jessica Walker',r:'Territory Manager',t:'New Mexico East',rev:157538.99,cases:3280.68,rets:0.72,acc:81},{n:'Carlos Moore',r:'On-Premise Specialist',t:'Alabama East',rev:155943.86,cases:3212.77,rets:0.72,acc:101},{n:'Linda Scott',r:'Brand Ambassador',t:'Alabama Metro',rev:155892.72,cases:3248.32,rets:0.69,acc:101},{n:'Kofi Walker',r:'Regional Director',t:'New Mexico South',rev:153660.83,cases:3209.41,rets:0.68,acc:81},{n:'Robert Jones',r:'Regional Director',t:'West Virginia West',rev:146718.53,cases:2999.63,rets:0.74,acc:63},{n:'Michael Davis',r:'On-Premise Specialist',t:'Indiana Metro',rev:145407.73,cases:2998.37,rets:0.60,acc:107},{n:'Joseph King',r:'Regional Director',t:'Indiana West',rev:144605.32,cases:2950.30,rets:0.50,acc:107},{n:'Karen White',r:'Territory Manager',t:'West Virginia Metro',rev:143630.68,cases:2942.09,rets:0.86,acc:63},{n:'Rosa King',r:'Territory Manager',t:'Louisiana East',rev:141653.75,cases:2899.29,rets:0.53,acc:80},{n:'Fatima Wilson',r:'On-Premise Specialist',t:'Kentucky West',rev:138962.81,cases:2788.20,rets:0.54,acc:88},{n:'Amara Scott',r:'On-Premise Specialist',t:'Indiana North',rev:138741.31,cases:2859.93,rets:0.53,acc:105},{n:'Mary Clark',r:'Territory Manager',t:'Louisiana East',rev:136048.34,cases:2820.28,rets:0.65,acc:80},{n:'Carlos Allen',r:'Brand Ambassador',t:'Oklahoma East',rev:135646.82,cases:2747.84,rets:0.82,acc:84},{n:'Soo-jin Jones',r:'Regional Director',t:'Kentucky South',rev:133064.23,cases:2763.22,rets:0.52,acc:88},{n:'William Ramirez',r:'Brand Ambassador',t:'Oklahoma Central',rev:130832.48,cases:2705.09,rets:0.57,acc:84}];
+
+const roles25=[{r:'Territory Manager',rev:6547181.90,cases:132744.28,cnt:58},{r:'On-Premise Specialist',rev:3068888.30,cases:62146.02,cnt:30},{r:'Brand Ambassador',rev:1841704.18,cases:37356.64,cnt:16},{r:'Key Account Manager',rev:1710531.08,cases:34898.32,cnt:20},{r:'Regional Director',rev:1442148.31,cases:29310.43,cnt:12}];
+
+const roles24=[{r:'Territory Manager',rev:5986688.00,cases:124293.60,cnt:58},{r:'On-Premise Specialist',rev:2799947.24,cases:57948.28,cnt:30},{r:'Brand Ambassador',rev:1629886.41,cases:33589.83,cnt:16},{r:'Key Account Manager',rev:1533696.35,cases:31877.21,cnt:20},{r:'Regional Director',rev:1256970.13,cases:26137.54,cnt:12}];
+
+const terr25=[{t:'Colorado East',rev:410098.85,cases:8169.36,cnt:2},{t:'North Dakota East',rev:383497.85,cases:7654.90,cnt:2},{t:'Montana West',rev:382629.62,cases:7614.92,cnt:2},{t:'Louisiana East',rev:305952.37,cases:6187.92,cnt:2},{t:'Minnesota East',rev:271601.36,cases:5528.78,cnt:1},{t:'Massachusetts Metro',rev:267666.03,cases:5392.65,cnt:2},{t:'Minnesota West',rev:267084.69,cases:5395.31,cnt:1},{t:'California West',rev:256252.91,cases:5246.12,cnt:2},{t:'California South',rev:252159.29,cases:5253.87,cnt:2},{t:'Idaho Central',rev:243876.29,cases:4960.29,cnt:2},{t:'Wisconsin North',rev:233734.40,cases:4786.98,cnt:2},{t:'Texas Metro',rev:232084.60,cases:4786.47,cnt:2},{t:'Ohio Metro',rev:223780.31,cases:4548.62,cnt:2},{t:'Michigan East',rev:192118.88,cases:3872.74,cnt:2},{t:'South Carolina East',rev:189100.64,cases:3745.65,cnt:1}];
+
+const terr24=[{t:'Colorado East',rev:406078.02,cases:8422.63,cnt:2},{t:'North Dakota East',rev:370144.38,cases:7592.26,cnt:2},{t:'Montana West',rev:342225.32,cases:6995.57,cnt:2},{t:'Louisiana East',rev:277702.09,cases:5719.57,cnt:2},{t:'Minnesota East',rev:250639.04,cases:5072.89,cnt:1},{t:'Minnesota West',rev:245923.85,cases:5071.56,cnt:1},{t:'California West',rev:242284.32,cases:5123.61,cnt:2},{t:'California South',rev:241065.83,cases:5112.64,cnt:2},{t:'Idaho Central',rev:240835.51,cases:4974.23,cnt:2},{t:'Massachusetts Metro',rev:226846.01,cases:4682.98,cnt:2},{t:'Ohio Metro',rev:216523.56,cases:4497.44,cnt:2},{t:'Texas Metro',rev:211605.81,cases:4412.31,cnt:2},{t:'Wisconsin North',rev:209990.50,cases:4448.48,cnt:2},{t:'Michigan East',rev:168921.09,cases:3542.38,cnt:2},{t:'South Carolina Metro',rev:168389.82,cases:3490.80,cnt:1}];
+
+const t25r=reps25.reduce((a,d)=>a+d.rev,0),t25c=reps25.reduce((a,d)=>a+d.cases,0);
+const t24r=reps24.reduce((a,d)=>a+d.rev,0),t24c=reps24.reduce((a,d)=>a+d.cases,0);
+
+const kpis=[{label:'Active Reps',val:136,prev:null,sub:'All sales roles'},{label:'Total Depletions',val:t25r,prev:t24r,sub:'Retail-level revenue'},{label:'Top Rep Revenue',val:271601.36,prev:null,sub:'Carmen Thompson',isMoney:true,isSmall:true},{label:'Avg Revenue/Rep',val:t25r/136,prev:null,sub:'Per representative',isMoney:true,isSmall:true},{label:'Total Cases',val:t25c,prev:null,sub:'Cases depleted',isCases:true},{label:'Roles',val:5,prev:null,sub:'Sales role types',isCount:true}];
+const kpiRow=document.getElementById('kpiRow');
+kpis.forEach(k=>{const chg=k.prev?pct(k.val,k.prev):null;const arrow=chg!==null?(chg>=0?'&#9650;':'&#9660;'):'';const cls=chg!==null?(chg>=0?'positive':'negative'):'';let displayVal;if(k.isCount)displayVal=k.val;else if(k.isMoney)displayVal=fmt$(k.val);else if(k.isCases)displayVal=fmtK(k.val);else displayVal=fmt$(k.val);const sparkVals=reps25.map(d=>d.rev);const sparkMax=Math.max(...sparkVals);const bars=sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');kpiRow.innerHTML+=`<div class="kpi-card"><div class="label">${k.label}</div><div class="value">${displayVal}</div>${chg!==null?`<div class="change ${cls}">${arrow} ${Math.abs(chg)}% vs FY24</div>`:''}<div class="sub-value">${k.sub}</div><div class="sparkline-row">${bars}</div></div>`;});
+
+new Chart(document.getElementById('repChart'),{type:'bar',data:{labels:reps25.map(d=>d.n),datasets:[{label:'FY2025',data:reps25.map(d=>d.rev),backgroundColor:G,borderRadius:3},{label:'FY2024',data:reps24.map(d=>d.rev),backgroundColor:PY,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+new Chart(document.getElementById('roleChart'),{type:'bar',data:{labels:roles25.map(d=>d.r),datasets:[{label:'FY2025',data:roles25.map(d=>d.rev),backgroundColor:G,borderRadius:3},{label:'FY2024',data:roles24.map(d=>d.rev),backgroundColor:PY,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+new Chart(document.getElementById('monthlyRoleChart'),{type:'line',data:{labels:months,datasets:[{label:'Territory Manager',data:[628817.22,486978.44,569593.99,487715.21,522923.03,844491.94,428912.47,409953.20,551332.29,480755.01,505643.61,630065.49],borderColor:G,tension:.3,pointRadius:2,borderWidth:2},{label:'On-Premise Specialist',data:[294473.59,221570.65,262880.36,222688.82,258213.68,411981.67,196976.00,196467.65,269279.08,201567.15,231524.94,301264.71],borderColor:'#B8860B',tension:.3,pointRadius:2,borderWidth:2},{label:'Brand Ambassador',data:[176274.21,137939.13,166915.07,135858.60,147203.82,248667.91,114535.10,116407.26,162098.77,129756.35,149597.56,156450.40],borderColor:'#C9B037',tension:.3,pointRadius:2,borderWidth:2},{label:'Key Account Manager',data:[165173.91,124527.62,155351.46,122603.91,156714.54,233499.60,112500.73,109276.10,134687.75,113705.21,128134.20,154356.05],borderColor:'#8B7355',tension:.3,pointRadius:2,borderWidth:2},{label:'Regional Director',data:[140589.58,102399.66,127013.14,101717.59,119769.39,184894.05,101893.85,93080.97,122709.02,106083.84,109295.42,132701.80],borderColor:'#DAA520',tension:.3,pointRadius:2,borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+new Chart(document.getElementById('territoryChart'),{type:'bar',data:{labels:terr25.map(d=>d.t),datasets:[{label:'FY2025',data:terr25.map(d=>d.rev),backgroundColor:G,borderRadius:3},{label:'FY2024',data:terr24.map(d=>d.rev),backgroundColor:PY,borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+new Chart(document.getElementById('repCountChart'),{type:'bar',data:{labels:terr25.map(d=>d.t),datasets:[{data:terr25.map(d=>d.cnt),backgroundColor:G,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>v},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+const rtb=document.getElementById('repTable');
+let rt25r=0,rt25c=0,rt24r=0,rt24c=0;
+reps25.forEach((d,i)=>{const rchg=pct(d.rev,reps24[i].rev);rt25r+=d.rev;rt25c+=d.cases;rt24r+=reps24[i].rev;rt24c+=reps24[i].cases;rtb.innerHTML+=`<tr><td>${d.n}</td><td>${d.r}</td><td>${d.t}</td><td class="num">${fmt$(d.rev)}</td><td class="num ${rchg>=0?'pos':'neg'}">${rchg>=0?'&#9650;':'&#9660;'} ${Math.abs(rchg)}%</td><td class="num">${fmtK(d.cases)}</td><td class="num">${d.acc}</td></tr>`;});
+document.getElementById('repTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);"><td style="color:#D4A843">TOTAL (25)</td><td>Mixed</td><td>Mixed</td><td class="num" style="color:#D4A843">${fmt$(rt25r)}</td><td class="num pos">&#9650; ${pct(rt25r,rt24r)}%</td><td class="num" style="color:#D4A843">${fmtK(rt25c)}</td><td class="num">-</td></tr>`;
+
+const roleTab=document.getElementById('roleTable');
+roles25.forEach((d,i)=>{const py=roles24[i];const rchg=pct(d.rev,py.rev);roleTab.innerHTML+=`<tr><td>${d.r}</td><td class="num">${fmt$(d.rev)}</td><td class="num ${rchg>=0?'pos':'neg'}">${rchg>=0?'&#9650;':'&#9660;'} ${Math.abs(rchg)}%</td><td class="num">${fmtK(d.cases)}</td><td class="num">${d.cnt}</td><td class="num">${fmt$(d.rev/d.cnt)}</td></tr>`;});
+</script>
+</body>
+</html>

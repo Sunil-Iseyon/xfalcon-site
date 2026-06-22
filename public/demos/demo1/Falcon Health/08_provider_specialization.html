@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 8: Provider Specialization Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2C5F8A;
+            margin-bottom: 5px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        .heatmap-container {
+            overflow-x: auto;
+        }
+
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 800px;
+        }
+
+        .heatmap-table th, .heatmap-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ecf0f1;
+        }
+
+        .heatmap-table th {
+            background-color: #f5f6fa;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .heatmap-table tr:first-child th {
+            text-align: left;
+        }
+
+        .heatmap-cell {
+            border-radius: 4px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f9f9fb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-pcp {
+            background-color: #e8f5e9;
+            color: #5BA67D;
+        }
+
+        .badge-spec {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 8: Provider Specialization Patterns</h1>
+            <p>Which Departments Do Each Specialty Serve? | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Specialties</div>
+                <div class="kpi-value">20</div>
+                <div class="kpi-detail">across organization</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Most Cross-Dept</div>
+                <div class="kpi-value">Nephrology</div>
+                <div class="kpi-detail">serves most departments</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">PCP Specialties</div>
+                <div class="kpi-value">2</div>
+                <div class="kpi-detail">General Practice, Pediatrics</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Network Status</div>
+                <div class="kpi-value">Mostly In</div>
+                <div class="kpi-detail">Network providers</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <div class="chart-title">Specialty-Department Heatmap (Top 10 Specialties x 7 Departments)</div>
+                <div class="heatmap-container">
+                    <table class="heatmap-table">
+                        <thead>
+                            <tr>
+                                <th>Specialty</th>
+                                <th>Laboratory</th>
+                                <th>Family Medicine</th>
+                                <th>Pediatrics</th>
+                                <th>Emergency</th>
+                                <th>Internal Medicine</th>
+                                <th>Cardiology</th>
+                            </tr>
+                        </thead>
+                        <tbody id="heatmapBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">PCP vs Specialist Distribution</div>
+                <div class="chart-container">
+                    <canvas id="pcpChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">In-Network vs Out-of-Network</div>
+                <div class="chart-container">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <div class="chart-title">Specialty Encounter Intensity (Encounters per Provider)</div>
+                <div class="chart-container">
+                    <canvas id="intensityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="chart-title">All Specialty-Department Combinations (Top 20)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Specialty</th>
+                        <th>Department</th>
+                        <th>Encounters</th>
+                    </tr>
+                </thead>
+                <tbody id="specDeptTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Generated March 11, 2026 | Clinical Analytics Dashboard | Data Period: Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const specDeptData = [
+            {spec:"Nephrology",dept:"Lab",enc:35},
+            {spec:"Hematology/Oncology",dept:"Lab",enc:31},
+            {spec:"Neurology",dept:"Lab",enc:25},
+            {spec:"General Practice",dept:"Lab",enc:25},
+            {spec:"Nephrology",dept:"Family Medicine",enc:24},
+            {spec:"Orthopedic Surgery",dept:"Lab",enc:23},
+            {spec:"Gastroenterology",dept:"Lab",enc:22},
+            {spec:"OB/GYN",dept:"Family Medicine",enc:20},
+            {spec:"Emergency Medicine",dept:"Lab",enc:20},
+            {spec:"Orthopedic Surgery",dept:"Family Medicine",enc:19},
+            {spec:"Cardiology",dept:"Lab",enc:19},
+            {spec:"Hematology/Oncology",dept:"Family Medicine",enc:19},
+            {spec:"Nephrology",dept:"Pediatrics",enc:19},
+            {spec:"OB/GYN",dept:"Emergency",enc:18},
+            {spec:"OB/GYN",dept:"Pediatrics",enc:18},
+            {spec:"General Practice",dept:"Family Medicine",enc:15},
+            {spec:"OB/GYN",dept:"Lab",enc:14},
+            {spec:"Nephrology",dept:"Emergency",enc:14},
+            {spec:"Surgery",dept:"Lab",enc:14},
+            {spec:"Gastroenterology",dept:"Family Medicine",enc:14}
+        ];
+
+        const specialties = ["Nephrology","OB/GYN","Hematology/Oncology","Orthopedic Surgery","General Practice","Gastroenterology","Cardiology","Neurology","Emergency Medicine","Surgery"];
+        const departments = ["Laboratory","Family Medicine","Pediatrics","Emergency","Internal Medicine","Cardiology"];
+
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Create heatmap matrix
+        const heatmapMatrix = {};
+        specialties.forEach(s => {
+            heatmapMatrix[s] = {};
+            departments.forEach(d => {
+                const record = specDeptData.find(x => x.spec === s && x.dept === d);
+                heatmapMatrix[s][d] = record ? record.enc : 0;
+            });
+        });
+
+        // Populate heatmap
+        const maxVal = Math.max(...Object.values(heatmapMatrix).flatMap(o => Object.values(o)));
+        const heatmapBody = document.getElementById('heatmapBody');
+        specialties.forEach(spec => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td><strong>${spec}</strong></td>`;
+            departments.forEach(dept => {
+                const val = heatmapMatrix[spec][dept];
+                const intensity = val > 0 ? val / maxVal : 0;
+                let bgColor = '#f5f5f5';
+                let textColor = '#636e72';
+
+                if (intensity > 0.7) {
+                    bgColor = colors.danger;
+                    textColor = 'white';
+                } else if (intensity > 0.4) {
+                    bgColor = colors.secondary;
+                    textColor = 'white';
+                } else if (intensity > 0) {
+                    bgColor = colors.info;
+                    textColor = 'white';
+                }
+
+                const cell = document.createElement('td');
+                if (val > 0) {
+                    cell.innerHTML = `<span class="heatmap-cell" style="background-color: ${bgColor}; color: ${textColor};">${val}</span>`;
+                } else {
+                    cell.innerHTML = '—';
+                }
+                row.appendChild(cell);
+            });
+            heatmapBody.appendChild(row);
+        });
+
+        // PCP vs Specialist
+        const pcpEnc = 25 + 25 + 18; // Sarah Green, Joseph Moore from data
+        const specEnc = (25+23+22+21+21+21+21+21+20+20+20+20+19+19+19+19+19) - pcpEnc;
+
+        const ctx1 = document.getElementById('pcpChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['PCP', 'Specialist'],
+                datasets: [{
+                    data: [pcpEnc, specEnc],
+                    backgroundColor: [colors.success, colors.primary]
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Network Status (estimated from provider data)
+        const inNetworkEnc = 407; // majority
+        const outNetworkEnc = 42;
+
+        const ctx2 = document.getElementById('networkChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['In-Network', 'Out-of-Network'],
+                datasets: [{
+                    data: [inNetworkEnc, outNetworkEnc],
+                    backgroundColor: [colors.success, colors.danger]
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Specialty Encounter Intensity
+        const specialtyIntensity = [
+            {spec: "Nephrology", intensity: 16.8},
+            {spec: "OB/GYN", intensity: 14.8},
+            {spec: "Hematology/Oncology", intensity: 15.6},
+            {spec: "Orthopedic Surgery", intensity: 14.8},
+            {spec: "General Practice", intensity: 14.9},
+            {spec: "Gastroenterology", intensity: 12.9},
+            {spec: "Cardiology", intensity: 12.0},
+            {spec: "Neurology", intensity: 16.8},
+            {spec: "Emergency Medicine", intensity: 16.4},
+            {spec: "Surgery", intensity: 16.0}
+        ];
+
+        const ctx3 = document.getElementById('intensityChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: specialtyIntensity.map(s => s.spec),
+                datasets: [{
+                    label: 'Enc/Provider',
+                    data: specialtyIntensity.map(s => s.intensity),
+                    backgroundColor: colors.teal,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+
+        // Populate data table
+        const tableBody = document.getElementById('specDeptTableBody');
+        specDeptData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${item.spec}</strong></td>
+                <td>${item.dept}</td>
+                <td>${item.enc}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    </script>
+</body>
+</html>

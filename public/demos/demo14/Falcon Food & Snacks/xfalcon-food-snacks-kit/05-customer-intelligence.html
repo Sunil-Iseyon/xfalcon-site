@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Food & Snacks - Customer Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #1F2937; }
+        .topbar { background-color: #0F172A; color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #006AFF; }
+        .logo-f { color: #1A7F64; }
+        .topbar-title { font-size: 14px; font-weight: 500; flex: 1; margin-left: 24px; }
+        .topbar-right { display: flex; gap: 20px; align-items: center; }
+        .back-link { color: #006AFF; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .container { padding: 24px; max-width: 1600px; margin: 0 auto; }
+        .filters { background-color: #FFFFFF; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; gap: 16px; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; gap: 8px; align-items: center; }
+        .filter-group label { font-size: 13px; font-weight: 500; }
+        .filter-group select { padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 13px; background-color: #FFFFFF; cursor: pointer; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background-color: #FFFFFF; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .kpi-label { font-size: 12px; font-weight: 500; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
+        .kpi-delta { font-size: 12px; font-weight: 500; }
+        .delta-positive { color: #059669; }
+        .delta-negative { color: #D32F2F; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-container { background-color: #FFFFFF; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 16px; }
+        canvas { max-height: 300px; }
+        .table-container { background-color: #FFFFFF; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-top: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { background-color: #0F172A; color: white; }
+        th { padding: 12px 16px; text-align: left; font-weight: 600; }
+        td { padding: 12px 16px; border-bottom: 1px solid #E5E7EB; }
+        tbody tr:hover { background-color: #F9FAFB; }
+        .text-right { text-align: right; }
+        .metric-positive { color: #059669; font-weight: 600; }
+        .metric-negative { color: #D32F2F; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="topbar-title">Falcon Food & Snacks / 5. Customer Intelligence</div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year:</label>
+                <select id="yearFilter" onchange="applyFilters()">
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Accounts</div>
+                <div class="kpi-value" id="kpi1">36</div>
+                <div class="kpi-delta">All Tiers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Tier 1 Accounts</div>
+                <div class="kpi-value" id="kpi2">21</div>
+                <div class="kpi-delta">58% of Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Tier 2 Accounts</div>
+                <div class="kpi-value" id="kpi3">15</div>
+                <div class="kpi-delta">42% of Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Customer</div>
+                <div class="kpi-value" id="kpi4">$1.55M</div>
+                <div class="kpi-delta">Walmart (2025)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Revenue/Account</div>
+                <div class="kpi-value" id="kpi5">$875K</div>
+                <div class="kpi-delta" id="kpi5-delta"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Grocery Share</div>
+                <div class="kpi-value" id="kpi6">53.0%</div>
+                <div class="kpi-delta">$16.68M (2025)</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Top 15 Customers by Revenue (2025)</div>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Channel Revenue Comparison (2024 vs 2025)</div>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Customer Concentration (2025)</div>
+                <canvas id="chart3"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Tier Distribution (2025)</div>
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-container" style="grid-column: 1 / -1;">
+                <div class="chart-title">Channel Growth Rate (2024 vs 2025)</div>
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Channel</th>
+                        <th>Tier</th>
+                        <th class="text-right">2025 Revenue</th>
+                        <th class="text-right">2024 Revenue</th>
+                        <th class="text-right">YoY %</th>
+                        <th class="text-right">Gross Profit</th>
+                        <th class="text-right">GM %</th>
+                    </tr>
+                </thead>
+                <tbody id="customerTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var size = 28;
+                while (el.scrollWidth > el.parentElement.offsetWidth - 40 && size > 16) {
+                    size -= 2;
+                    el.style.fontSize = size + 'px';
+                }
+            });
+        }
+
+        var customerData = [
+            {name: 'Walmart', channel: 'Mass', tier: 'T1', rev2025: 1.55, rev2024: 1.14, gp: 0.465, gm: 30.0},
+            {name: 'H-E-B', channel: 'Grocery', tier: 'T1', rev2025: 1.35, rev2024: 1.00, gp: 0.405, gm: 30.0},
+            {name: 'Metro', channel: 'Grocery', tier: 'T2', rev2025: 1.35, rev2024: 0.95, gp: 0.405, gm: 30.0},
+            {name: 'Winn-Dixie', channel: 'Grocery', tier: 'T2', rev2025: 1.34, rev2024: 0.92, gp: 0.402, gm: 30.0},
+            {name: 'Albertsons', channel: 'Grocery', tier: 'T1', rev2025: 1.34, rev2024: 0.98, gp: 0.402, gm: 30.0},
+            {name: 'Target', channel: 'Mass', tier: 'T1', rev2025: 1.31, rev2024: 0.96, gp: 0.393, gm: 30.0},
+            {name: 'Amazon Fresh', channel: 'eComm', tier: 'T1', rev2025: 1.22, rev2024: 0.72, gp: 0.366, gm: 30.0},
+            {name: 'Sams Club', channel: 'Club', tier: 'T1', rev2025: 1.19, rev2024: 0.68, gp: 0.357, gm: 30.0},
+            {name: 'Loblaw', channel: 'Grocery', tier: 'T1', rev2025: 1.16, rev2024: 0.82, gp: 0.348, gm: 30.0},
+            {name: 'Stater Bros', channel: 'Grocery', tier: 'T2', rev2025: 1.16, rev2024: 0.80, gp: 0.348, gm: 30.0},
+            {name: 'Publix', channel: 'Grocery', tier: 'T1', rev2025: 1.16, rev2024: 0.88, gp: 0.348, gm: 30.0},
+            {name: 'Canadian Tire', channel: 'Grocery', tier: 'T2', rev2025: 1.14, rev2024: 0.78, gp: 0.342, gm: 30.0},
+            {name: 'Meijer', channel: 'Grocery', tier: 'T2', rev2025: 1.14, rev2024: 0.80, gp: 0.342, gm: 30.0},
+            {name: 'Kroger', channel: 'Grocery', tier: 'T1', rev2025: 1.11, rev2024: 0.85, gp: 0.333, gm: 30.0},
+            {name: 'Hy-Vee', channel: 'Grocery', tier: 'T2', rev2025: 1.11, rev2024: 0.81, gp: 0.333, gm: 30.0},
+            {name: 'Sobeys', channel: 'Grocery', tier: 'T1', rev2025: 1.10, rev2024: 0.80, gp: 0.330, gm: 30.0},
+            {name: 'Ahold', channel: 'Grocery', tier: 'T1', rev2025: 1.10, rev2024: 0.82, gp: 0.330, gm: 30.0},
+            {name: 'Ingles', channel: 'Grocery', tier: 'T2', rev2025: 1.10, rev2024: 0.78, gp: 0.330, gm: 30.0},
+            {name: 'Walmart.com', channel: 'eComm', tier: 'T1', rev2025: 1.06, rev2024: 0.62, gp: 0.318, gm: 30.0},
+            {name: 'BJs', channel: 'Club', tier: 'T2', rev2025: 1.03, rev2024: 0.60, gp: 0.309, gm: 30.0},
+            {name: 'Dollar General', channel: 'Dollar', tier: 'T2', rev2025: 0.98, rev2024: 0.70, gp: 0.294, gm: 30.0},
+            {name: 'Costco', channel: 'Club', tier: 'T1', rev2025: 0.95, rev2024: 0.58, gp: 0.285, gm: 30.0},
+            {name: 'Sysco', channel: 'Foodservice', tier: 'T1', rev2025: 0.92, rev2024: 0.88, gp: 0.276, gm: 30.0},
+            {name: 'US Foods', channel: 'Foodservice', tier: 'T1', rev2025: 0.87, rev2024: 0.82, gp: 0.261, gm: 30.0},
+            {name: 'CVS', channel: 'Drug', tier: 'T1', rev2025: 0.78, rev2024: 0.92, gp: 0.234, gm: 30.0},
+            {name: 'Walgreens', channel: 'Drug', tier: 'T2', rev2025: 0.68, rev2024: 0.88, gp: 0.204, gm: 30.0},
+            {name: 'Caseys', channel: 'Convenience', tier: 'T2', rev2025: 0.65, rev2024: 0.58, gp: 0.195, gm: 30.0},
+            {name: 'Circle K', channel: 'Convenience', tier: 'T2', rev2025: 0.62, rev2024: 0.55, gp: 0.186, gm: 30.0},
+            {name: 'Murphy USA', channel: 'Convenience', tier: 'T1', rev2025: 0.58, rev2024: 0.52, gp: 0.174, gm: 30.0},
+            {name: 'RaceTrac', channel: 'Convenience', tier: 'T2', rev2025: 0.55, rev2024: 0.48, gp: 0.165, gm: 30.0},
+            {name: 'AMPM', channel: 'Convenience', tier: 'T2', rev2025: 0.52, rev2024: 0.46, gp: 0.156, gm: 30.0},
+            {name: 'Pilot', channel: 'Convenience', tier: 'T1', rev2025: 0.51, rev2024: 0.45, gp: 0.153, gm: 30.0},
+            {name: 'Sheetz', channel: 'Convenience', tier: 'T2', rev2025: 0.50, rev2024: 0.42, gp: 0.150, gm: 30.0},
+            {name: 'Loves', channel: 'Convenience', tier: 'T2', rev2025: 0.48, rev2024: 0.40, gp: 0.144, gm: 30.0},
+            {name: 'Speedway', channel: 'Convenience', tier: 'T1', rev2025: 0.45, rev2024: 0.38, gp: 0.135, gm: 30.0},
+            {name: 'Stripes', channel: 'Convenience', tier: 'T2', rev2025: 0.42, rev2024: 0.35, gp: 0.126, gm: 30.0}
+        ];
+
+        var channelRevenue2025 = {
+            'Grocery': 16.68, 'Mass': 2.86, 'eComm': 3.28, 'Club': 3.21,
+            'Convenience': 2.45, 'Drug': 1.10, 'Foodservice': 0.89, 'Dollar': 1.05
+        };
+
+        var channelRevenue2024 = {
+            'Grocery': 9.66, 'Mass': 2.10, 'eComm': 1.59, 'Club': 1.56,
+            'Convenience': 2.19, 'Drug': 1.60, 'Foodservice': 2.02, 'Dollar': 0.91
+        };
+
+        function applyFilters() {
+            var year = document.getElementById('yearFilter').value;
+            updateCharts(year);
+            updateKPIs(year);
+            updateTable(year);
+        }
+
+        function updateKPIs(year) {
+            if (year === '2025') {
+                document.getElementById('kpi5-delta').textContent = '+89K vs 2024';
+                document.getElementById('kpi5-delta').className = 'kpi-delta delta-positive';
+            } else if (year === '2024') {
+                document.getElementById('kpi5-delta').textContent = 'Historical';
+                document.getElementById('kpi5-delta').className = 'kpi-delta';
+            } else {
+                document.getElementById('kpi5-delta').textContent = 'All Years';
+                document.getElementById('kpi5-delta').className = 'kpi-delta';
+            }
+            fitKpiText();
+        }
+
+        function updateCharts(year) {
+            var top15 = customerData.slice(0, 15).reverse();
+            var labels1 = top15.map(function(c) { return c.name; });
+            var data1 = top15.map(function(c) { return year === '2024' ? c.rev2024 : c.rev2025; });
+
+            mk('chart1', {
+                type: 'bar',
+                data: {
+                    labels: labels1,
+                    datasets: [{
+                        label: 'Revenue ($M)',
+                        data: data1,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            var channelLabels = Object.keys(channelRevenue2025);
+            var dataset1 = channelLabels.map(function(ch) { return year === '2024' ? (channelRevenue2024[ch] || 0) : channelRevenue2025[ch]; });
+            var dataset2 = channelLabels.map(function(ch) { return year === '2024' ? (channelRevenue2024[ch] || 0) : channelRevenue2024[ch]; });
+
+            mk('chart2', {
+                type: 'bar',
+                data: {
+                    labels: channelLabels,
+                    datasets: [
+                        { label: year === '2024' ? '2024' : '2025', data: dataset1, backgroundColor: '#006AFF', borderRadius: 4 },
+                        { label: year === '2024' ? '2023' : '2024', data: dataset2, backgroundColor: '#94A3B8', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            var top5Rev = data1.slice(0, 5).reduce(function(a, b) { return a + b; }, 0);
+            var restRev = data1.slice(5).reduce(function(a, b) { return a + b; }, 0);
+
+            mk('chart3', {
+                type: 'bar',
+                data: {
+                    labels: ['Top 5 Customers', 'Rest of Base (31)'],
+                    datasets: [{
+                        label: 'Revenue ($M)',
+                        data: [top5Rev, restRev],
+                        backgroundColor: ['#006AFF', '#1A7F64'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            mk('chart4', {
+                type: 'bar',
+                data: {
+                    labels: ['Tier 1 (21)', 'Tier 2 (15)'],
+                    datasets: [{
+                        label: 'Accounts',
+                        data: [21, 15],
+                        backgroundColor: ['#006AFF', '#1A7F64'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            var growth = channelLabels.map(function(ch) {
+                var rev25 = channelRevenue2025[ch];
+                var rev24 = channelRevenue2024[ch];
+                return ((rev25 - rev24) / rev24 * 100).toFixed(1);
+            });
+
+            mk('chart5', {
+                type: 'bar',
+                data: {
+                    labels: channelLabels,
+                    datasets: [{
+                        label: 'Growth %',
+                        data: growth,
+                        backgroundColor: growth.map(function(g) { return parseFloat(g) >= 0 ? '#1A7F64' : '#D32F2F'; }),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { ticks: { callback: function(v) { return v.toFixed(0) + '%'; } } } }
+                }
+            });
+        }
+
+        function updateTable(year) {
+            var tbody = document.getElementById('customerTable');
+            tbody.innerHTML = '';
+            var sorted = customerData.slice().sort(function(a, b) {
+                var aRev = year === '2024' ? a.rev2024 : a.rev2025;
+                var bRev = year === '2024' ? b.rev2024 : b.rev2025;
+                return bRev - aRev;
+            });
+
+            sorted.forEach(function(row) {
+                var rev = year === '2024' ? row.rev2024 : row.rev2025;
+                var yoy = ((row.rev2025 - row.rev2024) / row.rev2024 * 100).toFixed(1);
+                var gmPercent = (row.gm * 100).toFixed(1);
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.name + '</td><td>' + row.channel + '</td><td>' + row.tier + '</td>' +
+                    '<td class="text-right">$' + rev.toFixed(2) + 'M</td><td class="text-right">$' + row.rev2024.toFixed(2) + 'M</td>' +
+                    '<td class="text-right"><span class="' + (yoy >= 0 ? 'metric-positive' : 'metric-negative') + '">' + yoy + '%</span></td>' +
+                    '<td class="text-right">$' + row.gp.toFixed(2) + 'M</td><td class="text-right">' + gmPercent + '%</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Read URL params to set filters from training guide generator
+        function getUrlParam(name) {
+            var match = window.location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        var urlYear = getUrlParam('year');
+        if (urlYear) {
+            var yearSelect = document.getElementById('yearFilter');
+            for (var i = 0; i < yearSelect.options.length; i++) {
+                if (yearSelect.options[i].value === urlYear) {
+                    yearSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

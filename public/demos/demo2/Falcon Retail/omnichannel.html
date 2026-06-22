@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omnichannel & Channel Mix - Falcon Retail</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1A1A1A 0%, #0F0F0F 100%);
+            color: #F5F0E8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh; padding: 20px; line-height: 1.6;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; padding: 20px;
+            background: rgba(45,45,45,0.5); border: 1px solid #8B6F3A;
+            border-radius: 8px; backdrop-filter: blur(10px);
+        }
+        .logo { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #C9A84C; font-family: 'Playfair Display', serif; }
+        .back-link {
+            color: #C9A84C; text-decoration: none; font-size: 14px;
+            padding: 8px 16px; border: 1px solid #8B6F3A; border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover { background: rgba(201,168,76,0.1); border-color: #C9A84C; }
+        .page-title {
+            text-align: center; font-size: 34px; font-weight: 700;
+            margin-bottom: 8px; color: #C9A84C;
+            font-family: 'Playfair Display', serif; letter-spacing: 1px;
+        }
+        .page-subtitle {
+            text-align: center; font-size: 14px; color: #9A9590;
+            margin-bottom: 30px; letter-spacing: 0.5px;
+        }
+        /* KPI Bar */
+        .kpi-bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 30px; }
+        .kpi-card {
+            background: #2D2D2D; border: 1px solid #8B6F3A; border-radius: 8px;
+            padding: 18px; position: relative; transition: all 0.3s ease;
+        }
+        .kpi-card:hover { box-shadow: 0 0 20px rgba(201,168,76,0.15); border-color: #C9A84C; }
+        .kpi-card::before {
+            content: ''; position: absolute; left: 0; top: 0;
+            height: 3px; width: 100%;
+            background: linear-gradient(90deg, #C9A84C 0%, transparent 100%);
+            border-radius: 8px 8px 0 0;
+        }
+        .kpi-label { font-size: 11px; color: #9A9590; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
+        .kpi-value { font-size: 24px; font-weight: 700; color: #C9A84C; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .kpi-secondary { font-size: 12px; color: #9A9590; }
+        .kpi-var { font-size: 12px; font-weight: 600; }
+        .var-pos { color: #4CAF50; }
+        .var-neg { color: #E74C3C; }
+        /* Tabs */
+        .tabs-container { margin-bottom: 40px; }
+        .tab-buttons {
+            display: flex; gap: 4px; margin-bottom: 24px;
+            border-bottom: 2px solid #8B6F3A; padding-bottom: 0; flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: none; border: none; color: #9A9590;
+            padding: 10px 18px; font-size: 13px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer;
+            border-bottom: 3px solid transparent; transition: all 0.3s ease;
+        }
+        .tab-btn:hover { color: #C9A84C; }
+        .tab-btn.active { color: #C9A84C; border-bottom-color: #C9A84C; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        /* Charts & Tables */
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+        .chart-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+        .chart-container {
+            background: #2D2D2D; border: 1px solid #8B6F3A;
+            border-radius: 8px; padding: 22px;
+        }
+        .chart-full { grid-column: 1 / -1; }
+        .chart-title {
+            font-size: 14px; font-weight: 700; color: #C9A84C;
+            margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.8px;
+            font-family: 'Playfair Display', serif;
+        }
+        .chart-wrapper { position: relative; height: 320px; }
+        .chart-wrapper-lg { height: 400px; }
+        .table-container {
+            background: #2D2D2D; border: 1px solid #8B6F3A;
+            border-radius: 8px; padding: 22px; overflow-x: auto; margin-bottom: 24px;
+        }
+        .table-title {
+            font-size: 14px; font-weight: 700; color: #C9A84C;
+            margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.8px;
+            font-family: 'Playfair Display', serif;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th {
+            background: rgba(201,168,76,0.1); color: #C9A84C;
+            padding: 10px 12px; text-align: right; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 2px solid #8B6F3A; font-size: 11px;
+        }
+        th:first-child { text-align: left; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(139,111,58,0.2); text-align: right; }
+        td:first-child { text-align: left; font-weight: 600; }
+        tr:hover { background: rgba(201,168,76,0.04); }
+        tr.total-row { background: rgba(201,168,76,0.08); font-weight: 700; }
+        tr.total-row td { border-top: 2px solid #8B6F3A; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+        .tag-digital { background: rgba(201,168,76,0.15); color: #C9A84C; }
+        .tag-physical { background: rgba(106,155,195,0.15); color: #6A9BC3; }
+        .tag-omni { background: rgba(91,166,125,0.15); color: #5BA67D; }
+        /* Insight callout */
+        .insight-box {
+            background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+        .insight-text { font-size: 13px; color: #F5F0E8; line-height: 1.6; }
+        .insight-text strong { color: #C9A84C; }
+        /* Heatmap */
+        .heatmap-grid { display: grid; gap: 2px; }
+        .heatmap-cell {
+            padding: 8px 6px; text-align: center; border-radius: 3px;
+            font-size: 11px; font-weight: 600; transition: all 0.2s;
+        }
+        .heatmap-cell:hover { transform: scale(1.05); z-index: 1; }
+        .heatmap-header { background: rgba(201,168,76,0.1); color: #C9A84C; font-weight: 700; font-size: 10px; text-transform: uppercase; }
+        .heatmap-row-header { background: rgba(45,45,45,0.8); color: #F5F0E8; font-weight: 600; text-align: left; }
+        .footer {
+            text-align: center; padding: 30px; border-top: 1px solid #8B6F3A;
+            color: #9A9590; font-size: 12px; margin-top: 40px;
+        }
+        @media (max-width: 1200px) {
+            .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
+            .kpi-bar { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .kpi-bar { grid-template-columns: repeat(2, 1fr); }
+            .header { flex-direction: column; gap: 12px; }
+            .tab-btn { padding: 8px 12px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">FALCON RETAIL</div>
+        <a href="index.html" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+    <h1 class="page-title">Omnichannel & Channel Mix</h1>
+    <p class="page-subtitle">Advanced Channel Performance Analytics &bull; Fiscal Year 2026 vs 2025 &bull; Data through March 16, 2026</p>
+
+    <!-- KPI Bar -->
+    <div class="kpi-bar">
+        <div class="kpi-card">
+            <div class="kpi-label">Total YTD Revenue</div>
+            <div class="kpi-value">$228.5M</div>
+            <div class="kpi-secondary">All Channels Combined</div>
+            <div class="kpi-var var-neg">-8.5% vs LY</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Digital Revenue</div>
+            <div class="kpi-value">$91.2M</div>
+            <div class="kpi-secondary">E-Com + Mobile (39.9%)</div>
+            <div class="kpi-var var-neg">-8.6% vs LY</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Omnichannel Revenue</div>
+            <div class="kpi-value">$91.6M</div>
+            <div class="kpi-secondary">BOPIS + Curbside (40.1%)</div>
+            <div class="kpi-var var-neg">-8.5% vs LY</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Physical Revenue</div>
+            <div class="kpi-value">$45.6M</div>
+            <div class="kpi-secondary">In-Store (20.0%)</div>
+            <div class="kpi-var var-neg">-8.4% vs LY</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total YTD Transactions</div>
+            <div class="kpi-value">578.5K</div>
+            <div class="kpi-secondary">Across All Channels</div>
+            <div class="kpi-var var-neg">-8.3% vs LY</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Margin Rate</div>
+            <div class="kpi-value">41.8%</div>
+            <div class="kpi-secondary">Gross Margin / Net Sales</div>
+            <div class="kpi-var var-neg">-0.2pp vs LY</div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab(0)">Channel Scorecard</button>
+            <button class="tab-btn" onclick="switchTab(1)">Monthly Trends</button>
+            <button class="tab-btn" onclick="switchTab(2)">Category &times; Channel</button>
+            <button class="tab-btn" onclick="switchTab(3)">Regional Mix</button>
+            <button class="tab-btn" onclick="switchTab(4)">Returns & Loyalty</button>
+            <button class="tab-btn" onclick="switchTab(5)">Payment Analysis</button>
+        </div>
+
+        <!-- ============ TAB 0: CHANNEL SCORECARD ============ -->
+        <div class="tab-content active" id="tab0">
+
+            <div class="insight-box">
+                <div class="insight-icon">&#128202;</div>
+                <div class="insight-text">
+                    <strong>Key Insight:</strong> All channels are trending <strong>-8% to -9% vs LY</strong> on a comparable basis (FY26 excludes January).
+                    E-Commerce leads on <strong>gross margin rate (41.7%)</strong>, while BOPIS delivers the strongest <strong>units-per-transaction (2.54)</strong>.
+                    Mobile App shows the steepest decline at <strong>-9.5%</strong> and the highest return rate.
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Net Sales by Channel: TY vs LY ($M)</div>
+                    <div class="chart-wrapper"><canvas id="chart_scorecard_bar"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Channel Revenue Share (TY)</div>
+                    <div class="chart-wrapper"><canvas id="chart_scorecard_doughnut"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Gross Margin ($M) by Channel</div>
+                    <div class="chart-wrapper"><canvas id="chart_margin_bar"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Channel Efficiency: AOV vs Margin %</div>
+                    <div class="chart-wrapper"><canvas id="chart_efficiency_scatter"></canvas></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Comprehensive Channel Scorecard</div>
+                <table id="tbl_scorecard"></table>
+            </div>
+        </div>
+
+        <!-- ============ TAB 1: MONTHLY TRENDS ============ -->
+        <div class="tab-content" id="tab1">
+
+            <div class="insight-box">
+                <div class="insight-icon">&#128200;</div>
+                <div class="insight-text">
+                    <strong>Trend Analysis:</strong> Monthly trends show all channels performing within a tight band of <strong>$3.9M-$4.3M</strong> per month.
+                    Seasonal peaks visible in <strong>March, May, July, October</strong> across most channels. In-Store shows a notable August strength
+                    at <strong>$4.32M</strong> &mdash; the highest single-channel month in FY26.
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container chart-full">
+                    <div class="chart-title">Monthly Net Sales by Channel (Feb&ndash;Dec 2026)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_monthly_lines"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">YoY Growth Rate by Month &amp; Channel (%)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_yoy_growth"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Channel Share of Total (Monthly %)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_monthly_share"></canvas></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Monthly Performance by Channel ($M)</div>
+                <table id="tbl_monthly"></table>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: CATEGORY x CHANNEL ============ -->
+        <div class="tab-content" id="tab2">
+
+            <div class="insight-box">
+                <div class="insight-icon">&#128301;</div>
+                <div class="insight-text">
+                    <strong>Product Mix Analysis:</strong> <strong>Bottoms</strong> is the #1 category across 3 of 5 channels (BOPIS, Curbside, E-Commerce),
+                    while <strong>Outerwear</strong> leads In-Store and Mobile App. <strong>Activewear</strong> consistently underperforms across all channels at
+                    ~$5.3M avg, suggesting potential markdown or assortment issues.
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container chart-full">
+                    <div class="chart-title">Category Revenue by Channel (Stacked Bar)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_cat_channel_stack"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container chart-full">
+                    <div class="chart-title">Category &times; Channel YoY Variance Heatmap</div>
+                    <div id="heatmap_container" style="overflow-x:auto;"></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Category &times; Channel Detail (TY Net Sales $M | YoY %)</div>
+                <table id="tbl_cat_channel"></table>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: REGIONAL MIX ============ -->
+        <div class="tab-content" id="tab3">
+
+            <div class="insight-box">
+                <div class="insight-icon">&#127758;</div>
+                <div class="insight-text">
+                    <strong>Regional Insights:</strong> <strong>Southeast</strong> dominates across all channels with ~$12.8M per channel, driven by 7 stores.
+                    <strong>Mountain</strong> region (single Denver store) is the smallest at ~$1.8M per channel but shows consistent proportional contribution.
+                    E-Commerce has the broadest regional penetration with the smallest gap between top/bottom regions.
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Regional Revenue by Channel (Grouped Bar)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_region_channel"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Channel Mix by Region (Stacked %)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_region_stack"></canvas></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Region &times; Channel Performance (TY $M | YoY %)</div>
+                <table id="tbl_region_channel"></table>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: RETURNS & LOYALTY ============ -->
+        <div class="tab-content" id="tab4">
+
+            <div class="insight-box">
+                <div class="insight-icon">&#128176;</div>
+                <div class="insight-text">
+                    <strong>Return Rate Analysis:</strong> <strong>Mobile App</strong> has the highest return incidence at <strong>5.19%</strong> of line items,
+                    followed by E-Commerce at <strong>5.12%</strong>. <strong>BOPIS</strong> has the lowest at <strong>4.95%</strong> &mdash; likely due to in-store
+                    inspection at pickup. Loyalty points earned are proportional to sales, with <strong>E-Commerce</strong> generating the most at <strong>60.6M</strong> points.
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Return Rate by Channel (%)</div>
+                    <div class="chart-wrapper"><canvas id="chart_return_rate"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Loyalty Points Earned by Channel (M)</div>
+                    <div class="chart-wrapper"><canvas id="chart_loyalty_pts"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Returns TY vs LY by Channel</div>
+                    <div class="chart-wrapper"><canvas id="chart_returns_ty_ly"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Return Rate Impact on Net Margin</div>
+                    <div class="chart-wrapper"><canvas id="chart_return_margin"></canvas></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Returns & Loyalty Detail by Channel</div>
+                <table id="tbl_returns"></table>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: PAYMENT ANALYSIS ============ -->
+        <div class="tab-content" id="tab5">
+
+            <div class="insight-box">
+                <div class="insight-icon">&#128179;</div>
+                <div class="insight-text">
+                    <strong>Payment Preferences:</strong> <strong>Debit</strong> leads BOPIS and Curbside channels, while <strong>Cash</strong> surprisingly leads
+                    E-Commerce (likely gift cards coded as cash equivalents). <strong>Digital Wallet</strong> leads on Mobile App at <strong>$9.20M</strong>,
+                    confirming frictionless checkout preferences. <strong>Credit</strong> cards are consistently the lowest payment method across most channels.
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container chart-full">
+                    <div class="chart-title">Payment Method by Channel (Grouped Bar)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_payment_channel"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Payment Mix per Channel (%)</div>
+                    <div class="chart-wrapper chart-wrapper-lg"><canvas id="chart_payment_stack"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Digital Wallet Penetration by Channel</div>
+                    <div class="chart-wrapper"><canvas id="chart_wallet_penetration"></canvas></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Payment Method &times; Channel Detail (TY)</div>
+                <table id="tbl_payment"></table>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated March 16, 2026 &bull; Data as of March 16, 2026 &bull; Falcon Retail Confidential<br>
+        <span style="font-size:11px;color:#6B6560;">Note: FY2026 data begins February 2026. YoY comparisons use full FY2025 (Jan&ndash;Dec 2025) vs available FY2026 months.</span>
+    </div>
+</div>
+
+<script>
+// =================== DATA ===================
+const CC = ['#C9A84C','#6A9BC3','#5BA67D','#E8913A','#C75B5B','#8E6BBF','#4ECDC4','#D4A843'];
+Chart.defaults.color = '#9A9590';
+Chart.defaults.borderColor = 'rgba(139,111,58,0.15)';
+
+const channels = ['E-Commerce','BOPIS','Curbside','In-Store','Mobile App'];
+const channelTypes = {
+    'E-Commerce': {type:'Digital',tag:'tag-digital'},
+    'BOPIS': {type:'Omnichannel',tag:'tag-omni'},
+    'Curbside': {type:'Omnichannel',tag:'tag-omni'},
+    'In-Store': {type:'Physical',tag:'tag-physical'},
+    'Mobile App': {type:'Digital',tag:'tag-digital'}
+};
+
+const chData = {
+    'E-Commerce': {ty:45901565,ly:49886830,tyGross:48066976,lyGross:52264129,tyDisc:2165412,lyDisc:2377299,tyUnits:296777,lyUnits:322801,tyTxns:116364,lyTxns:126429,tyMargin:19134682,lyMargin:20880079},
+    'BOPIS':      {ty:45839790,ly:50207029,tyGross:48031752,lyGross:52574219,tyDisc:2191962,lyDisc:2367190,tyUnits:294772,lyUnits:323062,tyTxns:116038,lyTxns:126455,tyMargin:19254166,lyMargin:20995848},
+    'Curbside':   {ty:45799104,ly:49983810,tyGross:47964686,lyGross:52345506,tyDisc:2165582,lyDisc:2361695,tyUnits:295394,lyUnits:322407,tyTxns:115558,lyTxns:126277,tyMargin:19177378,lyMargin:20913490},
+    'In-Store':   {ty:45599000,ly:49783683,tyGross:47744116,lyGross:52141998,tyDisc:2145116,lyDisc:2358316,tyUnits:293848,lyUnits:321773,tyTxns:115449,lyTxns:125968,tyMargin:19118737,lyMargin:20834199},
+    'Mobile App': {ty:45317653,ly:50053001,tyGross:47453630,lyGross:52398650,tyDisc:2135977,lyDisc:2345649,tyUnits:293449,lyUnits:323726,tyTxns:115077,lyTxns:126362,tyMargin:18899872,lyMargin:20923448}
+};
+
+// Monthly data by channel (Feb=2 through Dec=12)
+const monthlyData = {
+    'BOPIS':      {ty:[3873630,4264718,4097412,4323856,4124014,4310439,4255787,4105025,4285855,4042131,4156923],ly:[3731650,4321393,4173516,4209526,4078237,4285741,4247517,4142186,4271214,4154362,4371586]},
+    'Curbside':   {ty:[3905897,4272935,4197162,4299295,4191077,4191704,4152563,4050457,4253465,4127843,4156706],ly:[3768457,4176920,4162193,4227724,4074649,4204437,4229097,3976040,4415042,4120650,4281798]},
+    'E-Commerce': {ty:[3953409,4190376,4180795,4211314,4108732,4265151,4206201,4147829,4283891,4166340,4187526],ly:[3768011,4342377,4208234,4271903,4083259,4232267,4254163,4070350,4152502,4044963,4175794]},
+    'In-Store':   {ty:[3876429,4231400,4098938,4193016,4124377,4281705,4322392,4053022,4140347,4195893,4081481],ly:[3796793,4211870,4140166,4121842,4137060,4270201,4221075,4124923,4342203,3967257,4217574]},
+    'Mobile App': {ty:[3945803,4137033,4173346,4229644,4107422,4182716,4188195,4035132,4184788,4060447,4073129],ly:[3747314,4252624,4119392,4132469,4202366,4192795,4372413,4096837,4344224,4133630,4316402]}
+};
+const months = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Category x Channel
+const categories = ['Bottoms','Outerwear','Tops','Footwear','Accessories','Denim','Loungewear','Activewear'];
+const catChannel = {
+    'BOPIS':      {ty:[6024849,5985386,5984669,5885919,5626183,5604739,5497154,5230891],ly:[6534485,6552322,6493393,6432902,6269597,6176443,5957442,5790447]},
+    'Curbside':   {ty:[6063502,6024015,5842800,5871978,5712028,5598572,5389215,5296994],ly:[6510495,6505381,6387762,6500741,6269575,6100236,5933401,5776219]},
+    'E-Commerce': {ty:[6043611,5900915,5966609,5844865,5791231,5676205,5380141,5297987],ly:[6653034,6462050,6400638,6344691,6287234,6092641,5937953,5708587]},
+    'In-Store':   {ty:[6000000,6014573,5862171,5676055,5779234,5640540,5362108,5264319],ly:[6725591,6552558,6329615,6268621,6340333,6024979,5907405,5634580]},
+    'Mobile App': {ty:[5931156,6062314,5742728,6000075,5480770,5433078,5391261,5276270],ly:[6556177,6643115,6332061,6387715,6403859,6127084,5865674,5737316]}
+};
+
+// Region x Channel
+const regions = ['Southeast','West','Midwest','Southwest','Northeast','Mountain'];
+const regionChannel = {
+    'BOPIS':      {ty:[12907854,11079244,7320257,7174512,5527116,1830806],ly:[14060301,12017145,7973985,8120453,6032976,2002169]},
+    'Curbside':   {ty:[12816436,11072618,7279331,7260325,5534534,1835861],ly:[13942142,12046752,8010848,7970439,5961907,2051722]},
+    'E-Commerce': {ty:[12862869,11005533,7391078,7242729,5544919,1854437],ly:[14060406,11959992,7878909,8064874,5932510,1990139]},
+    'In-Store':   {ty:[12752135,11078975,7224026,7256914,5438830,1848120],ly:[14003179,12006356,7865503,7922416,6017275,1968954]},
+    'Mobile App': {ty:[12810799,10718252,7228734,7275866,5500241,1783759],ly:[14064926,11927657,8028284,8142676,5931275,1958183]}
+};
+
+// Payment data
+const payMethods = ['DEBIT','GIFT_CARD','CASH','DIGITAL_WALLET','CREDIT'];
+const paymentData = {
+    'BOPIS':      [9233457,9195924,9149320,9149314,9111775],
+    'Curbside':   [9289968,9025154,9217389,9134826,9131768],
+    'E-Commerce': [9180973,9121101,9273730,9204470,9121291],
+    'In-Store':   [9062028,9199815,9118956,9161993,9056209],
+    'Mobile App': [9047298,8941432,9062312,9196239,9070372]
+};
+
+// Returns & Loyalty
+const returnsData = {
+    'E-Commerce': {tyRet:5952,tyTxns:116364,lyRet:6469,lyTxns:126429,tyPts:60630784,lyPts:65794946},
+    'BOPIS':      {tyRet:5737,tyTxns:116038,lyRet:6507,lyTxns:126455,tyPts:60362217,lyPts:66253302},
+    'Curbside':   {tyRet:5876,tyTxns:115558,lyRet:6388,lyTxns:126277,tyPts:60418413,lyPts:65933926},
+    'In-Store':   {tyRet:5825,tyTxns:115449,lyRet:6333,lyTxns:125968,tyPts:60136839,lyPts:65652994},
+    'Mobile App': {tyRet:5980,tyTxns:115077,lyRet:6431,lyTxns:126362,tyPts:59855765,lyPts:66057126}
+};
+
+// =================== HELPERS ===================
+const fmt = (n) => n >= 1e6 ? '$'+(n/1e6).toFixed(1)+'M' : n >= 1e3 ? '$'+(n/1e3).toFixed(0)+'K' : '$'+n.toFixed(0);
+const fmtK = (n) => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : n.toFixed(0);
+const pct = (a,b) => b === 0 ? 'N/A' : ((a-b)/Math.abs(b)*100).toFixed(1)+'%';
+const varClass = (a,b) => a >= b ? 'var-pos' : 'var-neg';
+const varSign = (a,b) => a >= b ? '+'+pct(a,b) : pct(a,b);
+
+function switchTab(i) {
+    document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+    document.querySelectorAll('.tab-content').forEach((c,j) => c.classList.toggle('active', j===i));
+    setTimeout(() => {
+        Object.values(Chart.instances).forEach(c => c.resize());
+    }, 120);
+}
+
+// =================== TAB 0: SCORECARD ===================
+// Bar chart: TY vs LY
+new Chart(document.getElementById('chart_scorecard_bar'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: [
+            {label:'FY2026 (TY)',data:channels.map(c=>chData[c].ty/1e6),backgroundColor:'#C9A84C',borderRadius:4},
+            {label:'FY2025 (LY)',data:channels.map(c=>chData[c].ly/1e6),backgroundColor:'#6A9BC3',borderRadius:4}
+        ]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Doughnut
+new Chart(document.getElementById('chart_scorecard_doughnut'), {
+    type: 'doughnut',
+    data: {
+        labels: channels,
+        datasets: [{data:channels.map(c=>chData[c].ty/1e6),backgroundColor:CC.slice(0,5),borderColor:'#1A1A1A',borderWidth:2}]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'right',labels:{color:'#F5F0E8',font:{weight:'bold'},padding:14}}}
+    }
+});
+
+// Margin bar
+new Chart(document.getElementById('chart_margin_bar'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: [
+            {label:'TY Margin',data:channels.map(c=>chData[c].tyMargin/1e6),backgroundColor:'#5BA67D',borderRadius:4},
+            {label:'LY Margin',data:channels.map(c=>chData[c].lyMargin/1e6),backgroundColor:'rgba(91,166,125,0.4)',borderRadius:4}
+        ]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Efficiency scatter: AOV vs Margin %
+new Chart(document.getElementById('chart_efficiency_scatter'), {
+    type: 'bubble',
+    data: {
+        datasets: channels.map((c,i) => ({
+            label: c,
+            data: [{
+                x: chData[c].ty / chData[c].tyTxns,
+                y: chData[c].tyMargin / chData[c].ty * 100,
+                r: chData[c].tyTxns / 8000
+            }],
+            backgroundColor: CC[i] + '99',
+            borderColor: CC[i],
+            borderWidth: 2
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            x:{title:{display:true,text:'Avg Order Value ($)',color:'#F5F0E8'},grid:{color:'rgba(139,111,58,0.1)'}},
+            y:{title:{display:true,text:'Gross Margin %',color:'#F5F0E8'},grid:{color:'rgba(139,111,58,0.1)'},min:41,max:42.5}
+        }
+    }
+});
+
+// Scorecard table
+(function(){
+    const t = document.getElementById('tbl_scorecard');
+    let h = '<thead><tr><th>Channel</th><th>Type</th><th>TY Sales</th><th>LY Sales</th><th>Var %</th><th>TY Units</th><th>LY Units</th><th>Var %</th><th>TY Txns</th><th>LY Txns</th><th>AOV TY</th><th>UPT TY</th><th>Margin %</th><th>Disc %</th></tr></thead><tbody>';
+    let totTY=0,totLY=0,totTYU=0,totLYU=0,totTYT=0,totLYT=0,totTYM=0,totTYD=0,totTYG=0;
+    channels.forEach(c => {
+        const d = chData[c];
+        const v = ((d.ty-d.ly)/d.ly*100);
+        const vu = ((d.tyUnits-d.lyUnits)/d.lyUnits*100);
+        const aov = (d.ty/d.tyTxns).toFixed(2);
+        const upt = (d.tyUnits/d.tyTxns).toFixed(2);
+        const mgn = (d.tyMargin/d.ty*100).toFixed(1);
+        const disc = (d.tyDisc/d.tyGross*100).toFixed(1);
+        const tag = channelTypes[c];
+        totTY+=d.ty; totLY+=d.ly; totTYU+=d.tyUnits; totLYU+=d.lyUnits;
+        totTYT+=d.tyTxns; totLYT+=d.lyTxns; totTYM+=d.tyMargin; totTYD+=d.tyDisc; totTYG+=d.tyGross;
+        h += `<tr>
+            <td><strong>${c}</strong></td>
+            <td><span class="tag ${tag.tag}">${tag.type}</span></td>
+            <td>${fmt(d.ty)}</td><td>${fmt(d.ly)}</td>
+            <td class="${v>=0?'var-pos':'var-neg'}">${v>=0?'+':''}${v.toFixed(1)}%</td>
+            <td>${fmtK(d.tyUnits)}</td><td>${fmtK(d.lyUnits)}</td>
+            <td class="${vu>=0?'var-pos':'var-neg'}">${vu>=0?'+':''}${vu.toFixed(1)}%</td>
+            <td>${fmtK(d.tyTxns)}</td><td>${fmtK(d.lyTxns)}</td>
+            <td>$${aov}</td><td>${upt}</td><td>${mgn}%</td><td>${disc}%</td>
+        </tr>`;
+    });
+    const totV = ((totTY-totLY)/totLY*100);
+    h += `<tr class="total-row"><td><strong>TOTAL</strong></td><td></td>
+        <td>${fmt(totTY)}</td><td>${fmt(totLY)}</td>
+        <td class="${totV>=0?'var-pos':'var-neg'}">${totV>=0?'+':''}${totV.toFixed(1)}%</td>
+        <td>${fmtK(totTYU)}</td><td>${fmtK(totLYU)}</td>
+        <td class="${totTYU>=totLYU?'var-pos':'var-neg'}">${((totTYU-totLYU)/totLYU*100).toFixed(1)}%</td>
+        <td>${fmtK(totTYT)}</td><td>${fmtK(totLYT)}</td>
+        <td>$${(totTY/totTYT).toFixed(2)}</td><td>${(totTYU/totTYT).toFixed(2)}</td>
+        <td>${(totTYM/totTY*100).toFixed(1)}%</td><td>${(totTYD/totTYG*100).toFixed(1)}%</td>
+    </tr>`;
+    t.innerHTML = h + '</tbody>';
+})();
+
+// =================== TAB 1: MONTHLY TRENDS ===================
+// Multi-line: sales by channel
+new Chart(document.getElementById('chart_monthly_lines'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: channels.map((c,i) => ({
+            label: c,
+            data: monthlyData[c].ty.map(v=>v/1e6),
+            borderColor: CC[i], backgroundColor: CC[i]+'22',
+            tension: 0.35, borderWidth: 2.5, pointRadius: 4,
+            pointBackgroundColor: CC[i], fill: false
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{ticks:{callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{color:'rgba(139,111,58,0.05)'}}
+        }
+    }
+});
+
+// YoY growth lines
+new Chart(document.getElementById('chart_yoy_growth'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: channels.map((c,i) => ({
+            label: c,
+            data: monthlyData[c].ty.map((v,j) => ((v - monthlyData[c].ly[j]) / monthlyData[c].ly[j] * 100)),
+            borderColor: CC[i], tension: 0.3, borderWidth: 2, pointRadius: 3,
+            pointBackgroundColor: CC[i], fill: false
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}},position:'bottom'}},
+        scales:{
+            y:{ticks:{callback:v=>v.toFixed(0)+'%'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Monthly share stacked
+(function(){
+    const monthTotals = months.map((_,j) => channels.reduce((s,c) => s + monthlyData[c].ty[j], 0));
+    new Chart(document.getElementById('chart_monthly_share'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: channels.map((c,i) => ({
+                label: c,
+                data: monthlyData[c].ty.map((v,j) => v/monthTotals[j]*100),
+                backgroundColor: CC[i], borderWidth: 0
+            }))
+        },
+        options: {
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}},position:'bottom'}},
+            scales:{
+                y:{stacked:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(139,111,58,0.1)'}},
+                x:{stacked:true,grid:{display:false}}
+            }
+        }
+    });
+})();
+
+// Monthly table
+(function(){
+    const t = document.getElementById('tbl_monthly');
+    let h = '<thead><tr><th>Channel</th>';
+    months.forEach(m => h += `<th>${m}</th>`);
+    h += '<th>Total</th><th>Avg/Mo</th></tr></thead><tbody>';
+    channels.forEach(c => {
+        const total = monthlyData[c].ty.reduce((s,v)=>s+v,0);
+        h += `<tr><td><strong>${c}</strong></td>`;
+        monthlyData[c].ty.forEach((v,j) => {
+            const yoy = ((v - monthlyData[c].ly[j])/monthlyData[c].ly[j]*100);
+            h += `<td>${(v/1e6).toFixed(1)}M <span class="${yoy>=0?'var-pos':'var-neg'}" style="font-size:10px">${yoy>=0?'+':''}${yoy.toFixed(1)}%</span></td>`;
+        });
+        h += `<td><strong>${(total/1e6).toFixed(1)}M</strong></td><td>${(total/11/1e6).toFixed(1)}M</td></tr>`;
+    });
+    h += '</tbody>';
+    t.innerHTML = h;
+})();
+
+// =================== TAB 2: CATEGORY x CHANNEL ===================
+// Stacked bar: categories by channel
+new Chart(document.getElementById('chart_cat_channel_stack'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: categories.map((cat,i) => ({
+            label: cat,
+            data: channels.map(c => catChannel[c].ty[i]/1e6),
+            backgroundColor: CC[i], borderWidth: 0
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{size:11,weight:'bold'},padding:12}}},
+        scales:{
+            y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{stacked:true,grid:{display:false}}
+        }
+    }
+});
+
+// Heatmap
+(function(){
+    const cont = document.getElementById('heatmap_container');
+    const cols = channels.length + 1;
+    let html = `<div class="heatmap-grid" style="grid-template-columns: 120px repeat(${channels.length}, 1fr);">`;
+    html += '<div class="heatmap-cell heatmap-header"></div>';
+    channels.forEach(c => html += `<div class="heatmap-cell heatmap-header">${c}</div>`);
+    categories.forEach((cat,i) => {
+        html += `<div class="heatmap-cell heatmap-row-header">${cat}</div>`;
+        channels.forEach(c => {
+            const ty = catChannel[c].ty[i];
+            const ly = catChannel[c].ly[i];
+            const yoy = ((ty-ly)/ly*100);
+            const intensity = Math.min(Math.abs(yoy)/15, 1);
+            const bg = yoy >= 0
+                ? `rgba(76,175,80,${intensity*0.6})`
+                : `rgba(231,76,60,${intensity*0.6})`;
+            html += `<div class="heatmap-cell" style="background:${bg};color:#F5F0E8">${yoy>=0?'+':''}${yoy.toFixed(1)}%</div>`;
+        });
+    });
+    html += '</div>';
+    cont.innerHTML = html;
+})();
+
+// Cat x Channel table
+(function(){
+    const t = document.getElementById('tbl_cat_channel');
+    let h = '<thead><tr><th>Category</th>';
+    channels.forEach(c => h += `<th colspan="2">${c}</th>`);
+    h += '</tr><tr><th></th>';
+    channels.forEach(() => h += '<th>TY ($M)</th><th>YoY %</th>');
+    h += '</tr></thead><tbody>';
+    categories.forEach((cat,i) => {
+        h += `<tr><td><strong>${cat}</strong></td>`;
+        channels.forEach(c => {
+            const ty = catChannel[c].ty[i];
+            const ly = catChannel[c].ly[i];
+            const yoy = ((ty-ly)/ly*100);
+            h += `<td>${(ty/1e6).toFixed(1)}</td><td class="${yoy>=0?'var-pos':'var-neg'}">${yoy>=0?'+':''}${yoy.toFixed(1)}%</td>`;
+        });
+        h += '</tr>';
+    });
+    // Totals
+    h += '<tr class="total-row"><td><strong>TOTAL</strong></td>';
+    channels.forEach(c => {
+        const totTy = catChannel[c].ty.reduce((s,v)=>s+v,0);
+        const totLy = catChannel[c].ly.reduce((s,v)=>s+v,0);
+        const yoy = ((totTy-totLy)/totLy*100);
+        h += `<td><strong>${(totTy/1e6).toFixed(1)}</strong></td><td class="${yoy>=0?'var-pos':'var-neg'}"><strong>${yoy>=0?'+':''}${yoy.toFixed(1)}%</strong></td>`;
+    });
+    h += '</tr></tbody>';
+    t.innerHTML = h;
+})();
+
+// =================== TAB 3: REGIONAL MIX ===================
+new Chart(document.getElementById('chart_region_channel'), {
+    type: 'bar',
+    data: {
+        labels: regions,
+        datasets: channels.map((c,i) => ({
+            label: c,
+            data: regionChannel[c].ty.map(v=>v/1e6),
+            backgroundColor: CC[i], borderRadius: 3
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Region stacked %
+(function(){
+    const regTotals = regions.map((_,j) => channels.reduce((s,c) => s + regionChannel[c].ty[j], 0));
+    new Chart(document.getElementById('chart_region_stack'), {
+        type: 'bar',
+        data: {
+            labels: regions,
+            datasets: channels.map((c,i) => ({
+                label: c,
+                data: regionChannel[c].ty.map((v,j) => v/regTotals[j]*100),
+                backgroundColor: CC[i], borderWidth: 0
+            }))
+        },
+        options: {
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+            scales:{
+                y:{stacked:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(139,111,58,0.1)'}},
+                x:{stacked:true,grid:{display:false}}
+            }
+        }
+    });
+})();
+
+// Region table
+(function(){
+    const t = document.getElementById('tbl_region_channel');
+    let h = '<thead><tr><th>Region</th>';
+    channels.forEach(c => h += `<th colspan="2">${c}</th>`);
+    h += '<th>Total TY</th></tr><tr><th></th>';
+    channels.forEach(() => h += '<th>TY ($M)</th><th>YoY %</th>');
+    h += '<th></th></tr></thead><tbody>';
+    regions.forEach((r,i) => {
+        let rowTotal = 0;
+        h += `<tr><td><strong>${r}</strong></td>`;
+        channels.forEach(c => {
+            const ty = regionChannel[c].ty[i];
+            const ly = regionChannel[c].ly[i];
+            rowTotal += ty;
+            const yoy = ((ty-ly)/ly*100);
+            h += `<td>${(ty/1e6).toFixed(1)}</td><td class="${yoy>=0?'var-pos':'var-neg'}">${yoy>=0?'+':''}${yoy.toFixed(1)}%</td>`;
+        });
+        h += `<td><strong>${(rowTotal/1e6).toFixed(1)}M</strong></td></tr>`;
+    });
+    h += '</tbody>';
+    t.innerHTML = h;
+})();
+
+// =================== TAB 4: RETURNS & LOYALTY ===================
+// Return rate bar
+new Chart(document.getElementById('chart_return_rate'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: [{
+            label: 'Return Rate % (TY)',
+            data: channels.map(c => returnsData[c].tyRet / returnsData[c].tyTxns * 100),
+            backgroundColor: channels.map((_,i) => CC[i]),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+            y:{ticks:{callback:v=>v.toFixed(1)+'%'},grid:{color:'rgba(139,111,58,0.1)'},min:4.8,max:5.4},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Loyalty points bar
+new Chart(document.getElementById('chart_loyalty_pts'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: [
+            {label:'TY Points',data:channels.map(c=>returnsData[c].tyPts/1e6),backgroundColor:'#C9A84C',borderRadius:4},
+            {label:'LY Points',data:channels.map(c=>returnsData[c].lyPts/1e6),backgroundColor:'#6A9BC3',borderRadius:4}
+        ]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{ticks:{callback:v=>v+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Returns TY vs LY
+new Chart(document.getElementById('chart_returns_ty_ly'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: [
+            {label:'TY Returns',data:channels.map(c=>returnsData[c].tyRet),backgroundColor:'#E8913A',borderRadius:4},
+            {label:'LY Returns',data:channels.map(c=>returnsData[c].lyRet),backgroundColor:'rgba(232,145,58,0.4)',borderRadius:4}
+        ]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Return vs Margin scatter
+new Chart(document.getElementById('chart_return_margin'), {
+    type: 'bubble',
+    data: {
+        datasets: channels.map((c,i) => ({
+            label: c,
+            data: [{
+                x: returnsData[c].tyRet / returnsData[c].tyTxns * 100,
+                y: chData[c].tyMargin / chData[c].ty * 100,
+                r: 14
+            }],
+            backgroundColor: CC[i] + '88',
+            borderColor: CC[i], borderWidth: 2
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            x:{title:{display:true,text:'Return Rate %',color:'#F5F0E8'},grid:{color:'rgba(139,111,58,0.1)'}},
+            y:{title:{display:true,text:'Gross Margin %',color:'#F5F0E8'},grid:{color:'rgba(139,111,58,0.1)'},min:41,max:42.5}
+        }
+    }
+});
+
+// Returns table
+(function(){
+    const t = document.getElementById('tbl_returns');
+    let h = '<thead><tr><th>Channel</th><th>TY Returns</th><th>LY Returns</th><th>Return Rate TY</th><th>Return Rate LY</th><th>Rate Change</th><th>TY Loyalty Pts</th><th>LY Loyalty Pts</th><th>Pts Var %</th></tr></thead><tbody>';
+    channels.forEach(c => {
+        const d = returnsData[c];
+        const tyRate = (d.tyRet/d.tyTxns*100);
+        const lyRate = (d.lyRet/d.lyTxns*100);
+        const rateChg = tyRate - lyRate;
+        const ptsVar = ((d.tyPts-d.lyPts)/d.lyPts*100);
+        h += `<tr><td><strong>${c}</strong></td>
+            <td>${fmtK(d.tyRet)}</td><td>${fmtK(d.lyRet)}</td>
+            <td>${tyRate.toFixed(2)}%</td><td>${lyRate.toFixed(2)}%</td>
+            <td class="${rateChg<=0?'var-pos':'var-neg'}">${rateChg>=0?'+':''}${rateChg.toFixed(2)}pp</td>
+            <td>${(d.tyPts/1e6).toFixed(1)}M</td><td>${(d.lyPts/1e6).toFixed(1)}M</td>
+            <td class="${ptsVar>=0?'var-pos':'var-neg'}">${ptsVar>=0?'+':''}${ptsVar.toFixed(1)}%</td>
+        </tr>`;
+    });
+    h += '</tbody>';
+    t.innerHTML = h;
+})();
+
+// =================== TAB 5: PAYMENT ANALYSIS ===================
+new Chart(document.getElementById('chart_payment_channel'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: payMethods.map((pm,i) => ({
+            label: pm.replace('_',' '),
+            data: channels.map(c => paymentData[c][i]/1e6),
+            backgroundColor: CC[i], borderRadius: 3
+        }))
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+        scales:{
+            y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(139,111,58,0.1)'}},
+            x:{grid:{display:false}}
+        }
+    }
+});
+
+// Payment stacked %
+(function(){
+    const chTotals = channels.map(c => paymentData[c].reduce((s,v)=>s+v,0));
+    new Chart(document.getElementById('chart_payment_stack'), {
+        type: 'bar',
+        data: {
+            labels: channels,
+            datasets: payMethods.map((pm,i) => ({
+                label: pm.replace('_',' '),
+                data: channels.map((c,j) => paymentData[c][i]/chTotals[j]*100),
+                backgroundColor: CC[i], borderWidth: 0
+            }))
+        },
+        options: {
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{position:'bottom',labels:{color:'#F5F0E8',font:{weight:'bold'}}}},
+            scales:{
+                y:{stacked:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(139,111,58,0.1)'}},
+                x:{stacked:true,grid:{display:false}}
+            }
+        }
+    });
+})();
+
+// Digital wallet penetration
+new Chart(document.getElementById('chart_wallet_penetration'), {
+    type: 'bar',
+    data: {
+        labels: channels,
+        datasets: [{
+            label: 'Digital Wallet Share %',
+            data: channels.map(c => {
+                const total = paymentData[c].reduce((s,v)=>s+v,0);
+                return paymentData[c][3]/total*100;
+            }),
+            backgroundColor: '#4ECDC4',
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive:true, maintainAspectRatio:false,
+        indexAxis: 'y',
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{ticks:{callback:v=>v.toFixed(1)+'%'},grid:{color:'rgba(139,111,58,0.1)'},min:19.5,max:20.5},
+            y:{grid:{display:false}}
+        }
+    }
+});
+
+// Payment table
+(function(){
+    const t = document.getElementById('tbl_payment');
+    let h = '<thead><tr><th>Payment Method</th>';
+    channels.forEach(c => h += `<th>${c}</th>`);
+    h += '<th>Total</th><th>Share</th></tr></thead><tbody>';
+    const grandTotal = channels.reduce((s,c) => s + paymentData[c].reduce((a,b)=>a+b,0), 0);
+    payMethods.forEach((pm,i) => {
+        const rowTotal = channels.reduce((s,c) => s + paymentData[c][i], 0);
+        h += `<tr><td><strong>${pm.replace('_',' ')}</strong></td>`;
+        channels.forEach(c => h += `<td>${(paymentData[c][i]/1e6).toFixed(1)}M</td>`);
+        h += `<td><strong>${(rowTotal/1e6).toFixed(1)}M</strong></td><td>${(rowTotal/grandTotal*100).toFixed(1)}%</td></tr>`;
+    });
+    // Channel totals row
+    h += '<tr class="total-row"><td><strong>CHANNEL TOTAL</strong></td>';
+    channels.forEach(c => {
+        const tot = paymentData[c].reduce((s,v)=>s+v,0);
+        h += `<td><strong>${(tot/1e6).toFixed(1)}M</strong></td>`;
+    });
+    h += `<td><strong>${(grandTotal/1e6).toFixed(1)}M</strong></td><td>100%</td></tr>`;
+    h += '</tbody>';
+    t.innerHTML = h;
+})();
+</script>
+</body>
+</html>

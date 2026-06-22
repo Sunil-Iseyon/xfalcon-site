@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / 09. Channel Mix & ROAS</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.filter-bar{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px;display:flex;gap:18px;align-items:end;margin-bottom:24px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.filter-bar select{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--color-text);cursor:pointer;min-width:140px;font-family:inherit}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);margin-top:8px;line-height:1.1}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px}.kpi-delta.positive{color:var(--color-positive)}.kpi-delta.negative{color:var(--color-negative)}.kpi-delta.neutral{color:var(--color-tertiary)}
+.section-title{font-size:18px;font-weight:700;color:var(--color-primary);margin:32px 0 16px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:6px}
+.chart-sub{font-size:12px;color:var(--color-text-muted);margin-bottom:12px}
+.chart-container{position:relative;height:280px}
+.table-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-card .chart-title{padding:18px 20px 0}.table-card .chart-sub{padding:0 20px 12px}
+.detail-table{width:100%;border-collapse:collapse;font-size:13px}
+.detail-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:12px 16px;text-align:left;font-size:13px;font-weight:600}
+.detail-table th.num,.detail-table td.num{text-align:right}
+.detail-table tbody tr{border-top:1px solid var(--color-border)}.detail-table td{padding:10px 16px}
+.detail-table tbody tr:hover{background:#FAFAFE}
+.disclaimer{font-size:12px;color:var(--color-text-muted);margin-top:24px;padding:14px 18px;background:#FAFAFE;border-radius:var(--radius);border-left:3px solid var(--color-secondary)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row,.chart-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / 09. Channel Mix & ROAS</div>
+    <div class="topbar-sub" id="reporting-period">Reporting Period: Jan–Dec 2024</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-group"><label for="filterYear">Year</label>
+      <select id="filterYear" onchange="render()"><option value="2024" selected>2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select></div>
+    <div class="filter-group"><label for="filterCat">Category</label>
+      <select id="filterCat" onchange="render()"><option value="All">All</option><option value="Digital">Digital</option><option value="Print">Print</option><option value="Physical">Physical</option></select></div>
+    <div class="filter-group"><label for="filterType">Channel Type</label>
+      <select id="filterType" onchange="render()"><option value="All">All</option><option value="Paid">Paid</option><option value="Owned">Owned</option></select></div>
+    <div class="filter-group" style="flex:1"></div>
+    <div class="filter-group"><label>&nbsp;</label><button onclick="resetFilters()" style="padding:7px 14px;border:1px solid var(--color-border);background:white;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px">Reset</button></div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+  <div class="kpi-row" id="kpiRow2"></div>
+
+  <h2 class="section-title">Channel Performance</h2>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Channel Spend Ranking</div><div class="chart-sub">15 channels by spend, selected year</div><div class="chart-container" style="height:380px"><canvas id="cSpend"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Channel ROAS Ranking</div><div class="chart-sub">Revenue ÷ Spend per channel</div><div class="chart-container" style="height:380px"><canvas id="cROAS"></canvas></div></div>
+  </div>
+
+  <div class="chart-row-3">
+    <div class="chart-card"><div class="chart-title">Paid vs Owned Mix</div><div class="chart-sub">Spend share</div><div class="chart-container"><canvas id="cType"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Digital vs Print vs Physical</div><div class="chart-sub">Spend share</div><div class="chart-container"><canvas id="cCat"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Spend Trend by Category</div><div class="chart-sub">7 years</div><div class="chart-container"><canvas id="cTrend"></canvas></div></div>
+  </div>
+
+  <h2 class="section-title">Channel Detail</h2>
+  <div class="table-card">
+    <div class="chart-title">All Channels</div>
+    <div class="chart-sub">Filtered by category/type. Sorted by ROAS descending.</div>
+    <table class="detail-table"><thead><tr><th>#</th><th>Channel</th><th>Category</th><th>Type</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">ROAS</th><th class="num">Impressions</th><th class="num">Conversions</th></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
+
+  <div class="disclaimer">Source: FACT_CAMPAIGN_PERFORMANCE × DIM_CHANNEL. ROAS = SUM(REVENUE_ATTRIBUTED)/SUM(SPEND). 15 channels: 10 Digital, 3 Print, 2 Physical. Mix: 8 Paid + 6 Owned + 1 Earned. Reconciles to VALIDATION_BENCHMARKS.md.</div>
+</div>
+
+<script>
+var CHANNELS=[
+{n:'Direct Mail',cat:'Print',type:'Paid',spend:75.3,rev:118.6,imp:143.2,conv:0.249},
+{n:'Connected TV',cat:'Digital',type:'Paid',spend:53.7,rev:134.6,imp:162.7,conv:0.283},
+{n:'Print Advertising',cat:'Print',type:'Paid',spend:38.5,rev:117.1,imp:142.5,conv:0.247},
+{n:'Out-of-Home',cat:'Print',type:'Paid',spend:31.7,rev:146.6,imp:176.3,conv:0.308},
+{n:'Event/Experiential',cat:'Physical',type:'Paid',spend:27.4,rev:100.9,imp:122.0,conv:0.214},
+{n:'Paid Search',cat:'Digital',type:'Paid',spend:17.3,rev:118.1,imp:143.7,conv:0.250},
+{n:'Paid Social',cat:'Digital',type:'Paid',spend:16.0,rev:136.1,imp:164.3,conv:0.287},
+{n:'In-Store Signage',cat:'Physical',type:'Owned',spend:13.4,rev:43.4,imp:178.5,conv:0.312},
+{n:'Streaming Audio',cat:'Digital',type:'Paid',spend:13.3,rev:98.1,imp:118.6,conv:0.207},
+{n:'Email',cat:'Digital',type:'Owned',spend:10.1,rev:32.7,imp:149.7,conv:0.264},
+{n:'Display / Programmatic',cat:'Digital',type:'Paid',spend:7.4,rev:116.0,imp:141.2,conv:0.244},
+{n:'Loyalty / CRM',cat:'Digital',type:'Owned',spend:4.8,rev:15.8,imp:161.3,conv:0.283},
+{n:'SMS / Push',cat:'Digital',type:'Owned',spend:4.0,rev:13.0,imp:177.8,conv:0.311},
+{n:'Organic Social',cat:'Digital',type:'Owned',spend:1.1,rev:3.5,imp:143.0,conv:0.252},
+{n:'Augmented Reality',cat:'Digital',type:'Owned',spend:1.0,rev:3.1,imp:126.9,conv:0.222}
+];
+// 7yr trend by category ($M)
+var TREND={
+'Digital':[58,84,103,113,108,135,138],
+'Print':[55,75,89,95,90,108,145],
+'Physical':[24,35,42,46,46,55,40]
+};
+var YEARS=[2018,2019,2020,2021,2022,2023,2024];
+
+var state={year:2024,cat:'All',type:'All'};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var L=els[i].textContent.length;if(L>14)els[i].style.fontSize='18px';else if(L>10)els[i].style.fontSize='22px';else els[i].style.fontSize='28px'}}
+
+var YR_R={2018:0.437,2019:0.616,2020:0.745,2021:0.808,2022:0.776,2023:0.964,2024:1.000};function ys(){return YR_R[state.year]||1.0}
+function getChannels(){var s=ys();return CHANNELS.filter(function(c){return (state.cat==='All'||c.cat===state.cat)&&(state.type==='All'||c.type===state.type)}).map(function(c){return {n:c.n,cat:c.cat,type:c.type,spend:c.spend*s,rev:c.rev*s,imp:c.imp*s,conv:c.conv*s}})}
+
+function renderKPIs(){
+  var f=getChannels();
+  var totSp=f.reduce(function(s,c){return s+c.spend},0);
+  var totRev=f.reduce(function(s,c){return s+c.rev},0);
+  var roas=totSp?totRev/totSp:0;
+  var topROAS=f.slice().sort(function(a,b){return (b.rev/b.spend)-(a.rev/a.spend)})[0]||{n:'—',rev:0,spend:1};
+  var paidShare=totSp?f.filter(function(c){return c.type==='Paid'}).reduce(function(s,c){return s+c.spend},0)/totSp*100:0;
+  var ownedShare=totSp?f.filter(function(c){return c.type==='Owned'}).reduce(function(s,c){return s+c.spend},0)/totSp*100:0;
+  var digitalShare=totSp?f.filter(function(c){return c.cat==='Digital'}).reduce(function(s,c){return s+c.spend},0)/totSp*100:0;
+  function card(label,val,de){return '<div class="kpi-card"><div class="kpi-label">'+label+' '+state.year+'</div><div class="kpi-value">'+val+'</div>'+de+'</div>'}
+  document.getElementById('kpiRow').innerHTML=card('Total Spend','$'+totSp.toFixed(1)+'M','<span class="kpi-delta neutral">'+f.length+' channels</span>')
+    +card('Total Revenue','$'+totRev.toFixed(1)+'M','<span class="kpi-delta neutral">attributed</span>')
+    +card('Avg ROAS',roas.toFixed(2)+'x','<span class="kpi-delta neutral">across selection</span>')
+    +card('Channels',String(f.length),'<span class="kpi-delta neutral">in selection</span>');
+  document.getElementById('kpiRow2').innerHTML=card('Top ROAS Channel',topROAS.n.split(' ')[0],'<span class="kpi-delta neutral">'+(topROAS.spend?(topROAS.rev/topROAS.spend).toFixed(2):'—')+'x</span>')
+    +card('Paid Share',paidShare.toFixed(1)+'%','<span class="kpi-delta neutral">of selection spend</span>')
+    +card('Owned Share',ownedShare.toFixed(1)+'%','<span class="kpi-delta neutral">of selection spend</span>')
+    +card('Digital Share',digitalShare.toFixed(1)+'%','<span class="kpi-delta neutral">of selection spend</span>');
+  fitKpiText();
+}
+
+function renderSpend(){
+  var f=getChannels().slice().sort(function(a,b){return b.spend-a.spend});
+  mk('cSpend',{type:'bar',data:{labels:f.map(function(c){return c.n}),datasets:[{label:'Spend',data:f.map(function(c){return c.spend}),backgroundColor:'#4A4E8F'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}}}}});
+}
+function renderROAS(){
+  var f=getChannels().slice().sort(function(a,b){return (b.rev/b.spend)-(a.rev/a.spend)});
+  mk('cROAS',{type:'bar',data:{labels:f.map(function(c){return c.n}),datasets:[{label:'ROAS',data:f.map(function(c){return c.spend?c.rev/c.spend:0}),backgroundColor:'#A490C2'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.x.toFixed(2)+'x'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(1)+'x'}}},y:{grid:{display:false},ticks:{color:'#5A5470',font:{size:10}}}}}});
+}
+function renderType(){
+  var paid=CHANNELS.filter(function(c){return c.type==='Paid'}).reduce(function(s,c){return s+c.spend},0);
+  var owned=CHANNELS.filter(function(c){return c.type==='Owned'}).reduce(function(s,c){return s+c.spend},0);
+  mk('cType',{type:'bar',data:{labels:['Paid','Owned'],datasets:[{label:'Spend',data:[paid,owned],backgroundColor:['#4A4E8F','#A490C2']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+function renderCat(){
+  var dig=CHANNELS.filter(function(c){return c.cat==='Digital'}).reduce(function(s,c){return s+c.spend},0);
+  var pri=CHANNELS.filter(function(c){return c.cat==='Print'}).reduce(function(s,c){return s+c.spend},0);
+  var phy=CHANNELS.filter(function(c){return c.cat==='Physical'}).reduce(function(s,c){return s+c.spend},0);
+  mk('cCat',{type:'bar',data:{labels:['Digital','Print','Physical'],datasets:[{label:'Spend',data:[dig,pri,phy],backgroundColor:['#4A4E8F','#A490C2','#94A3B8']}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+function renderTrend(){
+  mk('cTrend',{type:'line',data:{labels:YEARS.map(String),datasets:[
+    {label:'Digital',data:TREND.Digital,borderColor:'#4A4E8F',backgroundColor:'rgba(74,78,143,.1)',tension:.3,pointRadius:3,fill:false},
+    {label:'Print',data:TREND.Print,borderColor:'#A490C2',backgroundColor:'rgba(164,144,194,.1)',tension:.3,pointRadius:3,fill:false},
+    {label:'Physical',data:TREND.Physical,borderColor:'#94A3B8',backgroundColor:'rgba(148,163,184,.1)',tension:.3,pointRadius:3,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:11},color:'#5A5470'}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(0)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+function renderTable(){
+  var f=getChannels().slice().sort(function(a,b){return (b.rev/b.spend)-(a.rev/a.spend)});
+  var tbody=document.getElementById('tbody');tbody.innerHTML='';
+  for(var i=0;i<f.length;i++){
+    var c=f[i];var roas=c.spend?c.rev/c.spend:0;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+String(i+1)+'</td><td><strong>'+c.n+'</strong></td><td>'+c.cat+'</td><td>'+c.type+'</td><td class="num">$'+c.spend.toFixed(1)+'M</td><td class="num">$'+c.rev.toFixed(1)+'M</td><td class="num"><strong>'+roas.toFixed(2)+'x</strong></td><td class="num">'+c.imp.toFixed(1)+'M</td><td class="num">'+(c.conv*1000).toFixed(0)+'K</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function resetFilters(){state={year:2024,cat:'All',type:'All'};document.getElementById('filterYear').value='2024';document.getElementById('filterCat').value='All';document.getElementById('filterType').value='All';render()}
+function updateSubtitle(){var p=['Reporting Period: Jan–Dec '+state.year];if(state.cat!=='All')p.push(state.cat);if(state.type!=='All')p.push(state.type);document.getElementById('reporting-period').textContent=p.join(' · ')}
+function render(){state.year=parseInt(document.getElementById('filterYear').value,10);state.cat=document.getElementById('filterCat').value;state.type=document.getElementById('filterType').value;renderKPIs();renderSpend();renderROAS();renderType();renderCat();renderTrend();renderTable();updateSubtitle();fitKpiText()}
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

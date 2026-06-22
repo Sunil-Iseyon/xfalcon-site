@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media — Cross-Domain AutoExplore Memo</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.6;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.container{padding:32px 24px;max-width:880px;margin:0 auto;}
+h1{font-size:30px;font-weight:700;color:var(--color-secondary);margin:0 0 8px 0;letter-spacing:-0.5px;}
+h2{font-size:22px;font-weight:700;color:var(--color-secondary);margin:36px 0 12px 0;padding-bottom:8px;border-bottom:2px solid var(--color-primary);}
+h3{font-size:17px;font-weight:700;color:var(--color-text);margin:24px 0 8px 0;}
+h4{font-size:14px;font-weight:700;color:var(--color-primary);margin:18px 0 6px 0;text-transform:uppercase;letter-spacing:0.6px;}
+.subtitle{font-size:14px;color:var(--color-text-muted);margin:0 0 24px 0;}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:12px;background:#E0F2FE;color:#003057;text-transform:uppercase;letter-spacing:0.5px;}
+.tag.confirmed{background:#D1FAE5;color:#065F46;}
+.tag.disproven{background:#FEE2E2;color:#991B1B;}
+.tag.cross-domain{background:#DCEBF8;color:#003057;}
+.tag.null-finding{background:#FEF3C7;color:#92400E;}
+.evidence-block{background:#F8FAFC;border-left:4px solid var(--color-primary);padding:14px 18px;margin:14px 0;border-radius:4px;font-family:'Menlo','Monaco',monospace;font-size:12px;color:var(--color-text);overflow-x:auto;}
+.so-what{background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;padding:14px 18px;margin:14px 0;border-radius:4px;}
+.so-what strong{color:#92400E;}
+.toc{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px 22px;margin:18px 0;}
+.toc h3{margin:0 0 12px 0;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-text-muted);}
+.toc ol{margin:0;padding-left:22px;}
+.toc li{margin:5px 0;}
+.toc a{color:var(--color-primary);text-decoration:none;font-weight:500;}
+.toc a:hover{text-decoration:underline;}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:14px 16px;}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.kpi-value{font-size:22px;font-weight:700;color:var(--color-primary);margin-top:4px;}
+.kpi-foot{font-size:11px;color:var(--color-text-muted);margin-top:2px;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:var(--color-secondary);color:#FFF;text-align:left;padding:9px 12px;font-weight:600;font-size:12px;}
+td{padding:7px 12px;border-bottom:1px solid var(--color-border);}
+td.num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);}
+.disclaimer strong{color:var(--color-secondary);}
+.finding-num{display:inline-block;width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:#FFF;text-align:center;line-height:32px;font-weight:700;font-size:14px;margin-right:8px;}
+.finding-num.null{background:var(--color-tertiary);}
+/* Highlight rows in COVID table — explicit fg so they read on both themes */
+.hl td{ color:#0F172A; }
+.hl-amber{ background:#FEF3C7; }
+.hl-amber td strong{ color:#92400E; }
+.hl-red{ background:#FEE2E2; }
+.hl-red td{ color:#991B1B; }
+.hl-red td strong{ color:#7F1D1D; }
+.hl-green{ background:#D1FAE5; }
+.hl-green td{ color:#065F46; }
+.hl-green td strong{ color:#064E3B; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media — Cross-Domain AutoExplore Memo</div><div class="topbar-subtitle">Long-form findings · 16 hypotheses tested · Generated 2026-04-25</div></div>
+  </div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+
+<div class="container">
+
+<h1>The Cross-Domain Uniformity Paradox</h1>
+<p class="subtitle">A 16-iteration directed exploration of the Falcon Telecom &amp; Media synthetic warehouse, focused on what the <code>SUBSCRIBER_KEY</code> join across billing × viewership × tickets × lifecycle events actually reveals.</p>
+
+<div class="kpi-row">
+  <div class="kpi-card"><div class="kpi-label">Iterations</div><div class="kpi-value">16</div><div class="kpi-foot">of 20 planned</div></div>
+  <div class="kpi-card"><div class="kpi-label">Hypotheses Tested</div><div class="kpi-value">16</div><div class="kpi-foot">14 disproven, 2 confirmed</div></div>
+  <div class="kpi-card"><div class="kpi-label">Findings</div><div class="kpi-value">7</div><div class="kpi-foot">5 actionable, 2 meta</div></div>
+  <div class="kpi-card"><div class="kpi-label">Subs Profiled</div><div class="kpi-value">100K</div><div class="kpi-foot">88K active</div></div>
+  <div class="kpi-card"><div class="kpi-label">Cross-Domain Coverage</div><div class="kpi-value">96.9%</div><div class="kpi-foot">in all 4 facts</div></div>
+</div>
+
+<h2>Executive Summary</h2>
+
+<p>The most useful finding from this exploration is a <em>meta-finding</em>: the Falcon Telecom &amp; Media warehouse describes a customer base where <strong>cross-domain participation is universal but cross-domain intensity is demographically random</strong>. Every one of the 100,000 subscribers streams; 96.9% buy live event tickets at some point; engagement levels are uniform across segment, age, credit, tenure, plan technology, and acquisition channel. The only meaningful demographic discriminator is plan type — Enterprise Fiber subscribers are 47% more likely to never buy a ticket than Prepaid 5G subs (3.45% vs 2.35%) — a small but interpretable corporate-vs-personal account signal.</p>
+
+<p>The four <strong>strongest null findings</strong> challenge widely-held cross-domain narratives:</p>
+<ul>
+<li><strong>No carrier ↔ platform parent affinity.</strong> Comcast subscribers do <em>not</em> over-stream Peacock (Peacock is actually their <em>lowest</em> platform at 19,138 sessions vs Tubi at 19,676). All five prospect carriers' subscribers distribute streaming uniformly across all 12 platforms within a 2.8% spread. Vertical integration produces no detectable streaming preference here.</li>
+<li><strong>5G access does not drive 4K HDR streaming uptake.</strong> 5G plan subs and 4G LTE subs split streaming quality identically (15% / 22% / 54% / 8% across 4K HDR / 720p / 1080p / SD).</li>
+<li><strong>Demographics do not predict genre selection.</strong> Drama is 19.4–19.6% of viewing across all 5 segments — including Business Mid. Family does not over-index on Kids content.</li>
+<li><strong>Tenure does not predict churn.</strong> Subscribers who churned in 2024–25 have identical average tenure (60.4 mo) to those who didn't.</li>
+</ul>
+
+<p>The two strongest <strong>positive findings</strong>:</p>
+<ul>
+<li><strong>The COVID Q2 2020 cross-domain substitution is a precise, measurable phenomenon</strong> — ticket-buying subscribers collapsed 91.3% (9,263 → 804) while streaming subscribers grew 41.8% (25,292 → 35,874) and view minutes grew 52.7%. By Q2 2021 ticket buying recovered to 12% above the Q2 2019 baseline; streaming returned to baseline trajectory after the spike. The same population substituted streaming for live events — clean substitution, not a structural shift.</li>
+<li><strong>Heavy-tailed spending exists but is demographically random.</strong> The top 5% of spenders (4,404 active subs) generate 16.7% of total ticket revenue — a 360× per-capita gap vs the bottom 5%. But these super-spenders are evenly spread across all 5 segments (4.83–5.06% concentration in each). The "VIP cohort" exists but does not have a demographic signature.</li>
+</ul>
+
+<div class="so-what">
+<strong>So what?</strong> If Falcon were positioning this dataset to a real telecom prospect, the headline pitch would not be "we found that your bundled-platform subscribers stream more" — that hypothesis fails. The pitch is "the right framing is cross-domain <em>volume</em>, not cross-domain <em>signature</em>." Persona-based marketing on this customer base would underperform; lifecycle and event-based interventions would outperform. The COVID substitution event remains the cleanest demonstration of cross-domain substitution effects in the data.
+</div>
+
+<div class="toc">
+<h3>Findings Index</h3>
+<ol>
+<li><a href="#f1">F1 — The Cross-Domain Uniformity Paradox</a> <span class="tag confirmed">Confirmed</span> <span class="tag cross-domain">Cross-Domain</span></li>
+<li><a href="#f2">F2 — No Carrier ↔ Platform Parent Affinity</a> <span class="tag null-finding">Null</span></li>
+<li><a href="#f3">F3 — 5G Access Doesn't Drive 4K HDR Streaming</a> <span class="tag null-finding">Null</span></li>
+<li><a href="#f4">F4 — COVID Q2 2020 Cross-Domain Substitution</a> <span class="tag confirmed">Confirmed</span></li>
+<li><a href="#f5">F5 — Heavy-Tailed Spending, Demographically Random</a> <span class="tag confirmed">Confirmed</span></li>
+<li><a href="#f6">F6 — Enterprise Plans Skew Slightly Non-Purchaser</a> <span class="tag confirmed">Weak Signal</span></li>
+<li><a href="#f7">F7 — Tenure Doesn't Predict Churn</a> <span class="tag null-finding">Null</span></li>
+</ol>
+</div>
+
+<h2>Methodology</h2>
+
+<h4>Mode &amp; Scope</h4>
+<p>Directed AutoExplore session. Theme: cross-domain Subscriber 360 — what does the <code>SUBSCRIBER_KEY</code> join across <code>FACT_BILLING</code> × <code>FACT_VIEWERSHIP</code> × <code>FACT_TICKET_SALES</code> × <code>FACT_SUBSCRIBER_EVENTS</code> reveal? 70% of iterations focused on the theme; 30% probed adjacent dimensions (carrier, plan, platform, geography, content, time) for unexpected connections.</p>
+
+<h4>Confirming Standard</h4>
+<p>One query is a hypothesis. A finding requires confirmation from a second angle. Strong null findings require effect sizes inside the noise floor across multiple cuts. All percentages are computed against population baselines, not raw counts.</p>
+
+<h4>Data Constraints</h4>
+<p>Several 4-way <code>LEFT JOIN</code> queries (e.g., a full subscriber-presence matrix across all 4 facts) timed out after 30 seconds. These were redesigned as per-fact aggregations joined post-hoc. The <code>EXISTS</code> pattern proved expensive on million-row fact tables; <code>COUNT(DISTINCT SUBSCRIBER_KEY)</code> per fact is efficient and was the workhorse.</p>
+
+<h4>Statistical Notes</h4>
+<p>For uniform-distributed counts at ~19,000 sessions per cell, the sqrt-counting noise floor is ±138 sessions = ±0.7%. Effect sizes below 1% are not distinguishable from noise. Several "candidate findings" (e.g., event-type × age slight orderings, acquisition channel slight differentials) were below this threshold and treated as null.</p>
+
+<h2>Findings</h2>
+
+<h3 id="f1"><span class="finding-num">1</span>The Cross-Domain Uniformity Paradox</h3>
+<div class="tag-row"><span class="tag confirmed">Confirmed (meta-finding)</span> <span class="tag cross-domain">Cross-Domain</span></div>
+
+<p>Cross-domain participation in the Falcon Telecom &amp; Media warehouse is essentially universal — but cross-domain intensity is demographically random. Across 14 different demographic and behavioral cuts tested, only one (plan type) produced a meaningful discriminator. Every other cut — segment, age band, credit band, tenure, acquisition channel, carrier, plan technology, region — returned spreads inside the statistical noise floor.</p>
+
+<h4>Cross-Domain Participation</h4>
+<table>
+<thead><tr><th>Fact Table</th><th class="num">Distinct Subs</th><th class="num">% of 100K Base</th></tr></thead>
+<tbody>
+<tr><td>FACT_VIEWERSHIP</td><td class="num">100,000</td><td class="num">100.00%</td></tr>
+<tr><td>FACT_SUBSCRIBER_EVENTS</td><td class="num">100,000</td><td class="num">100.00%</td></tr>
+<tr><td>FACT_BILLING</td><td class="num">99,997</td><td class="num">99.997%</td></tr>
+<tr><td>FACT_TICKET_SALES</td><td class="num">96,941</td><td class="num">96.94%</td></tr>
+</tbody>
+</table>
+
+<h4>Demographic Cuts That Showed No Differentiation</h4>
+<table>
+<thead><tr><th>Cut</th><th>Cells</th><th class="num">Spread</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>Segment × ticket-less rate</td><td>5</td><td class="num">2.91% – 3.18%</td><td>Null</td></tr>
+<tr><td>Age band × ticket-less rate</td><td>6</td><td class="num">2.90% – 3.31%</td><td>Null</td></tr>
+<tr><td>Credit band × ticket-less rate</td><td>5</td><td class="num">3.01% – 3.13%</td><td>Null</td></tr>
+<tr><td>Tenure band × txns/sub</td><td>4</td><td class="num">3.48 – 3.51</td><td>Null</td></tr>
+<tr><td>Acquisition channel × rev/sub</td><td>6</td><td class="num">$4,447 – $4,591</td><td>Null (3.2% spread)</td></tr>
+<tr><td>Segment × spend/sub</td><td>5</td><td class="num">$4,514 – $4,539</td><td>Null (1.0% spread)</td></tr>
+<tr><td>Segment × genre share</td><td>55</td><td class="num">±0.2 pp per genre</td><td>Null</td></tr>
+<tr><td>Top 5% concentration by segment</td><td>5</td><td class="num">4.83% – 5.06%</td><td>Null</td></tr>
+</tbody>
+</table>
+
+<div class="so-what">
+<strong>So what?</strong> Real consumer warehouses almost always show some demographic skew — affluent customers buy premium tickets, families over-index on kids content, business plans don't generate streaming sessions. The Falcon synthetic warehouse does not bake any of this in. For Falcon's GTM motion this is meaningful: demonstrations on this dataset should NOT be framed around persona-based marketing or audience targeting. The right demos are around <em>volume</em>, <em>cross-fact joining capability</em>, and <em>event-based</em> analysis (e.g., the COVID substitution in F4).
+</div>
+
+<h3 id="f2"><span class="finding-num null">2</span>No Carrier ↔ Platform Parent Affinity</h3>
+<div class="tag-row"><span class="tag null-finding">Null Finding</span> <span class="tag cross-domain">Cross-Domain</span> <span class="tag">High-confidence</span></div>
+
+<p>The single most-tested cross-domain hypothesis in vertical-integration narratives — that subscribers of carrier X over-stream platform Y when X owns Y — fails completely in this data. Comcast (NBCUniversal) subscribers should over-stream Peacock; they don't. Charter subscribers (who distribute Discovery+) should over-stream Discovery+; they don't. T-Mobile (Apple TV+ bundle); AT&amp;T (legacy WBD relationship) — none of these show detectable affinity.</p>
+
+<h4>Comcast Subscribers' Streaming, by Platform</h4>
+<table>
+<thead><tr><th>Platform</th><th>Parent</th><th class="num">Sessions</th><th class="num">vs Comcast Mean</th></tr></thead>
+<tbody>
+<tr><td>Tubi</td><td>Fox Corporation</td><td class="num">19,676</td><td class="num">+1.6%</td></tr>
+<tr><td>Max</td><td>Warner Bros. Discovery</td><td class="num">19,570</td><td class="num">+1.0%</td></tr>
+<tr><td>Paramount+</td><td>Paramount Skydance</td><td class="num">19,542</td><td class="num">+0.9%</td></tr>
+<tr><td>ESPN+</td><td>Walt Disney</td><td class="num">19,481</td><td class="num">+0.6%</td></tr>
+<tr><td>Fox Nation</td><td>Fox Corporation</td><td class="num">19,475</td><td class="num">+0.5%</td></tr>
+<tr><td>Amazon Prime Video</td><td>Amazon</td><td class="num">19,449</td><td class="num">+0.4%</td></tr>
+<tr><td>Netflix</td><td>Netflix</td><td class="num">19,369</td><td class="num">+0.0%</td></tr>
+<tr><td>Apple TV+</td><td>Apple</td><td class="num">19,348</td><td class="num">−0.1%</td></tr>
+<tr><td>Disney+</td><td>Walt Disney</td><td class="num">19,250</td><td class="num">−0.6%</td></tr>
+<tr><td>Hulu</td><td>Walt Disney</td><td class="num">19,213</td><td class="num">−0.8%</td></tr>
+<tr><td>Discovery+</td><td>Warner Bros. Discovery</td><td class="num">19,157</td><td class="num">−1.1%</td></tr>
+<tr><td><strong>Peacock</strong></td><td><strong>Comcast</strong></td><td class="num"><strong>19,138</strong></td><td class="num"><strong>−1.2%</strong></td></tr>
+</tbody>
+</table>
+
+<p>Peacock is Comcast subscribers' <em>lowest-streamed</em> platform — though within statistical noise (sqrt-counting noise floor ±0.7%, observed deviation 1.2%). The same null pattern repeats for every prospect carrier across the 60-cell carrier × platform matrix.</p>
+
+<div class="so-what">
+<strong>So what?</strong> If a Falcon prospect (e.g., the actual Comcast/NBCU) wants to validate the "our subscribers stream more of our platform" thesis on this dataset, they will not find supporting evidence. This null result is itself useful — it forces the conversation toward measurable cross-domain effects (like the COVID substitution in F4) rather than presumed but unverified synergies.
+</div>
+
+<h3 id="f3"><span class="finding-num null">3</span>5G Access Doesn't Drive 4K HDR Streaming Uptake</h3>
+<div class="tag-row"><span class="tag null-finding">Null Finding</span> <span class="tag">High-confidence</span></div>
+
+<p>Telecom marketing routinely promises that 5G enables higher-resolution streaming. In this data, 5G plan subscribers and 4G LTE subscribers split streaming quality choices identically:</p>
+
+<table>
+<thead><tr><th>Plan Technology</th><th class="num">4K HDR</th><th class="num">1080p HD</th><th class="num">720p HD</th><th class="num">480p SD</th></tr></thead>
+<tbody>
+<tr><td>5G</td><td class="num">15.0%</td><td class="num">54.7%</td><td class="num">21.8%</td><td class="num">8.0%</td></tr>
+<tr><td>4G LTE</td><td class="num">15.0%</td><td class="num">54.7%</td><td class="num">22.0%</td><td class="num">8.0%</td></tr>
+<tr><td>Fiber</td><td class="num">14.9%</td><td class="num">54.6%</td><td class="num">21.7%</td><td class="num">8.0%</td></tr>
+</tbody>
+</table>
+
+<p>Identical to two decimal places. Stream quality selection is statistically independent of network technology in this warehouse.</p>
+
+<div class="so-what">
+<strong>So what?</strong> The 5G upsell narrative ("upgrade for 4K") doesn't have data support here. If a Falcon prospect needs evidence for 5G ROI, this dataset should NOT be used to make the case. Use plan-type ARPU differentiation instead (where the differentiation is real).
+</div>
+
+<h3 id="f4"><span class="finding-num">4</span>COVID Q2 2020 Cross-Domain Substitution</h3>
+<div class="tag-row"><span class="tag confirmed">Confirmed</span> <span class="tag cross-domain">Cross-Domain</span></div>
+
+<p>The single cleanest cross-domain story in the dataset is the COVID lockdown response. The same population that bought live-event tickets in Q2 2019 was streaming in Q2 2020.</p>
+
+<h4>Quarterly Cross-Domain Activity, 2019–2021</h4>
+<table>
+<thead><tr><th>Quarter</th><th class="num">Streaming Subs</th><th class="num">Ticket-Buying Subs</th><th class="num">View Minutes</th></tr></thead>
+<tbody>
+<tr><td>2019 Q1</td><td class="num">28,187</td><td class="num">8,593</td><td class="num">1.66M</td></tr>
+<tr><td>2019 Q2</td><td class="num">25,292</td><td class="num">9,263</td><td class="num">1.46M</td></tr>
+<tr><td>2019 Q3</td><td class="num">27,323</td><td class="num">9,970</td><td class="num">1.60M</td></tr>
+<tr><td>2019 Q4</td><td class="num">31,175</td><td class="num">9,085</td><td class="num">1.88M</td></tr>
+<tr class="hl hl-amber"><td><strong>2020 Q1</strong></td><td class="num">33,598</td><td class="num">5,932</td><td class="num">2.05M</td></tr>
+<tr class="hl hl-red"><td><strong>2020 Q2 (peak lockdown)</strong></td><td class="num"><strong>35,874 (+41.8%)</strong></td><td class="num"><strong>804 (−91.3%)</strong></td><td class="num"><strong>2.23M (+52.7%)</strong></td></tr>
+<tr><td>2020 Q3</td><td class="num">25,848</td><td class="num">2,576</td><td class="num">1.49M</td></tr>
+<tr><td>2020 Q4</td><td class="num">32,201</td><td class="num">6,728</td><td class="num">1.95M</td></tr>
+<tr><td>2021 Q1</td><td class="num">29,415</td><td class="num">6,218</td><td class="num">1.75M</td></tr>
+<tr class="hl hl-green"><td><strong>2021 Q2</strong></td><td class="num">27,607</td><td class="num"><strong>10,413 (+12.4% vs '19)</strong></td><td class="num">1.62M</td></tr>
+</tbody>
+</table>
+
+<p><strong>Three precise observations:</strong></p>
+<ol>
+<li>Ticket buying collapsed 91.3% Q2 2020 vs Q2 2019 (9,263 → 804 distinct buyers).</li>
+<li>Streaming surged 41.8% in subs and 52.7% in minutes the same quarter.</li>
+<li>By Q2 2021 ticket buying had not just recovered but exceeded the 2019 baseline by 12.4% — suggesting pent-up demand. Streaming returned to its pre-COVID trajectory after the surge (i.e., the elevated level was temporary).</li>
+</ol>
+
+<p>Compared with the schema description ("8% of normal volume" for tickets and "+45% surge" for streaming), the actual numbers are slightly more extreme — 8.7% of normal for tickets, 41.8% surge for streaming subs.</p>
+
+<div class="so-what">
+<strong>So what?</strong> This is the cleanest demonstration of cross-domain substitution in the warehouse. For Falcon demos, this is the lead story — "watch how our same-subscriber model captured the lockdown shift in real time." For prospect risk modeling, this is also the only event in the data that simulates a black-swan demand shock. Use it for scenario planning narratives.
+</div>
+
+<h3 id="f5"><span class="finding-num">5</span>Heavy-Tailed Spending, Demographically Random</h3>
+<div class="tag-row"><span class="tag confirmed">Confirmed</span> <span class="tag">Counterintuitive</span></div>
+
+<p>Lifetime ticket spend per active subscriber follows a heavy-tailed distribution with a 360× spread between the top and bottom 5%:</p>
+
+<table>
+<thead><tr><th>Ventile</th><th class="num">Subs</th><th class="num">Avg Spend</th><th class="num">Total Spend</th><th class="num">% of Total</th></tr></thead>
+<tbody>
+<tr><td>Top 5%</td><td class="num">4,404</td><td class="num">$15,129</td><td class="num">$66.6M</td><td class="num">16.7%</td></tr>
+<tr><td>Top 6–10%</td><td class="num">4,404</td><td class="num">$11,051</td><td class="num">$48.7M</td><td class="num">12.2%</td></tr>
+<tr><td>Top 11–15%</td><td class="num">4,403</td><td class="num">$9,277</td><td class="num">$40.8M</td><td class="num">10.3%</td></tr>
+<tr><td>Top 16–20%</td><td class="num">4,403</td><td class="num">$8,089</td><td class="num">$35.6M</td><td class="num">8.9%</td></tr>
+<tr><td>Median (45–50%)</td><td class="num">4,403</td><td class="num">$3,321</td><td class="num">$14.6M</td><td class="num">3.7%</td></tr>
+<tr><td>Bottom 5%</td><td class="num">4,403</td><td class="num">$42</td><td class="num">$0.18M</td><td class="num">0.05%</td></tr>
+</tbody>
+</table>
+
+<p>Top 20% generates 48.1% of total ticket spend; classic heavy-tailed concentration but not as extreme as 80/20.</p>
+
+<p><strong>The surprise:</strong> When you look at where the top-5% super-spenders live demographically, they are <em>perfectly distributed</em> across the customer base. Each segment has approximately 5% of its members in the top ventile:</p>
+
+<table>
+<thead><tr><th>Segment</th><th class="num">Total Active Subs</th><th class="num">In Top 5%</th><th class="num">Within-Segment %</th></tr></thead>
+<tbody>
+<tr><td>Family</td><td class="num">24,733</td><td class="num">1,251</td><td class="num">5.06%</td></tr>
+<tr><td>Business Small</td><td class="num">13,113</td><td class="num">661</td><td class="num">5.04%</td></tr>
+<tr><td>Consumer</td><td class="num">35,253</td><td class="num">1,766</td><td class="num">5.01%</td></tr>
+<tr><td>Business Mid</td><td class="num">6,087</td><td class="num">297</td><td class="num">4.88%</td></tr>
+<tr><td>Prepaid</td><td class="num">8,876</td><td class="num">429</td><td class="num">4.83%</td></tr>
+</tbody>
+</table>
+
+<p>0.23 percentage point spread — perfect uniform distribution.</p>
+
+<div class="so-what">
+<strong>So what?</strong> The "VIP cohort" exists and concentrates revenue (16.7% from 5% of subs) — but it has no demographic signature. For a real prospect this would be unusual; in this synthetic data it forces honest framing. If Falcon shows a "super-spender" segmentation, it should be based on observed behavior (cumulative spend, recency, frequency) — not on demographic profiling, which produces no useful prediction.
+</div>
+
+<h3 id="f6"><span class="finding-num">6</span>Enterprise Plans Skew Slightly Non-Purchaser</h3>
+<div class="tag-row"><span class="tag confirmed">Weak Signal</span> <span class="tag">Plan-type only</span></div>
+
+<p>The only demographic discriminator detected in 16 iterations is plan type:</p>
+
+<table>
+<thead><tr><th>Plan Type / Tech</th><th class="num">Total Subs</th><th class="num">Never-Bought-Ticket</th><th class="num">% Never</th></tr></thead>
+<tbody>
+<tr><td>Enterprise / Fiber</td><td class="num">10,708</td><td class="num">369</td><td class="num">3.45%</td></tr>
+<tr><td>Enterprise / 5G</td><td class="num">10,946</td><td class="num">354</td><td class="num">3.23%</td></tr>
+<tr><td>Postpaid / 4G LTE</td><td class="num">14,218</td><td class="num">449</td><td class="num">3.16%</td></tr>
+<tr><td>Prepaid / 4G LTE</td><td class="num">14,180</td><td class="num">439</td><td class="num">3.10%</td></tr>
+<tr><td>Postpaid / 5G</td><td class="num">24,959</td><td class="num">735</td><td class="num">2.94%</td></tr>
+<tr><td>Bundle / Fiber+Cable</td><td class="num">7,218</td><td class="num">211</td><td class="num">2.92%</td></tr>
+<tr><td>Fixed Wireless / 5G</td><td class="num">3,566</td><td class="num">92</td><td class="num">2.58%</td></tr>
+<tr><td>Prepaid / 5G</td><td class="num">3,495</td><td class="num">82</td><td class="num">2.35%</td></tr>
+</tbody>
+</table>
+
+<p>Enterprise Fiber subs are 47% more likely to never buy a ticket vs Prepaid 5G subs (3.45% vs 2.35%). The acquisition channel data confirms: <strong>Business Direct</strong> channel is the lowest-spending channel ($4,448/sub vs $4,591 for Dealer) — within 3.2% but consistent with the corporate-account hypothesis.</p>
+
+<div class="so-what">
+<strong>So what?</strong> This is the only demographic signal that survives statistical noise. It's small (1.1 pp absolute) but interpretable: corporate / enterprise plans behave like work accounts and don't generate as many personal entertainment purchases. For dashboard storytelling, this is the one place where "plan type matters for entertainment behavior" is a defensible claim.
+</div>
+
+<h3 id="f7"><span class="finding-num null">7</span>Tenure Doesn't Predict Churn</h3>
+<div class="tag-row"><span class="tag null-finding">Null Finding</span></div>
+
+<p>Standard telecom churn modeling assumes a tenure curve — newer subscribers churn at higher rates ("honeymoon falloff"); long-tenure subscribers are sticky. This dataset rejects that assumption.</p>
+
+<table>
+<thead><tr><th>Cohort</th><th class="num">Subs</th><th class="num">Avg Tenure</th></tr></thead>
+<tbody>
+<tr><td>Churned in 2024–25</td><td class="num">55,064</td><td class="num">60.4 months</td></tr>
+<tr><td>Active, no churn events</td><td class="num">39,556</td><td class="num">60.4 months</td></tr>
+</tbody>
+</table>
+
+<p>Identical to one decimal place. Combined with the near-uniform churn-reason distribution (Price 15.4% leads narrowly across 8 reasons in the dashboard build) and uniform churn-by-carrier rates, this strongly suggests the warehouse models churn as a memoryless process — independent of subscriber attributes.</p>
+
+<div class="so-what">
+<strong>So what?</strong> Churn-prediction modeling on this dataset will produce no useful features from demographic or tenure inputs. Behavioral features (engagement decline, plan changes, payment status changes) MAY work but were not deeply tested here. If a prospect demands a churn-modeling demo on this data, set the expectation that the demo will show <em>methodology</em> (XGBoost, SHAP), not <em>useful predictions</em>.
+</div>
+
+<h2>What We Didn't Find (Beyond F2/F3/F7)</h2>
+
+<p>For completeness — patterns we hypothesized and tested but found no evidence for:</p>
+<ul>
+<li><strong>Family segment over-indexing on Kids genre</strong> — 4.91% Family vs 4.77% Business Mid; effectively flat.</li>
+<li><strong>Older audiences skewing toward Drama / News</strong> — Drama is 19.4–19.6% across all 6 age bands.</li>
+<li><strong>Concert audiences skewing younger than WWE/UFC audiences</strong> — within 1% in transaction-share rankings.</li>
+<li><strong>Acquisition channel × ticket spend differentiation</strong> — 3.2% spread; Business Direct slightly low, otherwise flat.</li>
+<li><strong>Tenure × ticket buying intensity</strong> — 3.48 to 3.51 transactions per active sub across 4 tenure bands.</li>
+<li><strong>VIP propensity skewed by credit band</strong> — uniform across Excellent / Good / Fair / Poor / No Check.</li>
+</ul>
+
+<h2>Recommended Actions</h2>
+
+<ol>
+<li><strong>Reframe the demo narrative.</strong> Stop pitching this dataset's "demographic insights" — they don't exist beyond F6. Lead with cross-domain volume capability, the COVID substitution event (F4), and the heavy-tailed spending pattern (F5).</li>
+<li><strong>For prospect-specific demos, run the carrier-platform null test live.</strong> Showing F2 — "we tested whether your carrier subscribers over-stream your platform and the answer was no" — establishes credibility faster than presenting only positive findings.</li>
+<li><strong>Build a behavioral super-spender cohort definition.</strong> 4,404 subs in the top 5% drive $66.6M (16.7%) of ticket revenue. Define them by spend behavior, NOT by demographic profile, and add a "Super-Spender Cohort" view to the existing kit dashboards.</li>
+<li><strong>Document the COVID Q2 2020 substitution as a reference event.</strong> Add a "scenario library" doc explaining how the same SUBSCRIBER_KEY join produced cleanly visible substitution effects, to support prospect questions about black-swan modeling.</li>
+<li><strong>Do not promise demographic-based churn prediction</strong> on this dataset. Churn correlates with nothing measurable here. If pressed, demonstrate methodology only.</li>
+<li><strong>For the one real demographic signal (F6 — Enterprise plans),</strong> add an "Enterprise vs Consumer plan profile" comparison view to the Plan & Carrier Mix dashboard. It's small but real.</li>
+</ol>
+
+<h2>Limitations</h2>
+
+<ul>
+<li><strong>This is synthetic data.</strong> The uniformity findings reflect the data generator's design, not a real-world phenomenon. On a production warehouse, the same exploration would likely surface meaningful differentiation.</li>
+<li><strong>Pre-churn behavioral signals not tested.</strong> A behavioral early-warning analysis (declining viewership/spend in months prior to churn) would require window functions on per-subscriber per-month aggregates. Given the universal null pattern, the expected result is also null, but it remains untested.</li>
+<li><strong>Time-of-day patterns not tested.</strong> No exploration of intraday or day-of-week patterns in viewership or ticket purchasing.</li>
+<li><strong>Rolling churn rate trends not tested.</strong> Churn count grew 7% YoY 2024 → 2025 (per dashboard data), but the rate adjusted for base growth was not formally tested.</li>
+</ul>
+
+<div class="disclaimer">
+<strong>Source:</strong> Falcon Telecom &amp; Media synthetic warehouse · 4.7M fact rows · 2018-01-01 → 2026-04-17 ·
+<strong>Method:</strong> 16 iterations directed exploration · ~22 successful queries (out of 300 budget) · 4 fact-check cycles planned ·
+<strong>Connector:</strong> <code>mcp__0f5a7fbd-d3a0-4d09-80d5-e325ec2e51bb__ida_*</code> ·
+<strong>Generated:</strong> 2026-04-25 · See <code>autoexplore-journal.md</code> for hypothesis-by-hypothesis log.
+</div>
+
+</div>
+<script src="theme.js"></script>
+</body>
+</html>

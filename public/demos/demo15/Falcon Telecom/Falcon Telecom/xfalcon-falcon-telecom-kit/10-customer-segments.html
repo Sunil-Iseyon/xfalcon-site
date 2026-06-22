@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom / 10. Customer Segments</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+        .topbar {
+            background-color: #1D1D2C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+        .logo-x {
+            color: #E20074;
+        }
+        .logo-f {
+            color: white;
+        }
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar-title-main {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .topbar-title-sub {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .topbar-right {
+            font-size: 12px;
+        }
+        .topbar-right a {
+            color: #E20074;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #E20074;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+        }
+        .kpi-delta {
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        .delta.positive {
+            color: #059669;
+        }
+        .delta.negative {
+            color: #D32F2F;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 16px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .table-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-card thead {
+            background-color: #1D1D2C;
+            color: white;
+        }
+        .table-card th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .table-card td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 13px;
+        }
+        .table-card tbody tr:hover {
+            background-color: #F8FAFC;
+        }
+        .table-card tbody td {
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">
+                <span class="logo-x">x</span><span class="logo-f">F</span>
+            </div>
+            <div class="topbar-title">
+                <div class="topbar-title-main">Falcon Telecom / 10. Customer Segments</div>
+                <div class="topbar-title-sub" id="reporting-period">All Data</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html">← Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label>Segment</label>
+                <select id="segmentFilter" onchange="applyFilters()">
+                    <option value="">All Segments</option>
+                    <option value="Mass Market">Mass Market</option>
+                    <option value="Mid Market">Mid Market</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Corporate">Corporate</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Age Band</label>
+                <select id="ageBandFilter" onchange="applyFilters()">
+                    <option value="">All Age Bands</option>
+                    <option value="18-24">18-24</option>
+                    <option value="25-34">25-34</option>
+                    <option value="35-44">35-44</option>
+                    <option value="45-54">45-54</option>
+                    <option value="55-64">55-64</option>
+                    <option value="65+">65+</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Gender</label>
+                <select id="genderFilter" onchange="applyFilters()">
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpis" id="kpis"></div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Subscribers by Segment</div>
+                <div class="chart-container">
+                    <canvas id="subscribersChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Churn Rate by Segment</div>
+                <div class="chart-container">
+                    <canvas id="churnChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Avg LTV by Segment</div>
+                <div class="chart-container">
+                    <canvas id="ltvChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Age Band Distribution (Top 4)</div>
+                <div class="chart-container">
+                    <canvas id="ageDistributionChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Gender Split by Segment</div>
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">NPS by Segment</div>
+                <div class="chart-container">
+                    <canvas id="npsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Age Band</th>
+                        <th>Gender</th>
+                        <th>Segment</th>
+                        <th>Subscribers</th>
+                        <th>Churned</th>
+                        <th>Churn %</th>
+                        <th>Avg LTV (₹)</th>
+                        <th>NPS</th>
+                        <th>Tenure (mo)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var SEGMENTS = [
+            {segment:'Mass Market', planCategory:'Prepaid', subs:49319, churned:12397, avgLtv:11563, avgNps:5.0, churnRate:25.1},
+            {segment:'Mid Market', planCategory:'Prepaid', subs:14947, churned:3685, avgLtv:37528, avgNps:5.0, churnRate:24.7},
+            {segment:'Mid Market', planCategory:'Postpaid', subs:4990, churned:618, avgLtv:24049, avgNps:5.0, churnRate:12.4},
+            {segment:'Premium', planCategory:'Postpaid', subs:5983, churned:704, avgLtv:67563, avgNps:5.0, churnRate:11.8},
+            {segment:'Corporate', planCategory:'Corporate', subs:4761, churned:278, avgLtv:52676, avgNps:4.9, churnRate:5.8}
+        ];
+
+        var DEMOGRAPHICS = [
+            {ageBand:'18-24', gender:'Male', segment:'Mass Market', subs:5503, churned:1414, avgLtv:11578, avgNps:5.0, avgTenure:48.3},
+            {ageBand:'18-24', gender:'Female', segment:'Mass Market', subs:4088, churned:1014, avgLtv:11589, avgNps:5.0, avgTenure:48.2},
+            {ageBand:'25-34', gender:'Male', segment:'Mass Market', subs:8797, churned:2169, avgLtv:11454, avgNps:5.0, avgTenure:48.5},
+            {ageBand:'25-34', gender:'Female', segment:'Mass Market', subs:6737, churned:1737, avgLtv:11780, avgNps:5.0, avgTenure:48.5},
+            {ageBand:'35-44', gender:'Male', segment:'Mass Market', subs:6774, churned:1762, avgLtv:11460, avgNps:5.0, avgTenure:48.2},
+            {ageBand:'35-44', gender:'Female', segment:'Mass Market', subs:5045, churned:1223, avgLtv:11502, avgNps:5.0, avgTenure:48.2},
+            {ageBand:'45-54', gender:'Male', segment:'Mass Market', subs:3575, churned:870, avgLtv:11712, avgNps:5.0, avgTenure:49.0},
+            {ageBand:'45-54', gender:'Female', segment:'Mass Market', subs:2669, churned:667, avgLtv:11440, avgNps:4.9, avgTenure:48.4},
+            {ageBand:'55-64', gender:'Male', segment:'Mass Market', subs:1861, churned:455, avgLtv:11719, avgNps:5.0, avgTenure:48.1},
+            {ageBand:'55-64', gender:'Female', segment:'Mass Market', subs:1421, churned:346, avgLtv:11834, avgNps:4.9, avgTenure:48.6},
+            {ageBand:'65+', gender:'Male', segment:'Mass Market', subs:778, churned:216, avgLtv:11491, avgNps:5.0, avgTenure:47.9},
+            {ageBand:'65+', gender:'Female', segment:'Mass Market', subs:580, churned:143, avgLtv:11152, avgNps:4.8, avgTenure:49.0},
+            {ageBand:'25-34', gender:'Male', segment:'Mid Market', subs:3507, churned:760, avgLtv:34148, avgNps:5.0, avgTenure:48.1},
+            {ageBand:'25-34', gender:'Female', segment:'Mid Market', subs:2624, churned:561, avgLtv:34237, avgNps:5.0, avgTenure:48.5},
+            {ageBand:'35-44', gender:'Male', segment:'Mid Market', subs:2776, churned:568, avgLtv:34267, avgNps:5.0, avgTenure:47.9},
+            {ageBand:'35-44', gender:'Female', segment:'Mid Market', subs:2138, churned:463, avgLtv:33019, avgNps:5.0, avgTenure:47.9},
+            {ageBand:'18-24', gender:'Male', segment:'Mid Market', subs:2180, churned:477, avgLtv:33849, avgNps:4.9, avgTenure:48.8},
+            {ageBand:'18-24', gender:'Female', segment:'Mid Market', subs:1628, churned:369, avgLtv:34983, avgNps:5.0, avgTenure:48.7},
+            {ageBand:'45-54', gender:'Male', segment:'Mid Market', subs:1415, churned:316, avgLtv:34546, avgNps:5.1, avgTenure:49.2},
+            {ageBand:'45-54', gender:'Female', segment:'Mid Market', subs:1104, churned:240, avgLtv:34619, avgNps:4.9, avgTenure:48.0},
+            {ageBand:'25-34', gender:'Male', segment:'Premium', subs:1079, churned:129, avgLtv:66967, avgNps:5.0, avgTenure:47.8},
+            {ageBand:'25-34', gender:'Female', segment:'Premium', subs:855, churned:97, avgLtv:66684, avgNps:5.0, avgTenure:47.9},
+            {ageBand:'35-44', gender:'Male', segment:'Premium', subs:799, churned:86, avgLtv:68639, avgNps:5.1, avgTenure:48.7},
+            {ageBand:'25-34', gender:'Male', segment:'Corporate', subs:825, churned:56, avgLtv:54369, avgNps:4.9, avgTenure:49.5},
+            {ageBand:'35-44', gender:'Male', segment:'Corporate', subs:653, churned:34, avgLtv:50958, avgNps:4.9, avgTenure:47.7},
+            {ageBand:'25-34', gender:'Female', segment:'Corporate', subs:649, churned:36, avgLtv:52977, avgNps:5.0, avgTenure:48.6},
+            {ageBand:'18-24', gender:'Male', segment:'Corporate', subs:523, churned:28, avgLtv:51369, avgNps:5.1, avgTenure:48.3},
+            {ageBand:'35-44', gender:'Female', segment:'Corporate', subs:502, churned:27, avgLtv:54236, avgNps:5.0, avgTenure:49.0}
+        ];
+
+        var charts = {};
+
+        function mk(type, text) {
+            var el = document.createElement(type);
+            el.textContent = text;
+            return el;
+        }
+
+        function getFilters() {
+            return {
+                segment: document.getElementById('segmentFilter').value,
+                ageBand: document.getElementById('ageBandFilter').value,
+                gender: document.getElementById('genderFilter').value
+            };
+        }
+
+        function filterData(filters) {
+            return DEMOGRAPHICS.filter(function(row) {
+                return (filters.segment === '' || row.segment === filters.segment) &&
+                       (filters.ageBand === '' || row.ageBand === filters.ageBand) &&
+                       (filters.gender === '' || row.gender === filters.gender);
+            });
+        }
+
+        function getSegmentStats(filtered) {
+            var stats = {};
+            filtered.forEach(function(row) {
+                if (!stats[row.segment]) {
+                    stats[row.segment] = {segment: row.segment, subs: 0, churned: 0, totalLtv: 0, totalNps: 0, count: 0, totalTenure: 0};
+                }
+                stats[row.segment].subs += row.subs;
+                stats[row.segment].churned += row.churned;
+                stats[row.segment].totalLtv += row.avgLtv * row.subs;
+                stats[row.segment].totalNps += row.avgNps;
+                stats[row.segment].totalTenure += row.avgTenure;
+                stats[row.segment].count++;
+            });
+            var result = [];
+            for (var key in stats) {
+                var s = stats[key];
+                result.push({
+                    segment: s.segment,
+                    subs: s.subs,
+                    churned: s.churned,
+                    churnRate: s.subs > 0 ? (s.churned / s.subs * 100).toFixed(1) : 0,
+                    avgLtv: s.subs > 0 ? Math.round(s.totalLtv / s.subs) : 0,
+                    avgNps: (s.totalNps / s.count).toFixed(2),
+                    avgTenure: (s.totalTenure / s.count).toFixed(1)
+                });
+            }
+            return result.sort(function(a, b) { return b.subs - a.subs; });
+        }
+
+        function getGenderStats(filtered) {
+            var stats = {};
+            filtered.forEach(function(row) {
+                if (!stats[row.segment]) {
+                    stats[row.segment] = {Male: 0, Female: 0};
+                }
+                stats[row.segment][row.gender] += row.subs;
+            });
+            return stats;
+        }
+
+        function getAgeDistribution(filtered) {
+            var stats = {};
+            filtered.forEach(function(row) {
+                if (!stats[row.ageBand]) {
+                    stats[row.ageBand] = 0;
+                }
+                stats[row.ageBand] += row.subs;
+            });
+            var sorted = [];
+            for (var key in stats) {
+                sorted.push({ageBand: key, subs: stats[key]});
+            }
+            var order = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+            sorted.sort(function(a, b) {
+                return order.indexOf(a.ageBand) - order.indexOf(b.ageBand);
+            });
+            return sorted.slice(0, 4);
+        }
+
+        function updateKPIs(filtered) {
+            var total = 0, maleCount = 0, femaleCount = 0, totalNps = 0;
+            var segmentStats = getSegmentStats(filtered);
+            var maxLtv = 0, maxLtvSegment = '';
+
+            segmentStats.forEach(function(s) {
+                total += s.subs;
+                if (s.avgLtv > maxLtv) {
+                    maxLtv = s.avgLtv;
+                    maxLtvSegment = s.segment;
+                }
+            });
+
+            filtered.forEach(function(row) {
+                if (row.gender === 'Male') maleCount += row.subs;
+                if (row.gender === 'Female') femaleCount += row.subs;
+                totalNps += row.avgNps;
+            });
+
+            var totalForTenure = 0;
+            filtered.forEach(function(row) { totalForTenure += row.avgTenure; });
+            var avgTenure = (totalForTenure / filtered.length).toFixed(1);
+
+            var massMarketPct = 0;
+            segmentStats.forEach(function(s) {
+                if (s.segment === 'Mass Market') {
+                    massMarketPct = (s.subs / total * 100).toFixed(1);
+                }
+            });
+
+            var premiumStats = segmentStats.find(function(s) { return s.segment === 'Premium'; });
+            var corporateChurn = segmentStats.find(function(s) { return s.segment === 'Corporate'; });
+
+            var kpiData = [
+                {label: 'Total Subscribers', value: total.toLocaleString()},
+                {label: 'Mass Market %', value: massMarketPct + '%'},
+                {label: 'Premium Avg LTV', value: '₹' + (premiumStats ? premiumStats.avgLtv.toLocaleString() : '0')},
+                {label: 'Corporate Churn Rate', value: (corporateChurn ? corporateChurn.churnRate : 0) + '%'},
+                {label: 'Overall NPS', value: (totalNps / filtered.length).toFixed(1)},
+                {label: 'Male / Female', value: maleCount.toLocaleString() + ' / ' + femaleCount.toLocaleString()},
+                {label: 'Avg Tenure', value: avgTenure + ' mo'},
+                {label: 'Highest LTV Segment', value: maxLtvSegment}
+            ];
+
+            var container = document.getElementById('kpis');
+            container.innerHTML = '';
+            kpiData.forEach(function(kpi) {
+                var card = mk('div', '');
+                card.className = 'kpi-card';
+                var value = mk('div', kpi.value);
+                value.className = 'kpi-value';
+                var label = mk('div', kpi.label);
+                label.className = 'kpi-label';
+                card.appendChild(value);
+                card.appendChild(label);
+                container.appendChild(card);
+            });
+
+            fitKpiText();
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var size = 28;
+                while (el.scrollWidth > el.clientWidth && size > 18) {
+                    size -= 2;
+                    el.style.fontSize = size + 'px';
+                }
+            });
+        }
+
+        function updateSubtitle() {
+            var filters = getFilters();
+            var parts = [];
+            if (filters.segment) parts.push(filters.segment);
+            if (filters.ageBand) parts.push(filters.ageBand);
+            if (filters.gender) parts.push(filters.gender);
+            document.getElementById('reporting-period').textContent = parts.length > 0 ? parts.join(' / ') : 'All Data';
+        }
+
+        function updateCharts(filtered) {
+            var segmentStats = getSegmentStats(filtered);
+            var genderStats = getGenderStats(filtered);
+            var ageDistribution = getAgeDistribution(filtered);
+
+            var subscriberLabels = segmentStats.map(function(s) { return s.segment; });
+            var subscriberData = segmentStats.map(function(s) { return s.subs; });
+
+            if (charts.subscribers) charts.subscribers.destroy();
+            charts.subscribers = new Chart(document.getElementById('subscribersChart'), {
+                type: 'bar',
+                data: {
+                    labels: subscriberLabels,
+                    datasets: [{
+                        label: 'Subscribers',
+                        data: subscriberData,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var churnLabels = segmentStats.map(function(s) { return s.segment; });
+            var churnData = segmentStats.map(function(s) { return parseFloat(s.churnRate); });
+
+            if (charts.churn) charts.churn.destroy();
+            charts.churn = new Chart(document.getElementById('churnChart'), {
+                type: 'bar',
+                data: {
+                    labels: churnLabels,
+                    datasets: [{
+                        label: 'Churn Rate %',
+                        data: churnData,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var ltvLabels = segmentStats.map(function(s) { return s.segment; });
+            var ltvData = segmentStats.map(function(s) { return s.avgLtv; });
+
+            if (charts.ltv) charts.ltv.destroy();
+            charts.ltv = new Chart(document.getElementById('ltvChart'), {
+                type: 'bar',
+                data: {
+                    labels: ltvLabels,
+                    datasets: [{
+                        label: 'Avg LTV (₹)',
+                        data: ltvData,
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+
+            var ageLabels = ageDistribution.map(function(a) { return a.ageBand; });
+            var ageDataBySegment = {};
+            segmentStats.forEach(function(s) { ageDataBySegment[s.segment] = []; });
+            var topSegments = segmentStats.slice(0, 3).map(function(s) { return s.segment; });
+
+            topSegments.forEach(function(segment) {
+                var data = [];
+                ageDistribution.forEach(function(age) {
+                    var sum = filtered.filter(function(d) { return d.ageBand === age.ageBand && d.segment === segment; }).reduce(function(acc, d) { return acc + d.subs; }, 0);
+                    data.push(sum);
+                });
+                ageDataBySegment[segment] = data;
+            });
+
+            var colors = ['#006AFF', '#1A7F64', '#94A3B8'];
+            var ageDsets = [];
+            topSegments.forEach(function(segment, idx) {
+                ageDsets.push({
+                    label: segment,
+                    data: ageDataBySegment[segment],
+                    backgroundColor: colors[idx],
+                    borderRadius: 4
+                });
+            });
+
+            if (charts.age) charts.age.destroy();
+            charts.age = new Chart(document.getElementById('ageDistributionChart'), {
+                type: 'bar',
+                data: {
+                    labels: ageLabels,
+                    datasets: ageDsets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}},
+                    scales: {x: {stacked: false}, y: {beginAtZero: true}}
+                }
+            });
+
+            var genderLabels = [];
+            var maleData = [];
+            var femaleData = [];
+            segmentStats.forEach(function(s) {
+                genderLabels.push(s.segment);
+                maleData.push(genderStats[s.segment] ? genderStats[s.segment].Male : 0);
+                femaleData.push(genderStats[s.segment] ? genderStats[s.segment].Female : 0);
+            });
+
+            if (charts.gender) charts.gender.destroy();
+            charts.gender = new Chart(document.getElementById('genderChart'), {
+                type: 'bar',
+                data: {
+                    labels: genderLabels,
+                    datasets: [
+                        {label: 'Male', data: maleData, backgroundColor: '#006AFF', borderRadius: 4},
+                        {label: 'Female', data: femaleData, backgroundColor: '#94A3B8', borderRadius: 4}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}},
+                    scales: {x: {stacked: true}, y: {stacked: true, beginAtZero: true}}
+                }
+            });
+
+            var npsLabels = segmentStats.map(function(s) { return s.segment; });
+            var npsData = segmentStats.map(function(s) { return parseFloat(s.avgNps); });
+
+            if (charts.nps) charts.nps.destroy();
+            charts.nps = new Chart(document.getElementById('npsChart'), {
+                type: 'bar',
+                data: {
+                    labels: npsLabels,
+                    datasets: [{
+                        label: 'NPS Score',
+                        data: npsData,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true, max: 10}}
+                }
+            });
+        }
+
+        function updateTable(filtered) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            filtered.forEach(function(row) {
+                var churnPct = row.subs > 0 ? (row.churned / row.subs * 100).toFixed(1) : 0;
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.ageBand + '</td><td>' + row.gender + '</td><td>' + row.segment + '</td><td>' + row.subs.toLocaleString() + '</td><td>' + row.churned.toLocaleString() + '</td><td>' + churnPct + '%</td><td>₹' + row.avgLtv.toLocaleString() + '</td><td>' + row.avgNps.toFixed(1) + '</td><td>' + row.avgTenure.toFixed(1) + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = filterData(filters);
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+            updateSubtitle();
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

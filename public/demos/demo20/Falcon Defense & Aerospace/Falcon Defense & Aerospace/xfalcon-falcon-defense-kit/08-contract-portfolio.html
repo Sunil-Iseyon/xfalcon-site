@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 8. Contract Portfolio Health</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 8. Contract Portfolio Health</div>
+        <div class="topbar-subtitle">Active contracts as of 2026-04-20 &middot; PERIOD_OF_PERF_END &ge; today</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Active-contract filter: PERIOD_OF_PERF_END &ge; CURRENT_DATE (DIM_CONTRACT has no IS_ACTIVE flag)</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Portfolio KPIs</div>
+    <div class="section-subtitle">Active contracts as of 2026-04-20</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Contract Mix &amp; Health</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">Period-of-Performance Expiry Radar</div>
+        <div class="chart-subtitle">Funded value at risk by expiry bucket &middot; near-term windows drive renewal priorities</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chExpiry"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Active Contract Type Mix (FAR Part 16)</div>
+        <div class="chart-subtitle">By count &middot; FFP, CPFF, CPIF, T&amp;M, IDIQ, CPAF</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chType"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ceiling vs Funded by Contract Type ($M)</div>
+        <div class="chart-subtitle">Gap = headroom for modifications</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chCeilFunded"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Active Contract Type Detail</div>
+      <table class="detail-table" id="tblType">
+        <thead><tr>
+          <th>Contract Type</th>
+          <th class="num">Contracts</th>
+          <th class="num">Ceiling ($M)</th>
+          <th class="num">Funded ($M)</th>
+          <th class="num">Funded %</th>
+          <th>Risk profile</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Active-contract definition.</strong> DIM_CONTRACT does not contain an IS_ACTIVE flag. "Active" is derived as <strong>PERIOD_OF_PERF_END &ge; CURRENT_DATE (2026-04-20)</strong>. Historical revenue dashboards (1, 4, 5) do NOT apply this filter and show all contract activity during each reporting year. Today, 97 contracts are active with $43.1B funded; 303 contracts have expired period-of-performance (mostly contracts executed during the 2020-2024 data window). Set-aside distribution is thin (1 each for 8(a) and Small Business) &mdash; demo dataset is unrestricted-heavy.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    var TYPE_MIX = [
+      {type:'FFP',   contracts:28, ceiling:13261.74, funded:10734.38},
+      {type:'CPFF',  contracts:26, ceiling:15930.71, funded:12796.42},
+      {type:'CPIF',  contracts:21, ceiling:12455.99, funded:9621.90},
+      {type:'T&M',   contracts:11, ceiling:7121.05,  funded:5552.42},
+      {type:'IDIQ',  contracts:6,  ceiling:2557.83,  funded:1902.39},
+      {type:'CPAF',  contracts:5,  ceiling:3749.18,  funded:2505.50}
+    ];
+    var EXPIRY = [
+      {bucket:'Expired',   contracts:303, funded:134426.97},
+      {bucket:'0-90d',     contracts:11,  funded:4210.03},
+      {bucket:'90-180d',   contracts:6,   funded:3566.03},
+      {bucket:'180-365d',  contracts:19,  funded:7821.74},
+      {bucket:'365+d',     contracts:61,  funded:27515.21}
+    ];
+    var SET_ASIDE = [
+      {sa:'Unrestricted',   contracts:95, funded:43087.22},
+      {sa:'8(a)',           contracts:1,  funded:15.21},
+      {sa:'Small Business', contracts:1,  funded:10.58}
+    ];
+
+    function kpiCard(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>';}
+
+    function renderKPIs(){
+      var totActive=0, totCeiling=0, totFunded=0;
+      for (var i=0;i<TYPE_MIX.length;i++){ totActive+=TYPE_MIX[i].contracts; totCeiling+=TYPE_MIX[i].ceiling; totFunded+=TYPE_MIX[i].funded; }
+      var fundedPct = totFunded/totCeiling*100;
+      var near90 = 0, near180 = 0, near365 = 0, far = 0;
+      for (var j=0;j<EXPIRY.length;j++){
+        if (EXPIRY[j].bucket==='0-90d') near90 = EXPIRY[j].contracts;
+        if (EXPIRY[j].bucket==='90-180d') near180 = EXPIRY[j].contracts;
+        if (EXPIRY[j].bucket==='180-365d') near365 = EXPIRY[j].contracts;
+        if (EXPIRY[j].bucket==='365+d') far = EXPIRY[j].contracts;
+      }
+      var soonFunded = 0;
+      for (var k=0;k<EXPIRY.length;k++) if (EXPIRY[k].bucket==='0-90d' || EXPIRY[k].bucket==='90-180d') soonFunded += EXPIRY[k].funded;
+
+      var html = '';
+      html += kpiCard('Active Contracts', String(totActive), {txt:'As of 2026-04-20',cls:'neutral'});
+      html += kpiCard('Total Ceiling', '$'+(totCeiling/1000).toFixed(1)+'B', {txt:'Max authorized value',cls:'neutral'});
+      html += kpiCard('Total Funded', '$'+(totFunded/1000).toFixed(1)+'B', {txt:fundedPct.toFixed(1)+'% of ceiling',cls:'neutral'});
+      html += kpiCard('Renewal 0-90d', String(near90), {txt:'Immediate action',cls: near90>5?'negative':'neutral'});
+      html += kpiCard('At Risk in 180d', String(near90+near180), {txt:'$'+(soonFunded/1000).toFixed(1)+'B funded',cls:'negative'});
+      html += kpiCard('Beyond 1 Year', String(far), {txt:'Stable horizon',cls:'positive'});
+      html += kpiCard('FFP Share', ((TYPE_MIX[0].contracts/totActive*100).toFixed(1))+'%', {txt:'Firm-fixed-price',cls:'neutral'});
+      html += kpiCard('Cost-plus Share', (((TYPE_MIX[1].contracts+TYPE_MIX[2].contracts+TYPE_MIX[5].contracts)/totActive*100).toFixed(1))+'%', {txt:'CPFF+CPIF+CPAF',cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+    }
+
+    function renderExpiry(){
+      var p = fdPalette();
+      mk('chExpiry', {
+        type:'bar',
+        data: {
+          labels: EXPIRY.map(function(r){return r.bucket;}),
+          datasets: [
+            { label:'Contracts', data: EXPIRY.map(function(r){return r.contracts;}), backgroundColor: p.secondary, yAxisID:'y', borderRadius:4 },
+            { label:'Funded ($M)', data: EXPIRY.map(function(r){return r.funded;}), backgroundColor: p.primary, yAxisID:'y1', borderRadius:4 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y:  { beginAtZero:true, grid: { color: p.grid }, title: { display:true, text:'Contracts' } },
+            y1: { position:'right', beginAtZero:true, grid: { display:false }, title: { display:true, text:'Funded ($M)' }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(0)+'B';} } },
+            x:  { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderType(){
+      var p = fdPalette();
+      mk('chType', {
+        type:'bar',
+        data: {
+          labels: TYPE_MIX.map(function(r){return r.type;}),
+          datasets: [{ label:'Active Contracts', data: TYPE_MIX.map(function(r){return r.contracts;}), backgroundColor: p.primary, borderRadius:4 }]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { stepSize: 5 } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderCeilFunded(){
+      var p = fdPalette();
+      mk('chCeilFunded', {
+        type:'bar',
+        data: {
+          labels: TYPE_MIX.map(function(r){return r.type;}),
+          datasets: [
+            { label:'Ceiling', data: TYPE_MIX.map(function(r){return r.ceiling;}), backgroundColor: p.secondary, borderRadius:4 },
+            { label:'Funded',  data: TYPE_MIX.map(function(r){return r.funded;}),  backgroundColor: p.primary,   borderRadius:4 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTable(){
+      var html = '';
+      var tc=0,tcl=0,tf=0;
+      for (var i=0;i<TYPE_MIX.length;i++){
+        var r = TYPE_MIX[i]; var fPct = r.funded/r.ceiling*100;
+        var risk = r.type.indexOf('CP')===0 ? 'Contractor cost risk low' : (r.type==='FFP'?'Contractor cost risk HIGH':'Shared cost risk');
+        html += '<tr><td><strong>'+r.type+'</strong></td>'+
+          '<td class="num">'+String(r.contracts)+'</td>'+
+          '<td class="num">'+String(fmtInt(r.ceiling))+'</td>'+
+          '<td class="num">'+String(fmtInt(r.funded))+'</td>'+
+          '<td class="num">'+String(fPct.toFixed(1))+'%</td>'+
+          '<td>'+risk+'</td></tr>';
+        tc+=r.contracts; tcl+=r.ceiling; tf+=r.funded;
+      }
+      html += '<tr class="tot-row"><td>Total</td>'+
+        '<td class="num">'+String(tc)+'</td>'+
+        '<td class="num">'+String(fmtInt(tcl))+'</td>'+
+        '<td class="num">'+String(fmtInt(tf))+'</td>'+
+        '<td class="num">'+String((tf/tcl*100).toFixed(1))+'%</td>'+
+        '<td>Diversified portfolio</td></tr>';
+      document.querySelector('#tblType tbody').innerHTML = html;
+    }
+    function applyFilters(){
+      renderKPIs(); renderExpiry(); renderType(); renderCeilFunded(); renderTable();
+      fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

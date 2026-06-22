@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Analytics — Spirits & Alcohol Demo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1A1A2E;
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        /* Top brand bar */
+        .brand-bar {
+            background: linear-gradient(135deg, #232340 0%, #1A1A2E 100%);
+            border-bottom: 2px solid #D4A843;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand-bar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .brand-bar .falcon-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #D4A843, #B8860B);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1A1A2E;
+            font-family: 'Playfair Display', serif;
+        }
+        .brand-bar h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #D4A843;
+            letter-spacing: 1px;
+        }
+        .brand-bar .subtitle {
+            font-size: 13px;
+            color: #C0C0C0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .brand-bar .date-info {
+            font-size: 13px;
+            color: #888;
+        }
+
+        /* Hero section */
+        .hero {
+            text-align: center;
+            padding: 50px 40px 30px;
+            background: radial-gradient(ellipse at center top, rgba(212,168,67,0.08) 0%, transparent 60%);
+        }
+        .hero h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+            color: #C0C0C0;
+            margin-bottom: 8px;
+        }
+        .hero .divider {
+            width: 80px;
+            height: 2px;
+            background: #D4A843;
+            margin: 16px auto;
+        }
+        .hero p {
+            font-size: 14px;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 30px 40px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dash-card {
+            background: linear-gradient(145deg, #1E2A45, #232340);
+            border: 1px solid rgba(212,168,67,0.2);
+            border-radius: 12px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        .dash-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #D4A843, #B8860B);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .dash-card:hover {
+            border-color: #D4A843;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(212,168,67,0.15);
+        }
+        .dash-card:hover::before {
+            opacity: 1;
+        }
+
+        .dash-card .card-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: rgba(212,168,67,0.25);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+        .dash-card .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #D4A843;
+            margin-bottom: 10px;
+        }
+        .dash-card .card-desc {
+            font-size: 13px;
+            color: #C0C0C0;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .dash-card .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .dash-card .tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(212,168,67,0.1);
+            color: #D4A843;
+            border: 1px solid rgba(212,168,67,0.2);
+        }
+
+        .dash-card .arrow {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 20px;
+            color: rgba(212,168,67,0.3);
+            transition: all 0.3s ease;
+        }
+        .dash-card:hover .arrow {
+            color: #D4A843;
+            transform: translateX(4px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(212,168,67,0.15);
+            font-size: 12px;
+            color: #555;
+        }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="brand-bar">
+    <div class="logo-area">
+        <div class="falcon-icon">F</div>
+        <div>
+            <h1>Falcon Analytics</h1>
+            <div class="subtitle">Spirits & Alcohol Intelligence Platform</div>
+        </div>
+    </div>
+    <div class="date-info">Demo Dashboard Suite &bull; March 2026</div>
+</div>
+
+<div class="hero">
+    <h2>Comprehensive Analytics Dashboard Suite</h2>
+    <div class="divider"></div>
+    <p>14 interactive dashboards covering the full spirits distribution value chain — from producer shipments through distributor depletions to retail consumption, with inventory, trade spend, and performance analytics.</p>
+</div>
+
+<div class="dashboard-grid">
+
+    <a class="dash-card" href="01-executive-summary.html">
+        <div class="card-number">01</div>
+        <div class="card-title">Executive Summary</div>
+        <div class="card-desc">Top-level KPIs across all tiers — revenue, cases, gross profit, YoY growth trends, and channel mix overview.</div>
+        <div class="card-tags">
+            <span class="tag">KPIs</span>
+            <span class="tag">Revenue</span>
+            <span class="tag">Trends</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="02-shipments.html">
+        <div class="card-number">02</div>
+        <div class="card-title">Shipments Analysis</div>
+        <div class="card-desc">Tier 1 producer-to-distributor sell-in: shipment trends, gross vs net revenue, returns, and warehouse performance.</div>
+        <div class="card-tags">
+            <span class="tag">Tier 1</span>
+            <span class="tag">Sell-In</span>
+            <span class="tag">Revenue</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="03-depletions.html">
+        <div class="card-number">03</div>
+        <div class="card-title">Depletions Analysis</div>
+        <div class="card-desc">Tier 2 distributor-to-account sell-through: depletion velocity, account coverage, and the industry's most-watched metric.</div>
+        <div class="card-tags">
+            <span class="tag">Tier 2</span>
+            <span class="tag">Sell-Through</span>
+            <span class="tag">Velocity</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="04-consumption.html">
+        <div class="card-number">04</div>
+        <div class="card-title">Consumption & Market Share</div>
+        <div class="card-desc">Tier 3 POS/scan data: retail dollar sales, market share, distribution metrics, velocity per point, and promo analysis.</div>
+        <div class="card-tags">
+            <span class="tag">Tier 3</span>
+            <span class="tag">POS</span>
+            <span class="tag">Market Share</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="05-inventory.html">
+        <div class="card-number">05</div>
+        <div class="card-title">Inventory Health</div>
+        <div class="card-desc">Distributor warehouse stock levels, days of supply, out-of-stock rates, aging analysis, and replenishment signals.</div>
+        <div class="card-tags">
+            <span class="tag">Stock</span>
+            <span class="tag">OOS</span>
+            <span class="tag">Supply</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="06-target-vs-actual.html">
+        <div class="card-number">06</div>
+        <div class="card-title">Target vs Actual</div>
+        <div class="card-desc">Budget and quota attainment by market, distributor, product, and channel with variance analysis.</div>
+        <div class="card-tags">
+            <span class="tag">Budget</span>
+            <span class="tag">Quota</span>
+            <span class="tag">Variance</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="07-trade-spend.html">
+        <div class="card-number">07</div>
+        <div class="card-title">Trade Spend & ROI</div>
+        <div class="card-desc">Promotion effectiveness: spend by program type, planned vs actual, ROI ratios, compliance, and incremental lift.</div>
+        <div class="card-tags">
+            <span class="tag">Promotions</span>
+            <span class="tag">ROI</span>
+            <span class="tag">Compliance</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="08-product-portfolio.html">
+        <div class="card-number">08</div>
+        <div class="card-title">Product Portfolio</div>
+        <div class="card-desc">Brand and SKU analysis: revenue by spirit type, category, price tier, innovation performance, and lifecycle status.</div>
+        <div class="card-tags">
+            <span class="tag">Brands</span>
+            <span class="tag">SKUs</span>
+            <span class="tag">Price Tier</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="09-market-geography.html">
+        <div class="card-number">09</div>
+        <div class="card-title">Market & Geography</div>
+        <div class="card-desc">Regional performance: state-level comparison, control vs open states, per-capita metrics, and excise tax impact.</div>
+        <div class="card-tags">
+            <span class="tag">States</span>
+            <span class="tag">Regions</span>
+            <span class="tag">Demographics</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="10-sales-rep.html">
+        <div class="card-number">10</div>
+        <div class="card-title">Sales Rep Performance</div>
+        <div class="card-desc">Rep-level scorecards: quota attainment, depletion volume, account coverage, and rankings by role type.</div>
+        <div class="card-tags">
+            <span class="tag">Reps</span>
+            <span class="tag">Quotas</span>
+            <span class="tag">Rankings</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="11-distributor.html">
+        <div class="card-number">11</div>
+        <div class="card-title">Distributor Scorecard</div>
+        <div class="card-desc">Distributor comparison: depletion velocity, inventory turns, market coverage, national vs regional performance.</div>
+        <div class="card-tags">
+            <span class="tag">Distributors</span>
+            <span class="tag">Fill Rate</span>
+            <span class="tag">Coverage</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="12-channel-mix.html">
+        <div class="card-number">12</div>
+        <div class="card-title">Channel Mix</div>
+        <div class="card-desc">On-premise vs off-premise vs e-commerce: revenue splits, trends, product preferences, and sub-channel detail.</div>
+        <div class="card-tags">
+            <span class="tag">On-Premise</span>
+            <span class="tag">Off-Premise</span>
+            <span class="tag">E-Commerce</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="13-what-if-launch.html" style="border-color:rgba(231,76,60,0.4);">
+        <div class="card-number" style="color:#E74C3C;">13</div>
+        <div class="card-title">What-If: New Product Launch</div>
+        <div class="card-desc">Interactive scenario planner — configure spirit type, price tier, markets, distribution, and trade spend. All projections update dynamically using 7 years of historical benchmarks.</div>
+        <div class="card-tags">
+            <span class="tag" style="background:rgba(231,76,60,0.15);color:#E74C3C;">Interactive</span>
+            <span class="tag">P&L Forecast</span>
+            <span class="tag">Breakeven</span>
+            <span class="tag">Market Share</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="14-metrics-glossary.html" style="border-color:rgba(52,152,219,0.4);">
+        <div class="card-number" style="color:#3498DB;">14</div>
+        <div class="card-title">Metrics & Definitions</div>
+        <div class="card-desc">Comprehensive glossary of all KPIs, metrics, and business terms — three-tier distribution model, data sources, calculated measures, and the full data model reference.</div>
+        <div class="card-tags">
+            <span class="tag" style="background:rgba(52,152,219,0.15);color:#3498DB;">Reference</span>
+            <span class="tag">Glossary</span>
+            <span class="tag">Data Model</span>
+            <span class="tag">Definitions</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+    </a>
+
+    <a class="dash-card" href="Q4-FY2025-QBR.pptx" style="border-color:rgba(39,174,96,0.4);">
+        <div class="card-number" style="color:#27AE60;">QBR</div>
+        <div class="card-title">Q4 FY2025 — Quarterly Business Review</div>
+        <div class="card-desc">Executive QBR presentation covering Q4 performance — KPIs, revenue trends, distributor rankings, regional mix, trade spend ROI, and next-quarter priorities.</div>
+        <div class="card-tags">
+            <span class="tag" style="background:rgba(39,174,96,0.15);color:#27AE60;">PowerPoint</span>
+            <span class="tag">Q4 FY2025</span>
+            <span class="tag">Executive Review</span>
+        </div>
+        <div class="arrow">&#8595;</div>
+    </a>
+
+</div>
+
+<div class="footer">
+    Powered by <span>Falcon Analytics</span> &bull; Data refreshed March 2026 &bull; Spirits & Alcohol Demo
+</div>
+<script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase Orders Analytics - Falcon Car Manufacturing</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #F3F4F6;
+      color: #1E293B;
+      line-height: 1.6;
+    }
+
+    .topbar {
+      background-color: #1B3A5C;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .topbar-title {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #E87722 0%, #E87722 50%, white 50%, white 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+    }
+
+    .topbar-nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .topbar-nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .topbar-nav a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .filters-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1B3A5C;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select {
+      padding: 8px 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1E293B;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #E87722;
+      box-shadow: 0 0 0 3px rgba(232, 119, 34, 0.1);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #E87722;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1E293B;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      min-height: 36px;
+    }
+
+    .kpi-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748B;
+    }
+
+    .kpi-change {
+      font-size: 13px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-positive {
+      color: #059669;
+    }
+
+    .kpi-negative {
+      color: #D32F2F;
+    }
+
+    .charts-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1B3A5C;
+      margin-bottom: 16px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+    }
+
+    .table-section {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .table-header {
+      background-color: #1B3A5C;
+      color: white;
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #1B3A5C;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #E2E8F0;
+      font-size: 13px;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: #F8FAFC;
+    }
+
+    .accent-text {
+      color: #E87722;
+      font-weight: 600;
+    }
+
+    .footer {
+      text-align: right;
+      padding: 24px;
+    }
+
+    .back-link {
+      color: #E87722;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 1200px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .charts-section { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">
+      <div class="logo">xF</div>
+      Purchase Orders Analytics
+    </div>
+    <div class="topbar-nav">
+      <a href="index.html">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filters-section">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">Year</label>
+          <select id="yearFilter">
+            <option value="">All Years</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Supplier</label>
+          <select id="supplierFilter">
+            <option value="">All Suppliers</option>
+            <option value="ZF Friedrichshafen">ZF Friedrichshafen</option>
+            <option value="Faurecia Exhaust Systems">Faurecia Exhaust Systems</option>
+            <option value="BorgWarner">BorgWarner</option>
+            <option value="Nemak Aluminium Castings">Nemak Aluminium Castings</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Quality Status</label>
+          <select id="statusFilter">
+            <option value="">All Quality Status</option>
+            <option value="ACCEPTED">ACCEPTED</option>
+            <option value="PENDING_INSPECTION">PENDING_INSPECTION</option>
+            <option value="REJECTED">REJECTED</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total POs</div>
+        <div class="kpi-value"><span id="kpi-total-pos">--</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Spend</div>
+        <div class="kpi-value"><span id="kpi-total-spend">--</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Days Late</div>
+        <div class="kpi-value"><span id="kpi-days-late">--</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Acceptance Rate</div>
+        <div class="kpi-value"><span id="kpi-acceptance-rate">--</span>%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Qty Ordered</div>
+        <div class="kpi-value"><span id="kpi-qty-ordered">--</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Qty Received</div>
+        <div class="kpi-value"><span id="kpi-qty-received">--</span></div>
+      </div>
+    </div>
+
+    <div class="charts-section">
+      <div class="chart-card">
+        <div class="chart-title">PO Spend by Year</div>
+        <div class="chart-container">
+          <canvas id="spendByYear"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Spend by Supplier</div>
+        <div class="chart-container">
+          <canvas id="spendBySupplier"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Days Late Trend</div>
+        <div class="chart-container">
+          <canvas id="daysLateTrend"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Quality Status Distribution</div>
+        <div class="chart-container">
+          <canvas id="qualityStatus"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly PO Volume</div>
+        <div class="chart-container">
+          <canvas id="monthlyVolume"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Part Categories Ordered</div>
+        <div class="chart-container">
+          <canvas id="partCategories"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-header">Purchase Order Details</div>
+      <div class="table-container">
+        <table id="poTable">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Month</th>
+              <th>Supplier</th>
+              <th>PO Count</th>
+              <th>Category</th>
+              <th>Qty Ordered</th>
+              <th>Qty Received</th>
+              <th>Total Cost</th>
+              <th>Days Late</th>
+              <th>Quality Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    var allPOs = [
+      { year: 2020, month: 'January', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 25, qtyOrdered: 5409, qtyReceived: 5568, totalCost: 4270383.98, daysLate: 2.9, qualityStatus: 'ACCEPTED' },
+      { year: 2020, month: 'January', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 1, qtyOrdered: 228, qtyReceived: 207, totalCost: 202876.68, daysLate: 8.0, qualityStatus: 'PENDING_INSPECTION' },
+      { year: 2020, month: 'January', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 12, qtyOrdered: 8526, qtyReceived: 9230, totalCost: 2682147.24, daysLate: 3.3, qualityStatus: 'ACCEPTED' },
+      { year: 2020, month: 'January', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 709, qtyReceived: 628, totalCost: 229099.17, daysLate: 8.0, qualityStatus: 'PENDING_INSPECTION' },
+      { year: 2020, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 11, qtyOrdered: 3585, qtyReceived: 3130, totalCost: 2805460.89, daysLate: 2.3, qualityStatus: 'ACCEPTED' },
+      { year: 2020, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 278, qtyReceived: 244, totalCost: 224170.86, daysLate: 0.0, qualityStatus: 'PENDING_INSPECTION' },
+      { year: 2020, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 257, qtyReceived: 303, totalCost: 206026.62, daysLate: 7.0, qualityStatus: 'REJECTED' },
+      { year: 2020, month: 'January', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 11, qtyOrdered: 12800, qtyReceived: 14284, totalCost: 1076460.17, daysLate: 4.1, qualityStatus: 'ACCEPTED' },
+      { year: 2020, month: 'January', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 1213, qtyReceived: 1142, totalCost: 99453.87, daysLate: 1.0, qualityStatus: 'PENDING_INSPECTION' },
+      { year: 2020, month: 'January', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 1323, qtyReceived: 1412, totalCost: 111912.57, daysLate: 4.0, qualityStatus: 'REJECTED' },
+      { year: 2021, month: 'January', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 13, qtyOrdered: 10022, qtyReceived: 9561, totalCost: 3103562.62, daysLate: 2.5, qualityStatus: 'ACCEPTED' },
+      { year: 2021, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 12, qtyOrdered: 3491, qtyReceived: 3732, totalCost: 2708303.62, daysLate: 3.8, qualityStatus: 'ACCEPTED' },
+      { year: 2021, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 275, qtyReceived: 284, totalCost: 224490.75, daysLate: 4.0, qualityStatus: 'PENDING_INSPECTION' },
+      { year: 2021, month: 'January', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 13, qtyOrdered: 16383, qtyReceived: 16395, totalCost: 1405961.57, daysLate: 3.0, qualityStatus: 'ACCEPTED' },
+      { year: 2021, month: 'January', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 26, qtyOrdered: 5725, qtyReceived: 5751, totalCost: 4489855.30, daysLate: 3.2, qualityStatus: 'ACCEPTED' },
+      { year: 2022, month: 'January', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 13, qtyOrdered: 9913, qtyReceived: 9725, totalCost: 3083742.56, daysLate: 2.5, qualityStatus: 'ACCEPTED' },
+      { year: 2022, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 13, qtyOrdered: 3742, qtyReceived: 4026, totalCost: 2917455.17, daysLate: 3.6, qualityStatus: 'ACCEPTED' },
+      { year: 2022, month: 'January', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 13, qtyOrdered: 14621, qtyReceived: 15847, totalCost: 1226753.58, daysLate: 2.7, qualityStatus: 'ACCEPTED' },
+      { year: 2022, month: 'January', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 26, qtyOrdered: 6026, qtyReceived: 5969, totalCost: 4747552.77, daysLate: 2.6, qualityStatus: 'ACCEPTED' },
+      { year: 2023, month: 'June', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 14, qtyOrdered: 10174, qtyReceived: 10705, totalCost: 3168759.10, daysLate: 3.6, qualityStatus: 'ACCEPTED' },
+      { year: 2023, month: 'June', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 14, qtyOrdered: 4181, qtyReceived: 4288, totalCost: 3251131.82, daysLate: 3.7, qualityStatus: 'ACCEPTED' },
+      { year: 2023, month: 'June', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 14, qtyOrdered: 18186, qtyReceived: 16914, totalCost: 1533365.08, daysLate: 2.3, qualityStatus: 'ACCEPTED' },
+      { year: 2023, month: 'June', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 25, qtyOrdered: 5453, qtyReceived: 5604, totalCost: 4338075.72, daysLate: 3.6, qualityStatus: 'ACCEPTED' },
+      { year: 2023, month: 'June', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 2, qtyOrdered: 508, qtyReceived: 474, totalCost: 361767.85, daysLate: 3.5, qualityStatus: 'PENDING_INSPECTION' },
+      { year: 2023, month: 'June', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 1, qtyOrdered: 196, qtyReceived: 190, totalCost: 171411.80, daysLate: 0.0, qualityStatus: 'REJECTED' },
+      { year: 2024, month: 'January', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 9, qtyOrdered: 6924, qtyReceived: 6632, totalCost: 2135048.61, daysLate: 3.2, qualityStatus: 'ACCEPTED' },
+      { year: 2024, month: 'January', supplier: 'BorgWarner', category: 'ENGINE_PARTS', poCount: 1, qtyOrdered: 841, qtyReceived: 674, totalCost: 258531.81, daysLate: 4.0, qualityStatus: 'REJECTED' },
+      { year: 2024, month: 'January', supplier: 'Faurecia Exhaust Systems', category: 'ENGINE_PARTS', poCount: 10, qtyOrdered: 2970, qtyReceived: 3025, totalCost: 2331080.75, daysLate: 1.7, qualityStatus: 'ACCEPTED' },
+      { year: 2024, month: 'January', supplier: 'Nemak Aluminium Castings', category: 'ENGINE_PARTS', poCount: 10, qtyOrdered: 12719, qtyReceived: 11972, totalCost: 1065830.83, daysLate: 2.4, qualityStatus: 'ACCEPTED' },
+      { year: 2024, month: 'January', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 18, qtyOrdered: 4026, qtyReceived: 4236, totalCost: 3180991.07, daysLate: 4.4, qualityStatus: 'ACCEPTED' },
+      { year: 2024, month: 'January', supplier: 'ZF Friedrichshafen', category: 'BODY', poCount: 2, qtyOrdered: 429, qtyReceived: 448, totalCost: 336876.15, daysLate: 2.5, qualityStatus: 'PENDING_INSPECTION' }
+    ];
+
+    var charts = {};
+
+    function getFilters() {
+      return {
+        year: document.getElementById('yearFilter').value,
+        supplier: document.getElementById('supplierFilter').value,
+        status: document.getElementById('statusFilter').value
+      };
+    }
+
+    function getFilteredPOs(filters) {
+      return allPOs.filter(function(po) {
+        var matchYear = !filters.year || po.year.toString() === filters.year;
+        var matchSupplier = !filters.supplier || po.supplier === filters.supplier;
+        var matchStatus = !filters.status || po.qualityStatus === filters.status;
+        return matchYear && matchSupplier && matchStatus;
+      });
+    }
+
+    function updateKPIs(filtered) {
+      var totalPOs = filtered.reduce(function(sum, po) { return sum + po.poCount; }, 0);
+      var totalSpend = filtered.reduce(function(sum, po) { return sum + po.totalCost; }, 0);
+      var avgDaysLate = filtered.length > 0 ? filtered.reduce(function(sum, po) { return sum + (po.daysLate * po.poCount); }, 0) / totalPOs : 0;
+      var qtyOrdered = filtered.reduce(function(sum, po) { return sum + po.qtyOrdered; }, 0);
+      var qtyReceived = filtered.reduce(function(sum, po) { return sum + po.qtyReceived; }, 0);
+      var acceptedPOs = filtered.filter(function(po) { return po.qualityStatus === 'ACCEPTED'; }).reduce(function(sum, po) { return sum + po.poCount; }, 0);
+      var acceptanceRate = totalPOs > 0 ? (acceptedPOs / totalPOs * 100) : 0;
+
+      document.getElementById('kpi-total-pos').textContent = totalPOs;
+      document.getElementById('kpi-total-spend').textContent = '$' + (totalSpend / 1000000).toFixed(2) + 'M';
+      document.getElementById('kpi-days-late').textContent = avgDaysLate.toFixed(1);
+      document.getElementById('kpi-acceptance-rate').textContent = acceptanceRate.toFixed(1);
+      document.getElementById('kpi-qty-ordered').textContent = (qtyOrdered / 1000).toFixed(0) + 'K';
+      document.getElementById('kpi-qty-received').textContent = (qtyReceived / 1000).toFixed(0) + 'K';
+    }
+
+    function updateCharts(filters) {
+      updateSpendByYear(filters);
+      updateSpendBySupplier(filters);
+      updateDaysLateTrend(filters);
+      updateQualityStatus(filters);
+      updateMonthlyVolume(filters);
+      updatePartCategories(filters);
+    }
+
+    function updateSpendByYear(filters) {
+      var filtered = getFilteredPOs(filters);
+      var data = {};
+      filtered.forEach(function(po) {
+        data[po.year] = (data[po.year] || 0) + po.totalCost;
+      });
+
+      var years = [2020, 2021, 2022, 2023, 2024].filter(function(y) { return data[y]; });
+      var costs = years.map(function(y) { return data[y]; });
+
+      if (charts.spendByYear) {
+        charts.spendByYear.data.labels = years.map(function(y) { return y.toString(); });
+        charts.spendByYear.data.datasets[0].data = costs;
+        charts.spendByYear.update();
+      } else {
+        var ctx = document.getElementById('spendByYear').getContext('2d');
+        charts.spendByYear = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: years.map(function(y) { return y.toString(); }),
+            datasets: [{
+              label: 'Spend ($)',
+              data: costs,
+              backgroundColor: '#1B3A5C',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: function(value) {
+                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateSpendBySupplier(filters) {
+      var filtered = getFilteredPOs(filters);
+      var data = {};
+      filtered.forEach(function(po) {
+        data[po.supplier] = (data[po.supplier] || 0) + po.totalCost;
+      });
+
+      var suppliers = Object.keys(data).sort();
+      var costs = suppliers.map(function(s) { return data[s]; });
+
+      if (charts.spendBySupplier) {
+        charts.spendBySupplier.data.labels = suppliers;
+        charts.spendBySupplier.data.datasets[0].data = costs;
+        charts.spendBySupplier.update();
+      } else {
+        var ctx = document.getElementById('spendBySupplier').getContext('2d');
+        charts.spendBySupplier = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: suppliers,
+            datasets: [{
+              label: 'Spend ($)',
+              data: costs,
+              backgroundColor: '#E87722',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  callback: function(value) {
+                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateDaysLateTrend(filters) {
+      var filtered = getFilteredPOs(filters);
+      var data = {};
+      filtered.forEach(function(po) {
+        data[po.year] = (data[po.year] || { total: 0, count: 0 });
+        data[po.year].total += po.daysLate * po.poCount;
+        data[po.year].count += po.poCount;
+      });
+
+      var years = [2020, 2021, 2022, 2023, 2024].filter(function(y) { return data[y]; });
+      var avgDays = years.map(function(y) { return (data[y].total / data[y].count).toFixed(1); });
+
+      if (charts.daysLateTrend) {
+        charts.daysLateTrend.data.labels = years.map(function(y) { return y.toString(); });
+        charts.daysLateTrend.data.datasets[0].data = avgDays;
+        charts.daysLateTrend.update();
+      } else {
+        var ctx = document.getElementById('daysLateTrend').getContext('2d');
+        charts.daysLateTrend = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: years.map(function(y) { return y.toString(); }),
+            datasets: [{
+              label: 'Avg Days Late',
+              data: avgDays,
+              borderColor: '#D32F2F',
+              backgroundColor: 'rgba(211, 47, 47, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 5,
+              pointBackgroundColor: '#D32F2F'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateQualityStatus(filters) {
+      var filtered = getFilteredPOs(filters);
+      var data = {};
+      filtered.forEach(function(po) {
+        data[po.qualityStatus] = (data[po.qualityStatus] || 0) + po.poCount;
+      });
+
+      var statuses = Object.keys(data).sort();
+      var counts = statuses.map(function(s) { return data[s]; });
+      var colors = {
+        'ACCEPTED': '#059669',
+        'PENDING_INSPECTION': '#F59E0B',
+        'REJECTED': '#D32F2F'
+      };
+
+      if (charts.qualityStatus) {
+        charts.qualityStatus.data.labels = statuses;
+        charts.qualityStatus.data.datasets[0].data = counts;
+        charts.qualityStatus.data.datasets[0].backgroundColor = statuses.map(function(s) { return colors[s]; });
+        charts.qualityStatus.update();
+      } else {
+        var ctx = document.getElementById('qualityStatus').getContext('2d');
+        charts.qualityStatus = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: statuses,
+            datasets: [{
+              label: 'Count',
+              data: counts,
+              backgroundColor: statuses.map(function(s) { return colors[s]; }),
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateMonthlyVolume(filters) {
+      var filtered = getFilteredPOs(filters);
+      var data = {};
+      var monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      filtered.forEach(function(po) {
+        data[po.month] = (data[po.month] || 0) + po.qtyOrdered;
+      });
+
+      var months = monthOrder.filter(function(m) { return data[m]; });
+      var quantities = months.map(function(m) { return data[m]; });
+
+      if (charts.monthlyVolume) {
+        charts.monthlyVolume.data.labels = months;
+        charts.monthlyVolume.data.datasets[0].data = quantities;
+        charts.monthlyVolume.update();
+      } else {
+        var ctx = document.getElementById('monthlyVolume').getContext('2d');
+        charts.monthlyVolume = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [{
+              label: 'Qty Ordered',
+              data: quantities,
+              backgroundColor: '#0EA5E9',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updatePartCategories(filters) {
+      var filtered = getFilteredPOs(filters);
+      var data = {};
+      filtered.forEach(function(po) {
+        data[po.category] = (data[po.category] || 0) + po.qtyOrdered;
+      });
+
+      var categories = Object.keys(data).sort();
+      var quantities = categories.map(function(c) { return data[c]; });
+
+      if (charts.partCategories) {
+        charts.partCategories.data.labels = categories;
+        charts.partCategories.data.datasets[0].data = quantities;
+        charts.partCategories.update();
+      } else {
+        var ctx = document.getElementById('partCategories').getContext('2d');
+        charts.partCategories = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: categories,
+            datasets: [{
+              label: 'Qty Ordered',
+              data: quantities,
+              backgroundColor: '#94A3B8',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateTable(filters) {
+      var filtered = getFilteredPOs(filters);
+      var tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      filtered.forEach(function(po) {
+        var row = document.createElement('tr');
+        row.innerHTML =
+          '<td>' + po.year + '</td>' +
+          '<td>' + po.month + '</td>' +
+          '<td>' + po.supplier + '</td>' +
+          '<td>' + po.poCount + '</td>' +
+          '<td>' + po.category + '</td>' +
+          '<td>' + po.qtyOrdered + '</td>' +
+          '<td>' + po.qtyReceived + '</td>' +
+          '<td>$' + po.totalCost.toFixed(2) + '</td>' +
+          '<td>' + po.daysLate.toFixed(1) + '</td>' +
+          '<td>' + po.qualityStatus + '</td>';
+        tbody.appendChild(row);
+      });
+    }
+
+    function applyFilters() {
+      var filters = getFilters();
+      updateKPIs(getFilteredPOs(filters));
+      updateCharts(filters);
+      updateTable(filters);
+    }
+
+    document.getElementById('yearFilter').addEventListener('change', applyFilters);
+    document.getElementById('supplierFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+    applyFilters();
+  </script>
+</body>
+</html>

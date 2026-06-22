@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB-04 | Restaurant & F&B Performance</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #1B2A4A;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-brand {
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(200, 169, 81, 0.2);
+        }
+
+        .nav-links a.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            color: #1B2A4A;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-left p {
+            font-size: 1.1rem;
+            color: #636E72;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .time-btn {
+            padding: 0.75rem 1.5rem;
+            background-color: #FFFFFF;
+            color: #1B2A4A;
+            border: 2px solid #E8D5A0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .time-btn.active {
+            background-color: #C8A951;
+            color: #FFFFFF;
+            border-color: #C8A951;
+        }
+
+        .time-btn:hover {
+            border-color: #C8A951;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-top: 4px solid #C8A951;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #636E72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1B2A4A;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .kpi-comparison.positive {
+            color: #2E7D32;
+        }
+
+        .kpi-comparison.negative {
+            color: #C62828;
+        }
+
+        /* Chart Container */
+        .chart-section {
+            background-color: #FFFFFF;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1B2A4A;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #F5ECD7;
+            padding-bottom: 0.75rem;
+        }
+
+        .chart-container {
+            position: relative;
+            min-height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* Full Width Chart */
+        .chart-section-full {
+            background-color: #FFFFFF;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        /* Dual Chart Row */
+        .dual-chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dual-chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Quad Chart Row */
+        .quad-chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .quad-chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Data Table */
+        .table-section {
+            background-color: #FFFFFF;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #F5ECD7;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #1B2A4A;
+            border-bottom: 2px solid #C8A951;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #E8D5A0;
+            font-size: 0.95rem;
+        }
+
+        tbody tr:hover {
+            background-color: #F4F5F7;
+        }
+
+        .positive {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #C62828;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #636E72;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .time-filter {
+                margin-top: 1rem;
+            }
+
+            .dual-chart-row,
+            .quad-chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">Falcon Hotels & Restaurants</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="db-01-executive-overview.html">DB-01</a></li>
+            <li><a href="db-02-revenue-finance.html">DB-02</a></li>
+            <li><a href="db-03-hotel-operations.html">DB-03</a></li>
+            <li><a href="db-04-restaurant-fb.html" class="active">DB-04</a></li>
+            <li><a href="db-05-guest-experience.html">DB-05</a></li>
+            <li><a href="db-06-labor-workforce.html">DB-06</a></li>
+            <li><a href="db-07-inventory-supply.html">DB-07</a></li>
+            <li><a href="db-08-social-marketing.html">DB-08</a></li>
+            <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>DB-04 | Restaurant & F&B Performance</h1>
+                <p>Order Volume, Revenue, Service Efficiency & Channel Analysis</p>
+            </div>
+            <div class="time-filter">
+                <button class="time-btn active" data-period="monthly">Monthly</button>
+                <button class="time-btn" data-period="quarterly">Quarterly</button>
+                <button class="time-btn" data-period="yearly">Yearly</button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Orders</div>
+                <div class="kpi-value">10,630</div>
+                <div class="kpi-comparison negative">2025: 10,630 vs 2024: 19,052 → -44.2%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value">$516,969</div>
+                <div class="kpi-comparison negative">2025: $516.9K vs 2024: $816.1K → -36.7%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Ticket</div>
+                <div class="kpi-value">$48.63</div>
+                <div class="kpi-comparison positive">2025: $48.63 vs 2024: $42.84 → +13.5%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Order Accuracy</div>
+                <div class="kpi-value">95.3%</div>
+                <div class="kpi-comparison negative">2025: 95.3% vs 2024: 95.4% → -0.1%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">On-Time Rate</div>
+                <div class="kpi-value">94.1%</div>
+                <div class="kpi-comparison negative">2025: 94.1% vs 2024: 94.2% → -0.1%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Tips</div>
+                <div class="kpi-value">$21,219</div>
+                <div class="kpi-comparison negative">2025: $21.2K vs 2024: $37.1K → -42.8%</div>
+            </div>
+        </div>
+
+        <!-- Full Width: Order Volume & Avg Ticket YoY -->
+        <div class="chart-section-full">
+            <div class="chart-title">Order Volume & Avg Ticket Trend - Year over Year (2024 vs 2025)</div>
+            <div class="chart-container">
+                <canvas id="orderVolumeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Two Charts: Revenue & Service Quality -->
+        <div class="dual-chart-row">
+            <div class="chart-section">
+                <div class="chart-title">Revenue Trend - Year over Year</div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Service Quality Metrics - 2025</div>
+                <div class="chart-container">
+                    <canvas id="qualityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Charts: Prep/Wait Time & Channel Revenue -->
+        <div class="dual-chart-row">
+            <div class="chart-section">
+                <div class="chart-title">Prep & Wait Time Trend - 2025</div>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Channel Revenue Comparison</div>
+                <div class="chart-container">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Detail Table -->
+        <div class="table-section">
+            <div class="chart-title">Monthly Performance Detail - 2025</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Orders</th>
+                            <th>Revenue</th>
+                            <th>Avg Ticket</th>
+                            <th>Prep Time (min)</th>
+                            <th>Wait Time (min)</th>
+                            <th>Accuracy %</th>
+                            <th>On-Time %</th>
+                            <th>Tips</th>
+                            <th>vs PY Revenue</th>
+                            <th>% Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>January</strong></td>
+                            <td>896</td>
+                            <td>$38,543</td>
+                            <td>$43.02</td>
+                            <td>20.2</td>
+                            <td>1.5</td>
+                            <td>95.3%</td>
+                            <td>93.5%</td>
+                            <td>$1,564</td>
+                            <td>$60,296</td>
+                            <td class="negative">-36.1%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>February</strong></td>
+                            <td>819</td>
+                            <td>$35,767</td>
+                            <td>$43.67</td>
+                            <td>19.9</td>
+                            <td>1.6</td>
+                            <td>94.7%</td>
+                            <td>93.3%</td>
+                            <td>$1,431</td>
+                            <td>$56,845</td>
+                            <td class="negative">-37.1%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>March</strong></td>
+                            <td>917</td>
+                            <td>$42,362</td>
+                            <td>$46.20</td>
+                            <td>20.2</td>
+                            <td>1.3</td>
+                            <td>95.2%</td>
+                            <td>93.9%</td>
+                            <td>$1,698</td>
+                            <td>$70,669</td>
+                            <td class="negative">-40.1%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>April</strong></td>
+                            <td>863</td>
+                            <td>$42,372</td>
+                            <td>$49.10</td>
+                            <td>20.3</td>
+                            <td>1.2</td>
+                            <td>94.9%</td>
+                            <td>94.2%</td>
+                            <td>$1,695</td>
+                            <td>$70,875</td>
+                            <td class="negative">-40.3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>May</strong></td>
+                            <td>909</td>
+                            <td>$45,218</td>
+                            <td>$49.74</td>
+                            <td>20.1</td>
+                            <td>1.3</td>
+                            <td>95.4%</td>
+                            <td>94.7%</td>
+                            <td>$1,809</td>
+                            <td>$73,046</td>
+                            <td class="negative">-38.1%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>June</strong></td>
+                            <td>880</td>
+                            <td>$44,516</td>
+                            <td>$50.59</td>
+                            <td>20.1</td>
+                            <td>1.5</td>
+                            <td>94.9%</td>
+                            <td>94.3%</td>
+                            <td>$1,781</td>
+                            <td>$69,110</td>
+                            <td class="negative">-35.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>July</strong></td>
+                            <td>887</td>
+                            <td>$45,357</td>
+                            <td>$51.14</td>
+                            <td>20.2</td>
+                            <td>1.7</td>
+                            <td>96.1%</td>
+                            <td>93.6%</td>
+                            <td>$1,815</td>
+                            <td>$70,656</td>
+                            <td class="negative">-35.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>August</strong></td>
+                            <td>913</td>
+                            <td>$46,308</td>
+                            <td>$50.72</td>
+                            <td>20.3</td>
+                            <td>1.3</td>
+                            <td>95.8%</td>
+                            <td>93.9%</td>
+                            <td>$1,853</td>
+                            <td>$70,863</td>
+                            <td class="negative">-34.7%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>September</strong></td>
+                            <td>873</td>
+                            <td>$42,711</td>
+                            <td>$48.92</td>
+                            <td>20.2</td>
+                            <td>1.2</td>
+                            <td>94.8%</td>
+                            <td>94.5%</td>
+                            <td>$1,709</td>
+                            <td>$66,462</td>
+                            <td class="negative">-35.7%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>October</strong></td>
+                            <td>888</td>
+                            <td>$43,956</td>
+                            <td>$49.50</td>
+                            <td>20.2</td>
+                            <td>1.4</td>
+                            <td>95.2%</td>
+                            <td>95.2%</td>
+                            <td>$1,758</td>
+                            <td>$67,937</td>
+                            <td class="negative">-35.2%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>November</strong></td>
+                            <td>887</td>
+                            <td>$44,755</td>
+                            <td>$50.46</td>
+                            <td>20.3</td>
+                            <td>1.5</td>
+                            <td>95.4%</td>
+                            <td>94.5%</td>
+                            <td>$1,790</td>
+                            <td>$68,639</td>
+                            <td class="negative">-34.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>December</strong></td>
+                            <td>898</td>
+                            <td>$45,104</td>
+                            <td>$50.23</td>
+                            <td>20.2</td>
+                            <td>1.3</td>
+                            <td>95.3%</td>
+                            <td>94.2%</td>
+                            <td>$1,811</td>
+                            <td>$70,702</td>
+                            <td class="negative">-36.3%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Falcon Hotels & Restaurants | Restaurant & F&B | Generated March 2026</p>
+    </footer>
+
+    <!-- Chart Configuration -->
+    <script>
+        // Color Palette
+        const colors = {
+            navy: '#1B2A4A',
+            gold: '#C8A951',
+            lightGold: '#D4B96A',
+            paleLightGold: '#E8D5A0',
+            blue1: '#3A6B8A',
+            blue2: '#6C8EBF'
+        };
+
+        // Chart instances
+        let charts = {};
+        let currentPeriod = 'monthly';
+
+        // Month abbreviations
+        const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        // Monthly data
+        const monthlyData = {
+            orders2024: [1575, 1480, 1706, 1607, 1651, 1571, 1578, 1599, 1558, 1573, 1553, 1601],
+            orders2025: [896, 819, 917, 863, 909, 880, 887, 913, 873, 888, 887, 898],
+            avgTicket2024: [38.28, 38.41, 41.42, 44.10, 44.24, 43.99, 44.78, 44.32, 42.66, 43.19, 44.20, 44.16],
+            avgTicket2025: [43.02, 43.67, 46.20, 49.10, 49.74, 50.59, 51.14, 50.72, 48.92, 49.50, 50.46, 50.23],
+            revenue2024: [60.296, 56.845, 70.669, 70.875, 73.046, 69.110, 70.656, 70.863, 66.462, 67.937, 68.639, 70.702],
+            revenue2025: [38.543, 35.767, 42.362, 42.372, 45.218, 44.516, 45.357, 46.308, 42.711, 43.956, 44.755, 45.104],
+            accuracy2025: [95.3, 94.7, 95.2, 94.9, 95.4, 94.9, 96.1, 95.8, 94.8, 95.2, 95.4, 95.3],
+            onTime2025: [93.5, 93.3, 93.9, 94.2, 94.7, 94.3, 93.6, 93.9, 94.5, 95.2, 94.5, 94.2],
+            prepTime2025: [20.2, 19.9, 20.2, 20.3, 20.1, 20.1, 20.2, 20.3, 20.2, 20.2, 20.3, 20.2],
+            waitTime2025: [1.5, 1.6, 1.3, 1.2, 1.3, 1.5, 1.7, 1.3, 1.2, 1.4, 1.5, 1.3]
+        };
+
+        // Detail table data
+        const detailTableData = [
+            { month: 'January', orders: 896, revenue: 38543, avgTicket: 43.02, prepTime: 20.2, waitTime: 1.5, accuracy: 95.3, onTime: 93.5, tips: 1564, pyRevenue: 60296 },
+            { month: 'February', orders: 819, revenue: 35767, avgTicket: 43.67, prepTime: 19.9, waitTime: 1.6, accuracy: 94.7, onTime: 93.3, tips: 1431, pyRevenue: 56845 },
+            { month: 'March', orders: 917, revenue: 42362, avgTicket: 46.20, prepTime: 20.2, waitTime: 1.3, accuracy: 95.2, onTime: 93.9, tips: 1698, pyRevenue: 70669 },
+            { month: 'April', orders: 863, revenue: 42372, avgTicket: 49.10, prepTime: 20.3, waitTime: 1.2, accuracy: 94.9, onTime: 94.2, tips: 1695, pyRevenue: 70875 },
+            { month: 'May', orders: 909, revenue: 45218, avgTicket: 49.74, prepTime: 20.1, waitTime: 1.3, accuracy: 95.4, onTime: 94.7, tips: 1809, pyRevenue: 73046 },
+            { month: 'June', orders: 880, revenue: 44516, avgTicket: 50.59, prepTime: 20.1, waitTime: 1.5, accuracy: 94.9, onTime: 94.3, tips: 1781, pyRevenue: 69110 },
+            { month: 'July', orders: 887, revenue: 45357, avgTicket: 51.14, prepTime: 20.2, waitTime: 1.7, accuracy: 96.1, onTime: 93.6, tips: 1815, pyRevenue: 70656 },
+            { month: 'August', orders: 913, revenue: 46308, avgTicket: 50.72, prepTime: 20.3, waitTime: 1.3, accuracy: 95.8, onTime: 93.9, tips: 1853, pyRevenue: 70863 },
+            { month: 'September', orders: 873, revenue: 42711, avgTicket: 48.92, prepTime: 20.2, waitTime: 1.2, accuracy: 94.8, onTime: 94.5, tips: 1709, pyRevenue: 66462 },
+            { month: 'October', orders: 888, revenue: 43956, avgTicket: 49.50, prepTime: 20.2, waitTime: 1.4, accuracy: 95.2, onTime: 95.2, tips: 1758, pyRevenue: 67937 },
+            { month: 'November', orders: 887, revenue: 44755, avgTicket: 50.46, prepTime: 20.3, waitTime: 1.5, accuracy: 95.4, onTime: 94.5, tips: 1790, pyRevenue: 68639 },
+            { month: 'December', orders: 898, revenue: 45104, avgTicket: 50.23, prepTime: 20.2, waitTime: 1.3, accuracy: 95.3, onTime: 94.2, tips: 1811, pyRevenue: 70702 }
+        ];
+
+        // Helper function to aggregate quarterly data (average for percentage/rate metrics)
+        function aggregateQuarterly(monthlyArray) {
+            return [
+                (monthlyArray[0] + monthlyArray[1] + monthlyArray[2]) / 3,
+                (monthlyArray[3] + monthlyArray[4] + monthlyArray[5]) / 3,
+                (monthlyArray[6] + monthlyArray[7] + monthlyArray[8]) / 3,
+                (monthlyArray[9] + monthlyArray[10] + monthlyArray[11]) / 3
+            ];
+        }
+
+        // Helper function to sum quarterly data (for volume/revenue metrics)
+        function sumQuarterly(monthlyArray) {
+            return [
+                monthlyArray[0] + monthlyArray[1] + monthlyArray[2],
+                monthlyArray[3] + monthlyArray[4] + monthlyArray[5],
+                monthlyArray[6] + monthlyArray[7] + monthlyArray[8],
+                monthlyArray[9] + monthlyArray[10] + monthlyArray[11]
+            ];
+        }
+
+        // Helper function to aggregate yearly data
+        function aggregateYearly(monthlyArray) {
+            return [monthlyArray.reduce((a, b) => a + b) / monthlyArray.length];
+        }
+
+        // Helper function to sum yearly data
+        function sumYearly(monthlyArray) {
+            return [monthlyArray.reduce((a, b) => a + b)];
+        }
+
+        // Chart 1: Order Volume & Avg Ticket YoY (Dual Axis)
+        function createOrderVolumeChart() {
+            const ctx = document.getElementById('orderVolumeChart').getContext('2d');
+
+            if (charts.orderVolume) {
+                charts.orderVolume.destroy();
+            }
+
+            let labels, orders2024, orders2025, ticket2024, ticket2025;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                orders2024 = monthlyData.orders2024;
+                orders2025 = monthlyData.orders2025;
+                ticket2024 = monthlyData.avgTicket2024;
+                ticket2025 = monthlyData.avgTicket2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                orders2024 = sumQuarterly(monthlyData.orders2024);
+                orders2025 = sumQuarterly(monthlyData.orders2025);
+                ticket2024 = aggregateQuarterly(monthlyData.avgTicket2024);
+                ticket2025 = aggregateQuarterly(monthlyData.avgTicket2025);
+            } else {
+                labels = ['2024', '2025'];
+                orders2024 = sumYearly(monthlyData.orders2024);
+                orders2025 = sumYearly(monthlyData.orders2025);
+                ticket2024 = aggregateYearly(monthlyData.avgTicket2024);
+                ticket2025 = aggregateYearly(monthlyData.avgTicket2025);
+            }
+
+            charts.orderVolume = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Orders 2024',
+                        data: orders2024,
+                        backgroundColor: colors.navy,
+                        borderColor: colors.navy,
+                        borderWidth: 0,
+                        yAxisID: 'y',
+                        order: 2,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Orders 2025',
+                        data: orders2025,
+                        backgroundColor: colors.blue1,
+                        borderColor: colors.blue1,
+                        borderWidth: 0,
+                        yAxisID: 'y',
+                        order: 2,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Avg Ticket 2024 ($)',
+                        data: ticket2024,
+                        borderColor: colors.gold,
+                        backgroundColor: 'transparent',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.gold,
+                        pointBorderColor: colors.gold,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        type: 'line',
+                        yAxisID: 'y1',
+                        order: 1,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Avg Ticket 2025 ($)',
+                        data: ticket2025,
+                        borderColor: colors.paleLightGold,
+                        backgroundColor: 'transparent',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.paleLightGold,
+                        pointBorderColor: colors.paleLightGold,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        type: 'line',
+                        yAxisID: 'y1',
+                        order: 1,
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' },
+                            color: colors.navy
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Order Volume',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.navy
+                        },
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Avg Ticket ($)',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.gold
+                        },
+                        ticks: {
+                            color: colors.gold,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+            });
+        }
+
+        // Chart 2: Revenue Trend YoY (Line)
+        function createRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+
+            if (charts.revenue) {
+                charts.revenue.destroy();
+            }
+
+            let labels, rev2024, rev2025;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                rev2024 = monthlyData.revenue2024;
+                rev2025 = monthlyData.revenue2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                rev2024 = sumQuarterly(monthlyData.revenue2024);
+                rev2025 = sumQuarterly(monthlyData.revenue2025);
+            } else {
+                labels = ['2024', '2025'];
+                rev2024 = sumYearly(monthlyData.revenue2024);
+                rev2025 = sumYearly(monthlyData.revenue2025);
+            }
+
+            charts.revenue = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Revenue 2024 ($K)',
+                        data: rev2024,
+                        borderColor: colors.navy,
+                        backgroundColor: 'rgba(27, 42, 74, 0.05)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.navy,
+                        pointBorderColor: colors.navy,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Revenue 2025 ($K)',
+                        data: rev2025,
+                        borderColor: colors.gold,
+                        backgroundColor: 'rgba(200, 169, 81, 0.05)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.gold,
+                        pointBorderColor: colors.gold,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' },
+                            color: colors.navy
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($K)',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.navy
+                        },
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+            });
+        }
+
+        // Chart 3: Service Quality Metrics (Line)
+        function createQualityChart() {
+            const ctx = document.getElementById('qualityChart').getContext('2d');
+
+            if (charts.quality) {
+                charts.quality.destroy();
+            }
+
+            let labels, accuracy, onTime;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                accuracy = monthlyData.accuracy2025;
+                onTime = monthlyData.onTime2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                accuracy = aggregateQuarterly(monthlyData.accuracy2025);
+                onTime = aggregateQuarterly(monthlyData.onTime2025);
+            } else {
+                labels = ['2025'];
+                accuracy = aggregateYearly(monthlyData.accuracy2025);
+                onTime = aggregateYearly(monthlyData.onTime2025);
+            }
+
+            charts.quality = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Accuracy %',
+                        data: accuracy,
+                        borderColor: colors.navy,
+                        backgroundColor: 'rgba(27, 42, 74, 0.05)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.navy,
+                        pointBorderColor: colors.navy,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'On-Time %',
+                        data: onTime,
+                        borderColor: colors.gold,
+                        backgroundColor: 'rgba(200, 169, 81, 0.05)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.gold,
+                        pointBorderColor: colors.gold,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' },
+                            color: colors.navy
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        display: true,
+                        min: 92,
+                        max: 97,
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.navy
+                        },
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+            });
+        }
+
+        // Chart 4: Prep & Wait Time Trend (Line)
+        function createTimeChart() {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+
+            if (charts.time) {
+                charts.time.destroy();
+            }
+
+            let labels, prepTime, waitTime;
+
+            if (currentPeriod === 'monthly') {
+                labels = monthAbbr;
+                prepTime = monthlyData.prepTime2025;
+                waitTime = monthlyData.waitTime2025;
+            } else if (currentPeriod === 'quarterly') {
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                prepTime = aggregateQuarterly(monthlyData.prepTime2025);
+                waitTime = aggregateQuarterly(monthlyData.waitTime2025);
+            } else {
+                labels = ['2025'];
+                prepTime = aggregateYearly(monthlyData.prepTime2025);
+                waitTime = aggregateYearly(monthlyData.waitTime2025);
+            }
+
+            charts.time = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Prep Time (min)',
+                        data: prepTime,
+                        borderColor: colors.navy,
+                        backgroundColor: 'rgba(27, 42, 74, 0.05)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.navy,
+                        pointBorderColor: colors.navy,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Wait Time (min)',
+                        data: waitTime,
+                        borderColor: colors.gold,
+                        backgroundColor: 'rgba(200, 169, 81, 0.05)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: colors.gold,
+                        pointBorderColor: colors.gold,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' },
+                            color: colors.navy
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Prep Time (min)',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.navy
+                        },
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Wait Time (min)',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.gold
+                        },
+                        ticks: {
+                            color: colors.gold,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+            });
+        }
+
+        // Chart 5: Channel Revenue - Horizontal Bar with 2024/2025 comparison (Static)
+        function createChannelChart() {
+            const ctx = document.getElementById('channelChart').getContext('2d');
+
+            if (charts.channel) {
+                charts.channel.destroy();
+            }
+
+            charts.channel = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Dine-In', 'Third-Party', 'Hotel Rest', 'Carryout', 'Drive-Thru', 'Room Svc', 'Mobile App', 'Catering', 'First-Party Del'],
+                datasets: [
+                    {
+                        label: '2025 Revenue ($K)',
+                        data: [48.719, 47.448, 47.018, 46.389, 46.139, 45.463, 43.287, 42.268, 41.859],
+                        backgroundColor: colors.navy,
+                        borderColor: colors.navy,
+                        borderWidth: 0,
+                        borderRadius: 4
+                    },
+                    {
+                        label: '2024 Revenue ($K)',
+                        data: [69.670, 68.862, 70.508, 75.195, 74.047, 74.099, 73.888, 71.601, 71.419],
+                        backgroundColor: colors.blue1,
+                        borderColor: colors.blue1,
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' },
+                            color: colors.navy
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Revenue ($K)',
+                            font: { weight: 'bold', size: 12 },
+                            color: colors.navy
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: colors.navy,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+            });
+        }
+
+        // Populate Detail Table
+        function populateDetailTable() {
+            const tbody = document.querySelector('.table-container tbody');
+            tbody.innerHTML = '';
+
+            let dataToDisplay;
+            let periodLabel;
+
+            if (currentPeriod === 'monthly') {
+                dataToDisplay = detailTableData;
+                periodLabel = 'Month';
+            } else if (currentPeriod === 'quarterly') {
+                // Aggregate quarterly data
+                dataToDisplay = [
+                    {
+                        month: 'Q1',
+                        orders: Math.round((detailTableData[0].orders + detailTableData[1].orders + detailTableData[2].orders) / 3),
+                        revenue: Math.round(detailTableData[0].revenue + detailTableData[1].revenue + detailTableData[2].revenue),
+                        avgTicket: ((detailTableData[0].avgTicket + detailTableData[1].avgTicket + detailTableData[2].avgTicket) / 3).toFixed(2),
+                        prepTime: ((detailTableData[0].prepTime + detailTableData[1].prepTime + detailTableData[2].prepTime) / 3).toFixed(1),
+                        waitTime: ((detailTableData[0].waitTime + detailTableData[1].waitTime + detailTableData[2].waitTime) / 3).toFixed(1),
+                        accuracy: ((detailTableData[0].accuracy + detailTableData[1].accuracy + detailTableData[2].accuracy) / 3).toFixed(1),
+                        onTime: ((detailTableData[0].onTime + detailTableData[1].onTime + detailTableData[2].onTime) / 3).toFixed(1),
+                        tips: Math.round(detailTableData[0].tips + detailTableData[1].tips + detailTableData[2].tips),
+                        pyRevenue: Math.round(detailTableData[0].pyRevenue + detailTableData[1].pyRevenue + detailTableData[2].pyRevenue)
+                    },
+                    {
+                        month: 'Q2',
+                        orders: Math.round((detailTableData[3].orders + detailTableData[4].orders + detailTableData[5].orders) / 3),
+                        revenue: Math.round(detailTableData[3].revenue + detailTableData[4].revenue + detailTableData[5].revenue),
+                        avgTicket: ((detailTableData[3].avgTicket + detailTableData[4].avgTicket + detailTableData[5].avgTicket) / 3).toFixed(2),
+                        prepTime: ((detailTableData[3].prepTime + detailTableData[4].prepTime + detailTableData[5].prepTime) / 3).toFixed(1),
+                        waitTime: ((detailTableData[3].waitTime + detailTableData[4].waitTime + detailTableData[5].waitTime) / 3).toFixed(1),
+                        accuracy: ((detailTableData[3].accuracy + detailTableData[4].accuracy + detailTableData[5].accuracy) / 3).toFixed(1),
+                        onTime: ((detailTableData[3].onTime + detailTableData[4].onTime + detailTableData[5].onTime) / 3).toFixed(1),
+                        tips: Math.round(detailTableData[3].tips + detailTableData[4].tips + detailTableData[5].tips),
+                        pyRevenue: Math.round(detailTableData[3].pyRevenue + detailTableData[4].pyRevenue + detailTableData[5].pyRevenue)
+                    },
+                    {
+                        month: 'Q3',
+                        orders: Math.round((detailTableData[6].orders + detailTableData[7].orders + detailTableData[8].orders) / 3),
+                        revenue: Math.round(detailTableData[6].revenue + detailTableData[7].revenue + detailTableData[8].revenue),
+                        avgTicket: ((detailTableData[6].avgTicket + detailTableData[7].avgTicket + detailTableData[8].avgTicket) / 3).toFixed(2),
+                        prepTime: ((detailTableData[6].prepTime + detailTableData[7].prepTime + detailTableData[8].prepTime) / 3).toFixed(1),
+                        waitTime: ((detailTableData[6].waitTime + detailTableData[7].waitTime + detailTableData[8].waitTime) / 3).toFixed(1),
+                        accuracy: ((detailTableData[6].accuracy + detailTableData[7].accuracy + detailTableData[8].accuracy) / 3).toFixed(1),
+                        onTime: ((detailTableData[6].onTime + detailTableData[7].onTime + detailTableData[8].onTime) / 3).toFixed(1),
+                        tips: Math.round(detailTableData[6].tips + detailTableData[7].tips + detailTableData[8].tips),
+                        pyRevenue: Math.round(detailTableData[6].pyRevenue + detailTableData[7].pyRevenue + detailTableData[8].pyRevenue)
+                    },
+                    {
+                        month: 'Q4',
+                        orders: Math.round((detailTableData[9].orders + detailTableData[10].orders + detailTableData[11].orders) / 3),
+                        revenue: Math.round(detailTableData[9].revenue + detailTableData[10].revenue + detailTableData[11].revenue),
+                        avgTicket: ((detailTableData[9].avgTicket + detailTableData[10].avgTicket + detailTableData[11].avgTicket) / 3).toFixed(2),
+                        prepTime: ((detailTableData[9].prepTime + detailTableData[10].prepTime + detailTableData[11].prepTime) / 3).toFixed(1),
+                        waitTime: ((detailTableData[9].waitTime + detailTableData[10].waitTime + detailTableData[11].waitTime) / 3).toFixed(1),
+                        accuracy: ((detailTableData[9].accuracy + detailTableData[10].accuracy + detailTableData[11].accuracy) / 3).toFixed(1),
+                        onTime: ((detailTableData[9].onTime + detailTableData[10].onTime + detailTableData[11].onTime) / 3).toFixed(1),
+                        tips: Math.round(detailTableData[9].tips + detailTableData[10].tips + detailTableData[11].tips),
+                        pyRevenue: Math.round(detailTableData[9].pyRevenue + detailTableData[10].pyRevenue + detailTableData[11].pyRevenue)
+                    }
+                ];
+                periodLabel = 'Quarter';
+            } else {
+                // Aggregate yearly data
+                const totals = detailTableData.reduce((acc, row) => ({
+                    orders: acc.orders + row.orders,
+                    revenue: acc.revenue + row.revenue,
+                    avgTicket: acc.avgTicket + row.avgTicket,
+                    prepTime: acc.prepTime + row.prepTime,
+                    waitTime: acc.waitTime + row.waitTime,
+                    accuracy: acc.accuracy + row.accuracy,
+                    onTime: acc.onTime + row.onTime,
+                    tips: acc.tips + row.tips,
+                    pyRevenue: acc.pyRevenue + row.pyRevenue
+                }), { orders: 0, revenue: 0, avgTicket: 0, prepTime: 0, waitTime: 0, accuracy: 0, onTime: 0, tips: 0, pyRevenue: 0 });
+
+                dataToDisplay = [{
+                    month: '2025',
+                    orders: totals.orders,
+                    revenue: totals.revenue,
+                    avgTicket: (totals.avgTicket / 12).toFixed(2),
+                    prepTime: (totals.prepTime / 12).toFixed(1),
+                    waitTime: (totals.waitTime / 12).toFixed(1),
+                    accuracy: (totals.accuracy / 12).toFixed(1),
+                    onTime: (totals.onTime / 12).toFixed(1),
+                    tips: totals.tips,
+                    pyRevenue: totals.pyRevenue
+                }];
+                periodLabel = 'Year';
+            }
+
+            // Update table title
+            document.querySelector('.table-section .chart-title').textContent = `Performance Detail - ${currentPeriod.charAt(0).toUpperCase() + currentPeriod.slice(1)}`;
+
+            dataToDisplay.forEach(row => {
+                const yoyChange = ((row.revenue - row.pyRevenue) / row.pyRevenue * 100).toFixed(1);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${row.month}</strong></td>
+                    <td>${row.orders}</td>
+                    <td>$${row.revenue.toLocaleString()}</td>
+                    <td>$${row.avgTicket}</td>
+                    <td>${row.prepTime}</td>
+                    <td>${row.waitTime}</td>
+                    <td>${row.accuracy}%</td>
+                    <td>${row.onTime}%</td>
+                    <td>$${row.tips.toLocaleString()}</td>
+                    <td>$${row.pyRevenue.toLocaleString()}</td>
+                    <td class="${yoyChange < 0 ? 'negative' : 'positive'}">${yoyChange > 0 ? '+' : ''}${yoyChange}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Time Filter Buttons
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentPeriod = this.dataset.period;
+
+                createOrderVolumeChart();
+                createRevenueChart();
+                createQualityChart();
+                createTimeChart();
+                createChannelChart();
+                populateDetailTable();
+            });
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            createOrderVolumeChart();
+            createRevenueChart();
+            createQualityChart();
+            createTimeChart();
+            createChannelChart();
+            populateDetailTable();
+        });
+    </script>
+</body>
+</html>

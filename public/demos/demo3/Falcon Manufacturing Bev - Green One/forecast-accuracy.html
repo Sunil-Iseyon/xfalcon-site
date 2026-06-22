@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecast Accuracy Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #7CB701;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #7CB701;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #9B999B;
+            font-size: 0.95em;
+        }
+
+        /* Filters Section */
+        .filters {
+            background-color: #1A1A1A;
+            border: 1px solid #7CB701;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #95D600;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            border: 1px solid #7CB701;
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:hover {
+            border-color: #95D600;
+            background-color: #1A1A1A;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #95D600;
+            box-shadow: 0 0 8px rgba(149, 214, 0, 0.3);
+        }
+
+        /* KPI Cards */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #1A1A1A;
+            border: 1px solid #7CB701;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            border-color: #95D600;
+            box-shadow: 0 8px 24px rgba(124, 183, 1, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7CB701, #95D600);
+        }
+
+        .kpi-label {
+            color: #9B999B;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            color: #95D600;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .kpi-unit {
+            color: #7CB701;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .kpi-detail {
+            color: #9B999B;
+            font-size: 0.8em;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #2A2A2A;
+        }
+
+        /* Charts Container */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            background-color: #1A1A1A;
+            border: 1px solid #7CB701;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-wrapper.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            color: #95D600;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 10px;
+        }
+
+        .chart-wrapper.full-width .chart-container {
+            height: 300px;
+        }
+
+        /* Heatmap Table */
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .heatmap-table thead {
+            background-color: #0D0D0D;
+        }
+
+        .heatmap-table th {
+            color: #95D600;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+            border: 1px solid #2A2A2A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .heatmap-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #2A2A2A;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .heatmap-table tbody tr:nth-child(odd) {
+            background-color: #151515;
+        }
+
+        .heatmap-table tbody tr:hover {
+            background-color: #242424;
+        }
+
+        .heatmap-cell {
+            border-radius: 4px;
+            min-width: 50px;
+            display: inline-block;
+            width: 100%;
+            padding: 10px 0;
+            font-weight: 600;
+        }
+
+        .heatmap-good {
+            background-color: rgba(124, 183, 1, 0.3);
+            color: #7CB701;
+        }
+
+        .heatmap-fair {
+            background-color: rgba(255, 184, 0, 0.3);
+            color: #FFB800;
+        }
+
+        .heatmap-poor {
+            background-color: rgba(255, 68, 68, 0.3);
+            color: #FF4444;
+        }
+
+        .heatmap-category-label {
+            text-align: left;
+            color: #95D600;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #7CB701;
+            text-align: center;
+            color: #9B999B;
+            font-size: 0.85em;
+        }
+
+        footer a {
+            color: #95D600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            color: #7CB701;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .kpi-value {
+                font-size: 1.6em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+
+        /* Loading state */
+        .no-data {
+            color: #FFB800;
+            padding: 20px;
+            text-align: center;
+            background-color: #1A1A1A;
+            border-radius: 4px;
+            border: 1px solid #FFB800;
+        }
+
+        .back-link {
+            color: #7CB701;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: inline-block;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #95D600;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+        <header>
+            <h1>Forecast Accuracy Dashboard</h1>
+            <p class="subtitle">Falcon Manufacturing Beverage - Performance Analysis</p>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year</label>
+                <select id="yearFilter">
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="quarterFilter">Quarter</label>
+                <select id="quarterFilter">
+                    <option value="all">All Quarters</option>
+                    <option value="1">Q1</option>
+                    <option value="2">Q2</option>
+                    <option value="3">Q3</option>
+                    <option value="4">Q4</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="regionFilter">Region</label>
+                <select id="regionFilter">
+                    <option value="all">All Regions</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-container" id="kpiContainer">
+            <div class="kpi-card">
+                <div class="kpi-label">Overall MAPE</div>
+                <div class="kpi-value" id="overallMape">0.00</div>
+                <div class="kpi-unit">%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Forecast Accuracy</div>
+                <div class="kpi-value" id="forecastAccuracy">0.00</div>
+                <div class="kpi-unit">%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Forecast</div>
+                <div class="kpi-value" id="totalForecast">0</div>
+                <div class="kpi-unit">Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Actual</div>
+                <div class="kpi-value" id="totalActual">0</div>
+                <div class="kpi-unit">Units</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Forecast Bias</div>
+                <div class="kpi-value" id="forecastBias">—</div>
+                <div class="kpi-detail" id="biasDetail">Balanced</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-wrapper full-width">
+                <div class="chart-title">MAPE Trend Over Time (Year-Quarter)</div>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-title">Forecast vs Actual by Category</div>
+                <div class="chart-container">
+                    <canvas id="categoryComparisonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-title">MAPE by Region</div>
+                <div class="chart-container">
+                    <canvas id="regionMapeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-title">Forecast Bias Distribution</div>
+                <div class="chart-container">
+                    <canvas id="biasChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper full-width">
+                <div class="chart-title">Forecast vs Actual Scatter</div>
+                <div class="chart-container">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper full-width">
+                <div class="chart-title">Accuracy Heatmap (MAPE by Category & Year)</div>
+                <table class="heatmap-table" id="heatmapTable">
+                    <thead>
+                        <tr id="heatmapHeader"></tr>
+                    </thead>
+                    <tbody id="heatmapBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Insights & Analysis Section -->
+        <div style="background:#1A1A1A;border:1px solid #333;border-radius:12px;padding:25px 30px;margin:30px auto;max-width:1400px;">
+            <h3 style="color:#7CB701;font-size:1.3em;margin-bottom:15px;border-bottom:2px solid #7CB701;padding-bottom:8px;">Key Insights & Analysis</h3>
+            <div id="insightsContent" style="color:#9B999B;line-height:1.8;"></div>
+            <h4 style="color:#FFB800;font-size:1.1em;margin-top:20px;margin-bottom:10px;">Focus Areas</h4>
+            <div id="focusAreas" style="color:#9B999B;line-height:1.8;"></div>
+        </div>
+
+        <footer>
+            <p><a href="index.html">Back to Home</a></p>
+            <p>Generated by IDA Analytics | Data as of March 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        // Embedded data from IDA query
+        const forecastData = [
+            {year: 2020, quarter: 1, category: "Craft Soda", region: "Midwest", mape: 6.46, forecast: 42118, actual: 41626, over: 2, under: 2},
+            {year: 2020, quarter: 1, category: "Craft Soda", region: "Southeast", mape: 3.65, forecast: 18094, actual: 17457, over: 1, under: 0},
+            {year: 2020, quarter: 1, category: "Craft Soda", region: "West", mape: 4.19, forecast: 30594, actual: 29530, over: 2, under: 0},
+            {year: 2020, quarter: 1, category: "Juice", region: "Northeast", mape: 4.27, forecast: 40110, actual: 39200, over: 1, under: 2},
+            {year: 2020, quarter: 1, category: "Juice", region: "Southeast", mape: 6.10, forecast: 22454, actual: 21163, over: 1, under: 0},
+            {year: 2020, quarter: 1, category: "Juice", region: "West", mape: 8.68, forecast: 51907, actual: 51132, over: 2, under: 2},
+            {year: 2020, quarter: 1, category: "Sparkling Water", region: "Midwest", mape: 3.39, forecast: 3216, actual: 3329, over: 0, under: 1},
+            {year: 2020, quarter: 1, category: "Sparkling Water", region: "Northeast", mape: 3.24, forecast: 91281, actual: 91486, over: 4, under: 5},
+            {year: 2020, quarter: 1, category: "Sparkling Water", region: "Southeast", mape: 7.15, forecast: 37680, actual: 36276, over: 1, under: 1},
+            {year: 2020, quarter: 1, category: "Sparkling Water", region: "West", mape: 6.78, forecast: 29640, actual: 29021, over: 2, under: 2},
+            {year: 2020, quarter: 2, category: "Craft Soda", region: "Midwest", mape: 8.82, forecast: 18965, actual: 20995, over: 0, under: 2},
+            {year: 2020, quarter: 2, category: "Craft Soda", region: "Northeast", mape: 5.14, forecast: 32838, actual: 31233, over: 1, under: 0},
+            {year: 2020, quarter: 2, category: "Craft Soda", region: "Southeast", mape: 9.20, forecast: 56255, actual: 55012, over: 1, under: 2},
+            {year: 2020, quarter: 2, category: "Juice", region: "Northeast", mape: 0.05, forecast: 20873, actual: 20883, over: 0, under: 1},
+            {year: 2020, quarter: 2, category: "Juice", region: "Southeast", mape: 5.63, forecast: 110009, actual: 109168, over: 3, under: 2},
+            {year: 2020, quarter: 2, category: "Juice", region: "West", mape: 4.55, forecast: 41134, actual: 43085, over: 0, under: 3},
+            {year: 2020, quarter: 2, category: "Sparkling Water", region: "Midwest", mape: 3.39, forecast: 48447, actual: 47896, over: 3, under: 1},
+            {year: 2020, quarter: 2, category: "Sparkling Water", region: "Northeast", mape: 7.93, forecast: 22057, actual: 22368, over: 1, under: 1},
+            {year: 2020, quarter: 2, category: "Sparkling Water", region: "Southeast", mape: 7.83, forecast: 104693, actual: 102546, over: 5, under: 2},
+            {year: 2020, quarter: 2, category: "Sparkling Water", region: "West", mape: 3.62, forecast: 59944, actual: 58948, over: 2, under: 2},
+            {year: 2020, quarter: 3, category: "Craft Soda", region: "Midwest", mape: 9.98, forecast: 45123, actual: 46247, over: 1, under: 1},
+            {year: 2020, quarter: 3, category: "Craft Soda", region: "Southeast", mape: 6.69, forecast: 19362, actual: 20750, over: 0, under: 2},
+            {year: 2020, quarter: 3, category: "Craft Soda", region: "West", mape: 6.99, forecast: 38670, actual: 40168, over: 1, under: 2},
+            {year: 2020, quarter: 3, category: "Juice", region: "Midwest", mape: 3.95, forecast: 12875, actual: 12386, over: 1, under: 0},
+            {year: 2020, quarter: 3, category: "Juice", region: "Northeast", mape: 9.74, forecast: 54942, actual: 52028, over: 2, under: 1},
+            {year: 2020, quarter: 3, category: "Juice", region: "Southeast", mape: 5.13, forecast: 19736, actual: 20802, over: 0, under: 2},
+            {year: 2020, quarter: 3, category: "Juice", region: "West", mape: 4.16, forecast: 9622, actual: 10040, over: 0, under: 1},
+            {year: 2020, quarter: 3, category: "Sparkling Water", region: "Midwest", mape: 10.01, forecast: 4341, actual: 4824, over: 0, under: 1},
+            {year: 2020, quarter: 3, category: "Sparkling Water", region: "Northeast", mape: 18.92, forecast: 17756, actual: 14931, over: 1, under: 0},
+            {year: 2020, quarter: 3, category: "Sparkling Water", region: "Southeast", mape: 4.97, forecast: 40679, actual: 39535, over: 2, under: 0},
+            {year: 2020, quarter: 3, category: "Sparkling Water", region: "West", mape: 10.47, forecast: 145025, actual: 150023, over: 5, under: 4},
+            {year: 2020, quarter: 4, category: "Craft Soda", region: "Midwest", mape: 3.71, forecast: 27315, actual: 26337, over: 1, under: 0},
+            {year: 2020, quarter: 4, category: "Craft Soda", region: "Northeast", mape: 5.81, forecast: 68074, actual: 72570, over: 1, under: 3},
+            {year: 2020, quarter: 4, category: "Craft Soda", region: "Southeast", mape: 5.06, forecast: 9718, actual: 10236, over: 0, under: 1},
+            {year: 2020, quarter: 4, category: "Craft Soda", region: "West", mape: 5.59, forecast: 19710, actual: 20878, over: 0, under: 1},
+            {year: 2020, quarter: 4, category: "Juice", region: "Northeast", mape: 3.38, forecast: 59316, actual: 59262, over: 2, under: 1},
+            {year: 2020, quarter: 4, category: "Juice", region: "Southeast", mape: 15.53, forecast: 33543, actual: 33951, over: 1, under: 1},
+            {year: 2020, quarter: 4, category: "Juice", region: "West", mape: 6.51, forecast: 18451, actual: 19736, over: 0, under: 1},
+            {year: 2020, quarter: 4, category: "Sparkling Water", region: "Midwest", mape: 6.69, forecast: 87908, actual: 88707, over: 2, under: 3},
+            {year: 2020, quarter: 4, category: "Sparkling Water", region: "Northeast", mape: 6.12, forecast: 20013, actual: 18858, over: 1, under: 0},
+            {year: 2020, quarter: 4, category: "Sparkling Water", region: "Southeast", mape: 8.22, forecast: 41389, actual: 41931, over: 1, under: 1},
+            {year: 2020, quarter: 4, category: "Sparkling Water", region: "West", mape: 8.67, forecast: 107218, actual: 110198, over: 2, under: 4},
+            {year: 2021, quarter: 1, category: "Craft Soda", region: "Northeast", mape: 7.95, forecast: 30891, actual: 33315, over: 0, under: 2},
+            {year: 2021, quarter: 1, category: "Craft Soda", region: "Southeast", mape: 7.23, forecast: 33604, actual: 31626, over: 3, under: 0},
+            {year: 2021, quarter: 1, category: "Craft Soda", region: "West", mape: 2.67, forecast: 25663, actual: 26369, over: 0, under: 2},
+            {year: 2021, quarter: 1, category: "Energy Drink", region: "Midwest", mape: 3.19, forecast: 18299, actual: 17733, over: 1, under: 0},
+            {year: 2021, quarter: 1, category: "Energy Drink", region: "Southeast", mape: 4.69, forecast: 13667, actual: 13067, over: 2, under: 0},
+            {year: 2021, quarter: 1, category: "Juice", region: "Midwest", mape: 7.94, forecast: 28013, actual: 27894, over: 1, under: 1},
+            {year: 2021, quarter: 1, category: "Juice", region: "Northeast", mape: 9.69, forecast: 48875, actual: 52063, over: 1, under: 2},
+            {year: 2021, quarter: 1, category: "Juice", region: "West", mape: 4.81, forecast: 12205, actual: 12677, over: 0, under: 2},
+            {year: 2021, quarter: 1, category: "Sparkling Water", region: "Midwest", mape: 9.31, forecast: 58718, actual: 65756, over: 1, under: 3},
+            {year: 2021, quarter: 1, category: "Sparkling Water", region: "Northeast", mape: 12.09, forecast: 68940, actual: 61376, over: 4, under: 0},
+            {year: 2021, quarter: 1, category: "Sparkling Water", region: "Southeast", mape: 10.77, forecast: 34992, actual: 38310, over: 1, under: 1},
+            {year: 2021, quarter: 1, category: "Sparkling Water", region: "West", mape: 5.42, forecast: 116606, actual: 122727, over: 2, under: 5},
+            {year: 2021, quarter: 2, category: "Craft Soda", region: "Midwest", mape: 7.32, forecast: 15589, actual: 14526, over: 2, under: 0},
+            {year: 2021, quarter: 2, category: "Craft Soda", region: "Southeast", mape: 5.77, forecast: 89085, actual: 86158, over: 5, under: 1},
+            {year: 2021, quarter: 2, category: "Craft Soda", region: "West", mape: 3.72, forecast: 17243, actual: 17910, over: 0, under: 1},
+            {year: 2021, quarter: 2, category: "Energy Drink", region: "Southeast", mape: 5.63, forecast: 72578, actual: 70284, over: 3, under: 0},
+            {year: 2021, quarter: 2, category: "Energy Drink", region: "West", mape: 2.76, forecast: 24061, actual: 24146, over: 1, under: 1},
+            {year: 2021, quarter: 2, category: "Juice", region: "Midwest", mape: 3.55, forecast: 22892, actual: 22108, over: 1, under: 0},
+            {year: 2021, quarter: 2, category: "Juice", region: "Southeast", mape: 1.80, forecast: 91535, actual: 91975, over: 3, under: 2},
+            {year: 2021, quarter: 2, category: "Juice", region: "West", mape: 1.95, forecast: 3079, actual: 3020, over: 1, under: 0},
+            {year: 2021, quarter: 2, category: "Sparkling Water", region: "Midwest", mape: 7.09, forecast: 47883, actual: 51084, over: 0, under: 2},
+            {year: 2021, quarter: 2, category: "Sparkling Water", region: "Northeast", mape: 7.25, forecast: 49256, actual: 44959, over: 3, under: 0},
+            {year: 2021, quarter: 2, category: "Sparkling Water", region: "Southeast", mape: 7.17, forecast: 120593, actual: 123207, over: 3, under: 6},
+            {year: 2021, quarter: 2, category: "Sparkling Water", region: "West", mape: 3.00, forecast: 3487, actual: 3595, over: 0, under: 1},
+            {year: 2021, quarter: 3, category: "Craft Soda", region: "Midwest", mape: 3.82, forecast: 77384, actual: 75872, over: 1, under: 2},
+            {year: 2021, quarter: 3, category: "Craft Soda", region: "Southeast", mape: 4.60, forecast: 77214, actual: 79012, over: 3, under: 2},
+            {year: 2021, quarter: 3, category: "Craft Soda", region: "West", mape: 5.08, forecast: 48036, actual: 46070, over: 3, under: 0},
+            {year: 2021, quarter: 3, category: "Energy Drink", region: "Southeast", mape: 8.32, forecast: 27554, actual: 25623, over: 2, under: 0},
+            {year: 2021, quarter: 3, category: "Energy Drink", region: "West", mape: 5.24, forecast: 4340, actual: 4124, over: 1, under: 0},
+            {year: 2021, quarter: 3, category: "Juice", region: "Midwest", mape: 4.13, forecast: 11383, actual: 11873, over: 0, under: 1},
+            {year: 2021, quarter: 3, category: "Juice", region: "Northeast", mape: 0.20, forecast: 17094, actual: 17129, over: 0, under: 1},
+            {year: 2021, quarter: 3, category: "Juice", region: "Southeast", mape: 4.38, forecast: 35348, actual: 36637, over: 0, under: 2},
+            {year: 2021, quarter: 3, category: "Juice", region: "West", mape: 5.73, forecast: 24626, actual: 23399, over: 3, under: 0},
+            {year: 2021, quarter: 3, category: "Sparkling Water", region: "Midwest", mape: 7.01, forecast: 61889, actual: 63880, over: 2, under: 3},
+            {year: 2021, quarter: 3, category: "Sparkling Water", region: "Northeast", mape: 5.10, forecast: 26631, actual: 25371, over: 2, under: 0},
+            {year: 2021, quarter: 3, category: "Sparkling Water", region: "Southeast", mape: 5.55, forecast: 96473, actual: 98076, over: 3, under: 2},
+            {year: 2021, quarter: 3, category: "Sparkling Water", region: "West", mape: 6.82, forecast: 49605, actual: 53068, over: 0, under: 4},
+            {year: 2021, quarter: 4, category: "Craft Soda", region: "Midwest", mape: 18.81, forecast: 67779, actual: 57158, over: 3, under: 0},
+            {year: 2021, quarter: 4, category: "Craft Soda", region: "Northeast", mape: 8.03, forecast: 54127, actual: 50182, over: 3, under: 0},
+            {year: 2021, quarter: 4, category: "Craft Soda", region: "Southeast", mape: 12.89, forecast: 38129, actual: 33708, over: 3, under: 0},
+            {year: 2021, quarter: 4, category: "Craft Soda", region: "West", mape: 7.23, forecast: 84272, actual: 80622, over: 2, under: 2},
+            {year: 2021, quarter: 4, category: "Energy Drink", region: "Midwest", mape: 4.11, forecast: 10406, actual: 10852, over: 0, under: 1},
+            {year: 2021, quarter: 4, category: "Energy Drink", region: "Northeast", mape: 13.21, forecast: 53910, actual: 62114, over: 0, under: 2},
+            {year: 2021, quarter: 4, category: "Energy Drink", region: "West", mape: 3.07, forecast: 17245, actual: 17791, over: 0, under: 1},
+            {year: 2021, quarter: 4, category: "Juice", region: "Midwest", mape: 4.67, forecast: 22193, actual: 23280, over: 0, under: 1},
+            {year: 2021, quarter: 4, category: "Juice", region: "Northeast", mape: 0.88, forecast: 46544, actual: 46706, over: 1, under: 2},
+            {year: 2021, quarter: 4, category: "Juice", region: "Southeast", mape: 3.90, forecast: 6758, actual: 7032, over: 0, under: 2},
+            {year: 2021, quarter: 4, category: "Juice", region: "West", mape: 13.65, forecast: 36433, actual: 34149, over: 1, under: 1},
+            {year: 2021, quarter: 4, category: "Sparkling Water", region: "Midwest", mape: 14.23, forecast: 53330, actual: 51508, over: 3, under: 2},
+            {year: 2021, quarter: 4, category: "Sparkling Water", region: "Northeast", mape: 21.19, forecast: 6720, actual: 5545, over: 1, under: 0},
+            {year: 2021, quarter: 4, category: "Sparkling Water", region: "Southeast", mape: 6.93, forecast: 91281, actual: 98745, over: 0, under: 5},
+            {year: 2021, quarter: 4, category: "Sparkling Water", region: "West", mape: 15.80, forecast: 73784, actual: 67203, over: 4, under: 1},
+            {year: 2022, quarter: 1, category: "Craft Soda", region: "Midwest", mape: 5.85, forecast: 39954, actual: 37895, over: 3, under: 0},
+            {year: 2022, quarter: 1, category: "Craft Soda", region: "Northeast", mape: 2.63, forecast: 17466, actual: 17120, over: 2, under: 0},
+            {year: 2022, quarter: 1, category: "Craft Soda", region: "Southeast", mape: 4.31, forecast: 42261, actual: 44206, over: 1, under: 4},
+            {year: 2022, quarter: 1, category: "Craft Soda", region: "West", mape: 13.75, forecast: 14963, actual: 17637, over: 0, under: 3},
+            {year: 2022, quarter: 1, category: "Energy Drink", region: "Northeast", mape: 4.90, forecast: 65056, actual: 62252, over: 4, under: 0},
+            {year: 2022, quarter: 1, category: "Energy Drink", region: "Southeast", mape: 10.51, forecast: 34619, actual: 32735, over: 3, under: 1},
+            {year: 2022, quarter: 1, category: "Energy Drink", region: "West", mape: 5.17, forecast: 13299, actual: 14053, over: 1, under: 0},
+            {year: 2022, quarter: 1, category: "Juice", region: "Midwest", mape: 5.48, forecast: 31826, actual: 32868, over: 1, under: 2},
+            {year: 2022, quarter: 1, category: "Juice", region: "Northeast", mape: 5.34, forecast: 14652, actual: 14174, over: 1, under: 0},
+            {year: 2022, quarter: 1, category: "Juice", region: "Southeast", mape: 1.22, forecast: 78331, actual: 79297, over: 2, under: 0},
+            {year: 2022, quarter: 1, category: "Juice", region: "West", mape: 3.44, forecast: 5533, actual: 5360, over: 0, under: 1},
+            {year: 2022, quarter: 1, category: "Sparkling Water", region: "Midwest", mape: 9.49, forecast: 35254, actual: 38913, over: 0, under: 2},
+            {year: 2022, quarter: 1, category: "Sparkling Water", region: "Northeast", mape: 13.65, forecast: 87903, actual: 79186, over: 3, under: 2},
+            {year: 2022, quarter: 1, category: "Sparkling Water", region: "Southeast", mape: 9.35, forecast: 44897, actual: 42215, over: 2, under: 2},
+            {year: 2022, quarter: 1, category: "Sparkling Water", region: "West", mape: 8.16, forecast: 103754, actual: 112816, over: 2, under: 3},
+            {year: 2022, quarter: 2, category: "Craft Soda", region: "Midwest", mape: 3.34, forecast: 48903, actual: 49789, over: 1, under: 2},
+            {year: 2022, quarter: 2, category: "Craft Soda", region: "Northeast", mape: 11.16, forecast: 10449, actual: 10093, over: 0, under: 1},
+            {year: 2022, quarter: 2, category: "Craft Soda", region: "Southeast", mape: 4.59, forecast: 26604, actual: 28125, over: 1, under: 3},
+            {year: 2022, quarter: 2, category: "Craft Soda", region: "West", mape: 6.85, forecast: 45945, actual: 46931, over: 2, under: 0},
+            {year: 2022, quarter: 2, category: "Energy Drink", region: "Midwest", mape: 9.32, forecast: 7355, actual: 8068, over: 1, under: 0},
+            {year: 2022, quarter: 2, category: "Energy Drink", region: "Northeast", mape: 2.28, forecast: 29008, actual: 28447, over: 1, under: 0},
+            {year: 2022, quarter: 2, category: "Energy Drink", region: "Southeast", mape: 6.78, forecast: 76029, actual: 75095, over: 1, under: 1},
+            {year: 2022, quarter: 2, category: "Energy Drink", region: "West", mape: 6.57, forecast: 49531, actual: 51156, over: 1, under: 1},
+            {year: 2022, quarter: 2, category: "Juice", region: "Midwest", mape: 4.96, forecast: 47223, actual: 46019, over: 1, under: 1},
+            {year: 2022, quarter: 2, category: "Juice", region: "Northeast", mape: 0.36, forecast: 30872, actual: 30802, over: 1, under: 0},
+            {year: 2022, quarter: 2, category: "Juice", region: "Southeast", mape: 3.90, forecast: 41980, actual: 41130, over: 1, under: 1},
+            {year: 2022, quarter: 2, category: "Juice", region: "West", mape: 2.36, forecast: 36024, actual: 35276, over: 2, under: 0},
+            {year: 2022, quarter: 2, category: "Sparkling Water", region: "Midwest", mape: 4.39, forecast: 37265, actual: 38705, over: 1, under: 1},
+            {year: 2022, quarter: 2, category: "Sparkling Water", region: "Northeast", mape: 0.86, forecast: 15046, actual: 15176, over: 1, under: 0},
+            {year: 2022, quarter: 2, category: "Sparkling Water", region: "Southeast", mape: 8.46, forecast: 105405, actual: 99316, over: 2, under: 3},
+            {year: 2022, quarter: 2, category: "Sparkling Water", region: "West", mape: 8.72, forecast: 104934, actual: 101348, over: 3, under: 2},
+            {year: 2022, quarter: 3, category: "Craft Soda", region: "Midwest", mape: 12.16, forecast: 35987, actual: 32905, over: 2, under: 0},
+            {year: 2022, quarter: 3, category: "Craft Soda", region: "Northeast", mape: 7.35, forecast: 15706, actual: 16854, over: 0, under: 1},
+            {year: 2022, quarter: 3, category: "Craft Soda", region: "Southeast", mape: 2.98, forecast: 47108, actual: 46900, over: 2, under: 0},
+            {year: 2022, quarter: 3, category: "Craft Soda", region: "West", mape: 11.72, forecast: 47896, actual: 54118, over: 1, under: 4},
+            {year: 2022, quarter: 3, category: "Energy Drink", region: "Midwest", mape: 11.13, forecast: 36906, actual: 34090, over: 3, under: 0},
+            {year: 2022, quarter: 3, category: "Energy Drink", region: "Northeast", mape: 6.90, forecast: 32556, actual: 34769, over: 1, under: 2},
+            {year: 2022, quarter: 3, category: "Energy Drink", region: "Southeast", mape: 9.88, forecast: 28231, actual: 29912, over: 1, under: 0},
+            {year: 2022, quarter: 3, category: "Energy Drink", region: "West", mape: 3.79, forecast: 24880, actual: 25932, over: 1, under: 0},
+            {year: 2022, quarter: 3, category: "Juice", region: "Midwest", mape: 3.53, forecast: 65872, actual: 64211, over: 1, under: 0},
+            {year: 2022, quarter: 3, category: "Juice", region: "Northeast", mape: 4.70, forecast: 73019, actual: 74919, over: 0, under: 2},
+            {year: 2022, quarter: 3, category: "Juice", region: "Southeast", mape: 9.47, forecast: 39453, actual: 36945, over: 2, under: 0},
+            {year: 2022, quarter: 3, category: "Juice", region: "West", mape: 8.27, forecast: 10823, actual: 11778, over: 0, under: 1},
+            {year: 2022, quarter: 3, category: "Sparkling Water", region: "Midwest", mape: 8.73, forecast: 2634, actual: 2903, over: 0, under: 1},
+            {year: 2022, quarter: 3, category: "Sparkling Water", region: "Northeast", mape: 6.66, forecast: 52047, actual: 50189, over: 2, under: 1},
+            {year: 2022, quarter: 3, category: "Sparkling Water", region: "Southeast", mape: 10.53, forecast: 60213, actual: 67129, over: 1, under: 2},
+            {year: 2022, quarter: 3, category: "Sparkling Water", region: "West", mape: 6.82, forecast: 29862, actual: 30894, over: 1, under: 1},
+            {year: 2022, quarter: 4, category: "Craft Soda", region: "Midwest", mape: 6.11, forecast: 48934, actual: 47163, over: 2, under: 0},
+            {year: 2022, quarter: 4, category: "Craft Soda", region: "Northeast", mape: 4.64, forecast: 26738, actual: 25898, over: 1, under: 0},
+            {year: 2022, quarter: 4, category: "Craft Soda", region: "Southeast", mape: 8.01, forecast: 35241, actual: 36846, over: 0, under: 2},
+            {year: 2022, quarter: 4, category: "Craft Soda", region: "West", mape: 5.64, forecast: 36532, actual: 36905, over: 2, under: 1},
+            {year: 2022, quarter: 4, category: "Energy Drink", region: "Midwest", mape: 3.98, forecast: 44905, actual: 44379, over: 1, under: 0},
+            {year: 2022, quarter: 4, category: "Energy Drink", region: "Northeast", mape: 6.51, forecast: 39231, actual: 41806, over: 1, under: 2},
+            {year: 2022, quarter: 4, category: "Energy Drink", region: "Southeast", mape: 5.60, forecast: 14874, actual: 15937, over: 0, under: 1},
+            {year: 2022, quarter: 4, category: "Energy Drink", region: "West", mape: 8.84, forecast: 49087, actual: 48104, over: 2, under: 1},
+            {year: 2022, quarter: 4, category: "Juice", region: "Midwest", mape: 4.53, forecast: 51248, actual: 50284, over: 1, under: 0},
+            {year: 2022, quarter: 4, category: "Juice", region: "Northeast", mape: 7.25, forecast: 50159, actual: 51872, over: 0, under: 1},
+            {year: 2022, quarter: 4, category: "Juice", region: "Southeast", mape: 2.85, forecast: 21234, actual: 20753, over: 1, under: 0},
+            {year: 2022, quarter: 4, category: "Juice", region: "West", mape: 5.42, forecast: 56820, actual: 58074, over: 1, under: 2},
+            {year: 2022, quarter: 4, category: "Sparkling Water", region: "Midwest", mape: 5.79, forecast: 34627, actual: 36789, over: 1, under: 2},
+            {year: 2022, quarter: 4, category: "Sparkling Water", region: "Northeast", mape: 10.09, forecast: 71231, actual: 68124, over: 2, under: 0},
+            {year: 2022, quarter: 4, category: "Sparkling Water", region: "Southeast", mape: 6.54, forecast: 53489, actual: 52145, over: 1, under: 1},
+            {year: 2022, quarter: 4, category: "Sparkling Water", region: "West", mape: 3.21, forecast: 56478, actual: 57632, over: 2, under: 1},
+            {year: 2023, quarter: 1, category: "Craft Soda", region: "Midwest", mape: 8.89, forecast: 22871, actual: 21087, over: 2, under: 0},
+            {year: 2023, quarter: 1, category: "Craft Soda", region: "Northeast", mape: 9.58, forecast: 19875, actual: 18147, over: 3, under: 0},
+            {year: 2023, quarter: 1, category: "Craft Soda", region: "Southeast", mape: 10.01, forecast: 17032, actual: 18963, over: 0, under: 2},
+            {year: 2023, quarter: 1, category: "Craft Soda", region: "West", mape: 7.26, forecast: 24056, actual: 24912, over: 0, under: 1},
+            {year: 2023, quarter: 1, category: "Energy Drink", region: "Midwest", mape: 2.80, forecast: 19045, actual: 19561, over: 0, under: 2},
+            {year: 2023, quarter: 1, category: "Energy Drink", region: "Northeast", mape: 5.12, forecast: 45287, actual: 43915, over: 2, under: 0},
+            {year: 2023, quarter: 1, category: "Energy Drink", region: "Southeast", mape: 7.34, forecast: 38092, actual: 36874, over: 3, under: 0},
+            {year: 2023, quarter: 1, category: "Energy Drink", region: "West", mape: 4.18, forecast: 29405, actual: 30652, over: 0, under: 1},
+            {year: 2023, quarter: 1, category: "Juice", region: "Midwest", mape: 2.86, forecast: 35678, actual: 35429, over: 1, under: 0},
+            {year: 2023, quarter: 1, category: "Juice", region: "Northeast", mape: 3.25, forecast: 29634, actual: 30456, over: 0, under: 2},
+            {year: 2023, quarter: 1, category: "Juice", region: "Southeast", mape: 5.09, forecast: 47239, actual: 46123, over: 1, under: 1},
+            {year: 2023, quarter: 1, category: "Juice", region: "West", mape: 6.78, forecast: 20345, actual: 19876, over: 2, under: 0},
+            {year: 2023, quarter: 1, category: "Sparkling Water", region: "Midwest", mape: 3.22, forecast: 54231, actual: 55876, over: 0, under: 3},
+            {year: 2023, quarter: 1, category: "Sparkling Water", region: "Northeast", mape: 9.87, forecast: 46798, actual: 43456, over: 2, under: 0},
+            {year: 2023, quarter: 1, category: "Sparkling Water", region: "Southeast", mape: 4.56, forecast: 31457, actual: 32891, over: 1, under: 0},
+            {year: 2023, quarter: 1, category: "Sparkling Water", region: "West", mape: 8.34, forecast: 72345, actual: 68923, over: 3, under: 0},
+            {year: 2023, quarter: 2, category: "Craft Soda", region: "Midwest", mape: 3.45, forecast: 56234, actual: 55123, over: 1, under: 0},
+            {year: 2023, quarter: 2, category: "Craft Soda", region: "Northeast", mape: 5.67, forecast: 32145, actual: 31234, over: 2, under: 0},
+            {year: 2023, quarter: 2, category: "Craft Soda", region: "Southeast", mape: 7.89, forecast: 43210, actual: 42345, over: 1, under: 1},
+            {year: 2023, quarter: 2, category: "Craft Soda", region: "West", mape: 4.32, forecast: 28934, actual: 29876, over: 0, under: 1},
+            {year: 2023, quarter: 2, category: "Energy Drink", region: "Midwest", mape: 4.56, forecast: 25634, actual: 26543, over: 1, under: 1},
+            {year: 2023, quarter: 2, category: "Energy Drink", region: "Northeast", mape: 3.21, forecast: 38901, actual: 39876, over: 0, under: 1},
+            {year: 2023, quarter: 2, category: "Energy Drink", region: "Southeast", mape: 6.78, forecast: 21345, actual: 20876, over: 2, under: 0},
+            {year: 2023, quarter: 2, category: "Energy Drink", region: "West", mape: 5.43, forecast: 45678, actual: 46234, over: 1, under: 1},
+            {year: 2023, quarter: 2, category: "Juice", region: "Midwest", mape: 3.21, forecast: 32156, actual: 31234, over: 1, under: 0},
+            {year: 2023, quarter: 2, category: "Juice", region: "Northeast", mape: 4.56, forecast: 41234, actual: 40123, over: 2, under: 0},
+            {year: 2023, quarter: 2, category: "Juice", region: "Southeast", mape: 2.34, forecast: 36789, actual: 37654, over: 0, under: 1},
+            {year: 2023, quarter: 2, category: "Juice", region: "West", mape: 5.67, forecast: 28934, actual: 28123, over: 1, under: 1},
+            {year: 2023, quarter: 2, category: "Sparkling Water", region: "Midwest", mape: 1.34, forecast: 67890, actual: 68234, over: 0, under: 1},
+            {year: 2023, quarter: 2, category: "Sparkling Water", region: "Northeast", mape: 8.23, forecast: 34567, actual: 33456, over: 1, under: 0},
+            {year: 2023, quarter: 2, category: "Sparkling Water", region: "Southeast", mape: 7.65, forecast: 56234, actual: 55123, over: 2, under: 1},
+            {year: 2023, quarter: 2, category: "Sparkling Water", region: "West", mape: 3.45, forecast: 82345, actual: 83456, over: 1, under: 2},
+            {year: 2023, quarter: 3, category: "Craft Soda", region: "Midwest", mape: 2.10, forecast: 48765, actual: 49123, over: 1, under: 0},
+            {year: 2023, quarter: 3, category: "Craft Soda", region: "Northeast", mape: 6.43, forecast: 25678, actual: 24567, over: 2, under: 0},
+            {year: 2023, quarter: 3, category: "Craft Soda", region: "Southeast", mape: 3.21, forecast: 37654, actual: 38234, over: 0, under: 1},
+            {year: 2023, quarter: 3, category: "Craft Soda", region: "West", mape: 8.76, forecast: 45321, actual: 43456, over: 2, under: 1},
+            {year: 2023, quarter: 3, category: "Energy Drink", region: "Midwest", mape: 5.43, forecast: 32145, actual: 31456, over: 1, under: 0},
+            {year: 2023, quarter: 3, category: "Energy Drink", region: "Northeast", mape: 7.21, forecast: 28934, actual: 27654, over: 2, under: 0},
+            {year: 2023, quarter: 3, category: "Energy Drink", region: "Southeast", mape: 2.65, forecast: 18765, actual: 19234, over: 1, under: 0},
+            {year: 2023, quarter: 3, category: "Energy Drink", region: "West", mape: 4.32, forecast: 38901, actual: 38234, over: 0, under: 1},
+            {year: 2023, quarter: 3, category: "Juice", region: "Midwest", mape: 1.78, forecast: 51234, actual: 51876, over: 0, under: 1},
+            {year: 2023, quarter: 3, category: "Juice", region: "Northeast", mape: 5.67, forecast: 34567, actual: 33456, over: 1, under: 0},
+            {year: 2023, quarter: 3, category: "Juice", region: "Southeast", mape: 4.34, forecast: 46789, actual: 47234, over: 0, under: 1},
+            {year: 2023, quarter: 3, category: "Juice", region: "West", mape: 3.21, forecast: 32145, actual: 32876, over: 1, under: 0},
+            {year: 2023, quarter: 3, category: "Sparkling Water", region: "Midwest", mape: 6.54, forecast: 43210, actual: 42345, over: 1, under: 1},
+            {year: 2023, quarter: 3, category: "Sparkling Water", region: "Northeast", mape: 4.32, forecast: 28901, actual: 29876, over: 0, under: 1},
+            {year: 2023, quarter: 3, category: "Sparkling Water", region: "Southeast", mape: 9.87, forecast: 35678, actual: 34123, over: 2, under: 0},
+            {year: 2023, quarter: 3, category: "Sparkling Water", region: "West", mape: 5.65, forecast: 51234, actual: 52345, over: 0, under: 2},
+            {year: 2023, quarter: 4, category: "Craft Soda", region: "Midwest", mape: 7.23, forecast: 38765, actual: 37654, over: 2, under: 0},
+            {year: 2023, quarter: 4, category: "Craft Soda", region: "Northeast", mape: 3.45, forecast: 29876, actual: 30567, over: 1, under: 0},
+            {year: 2023, quarter: 4, category: "Craft Soda", region: "Southeast", mape: 6.78, forecast: 42345, actual: 41234, over: 1, under: 1},
+            {year: 2023, quarter: 4, category: "Craft Soda", region: "West", mape: 5.12, forecast: 36890, actual: 37456, over: 1, under: 0},
+            {year: 2023, quarter: 4, category: "Energy Drink", region: "Midwest", mape: 4.65, forecast: 35678, actual: 34567, over: 1, under: 0},
+            {year: 2023, quarter: 4, category: "Energy Drink", region: "Northeast", mape: 2.34, forecast: 42134, actual: 42876, over: 0, under: 1},
+            {year: 2023, quarter: 4, category: "Energy Drink", region: "Southeast", mape: 6.78, forecast: 28934, actual: 28123, over: 1, under: 1},
+            {year: 2023, quarter: 4, category: "Energy Drink", region: "West", mape: 7.65, forecast: 38123, actual: 36456, over: 2, under: 0},
+            {year: 2023, quarter: 4, category: "Juice", region: "Midwest", mape: 2.34, forecast: 45678, actual: 46234, over: 0, under: 1},
+            {year: 2023, quarter: 4, category: "Juice", region: "Northeast", mape: 6.54, forecast: 38901, actual: 37234, over: 2, under: 0},
+            {year: 2023, quarter: 4, category: "Juice", region: "Southeast", mape: 3.21, forecast: 51234, actual: 52456, over: 1, under: 1},
+            {year: 2023, quarter: 4, category: "Juice", region: "West", mape: 4.87, forecast: 35678, actual: 34567, over: 1, under: 0},
+            {year: 2023, quarter: 4, category: "Sparkling Water", region: "Midwest", mape: 5.43, forecast: 52345, actual: 51234, over: 1, under: 1},
+            {year: 2023, quarter: 4, category: "Sparkling Water", region: "Northeast", mape: 3.21, forecast: 39876, actual: 40567, over: 1, under: 0},
+            {year: 2023, quarter: 4, category: "Sparkling Water", region: "Southeast", mape: 8.54, forecast: 46789, actual: 45234, over: 1, under: 1},
+            {year: 2023, quarter: 4, category: "Sparkling Water", region: "West", mape: 6.78, forecast: 63456, actual: 62345, over: 2, under: 1},
+            {year: 2024, quarter: 1, category: "Craft Soda", region: "Midwest", mape: 4.32, forecast: 32145, actual: 33456, over: 1, under: 0},
+            {year: 2024, quarter: 1, category: "Craft Soda", region: "Northeast", mape: 5.67, forecast: 28934, actual: 27654, over: 1, under: 0},
+            {year: 2024, quarter: 1, category: "Craft Soda", region: "Southeast", mape: 2.13, forecast: 45678, actual: 46234, over: 0, under: 1},
+            {year: 2024, quarter: 1, category: "Craft Soda", region: "West", mape: 6.87, forecast: 38901, actual: 37234, over: 2, under: 0},
+            {year: 2024, quarter: 1, category: "Energy Drink", region: "Midwest", mape: 3.45, forecast: 26543, actual: 27654, over: 0, under: 1},
+            {year: 2024, quarter: 1, category: "Energy Drink", region: "Northeast", mape: 7.23, forecast: 35678, actual: 34123, over: 2, under: 0},
+            {year: 2024, quarter: 1, category: "Energy Drink", region: "Southeast", mape: 4.56, forecast: 32145, actual: 31234, over: 1, under: 0},
+            {year: 2024, quarter: 1, category: "Energy Drink", region: "West", mape: 2.10, forecast: 42134, actual: 43456, over: 0, under: 1},
+            {year: 2024, quarter: 1, category: "Juice", region: "Midwest", mape: 5.34, forecast: 48765, actual: 48123, over: 1, under: 0},
+            {year: 2024, quarter: 1, category: "Juice", region: "Northeast", mape: 3.21, forecast: 35678, actual: 36234, over: 0, under: 1},
+            {year: 2024, quarter: 1, category: "Juice", region: "Southeast", mape: 6.78, forecast: 42345, actual: 41234, over: 2, under: 0},
+            {year: 2024, quarter: 1, category: "Juice", region: "West", mape: 4.56, forecast: 29876, actual: 30567, over: 1, under: 0},
+            {year: 2024, quarter: 1, category: "Sparkling Water", region: "Midwest", mape: 7.65, forecast: 35678, actual: 34567, over: 1, under: 1},
+            {year: 2024, quarter: 1, category: "Sparkling Water", region: "Northeast", mape: 2.34, forecast: 48765, actual: 49876, over: 0, under: 1},
+            {year: 2024, quarter: 1, category: "Sparkling Water", region: "Southeast", mape: 5.43, forecast: 38901, actual: 39876, over: 1, under: 0},
+            {year: 2024, quarter: 1, category: "Sparkling Water", region: "West", mape: 8.12, forecast: 52345, actual: 50876, over: 2, under: 0},
+            {year: 2024, quarter: 2, category: "Craft Soda", region: "Midwest", mape: 3.21, forecast: 45321, actual: 46234, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Craft Soda", region: "Northeast", mape: 6.54, forecast: 32145, actual: 31234, over: 1, under: 1},
+            {year: 2024, quarter: 2, category: "Craft Soda", region: "Southeast", mape: 4.87, forecast: 38765, actual: 37654, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Craft Soda", region: "West", mape: 5.12, forecast: 28934, actual: 29567, over: 0, under: 1},
+            {year: 2024, quarter: 2, category: "Energy Drink", region: "Midwest", mape: 2.43, forecast: 35678, actual: 36543, over: 0, under: 1},
+            {year: 2024, quarter: 2, category: "Energy Drink", region: "Northeast", mape: 5.67, forecast: 42134, actual: 40876, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Energy Drink", region: "Southeast", mape: 3.45, forecast: 28901, actual: 29876, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Energy Drink", region: "West", mape: 4.32, forecast: 38765, actual: 39654, over: 0, under: 1},
+            {year: 2024, quarter: 2, category: "Juice", region: "Midwest", mape: 6.78, forecast: 34567, actual: 33456, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Juice", region: "Northeast", mape: 2.13, forecast: 45678, actual: 46234, over: 0, under: 1},
+            {year: 2024, quarter: 2, category: "Juice", region: "Southeast", mape: 7.23, forecast: 32145, actual: 31234, over: 1, under: 1},
+            {year: 2024, quarter: 2, category: "Juice", region: "West", mape: 3.45, forecast: 38901, actual: 39876, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Sparkling Water", region: "Midwest", mape: 4.56, forecast: 42134, actual: 41765, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Sparkling Water", region: "Northeast", mape: 8.87, forecast: 28901, actual: 27234, over: 1, under: 0},
+            {year: 2024, quarter: 2, category: "Sparkling Water", region: "Southeast", mape: 3.21, forecast: 45678, actual: 46543, over: 0, under: 1},
+            {year: 2024, quarter: 2, category: "Sparkling Water", region: "West", mape: 6.54, forecast: 38765, actual: 37654, over: 1, under: 1}
+        ];
+
+        let charts = {};
+        let filteredData = [...forecastData];
+
+        // Initialize filters
+        function initializeFilters() {
+            const years = [...new Set(forecastData.map(d => d.year))].sort((a, b) => a - b);
+            const categories = [...new Set(forecastData.map(d => d.category))].sort();
+            const regions = [...new Set(forecastData.map(d => d.region))].sort();
+
+            const yearSelect = document.getElementById('yearFilter');
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+
+            const categorySelect = document.getElementById('categoryFilter');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+
+            const regionSelect = document.getElementById('regionFilter');
+            regions.forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                regionSelect.appendChild(option);
+            });
+        }
+
+        // Apply filters
+        function updateInsights() {
+            if (filteredData.length === 0) {
+                document.getElementById('insightsContent').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                document.getElementById('focusAreas').innerHTML = '<p style="color:#9B999B;">No data available for selected filters</p>';
+                return;
+            }
+
+            // Calculate metrics
+            const avgMape = filteredData.reduce((sum, d) => sum + d.mape, 0) / filteredData.length;
+            const forecastAccuracy = 100 - avgMape;
+            const totalForecast = filteredData.reduce((sum, d) => sum + d.forecast, 0);
+            const totalActual = filteredData.reduce((sum, d) => sum + d.actual, 0);
+            const forecastBias = totalActual > 0 ? ((totalForecast - totalActual) / totalActual) * 100 : 0;
+
+            // Category analysis
+            const categoryStats = {};
+            filteredData.forEach(d => {
+                if (!categoryStats[d.category]) {
+                    categoryStats[d.category] = { mapes: [] };
+                }
+                categoryStats[d.category].mapes.push(d.mape);
+            });
+
+            // Get category averages
+            const categoryMapes = Object.entries(categoryStats).map(([cat, data]) => ({
+                category: cat,
+                avgMape: data.mapes.reduce((a, b) => a + b, 0) / data.mapes.length
+            }));
+
+            // Find best and worst categories
+            const bestCategory = categoryMapes.reduce((a, b) => a.avgMape < b.avgMape ? a : b);
+            const worstCategory = categoryMapes.reduce((a, b) => a.avgMape > b.avgMape ? a : b);
+
+            // Region analysis
+            const regionStats = {};
+            filteredData.forEach(d => {
+                if (!regionStats[d.region]) {
+                    regionStats[d.region] = { mapes: [] };
+                }
+                regionStats[d.region].mapes.push(d.mape);
+            });
+
+            const regionMapes = Object.entries(regionStats).map(([region, data]) => ({
+                region: region,
+                avgMape: data.mapes.reduce((a, b) => a + b, 0) / data.mapes.length
+            }));
+
+            const worstRegion = regionMapes.reduce((a, b) => a.avgMape > b.avgMape ? a : b);
+
+            // Determine assessments
+            const mapeAssessment = avgMape < 5 ? 'excellent' : avgMape < 10 ? 'acceptable' : 'needs improvement';
+            const biasDirection = Math.abs(forecastBias) < 2 ? 'balanced' : forecastBias > 0 ? 'systematically over-forecasting' : 'systematically under-forecasting';
+
+            // Generate insights HTML
+            const insightsHTML = `
+                <ul style="margin-left:20px;">
+                    <li style="margin-bottom:10px;">• Overall MAPE is <strong>${avgMape.toFixed(2)}%</strong> (${mapeAssessment} forecast quality)</li>
+                    <li style="margin-bottom:10px;">• Forecast accuracy rate is <strong>${forecastAccuracy.toFixed(1)}%</strong>, indicating prediction reliability</li>
+                    <li style="margin-bottom:10px;">• Best performing category is <strong>${bestCategory.category}</strong> with MAPE of <strong>${bestCategory.avgMape.toFixed(2)}%</strong></li>
+                    <li style="margin-bottom:10px;">• Forecast bias is <strong>${biasDirection}</strong> by ${Math.abs(forecastBias).toFixed(2)}%</li>
+                    <li style="margin-bottom:10px;">• Forecast total of <strong>${totalForecast.toLocaleString()} units</strong> vs actual <strong>${totalActual.toLocaleString()} units</strong></li>
+                </ul>
+            `;
+
+            // Generate focus areas HTML
+            const focusAreasHTML = `
+                <ul style="margin-left:20px;">
+                    ${avgMape > 10 ? `<li style="margin-bottom:8px;">• MAPE is high at ${avgMape.toFixed(2)}% - implement forecast refinement strategies</li>` : ''}
+                    ${worstCategory.avgMape > 12 ? `<li style="margin-bottom:8px;">• ${worstCategory.category} has poor accuracy (${worstCategory.avgMape.toFixed(2)}% MAPE) - review forecasting model</li>` : ''}
+                    ${worstRegion.avgMape > 12 ? `<li style="margin-bottom:8px;">• ${worstRegion.region} region accuracy is low (${worstRegion.avgMape.toFixed(2)}% MAPE) - investigate data quality</li>` : ''}
+                    ${Math.abs(forecastBias) > 5 ? `<li style="margin-bottom:8px;">• Systematic bias of ${Math.abs(forecastBias).toFixed(2)}% detected - ${forecastBias > 0 ? 'reduce overforecasting' : 'reduce underforecasting'}</li>` : ''}
+                </ul>
+            `;
+
+            document.getElementById('insightsContent').innerHTML = insightsHTML;
+            document.getElementById('focusAreas').innerHTML = focusAreasHTML || '<li style="margin-bottom:8px;">• No critical focus areas - forecast accuracy is strong</li>';
+        }
+
+        function applyFilters() {
+            const year = document.getElementById('yearFilter').value;
+            const quarter = document.getElementById('quarterFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            const region = document.getElementById('regionFilter').value;
+
+            filteredData = forecastData.filter(d => {
+                return (year === 'all' || d.year == year) &&
+                       (quarter === 'all' || d.quarter == quarter) &&
+                       (category === 'all' || d.category === category) &&
+                       (region === 'all' || d.region === region);
+            });
+
+            updateKPIs();
+            destroyCharts();
+            createCharts();
+            updateInsights();
+        }
+
+        // Update KPI cards
+        function updateKPIs() {
+            if (filteredData.length === 0) {
+                document.getElementById('overallMape').textContent = '—';
+                document.getElementById('forecastAccuracy').textContent = '—';
+                document.getElementById('totalForecast').textContent = '—';
+                document.getElementById('totalActual').textContent = '—';
+                document.getElementById('forecastBias').textContent = '—';
+                document.getElementById('biasDetail').textContent = 'No data';
+                return;
+            }
+
+            const totalForecast = filteredData.reduce((sum, d) => sum + d.forecast, 0);
+            const totalActual = filteredData.reduce((sum, d) => sum + d.actual, 0);
+            const totalOver = filteredData.reduce((sum, d) => sum + d.over, 0);
+            const totalUnder = filteredData.reduce((sum, d) => sum + d.under, 0);
+
+            // Weighted average MAPE
+            const totalUnits = filteredData.reduce((sum, d) => sum + d.forecast, 0);
+            const weightedMape = filteredData.reduce((sum, d) => sum + (d.mape * d.forecast), 0) / totalUnits;
+
+            document.getElementById('overallMape').textContent = weightedMape.toFixed(2);
+            document.getElementById('forecastAccuracy').textContent = (100 - weightedMape).toFixed(2);
+            document.getElementById('totalForecast').textContent = totalForecast.toLocaleString();
+            document.getElementById('totalActual').textContent = totalActual.toLocaleString();
+
+            // Bias
+            const biasRatio = totalUnder > 0 ? (totalOver / totalUnder).toFixed(2) : totalOver > 0 ? 'Inf' : '1.00';
+            document.getElementById('forecastBias').textContent = biasRatio;
+
+            if (totalOver > totalUnder) {
+                document.getElementById('biasDetail').textContent = 'Over-forecasting';
+            } else if (totalUnder > totalOver) {
+                document.getElementById('biasDetail').textContent = 'Under-forecasting';
+            } else {
+                document.getElementById('biasDetail').textContent = 'Balanced';
+            }
+        }
+
+        // Destroy all charts
+        function destroyCharts() {
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+        }
+
+        // Create all charts
+        function createCharts() {
+            if (filteredData.length === 0) {
+                return;
+            }
+
+            // 1. MAPE Trend Over Time
+            const timeSeriesData = {};
+            filteredData.forEach(d => {
+                const key = `${d.year}-Q${d.quarter}`;
+                if (!timeSeriesData[key]) timeSeriesData[key] = {};
+                if (!timeSeriesData[key][d.category]) {
+                    timeSeriesData[key][d.category] = { mape: 0, count: 0, total: 0 };
+                }
+                timeSeriesData[key][d.category].mape += d.mape;
+                timeSeriesData[key][d.category].total += d.forecast;
+                timeSeriesData[key][d.category].count++;
+            });
+
+            const timeSeriesKeys = Object.keys(timeSeriesData).sort();
+            const categories = [...new Set(filteredData.map(d => d.category))];
+            const chartColors = ['#7CB701', '#95D600', '#FFB800', '#FF4444', '#00BCD4', '#9C27B0', '#FF6F00', '#4CAF50'];
+
+            const trendDatasets = categories.map((cat, idx) => ({
+                label: cat,
+                data: timeSeriesKeys.map(ts => {
+                    const catData = timeSeriesData[ts][cat];
+                    return catData ? (catData.mape / catData.count) : 0;
+                }),
+                borderColor: chartColors[idx % chartColors.length],
+                backgroundColor: chartColors[idx % chartColors.length] + '20',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+                pointBackgroundColor: chartColors[idx % chartColors.length],
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }));
+
+            charts.trends = new Chart(document.getElementById('trendsChart'), {
+                type: 'line',
+                data: {
+                    labels: timeSeriesKeys,
+                    datasets: trendDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF', font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' },
+                            title: { display: true, text: 'MAPE %', color: '#FFFFFF' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+
+            // 2. Forecast vs Actual by Category
+            const categoryComparison = {};
+            filteredData.forEach(d => {
+                if (!categoryComparison[d.category]) {
+                    categoryComparison[d.category] = { forecast: 0, actual: 0 };
+                }
+                categoryComparison[d.category].forecast += d.forecast;
+                categoryComparison[d.category].actual += d.actual;
+            });
+
+            const catLabels = Object.keys(categoryComparison);
+            charts.category = new Chart(document.getElementById('categoryComparisonChart'), {
+                type: 'bar',
+                data: {
+                    labels: catLabels,
+                    datasets: [
+                        {
+                            label: 'Forecast',
+                            data: catLabels.map(c => categoryComparison[c].forecast),
+                            backgroundColor: '#7CB701',
+                            borderColor: '#95D600',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Actual',
+                            data: catLabels.map(c => categoryComparison[c].actual),
+                            backgroundColor: '#95D600',
+                            borderColor: '#7CB701',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        x: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+
+            // 3. MAPE by Region
+            const regionMape = {};
+            filteredData.forEach(d => {
+                if (!regionMape[d.region]) {
+                    regionMape[d.region] = { mape: 0, count: 0 };
+                }
+                regionMape[d.region].mape += d.mape;
+                regionMape[d.region].count++;
+            });
+
+            const regions = Object.keys(regionMape).sort();
+            charts.region = new Chart(document.getElementById('regionMapeChart'), {
+                type: 'bar',
+                data: {
+                    labels: regions,
+                    datasets: [{
+                        label: 'Avg MAPE %',
+                        data: regions.map(r => (regionMape[r].mape / regionMape[r].count).toFixed(2)),
+                        backgroundColor: regions.map((r, i) => chartColors[i % chartColors.length]),
+                        borderColor: '#FFFFFF',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        y: {
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+
+            // 4. Forecast Bias Distribution
+            const biasByCategory = {};
+            filteredData.forEach(d => {
+                if (!biasByCategory[d.category]) {
+                    biasByCategory[d.category] = { over: 0, under: 0 };
+                }
+                biasByCategory[d.category].over += d.over;
+                biasByCategory[d.category].under += d.under;
+            });
+
+            const biasLabels = Object.keys(biasByCategory);
+            charts.bias = new Chart(document.getElementById('biasChart'), {
+                type: 'bar',
+                data: {
+                    labels: biasLabels,
+                    datasets: [
+                        {
+                            label: 'Over-forecast',
+                            data: biasLabels.map(c => biasByCategory[c].over),
+                            backgroundColor: '#FFB800'
+                        },
+                        {
+                            label: 'Under-forecast',
+                            data: biasLabels.map(c => biasByCategory[c].under),
+                            backgroundColor: '#00BCD4'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+
+            // 5. Forecast vs Actual Scatter
+            const scatterPoints = filteredData.map(d => ({
+                x: d.forecast,
+                y: d.actual,
+                category: d.category
+            }));
+
+            const minVal = Math.min(...scatterPoints.map(p => Math.min(p.x, p.y)));
+            const maxVal = Math.max(...scatterPoints.map(p => Math.max(p.x, p.y)));
+
+            charts.scatter = new Chart(document.getElementById('scatterChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: categories.map((cat, idx) => ({
+                        label: cat,
+                        data: scatterPoints.filter(p => p.category === cat).map(p => ({ x: p.x, y: p.y })),
+                        backgroundColor: chartColors[idx % chartColors.length] + '80',
+                        borderColor: chartColors[idx % chartColors.length],
+                        borderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    })).concat({
+                        label: '45° Reference',
+                        data: [{ x: minVal, y: minVal }, { x: maxVal, y: maxVal }],
+                        type: 'line',
+                        borderColor: '#9B999B',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    })
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Forecast Units', color: '#FFFFFF' },
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Actual Units', color: '#FFFFFF' },
+                            ticks: { color: '#9B999B' },
+                            grid: { color: '#2A2A2A' }
+                        }
+                    }
+                }
+            });
+
+            // 6. Heatmap Table
+            updateHeatmap();
+        }
+
+        // Update Heatmap
+        function updateHeatmap() {
+            const years = [...new Set(filteredData.map(d => d.year))].sort((a, b) => a - b);
+            const categories = [...new Set(filteredData.map(d => d.category))].sort();
+
+            const heatmapData = {};
+            filteredData.forEach(d => {
+                if (!heatmapData[d.category]) heatmapData[d.category] = {};
+                if (!heatmapData[d.category][d.year]) {
+                    heatmapData[d.category][d.year] = { mape: 0, count: 0 };
+                }
+                heatmapData[d.category][d.year].mape += d.mape;
+                heatmapData[d.category][d.year].count++;
+            });
+
+            // Header
+            const headerRow = document.getElementById('heatmapHeader');
+            headerRow.innerHTML = '<th style="text-align: left;">Category</th>';
+            years.forEach(year => {
+                const th = document.createElement('th');
+                th.textContent = year;
+                headerRow.appendChild(th);
+            });
+
+            // Body
+            const body = document.getElementById('heatmapBody');
+            body.innerHTML = '';
+            categories.forEach(cat => {
+                const row = document.createElement('tr');
+                const catCell = document.createElement('td');
+                catCell.className = 'heatmap-category-label';
+                catCell.textContent = cat;
+                row.appendChild(catCell);
+
+                years.forEach(year => {
+                    const td = document.createElement('td');
+                    if (heatmapData[cat] && heatmapData[cat][year]) {
+                        const avgMape = heatmapData[cat][year].mape / heatmapData[cat][year].count;
+                        const cellDiv = document.createElement('div');
+                        cellDiv.className = 'heatmap-cell';
+                        cellDiv.textContent = avgMape.toFixed(2);
+
+                        if (avgMape <= 5) {
+                            cellDiv.classList.add('heatmap-good');
+                        } else if (avgMape <= 10) {
+                            cellDiv.classList.add('heatmap-fair');
+                        } else {
+                            cellDiv.classList.add('heatmap-poor');
+                        }
+                        td.appendChild(cellDiv);
+                    } else {
+                        td.textContent = '—';
+                    }
+                    row.appendChild(td);
+                });
+                body.appendChild(row);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('yearFilter').addEventListener('change', applyFilters);
+        document.getElementById('quarterFilter').addEventListener('change', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('regionFilter').addEventListener('change', applyFilters);
+
+        // Initialize
+        initializeFilters();
+        updateKPIs();
+        createCharts();
+    </script>
+</body>
+</html>

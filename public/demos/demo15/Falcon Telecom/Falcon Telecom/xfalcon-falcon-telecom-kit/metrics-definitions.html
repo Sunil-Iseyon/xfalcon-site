@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metrics Definitions | Falcon Telecom</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+    .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .logo-x { color: #E20074; }
+    .logo-f { color: white; }
+    .topbar-title { display: flex; flex-direction: column; }
+    .topbar-title-main { font-size: 16px; font-weight: 600; }
+    .topbar-title-sub { font-size: 12px; color: #94A3B8; }
+    .back-link { color: white; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 32px 24px 60px; }
+    .page-header { text-align: center; margin-bottom: 36px; padding: 32px 20px; background: #fff; border-radius: 12px; border-left: 4px solid #E20074; }
+    .page-header h1 { color: #E20074; font-size: 24px; margin-bottom: 6px; }
+    .page-header p { color: #64748B; font-size: 14px; }
+
+    /* Search */
+    .search-bar { margin-bottom: 28px; }
+    .search-bar input { width: 100%; padding: 12px 18px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+    .search-bar input:focus { border-color: #E20074; }
+
+    /* Category nav */
+    .cat-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+    .cat-btn { padding: 8px 16px; border: 1px solid #E2E8F0; border-radius: 20px; font-size: 13px; font-weight: 500; background: #fff; color: #64748B; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .cat-btn:hover, .cat-btn.active { background: #E20074; color: #fff; border-color: #E20074; }
+
+    /* Category sections */
+    .category { margin-bottom: 32px; }
+    .category-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E20074; }
+    .category-header h2 { color: #E20074; font-size: 18px; font-weight: 700; }
+    .category-header .badge { background: #1D1D2C; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; }
+
+    /* Metric cards */
+    .metric-card { background: #fff; border-radius: 8px; padding: 18px 22px; margin-bottom: 12px; border-left: 3px solid #E2E8F0; transition: border-color 0.2s; }
+    .metric-card:hover { border-left-color: #E20074; }
+    .metric-name { font-size: 15px; font-weight: 700; color: #1D1D2C; margin-bottom: 6px; }
+    .metric-def { font-size: 14px; color: #475569; line-height: 1.55; margin-bottom: 8px; }
+    .metric-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; }
+    .tag-source { background: #EFF6FF; color: #1E40AF; }
+    .tag-unit { background: #F0FDF4; color: #166534; }
+    .tag-formula { background: #FEF3C7; color: #92400E; }
+    .tag-dash { background: #F3F4F6; color: #475569; }
+
+    .no-results { text-align: center; padding: 40px; color: #94A3B8; font-size: 15px; display: none; }
+
+    .footer { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px 12px; }
+      .metric-meta { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="topbar-title">
+        <div class="topbar-title-main">Falcon Telecom / Metrics Definitions</div>
+        <div class="topbar-title-sub">Analytics Suite Reference Guide</div>
+      </div>
+    </div>
+    <a class="back-link" href="index.html">&larr; Back to Portal</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Metrics &amp; KPI Definitions</h1>
+      <p>Standardized definitions for all metrics used across the Falcon Telecom Analytics Suite. All monetary values in INR (₹). Fiscal year: April–March.</p>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search metrics (e.g. ARPU, churn, revenue, throughput)..." oninput="filterMetrics()">
+    </div>
+
+    <div class="cat-nav" id="catNav"></div>
+
+    <div id="metricsContainer"></div>
+    <div class="no-results" id="noResults">No metrics found matching your search.</div>
+
+    <div class="footer">
+      Falcon Telecom Analytics Suite &mdash; Metrics Definitions v1.0 &mdash; Powered by xFalcon AnalyticsPro
+    </div>
+  </div>
+
+  <script>
+    var METRICS = [
+      // ─── Revenue & Financial ───
+      {cat: 'Revenue & Financial', name: 'Total Revenue', def: 'Sum of all billed amounts including base plan charges, overage fees, roaming charges, add-on purchases, and taxes, minus any credits applied. Represents gross billed revenue before adjustments.', unit: '₹ (Crore or Lakh)', formula: 'SUM(base_amount + overage_charges + roaming_charges + addon_charges + tax_amount - credit_amount)', dashboards: ['01-Executive Overview', '07-Billing & Payments', '09-Regional Performance']},
+      {cat: 'Revenue & Financial', name: 'ARPU (Average Revenue Per User)', def: 'Average monthly revenue generated per active subscriber. Calculated by dividing total monthly revenue by the number of active subscribers in that period. A key indicator of revenue efficiency and pricing power.', unit: '₹', formula: 'Total Monthly Revenue / Active Subscribers', dashboards: ['01-Executive Overview', '02-Revenue & ARPU', '07-Billing & Payments', '09-Regional Performance']},
+      {cat: 'Revenue & Financial', name: 'Base Revenue', def: 'Revenue generated from recurring monthly plan charges (Prepaid recharges and Postpaid plan fees). Excludes one-time charges, overages, and add-ons.', unit: '₹', formula: 'SUM(base_amount)', dashboards: ['02-Revenue & ARPU', '07-Billing & Payments']},
+      {cat: 'Revenue & Financial', name: 'Overage Revenue', def: 'Revenue from charges incurred when a subscriber exceeds their plan allowance for data, voice minutes, or SMS. Indicates plan adequacy and upsell opportunity.', unit: '₹', formula: 'SUM(overage_charges)', dashboards: ['02-Revenue & ARPU', '07-Billing & Payments']},
+      {cat: 'Revenue & Financial', name: 'Roaming Revenue', def: 'Revenue from subscribers using the network while outside their home circle via partner carrier agreements. Includes both data and voice roaming charges.', unit: '₹', formula: 'SUM(roaming_charges)', dashboards: ['01-Executive Overview', '08-Roaming Analysis']},
+      {cat: 'Revenue & Financial', name: 'Add-On Revenue', def: 'Revenue from optional supplementary packs purchased by subscribers on top of their base plan (e.g. data boosters, international calling packs, OTT bundles).', unit: '₹', formula: 'SUM(addon_charges)', dashboards: ['01-Executive Overview', '02-Revenue & ARPU']},
+      {cat: 'Revenue & Financial', name: 'Tax Collected', def: 'Total GST and other statutory taxes collected on subscriber bills. Passed through to government; included in gross billed but not in net revenue.', unit: '₹', formula: 'SUM(tax_amount)', dashboards: ['07-Billing & Payments']},
+      {cat: 'Revenue & Financial', name: 'Credits Applied', def: 'Monetary adjustments credited back to subscriber accounts due to service outages, billing errors, loyalty rewards, or promotional offers.', unit: '₹', formula: 'SUM(credit_amount)', dashboards: ['07-Billing & Payments']},
+      {cat: 'Revenue & Financial', name: 'LTV (Lifetime Value)', def: 'Estimated total revenue a subscriber will generate over their entire relationship with Falcon Telecom. Calculated from historical billing data up to the current date for active subscribers, or total billed for churned subscribers.', unit: '₹', formula: 'SUM(total_billed) per subscriber over lifetime', dashboards: ['04-Churn Analysis', '06-5G Adoption', '10-Customer Segments', '11-Device Analytics']},
+      {cat: 'Revenue & Financial', name: 'Revenue per Circle', def: 'Average revenue generated per TRAI-defined telecom circle. Indicates geographic revenue concentration.', unit: '₹', formula: 'Total Revenue / Number of Active Circles', dashboards: ['09-Regional Performance']},
+      {cat: 'Revenue & Financial', name: 'Avg Revenue per Session (Roaming)', def: 'Average revenue generated per individual roaming session. A session is one continuous period of network usage on a partner carrier.', unit: '₹', formula: 'Total Roaming Revenue / Total Roaming Sessions', dashboards: ['08-Roaming Analysis']},
+
+      // ─── Subscriber Metrics ───
+      {cat: 'Subscriber Metrics', name: 'Active Subscribers', def: 'Total number of subscribers with an active connection (not churned or suspended) at the end of the reporting period. Includes both Prepaid and Postpaid.', unit: 'Count', formula: 'COUNT(subscribers WHERE status = Active)', dashboards: ['01-Executive Overview', '03-Subscriber Lifecycle']},
+      {cat: 'Subscriber Metrics', name: 'Net Additions', def: 'Net change in subscriber base during the period. Positive value indicates growth. Does not account for upgrades/downgrades, only new activations minus churns.', unit: 'Count', formula: 'Activations - Churns', dashboards: ['01-Executive Overview', '03-Subscriber Lifecycle']},
+      {cat: 'Subscriber Metrics', name: 'Total Activations', def: 'Number of new subscribers who activated a connection during the reporting period. Includes new-to-network and re-activations, across all channels (App, Store, IVR, Web, Partner).', unit: 'Count', formula: 'COUNT(lifecycle_events WHERE event_type = Activation)', dashboards: ['03-Subscriber Lifecycle']},
+      {cat: 'Subscriber Metrics', name: 'Total Churns', def: 'Number of subscribers who disconnected during the reporting period, whether voluntary (subscriber-initiated) or involuntary (non-payment, fraud). Includes port-outs to competitors.', unit: 'Count', formula: 'COUNT(lifecycle_events WHERE event_type = Churn)', dashboards: ['03-Subscriber Lifecycle', '04-Churn Analysis']},
+      {cat: 'Subscriber Metrics', name: 'Port-In', def: 'Number of subscribers who transferred their mobile number from a competitor to Falcon Telecom via the MNP (Mobile Number Portability) process.', unit: 'Count', formula: 'COUNT(lifecycle_events WHERE event_type = Port-In)', dashboards: ['03-Subscriber Lifecycle', '11-Competitive Landscape']},
+      {cat: 'Subscriber Metrics', name: 'Port-Out', def: 'Number of subscribers who transferred their mobile number from Falcon Telecom to a competitor carrier. A direct measure of competitive loss.', unit: 'Count', formula: 'COUNT(lifecycle_events WHERE event_type = Port-Out)', dashboards: ['03-Subscriber Lifecycle', '11-Competitive Landscape']},
+      {cat: 'Subscriber Metrics', name: 'Upgrade Rate', def: 'Percentage of active subscribers who moved to a higher-value plan during the period. Indicates successful upselling and improving customer value.', unit: '%', formula: '(Upgrades / Active Subscribers) * 100', dashboards: ['03-Subscriber Lifecycle']},
+      {cat: 'Subscriber Metrics', name: 'Downgrade Rate', def: 'Percentage of active subscribers who moved to a lower-value plan during the period. May signal pricing pressure or reduced engagement.', unit: '%', formula: '(Downgrades / Active Subscribers) * 100', dashboards: ['03-Subscriber Lifecycle']},
+      {cat: 'Subscriber Metrics', name: 'Avg Tenure', def: 'Average number of months a subscriber has been active on the Falcon Telecom network. Measured from activation date to the reporting date (or churn date for churned subscribers).', unit: 'Months', formula: 'AVG(months_since_activation)', dashboards: ['04-Churn Analysis', '10-Customer Segments']},
+
+      // ─── Churn Metrics ───
+      {cat: 'Churn Metrics', name: 'Overall Churn Rate', def: 'Percentage of the total subscriber base that churned during the reporting period. The primary measure of subscriber retention health.', unit: '%', formula: '(Total Churned / Total Subscribers) * 100', dashboards: ['01-Executive Overview', '04-Churn Analysis']},
+      {cat: 'Churn Metrics', name: 'Segment Churn Rate', def: 'Churn rate calculated within a specific customer segment (Mass Market, Mid Market, Premium, Corporate). Allows comparison of retention across value tiers.', unit: '%', formula: '(Segment Churns / Segment Total Subscribers) * 100', dashboards: ['04-Churn Analysis', '10-Customer Segments']},
+      {cat: 'Churn Metrics', name: 'Involuntary Churn', def: 'Percentage of total churns attributed to non-subscriber-initiated causes, classified as churns with reason "Service issues" or "Network quality". Distinguished from voluntary churn (Price, Better offer, etc).', unit: '%', formula: '(Service Issues Churns + Network Quality Churns) / Total Churns * 100', dashboards: ['04-Churn Analysis']},
+      {cat: 'Churn Metrics', name: 'Churn Reason', def: 'Self-reported or agent-recorded reason for subscriber churn. Categories: Price, Network quality, Better competitor offer, Service issues, Device upgrade, Corporate switch, Relocation, Unknown.', unit: 'Category', formula: 'Categorical from DIM_SUBSCRIBER.churn_reason', dashboards: ['04-Churn Analysis']},
+      {cat: 'Churn Metrics', name: 'Avg LTV at Risk', def: 'Average lifetime value of subscribers who churned during the period. Indicates the revenue impact per lost subscriber and helps prioritize retention investments.', unit: '₹', formula: 'AVG(ltv) WHERE subscriber is churned', dashboards: ['04-Churn Analysis']},
+
+      // ─── Network Quality ───
+      {cat: 'Network Quality', name: 'Call Drop Rate', def: 'Proportion of initiated voice calls that were abnormally terminated before the calling party ended the call. A TRAI-regulated quality metric; lower is better.', unit: 'Ratio (0–1)', formula: 'AVG(call_drop_rate) from FACT_USAGE', dashboards: ['05-Network Quality']},
+      {cat: 'Network Quality', name: 'Avg Throughput', def: 'Average data transfer speed experienced by subscribers on the network. Measured in megabits per second. Varies by technology (3G/4G/5G) and congestion levels.', unit: 'Mbps', formula: 'AVG(avg_throughput_mbps) from FACT_USAGE', dashboards: ['05-Network Quality']},
+      {cat: 'Network Quality', name: 'Signal Strength', def: 'Average received signal power measured at subscriber devices, expressed in decibels relative to one milliwatt. Typical range: -70 dBm (strong) to -110 dBm (weak).', unit: 'dBm', formula: 'AVG(signal_strength_dbm) from FACT_USAGE', dashboards: ['05-Network Quality']},
+      {cat: 'Network Quality', name: 'Total Data Consumed', def: 'Aggregate data usage across all subscribers during the reporting period. Measured in terabytes (TB) at the network level or gigabytes (GB) per subscriber.', unit: 'TB / GB', formula: 'SUM(data_usage_gb) from FACT_USAGE', dashboards: ['01-Executive Overview', '05-Network Quality']},
+      {cat: 'Network Quality', name: 'Total Towers', def: 'Total number of cell towers (base stations) deployed across the network footprint, spanning all technologies (3G, 4G, 5G).', unit: 'Count', formula: 'COUNT(*) from DIM_TOWER', dashboards: ['05-Network Quality']},
+      {cat: 'Network Quality', name: '4G Coverage %', def: 'Percentage of total tower infrastructure running 4G (LTE) technology. Indicates network modernization progress.', unit: '%', formula: '(4G Towers / Total Towers) * 100', dashboards: ['05-Network Quality']},
+      {cat: 'Network Quality', name: 'Network Uptime Proxy', def: 'Estimated network availability derived from the inverse of the call drop rate. Not a direct uptime measurement but a serviceable proxy from available data.', unit: '%', formula: '(1 - Avg Call Drop Rate) * 100', dashboards: ['05-Network Quality']},
+
+      // ─── 5G Metrics ───
+      {cat: '5G Metrics', name: '5G Subscribers', def: 'Number of subscribers using devices with 5G capability (5G Premium or 5G Flagship tier). Does not guarantee the subscriber is connected to a 5G tower.', unit: 'Count', formula: 'COUNT(subscribers WHERE device_tier IN (5G Premium, 5G Flagship))', dashboards: ['06-5G Adoption']},
+      {cat: '5G Metrics', name: '5G Penetration', def: 'Percentage of total subscriber base using 5G-capable devices. A measure of device ecosystem readiness for 5G services.', unit: '%', formula: '(5G Subscribers / Total Subscribers) * 100', dashboards: ['06-5G Adoption']},
+      {cat: '5G Metrics', name: '5G Towers', def: 'Number of cell towers equipped with 5G NR (New Radio) technology. Determines actual 5G network coverage and capacity.', unit: 'Count', formula: 'COUNT(towers WHERE technology = 5G)', dashboards: ['05-Network Quality', '06-5G Adoption']},
+      {cat: '5G Metrics', name: '5G Tower Coverage', def: 'Percentage of total tower infrastructure that is 5G-enabled. Indicates the breadth of 5G availability across the network footprint.', unit: '%', formula: '(5G Towers / Total Towers) * 100', dashboards: ['06-5G Adoption']},
+      {cat: '5G Metrics', name: '5G Drop Rate', def: 'Call drop rate specifically on 5G technology connections. Compared against 4G and 3G drop rates to assess 5G network stability.', unit: 'Ratio (0–1)', formula: 'AVG(call_drop_rate) WHERE technology = 5G', dashboards: ['06-5G Adoption']},
+
+      // ─── Billing & Payments ───
+      {cat: 'Billing & Payments', name: 'Total Billed', def: 'Gross amount invoiced to all subscribers during the billing period, including base charges, overages, roaming, add-ons, and taxes.', unit: '₹', formula: 'SUM(total_amount) from FACT_BILLING', dashboards: ['07-Billing & Payments']},
+      {cat: 'Billing & Payments', name: 'Payment Rate', def: 'Percentage of billed subscribers who paid their invoice in full and on time. The primary collections efficiency metric.', unit: '%', formula: '(Paid Invoices / Total Invoices) * 100', dashboards: ['07-Billing & Payments']},
+      {cat: 'Billing & Payments', name: 'Late Payment Rate', def: 'Percentage of subscribers who paid their invoice after the due date but before suspension. Late payments increase DSO and working capital requirements.', unit: '%', formula: '(Late Invoices / Total Invoices) * 100', dashboards: ['07-Billing & Payments']},
+      {cat: 'Billing & Payments', name: 'Unpaid Rate', def: 'Percentage of invoices that remain unpaid beyond the grace period. Directly impacts revenue realization and may trigger involuntary churn.', unit: '%', formula: '(Unpaid Invoices / Total Invoices) * 100', dashboards: ['07-Billing & Payments']},
+      {cat: 'Billing & Payments', name: 'Avg Days to Payment', def: 'Average number of days between invoice date and payment receipt. Equivalent to DSO (Days Sales Outstanding) at the subscriber level.', unit: 'Days', formula: 'AVG(days_to_payment) from FACT_BILLING', dashboards: ['07-Billing & Payments']},
+
+      // ─── Roaming ───
+      {cat: 'Roaming', name: 'Roaming Sessions', def: 'Total number of distinct roaming usage sessions recorded. A session is one continuous period of voice or data use on a partner carrier network while outside the home circle.', unit: 'Count', formula: 'COUNT(*) from FACT_ROAMING_USAGE', dashboards: ['08-Roaming Analysis']},
+      {cat: 'Roaming', name: 'Roaming Data Consumed', def: 'Total data usage (in MB or GB) by subscribers while roaming on partner carrier networks.', unit: 'MB / GB', formula: 'SUM(data_usage_mb) from FACT_ROAMING_USAGE', dashboards: ['08-Roaming Analysis']},
+      {cat: 'Roaming', name: 'Roaming Voice Minutes', def: 'Total voice call duration (in minutes) used by subscribers while roaming on partner carrier networks.', unit: 'Minutes', formula: 'SUM(voice_minutes) from FACT_ROAMING_USAGE', dashboards: ['08-Roaming Analysis']},
+      {cat: 'Roaming', name: 'YoY Change (Roaming)', def: 'Year-over-year percentage change in roaming revenue by partner country or carrier. Indicates growing or declining roaming corridors.', unit: '%', formula: '((Current Year Revenue - Prior Year Revenue) / Prior Year Revenue) * 100', dashboards: ['08-Roaming Analysis']},
+
+      // ─── Customer Experience ───
+      {cat: 'Customer Experience', name: 'NPS (Net Promoter Score)', def: 'Subscriber satisfaction score on a 1–10 scale, averaged across the subscriber base or segment. Not a true NPS (Promoter% - Detractor%) but a mean satisfaction rating in this dataset.', unit: 'Score (1–10)', formula: 'AVG(nps_score) from DIM_SUBSCRIBER', dashboards: ['04-Churn Analysis', '06-5G Adoption', '10-Customer Segments', '11-Device Analytics']},
+      {cat: 'Customer Experience', name: 'Avg Resolution Days', def: 'Average number of days between complaint filing and resolution. Measured across all complaint types (billing, network, service, device, general).', unit: 'Days', formula: 'AVG(resolution_days) from complaint records', dashboards: ['03-Subscriber Lifecycle', '09-Customer Experience']},
+
+      // ─── Regional & Geographic ───
+      {cat: 'Regional & Geographic', name: 'Circle', def: 'A TRAI-defined telecom licensing region in India. Falcon Telecom operates across 60 circles spanning 5 regions (North, South, East, West, Central), each classified by tier (1/2/3) and type (Urban/Semi-Urban/Rural).', unit: 'Category', formula: 'From DIM_CIRCLE', dashboards: ['09-Regional Performance', '10-Customer Segments']},
+      {cat: 'Regional & Geographic', name: 'Region', def: 'Geographic grouping of circles: North (UP, Delhi, Rajasthan, Punjab, HP, J&K), South (Tamil Nadu, Karnataka, Kerala, AP, Telangana), East (West Bengal, Bihar, Odisha, Assam, NE), West (Maharashtra, Gujarat, Goa), Central (Madhya Pradesh).', unit: 'Category', formula: 'From DIM_CIRCLE.region', dashboards: ['05-Network Quality', '08-Roaming Analysis', '09-Regional Performance']},
+      {cat: 'Regional & Geographic', name: 'Tier', def: 'Market classification of a circle based on population density and economic activity. Tier 1: Major metros and state capitals. Tier 2: Secondary cities. Tier 3: Smaller towns and rural areas.', unit: 'Category (1/2/3)', formula: 'From DIM_CIRCLE.tier', dashboards: ['09-Regional Performance']},
+      {cat: 'Regional & Geographic', name: 'Urban/Rural Split', def: 'Classification of circles as Urban, Semi-Urban, or Rural based on population density. Drives different pricing, network investment, and competitive strategies.', unit: 'Category', formula: 'From DIM_CIRCLE.urban_rural', dashboards: ['09-Regional Performance']},
+
+      // ─── Customer Segments ───
+      {cat: 'Customer Segments', name: 'Mass Market', def: 'Subscriber segment representing the largest base (~62% of subscribers). Typically Prepaid users on lower-ARPU plans. Highest churn rates but largest volume.', unit: 'Segment', formula: 'WHERE segment = Mass Market', dashboards: ['02-Revenue & ARPU', '04-Churn Analysis', '10-Customer Segments']},
+      {cat: 'Customer Segments', name: 'Mid Market', def: 'Subscriber segment (~25% of base) representing moderate-value subscribers. Mix of Postpaid and high-value Prepaid. Middle ground for ARPU and churn.', unit: 'Segment', formula: 'WHERE segment = Mid Market', dashboards: ['02-Revenue & ARPU', '04-Churn Analysis', '10-Customer Segments']},
+      {cat: 'Customer Segments', name: 'Premium', def: 'High-value subscriber segment (~7.5% of base) with highest ARPU and LTV. Typically Postpaid with premium plans. Over-represented in roaming usage.', unit: 'Segment', formula: 'WHERE segment = Premium', dashboards: ['02-Revenue & ARPU', '04-Churn Analysis', '10-Customer Segments']},
+      {cat: 'Customer Segments', name: 'Corporate', def: 'Enterprise/business subscriber segment (~6% of base). Lowest churn rate (4.7–6.4%). Managed through B2B account relationships rather than retail channels.', unit: 'Segment', formula: 'WHERE segment = Corporate', dashboards: ['02-Revenue & ARPU', '04-Churn Analysis', '10-Customer Segments']},
+
+      // ─── Device Metrics ───
+      {cat: 'Device Metrics', name: 'Device Tier', def: 'Classification of subscriber handsets by capability and price point: Budget, Mid-Range, Flagship, 5G Premium, 5G Flagship. Determines available network technologies and correlates with ARPU and churn behavior.', unit: 'Category', formula: 'From DIM_DEVICE.device_tier', dashboards: ['06-5G Adoption', '11-Device Analytics']},
+      {cat: 'Device Metrics', name: 'Brand Market Share', def: 'Percentage of total subscriber base using devices from each manufacturer (Samsung, Xiaomi, Apple, OnePlus, Vivo, Oppo, Realme, etc).', unit: '%', formula: '(Brand Subscribers / Total Subscribers) * 100', dashboards: ['11-Device Analytics']},
+      {cat: 'Device Metrics', name: '5G Device Capability', def: 'Whether a subscriber device supports 5G NR connectivity. Derived from the device tier classification (5G Premium and 5G Flagship = 5G capable).', unit: 'Boolean (Yes/No)', formula: 'device_tier IN (5G Premium, 5G Flagship)', dashboards: ['06-5G Adoption', '11-Device Analytics']}
+    ];
+
+    // Build categories
+    var categories = [];
+    METRICS.forEach(function(m) {
+      if (categories.indexOf(m.cat) === -1) categories.push(m.cat);
+    });
+
+    // Render category nav
+    var catNav = document.getElementById('catNav');
+    var allBtn = document.createElement('button');
+    allBtn.className = 'cat-btn active';
+    allBtn.textContent = 'All (' + METRICS.length + ')';
+    allBtn.onclick = function() { filterByCategory(''); };
+    catNav.appendChild(allBtn);
+    categories.forEach(function(cat) {
+      var count = METRICS.filter(function(m) { return m.cat === cat; }).length;
+      var btn = document.createElement('button');
+      btn.className = 'cat-btn';
+      btn.setAttribute('data-cat', cat);
+      btn.textContent = cat + ' (' + count + ')';
+      btn.onclick = function() { filterByCategory(cat); };
+      catNav.appendChild(btn);
+    });
+
+    var activeCat = '';
+
+    function filterByCategory(cat) {
+      activeCat = cat;
+      var btns = document.querySelectorAll('.cat-btn');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.remove('active');
+        if (cat === '' && i === 0) btns[i].classList.add('active');
+        if (btns[i].getAttribute('data-cat') === cat) btns[i].classList.add('active');
+      }
+      renderMetrics();
+    }
+
+    function filterMetrics() {
+      renderMetrics();
+    }
+
+    function renderMetrics() {
+      var search = document.getElementById('searchInput').value.toLowerCase();
+      var container = document.getElementById('metricsContainer');
+      container.innerHTML = '';
+      var totalShown = 0;
+
+      categories.forEach(function(cat) {
+        if (activeCat && activeCat !== cat) return;
+
+        var catMetrics = METRICS.filter(function(m) {
+          if (m.cat !== cat) return false;
+          if (!search) return true;
+          return m.name.toLowerCase().indexOf(search) >= 0 ||
+                 m.def.toLowerCase().indexOf(search) >= 0 ||
+                 m.formula.toLowerCase().indexOf(search) >= 0 ||
+                 m.dashboards.join(' ').toLowerCase().indexOf(search) >= 0;
+        });
+
+        if (catMetrics.length === 0) return;
+        totalShown += catMetrics.length;
+
+        var section = document.createElement('div');
+        section.className = 'category';
+        section.innerHTML = '<div class="category-header"><h2>' + cat + '</h2><span class="badge">' + catMetrics.length + ' metrics</span></div>';
+
+        catMetrics.forEach(function(m) {
+          var card = document.createElement('div');
+          card.className = 'metric-card';
+          var dashTags = m.dashboards.map(function(d) { return '<span class="tag tag-dash">' + d + '</span>'; }).join('');
+          card.innerHTML = '<div class="metric-name">' + m.name + '</div>' +
+            '<div class="metric-def">' + m.def + '</div>' +
+            '<div class="metric-meta">' +
+              '<span class="tag tag-unit">' + m.unit + '</span>' +
+              '<span class="tag tag-formula">' + m.formula + '</span>' +
+              dashTags +
+            '</div>';
+          section.appendChild(card);
+        });
+
+        container.appendChild(section);
+      });
+
+      document.getElementById('noResults').style.display = totalShown === 0 ? 'block' : 'none';
+    }
+
+    renderMetrics();
+  </script>
+</body>
+</html>

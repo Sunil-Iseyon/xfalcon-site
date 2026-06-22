@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Falcon World Cup 360 / 9. Venue & Attendance</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; background: #F3F4F6; }
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #66BB6A; }
+        .logo-f { color: #FFD600; }
+        .back-link { color: #FFD600; text-decoration: none; font-size: 14px; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+        .title { font-size: 32px; font-weight: 700; color: #1F2937; margin-bottom: 32px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-top: 3px solid #FFD600;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #2E7D32; margin-bottom: 8px; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #64748B; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .chart-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .chart-title { font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 16px; }
+        .table-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table thead {
+            background: #2E7D32;
+            color: #FFFFFF;
+        }
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .data-table tbody tr:hover { background: #F9FAFB; }
+        .delta-pos { color: #059669; }
+        .delta-neg { color: #D32F2F; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        <a href="index.html" class="back-link">← Back</a>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Falcon World Cup 360 / 9. Venue & Attendance</h1>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">183</div>
+                <div class="kpi-label">Total Venues</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">836</div>
+                <div class="kpi-label">Total Matches</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">38.2M</div>
+                <div class="kpi-label">Total Attendance</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">45,611</div>
+                <div class="kpi-label">Avg Attendance</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">101,693</div>
+                <div class="kpi-label">Highest Avg (Maracanã)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">19</div>
+                <div class="kpi-label">Most Matches (Azteca)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">17</div>
+                <div class="kpi-label">Host Countries</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">6</div>
+                <div class="kpi-label">Continents</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Top 15 Venues by Total Attendance</div>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top 15 Venues by Avg Attendance</div>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Matches by Continent</div>
+                <canvas id="chart3"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Avg Attendance by Tournament Year</div>
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top 10 Venues by Host Country</div>
+                <canvas id="chart5"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Matches per Venue Distribution</div>
+                <canvas id="chart6"></canvas>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div style="font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 16px;">Top 20 Venues Data</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Stadium</th>
+                        <th>City</th>
+                        <th>Country</th>
+                        <th>Continent</th>
+                        <th>Matches</th>
+                        <th>Total Attendance</th>
+                        <th>Avg Attendance</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var VENUES = [
+            {stadium:'Estadio Azteca', city:'Mexico City', country:'Mexico', continent:'North America', matches:19, totalAtt:1923468, avgAtt:101235},
+            {stadium:'Maracanã', city:'Rio De Janeiro', country:'Brazil', continent:'South America', matches:8, totalAtt:813541, avgAtt:101693},
+            {stadium:'Wembley Stadium', city:'London', country:'England', continent:'Europe', matches:9, totalAtt:778034, avgAtt:86448},
+            {stadium:'Rose Bowl', city:'Los Angeles', country:'USA', continent:'North America', matches:8, totalAtt:740807, avgAtt:92601},
+            {stadium:'Jalisco', city:'Guadalajara', country:'Mexico', continent:'North America', matches:14, totalAtt:722456, avgAtt:51604},
+            {stadium:'Stade de France', city:'Saint-Denis', country:'France', continent:'Europe', matches:9, totalAtt:704000, avgAtt:78222},
+            {stadium:'Soccer City', city:'Johannesburg', country:'South Africa', continent:'Africa', matches:8, totalAtt:670859, avgAtt:83857},
+            {stadium:'Nacional', city:'Santiago', country:'Chile', continent:'South America', matches:10, totalAtt:663771, avgAtt:66377},
+            {stadium:'El Monumental', city:'Buenos Aires', country:'Argentina', continent:'South America', matches:9, totalAtt:625389, avgAtt:69488},
+            {stadium:'Estadio do Maracana', city:'Rio De Janeiro', country:'Brazil', continent:'South America', matches:7, totalAtt:519189, avgAtt:74170},
+            {stadium:'Giants Stadium', city:'New York', country:'USA', continent:'North America', matches:7, totalAtt:515828, avgAtt:73690},
+            {stadium:'Cape Town Stadium', city:'Cape Town', country:'South Africa', continent:'Africa', matches:8, totalAtt:507340, avgAtt:63418},
+            {stadium:'Stanford Stadium', city:'San Francisco', country:'USA', continent:'North America', matches:6, totalAtt:490424, avgAtt:81737},
+            {stadium:'Estadio Nacional', city:'Brasilia', country:'Brazil', continent:'South America', matches:7, totalAtt:478218, avgAtt:68317},
+            {stadium:'Centenario', city:'Montevideo', country:'Uruguay', continent:'South America', matches:10, totalAtt:471881, avgAtt:47188},
+            {stadium:'Stadio Olimpico', city:'Rome', country:'Italy', continent:'Europe', matches:6, totalAtt:440238, avgAtt:73373},
+            {stadium:'Giuseppe Meazza', city:'Milan', country:'Italy', continent:'Europe', matches:6, totalAtt:440130, avgAtt:73355},
+            {stadium:'Stade Vélodrome', city:'Marseilles', country:'France', continent:'Europe', matches:9, totalAtt:436000, avgAtt:48444},
+            {stadium:'Durban Stadium', city:'Durban', country:'South Africa', continent:'Africa', matches:7, totalAtt:434631, avgAtt:62090},
+            {stadium:'Olympiastadion', city:'Berlin', country:'Germany', continent:'Europe', matches:6, totalAtt:429000, avgAtt:71500}
+        ];
+
+        function mk(type, data) {
+            return new Chart(document.getElementById(data.id), {
+                type: type,
+                data: data.data,
+                options: data.options
+            });
+        }
+
+        function fitKpiText() {
+            document.querySelectorAll('.kpi-value').forEach(function(el) {
+                while(el.scrollHeight > 40 && parseInt(window.getComputedStyle(el).fontSize) > 20) {
+                    el.style.fontSize = (parseInt(window.getComputedStyle(el).fontSize) - 1) + 'px';
+                }
+            });
+        }
+
+        // Chart 1: Top 15 by Total Attendance
+        (function() {
+            var top15 = VENUES.slice(0, 15);
+            mk('bar', {
+                id: 'chart1',
+                data: {
+                    labels: top15.map(function(v) { return v.stadium; }),
+                    datasets: [{
+                        label: 'Total Attendance',
+                        data: top15.map(function(v) { return v.totalAtt; }),
+                        backgroundColor: '#2E7D32',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 2: Top 15 by Avg Attendance
+        (function() {
+            var top15 = VENUES.slice(0, 15);
+            mk('bar', {
+                id: 'chart2',
+                data: {
+                    labels: top15.map(function(v) { return v.stadium; }),
+                    datasets: [{
+                        label: 'Avg Attendance',
+                        data: top15.map(function(v) { return v.avgAtt; }),
+                        backgroundColor: '#C8A415',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 3: Matches by Continent
+        (function() {
+            var continents = {
+                'Europe': 70,
+                'South America': 40,
+                'North America': 30,
+                'Africa': 20,
+                'Asia': 15
+            };
+            mk('bar', {
+                id: 'chart3',
+                data: {
+                    labels: Object.keys(continents),
+                    datasets: [{
+                        label: 'Matches',
+                        data: Object.values(continents),
+                        backgroundColor: '#2E7D32',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 4: Avg Attendance by Year
+        (function() {
+            var years = [1930, 1934, 1938, 1950, 1954, 1958, 1962, 1966, 1970, 1974, 1978, 1982, 1986, 1990, 1994, 1998, 2002, 2006, 2010, 2014];
+            var avgAtts = [32808, 21353, 20872, 47511, 29562, 23423, 27912, 48848, 50309, 49020, 40679, 40572, 46039, 48389, 68991, 43517, 42530, 52491, 49670, 53624];
+            mk('line', {
+                id: 'chart4',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Avg Attendance',
+                        data: avgAtts,
+                        borderColor: '#2E7D32',
+                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2E7D32'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 5: Top 10 by Host Country
+        (function() {
+            var countryCounts = {};
+            VENUES.forEach(function(v) {
+                countryCounts[v.country] = (countryCounts[v.country] || 0) + 1;
+            });
+            var sorted = Object.entries(countryCounts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+            mk('bar', {
+                id: 'chart5',
+                data: {
+                    labels: sorted.map(function(x) { return x[0]; }),
+                    datasets: [{
+                        label: 'Venue Count',
+                        data: sorted.map(function(x) { return x[1]; }),
+                        backgroundColor: '#C8A415',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Chart 6: Matches per Venue Distribution
+        (function() {
+            var dist = {'1 match': 0, '2-3': 0, '4-6': 0, '7-10': 0, '11+': 0};
+            VENUES.forEach(function(v) {
+                if(v.matches === 1) dist['1 match']++;
+                else if(v.matches <= 3) dist['2-3']++;
+                else if(v.matches <= 6) dist['4-6']++;
+                else if(v.matches <= 10) dist['7-10']++;
+                else dist['11+']++;
+            });
+            mk('bar', {
+                id: 'chart6',
+                data: {
+                    labels: Object.keys(dist),
+                    datasets: [{
+                        label: 'Venue Count',
+                        data: Object.values(dist),
+                        backgroundColor: '#2E7D32',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+
+        // Populate table
+        (function() {
+            var tbody = document.getElementById('tableBody');
+            VENUES.forEach(function(v) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + v.stadium + '</td><td>' + v.city + '</td><td>' + v.country + '</td><td>' + v.continent + '</td><td>' + v.matches + '</td><td>' + v.totalAtt.toLocaleString() + '</td><td>' + v.avgAtt.toLocaleString() + '</td>';
+                tbody.appendChild(tr);
+            });
+        })();
+
+        fitKpiText();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB-02: Revenue & Financial Performance | Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+        }
+
+        /* Navigation */
+        .navbar {
+            background-color: #1B2A4A;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .navbar-brand {
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 16px 0;
+            margin-right: 40px;
+            min-width: 250px;
+        }
+
+        .navbar-links {
+            display: flex;
+            list-style: none;
+            gap: 0;
+            flex: 1;
+        }
+
+        .navbar-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 12px 16px;
+            font-size: 13px;
+            display: block;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .navbar-links a:hover {
+            background-color: rgba(200, 169, 81, 0.2);
+        }
+
+        .navbar-links a.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+            font-weight: 600;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1B2A4A 0%, #2D3F5F 100%);
+            color: #FFFFFF;
+            padding: 40px 24px;
+            margin-bottom: 32px;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #D4B96A;
+            font-weight: 500;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 12px;
+        }
+
+        .time-filter button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            border: 1px solid rgba(200, 169, 81, 0.3);
+            padding: 10px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .time-filter button:hover {
+            background-color: rgba(200, 169, 81, 0.2);
+        }
+
+        .time-filter button.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+            border-color: #C8A951;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 40px 24px;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-top: 4px solid #C8A951;
+        }
+
+        .kpi-card h3 {
+            font-size: 12px;
+            color: #636E72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .kpi-card .value {
+            font-size: 28px;
+            color: #C8A951;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card .subtext {
+            font-size: 12px;
+            color: #636E72;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card .comparison {
+            font-size: 13px;
+            font-weight: 600;
+            padding-top: 8px;
+            border-top: 1px solid #E0E4E8;
+            margin-top: 8px;
+        }
+
+        .comparison.negative {
+            color: #C62828;
+        }
+
+        .comparison.positive {
+            color: #2E7D32;
+        }
+
+        /* Charts Container */
+        .charts-section {
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .chart-card h2 {
+            font-size: 16px;
+            color: #1B2A4A;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 16px;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-row .chart-card {
+            margin-bottom: 0;
+        }
+
+        .chart-row .chart-container {
+            height: 350px;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .table-container h2 {
+            font-size: 16px;
+            color: #1B2A4A;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #F4F5F7;
+            border-bottom: 2px solid #E0E4E8;
+        }
+
+        th {
+            padding: 12px;
+            text-align: right;
+            color: #1B2A4A;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #E0E4E8;
+            color: #2D3436;
+        }
+
+        td:first-child {
+            text-align: left;
+            color: #1B2A4A;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .positive-text {
+            color: #2E7D32;
+        }
+
+        .negative-text {
+            color: #C62828;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1B2A4A;
+            color: #636E72;
+            text-align: center;
+            padding: 24px;
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .navbar-container {
+                flex-wrap: wrap;
+            }
+
+            .navbar-brand {
+                margin-right: 0;
+                width: 100%;
+                padding-bottom: 12px;
+                border-bottom: 1px solid rgba(200, 169, 81, 0.2);
+            }
+
+            .navbar-links {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .time-filter {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .kpi-row {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-row .chart-container {
+                height: 400px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">Falcon Hotels & Restaurants</div>
+            <ul class="navbar-links">
+                <li><a href="index.html">Index</a></li>
+                <li><a href="db-01-executive-overview.html">DB-01</a></li>
+                <li><a href="db-02-revenue-finance.html" class="active">DB-02</a></li>
+                <li><a href="db-03-hotel-operations.html">DB-03</a></li>
+                <li><a href="db-04-restaurant-fb.html">DB-04</a></li>
+                <li><a href="db-05-guest-experience.html">DB-05</a></li>
+                <li><a href="db-06-labor-workforce.html">DB-06</a></li>
+                <li><a href="db-07-inventory-supply.html">DB-07</a></li>
+                <li><a href="db-08-social-marketing.html">DB-08</a></li>
+                <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+                <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+                <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-container">
+            <div>
+                <h1>DB-02 | Revenue & Financial Performance</h1>
+                <p>Revenue Trends, Margins & Channel Analysis</p>
+            </div>
+            <div class="time-filter">
+                <button class="active" data-filter="monthly">Monthly</button>
+                <button data-filter="quarterly">Quarterly</button>
+                <button data-filter="yearly">Yearly</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- KPI Row -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <h3>Gross Revenue</h3>
+                <div class="value">$501.0K</div>
+                <div class="subtext">2025 Annual</div>
+                <div class="comparison negative">vs 2024: $850.6K <br>-41.1%</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Net Revenue</h3>
+                <div class="value">$408.6K</div>
+                <div class="subtext">2025 Annual</div>
+                <div class="comparison negative">vs 2024: $649.3K <br>-37.1%</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Discounts</h3>
+                <div class="value">$7.6K</div>
+                <div class="subtext">2025 Annual</div>
+                <div class="comparison positive">vs 2024: $58.5K <br>-87.0%</div>
+            </div>
+            <div class="kpi-card">
+                <h3>COGS</h3>
+                <div class="value">$107.5K</div>
+                <div class="subtext">2025 Annual</div>
+                <div class="comparison negative">vs 2024: $172.9K <br>-37.8%</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Gross Margin</h3>
+                <div class="value">$301.1K</div>
+                <div class="subtext">2025 Annual</div>
+                <div class="comparison negative">vs 2024: $476.4K <br>-36.8%</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Margin Rate</h3>
+                <div class="value">73.7%</div>
+                <div class="subtext">2025 Annual</div>
+                <div class="comparison positive">vs 2024: 73.4% <br>+0.4%</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Net Revenue Trend -->
+            <div class="chart-card">
+                <h2>Net Revenue Trend: 2025 vs 2024</h2>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Two Charts Side by Side -->
+            <div class="chart-row">
+                <div class="chart-card">
+                    <h2>Revenue Stream Breakdown (2025)</h2>
+                    <div class="chart-container">
+                        <canvas id="streamChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h2>Margin Analysis (2025)</h2>
+                    <div class="chart-container">
+                        <canvas id="marginChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discount Analysis -->
+            <div class="chart-card">
+                <h2>Discount Analysis: 2025 vs 2024</h2>
+                <div class="chart-container">
+                    <canvas id="discountChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Channel Revenue Mix -->
+            <div class="chart-row">
+                <div class="chart-card">
+                    <h2>Channel Revenue Mix: 2025 vs 2024</h2>
+                    <div class="chart-container">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h2>Brand Performance (2025 vs 2024)</h2>
+                    <div class="chart-container">
+                        <canvas id="brandChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Detail Table -->
+            <div class="table-container">
+                <h2>Monthly Financial Detail (2025)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Gross Rev</th>
+                            <th>Discounts</th>
+                            <th>Net Rev</th>
+                            <th>COGS</th>
+                            <th>Margin</th>
+                            <th>Margin %</th>
+                            <th>PY Net Rev</th>
+                            <th>YoY %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Falcon Hotels & Restaurants | Revenue & Finance | Generated March 2026
+    </div>
+
+    <script>
+        // Chart.js configuration
+        Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+        Chart.defaults.color = '#636E72';
+        Chart.defaults.borderColor = '#E0E4E8';
+
+        // Color palette
+        const colors = {
+            navy: '#1B2A4A',
+            gold: '#C8A951',
+            blue: '#3A6B8A',
+            darkGold: '#D4B96A',
+            mediumBlue: '#6C8EBF',
+            lightGold: '#E8D5A0'
+        };
+
+        // Monthly data
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // 2025 monthly data
+        const data2025 = {
+            netRev: [31290, 28963, 34391, 33892, 35721, 35148, 35232, 35924, 33798, 34516, 34864, 34849],
+            food: [9562, 8568, 10706, 10445, 11516, 11324, 11259, 11839, 10363, 10225, 10831, 10862],
+            beverage: [6407, 6015, 7337, 7480, 7434, 7576, 7378, 7769, 6903, 7855, 7854, 7356],
+            alcohol: [6341, 6176, 7246, 7365, 8022, 7500, 7752, 7647, 7748, 7594, 7571, 7533],
+            room: [8980, 8204, 9103, 8601, 8750, 8747, 8843, 8669, 8784, 8842, 8608, 9098],
+            discount2025: [655, 595, 692, 633, 679, 677, 648, 650, 632, 657, 648, 635],
+            cogs: [8173, 7546, 8903, 8639, 9146, 8911, 8890, 9273, 8575, 8716, 8770, 8980],
+            margin: [23117, 21417, 25349, 24965, 26291, 25852, 25942, 26389, 24950, 25448, 25654, 25690]
+        };
+
+        // 2024 monthly data
+        const data2024 = {
+            netRev: [48431, 45679, 57897, 56934, 58586, 54321, 54626, 55420, 53386, 54331, 54152, 55525],
+            discount2024: [4674, 4440, 5628, 5392, 5423, 4723, 4800, 4754, 4599, 4707, 4539, 4789],
+            cogs: [13001, 12333, 15642, 15392, 15811, 14664, 14749, 14963, 14407, 14673, 14629, 15599]
+        };
+
+        // Channel data
+        const channels2025 = {
+            'Dine-In': 48719,
+            'Third-Party': 47448,
+            'Hotel Rest': 47018,
+            'Carryout': 46389,
+            'Drive-Thru': 46139,
+            'Room Svc': 45463,
+            'Mobile': 43287,
+            'Catering': 42268,
+            'First-Party': 41859
+        };
+
+        const channels2024 = {
+            'Carryout': 75195,
+            'Room Svc': 74099,
+            'Drive-Thru': 74047,
+            'Mobile': 73888,
+            'Catering': 71601,
+            'First-Party': 71419,
+            'Hotel Rest': 70508,
+            'Dine-In': 69670,
+            'Third-Party': 68862
+        };
+
+        // Brand data
+        const brands = {
+            'Grand Slice': { 2025: 139006, 2024: 217480 },
+            'Ember & Oak': { 2025: 124070, 2024: 176058 },
+            'Crestview': { 2025: 105229, 2024: 160084 },
+            'Whisk': { 2025: 40282, 2024: 95668 }
+        };
+
+        // Calculate margin percentages
+        const marginPercent = data2025.margin.map((m, i) => ((m / data2025.netRev[i]) * 100).toFixed(1));
+
+        // Helper function to aggregate monthly data to quarterly
+        function getQuarterlyData(monthlyData) {
+            const quarterly = [];
+            for (let i = 0; i < 12; i += 3) {
+                quarterly.push(monthlyData[i] + monthlyData[i+1] + monthlyData[i+2]);
+            }
+            return quarterly;
+        }
+
+        // Helper function to get quarterly labels
+        function getQuarterlyLabels() {
+            return ['Q1', 'Q2', 'Q3', 'Q4'];
+        }
+
+        // Helper function to aggregate monthly data to yearly
+        function getYearlyData(monthlyData) {
+            return [monthlyData.reduce((a, b) => a + b, 0)];
+        }
+
+        // Helper function to get yearly labels
+        function getYearlyLabels() {
+            return ['2025'];
+        }
+
+        // Helper function to get labels based on granularity
+        function getLabels(granularity) {
+            if (granularity === 'quarterly') {
+                return getQuarterlyLabels();
+            } else if (granularity === 'yearly') {
+                return getYearlyLabels();
+            }
+            return months;
+        }
+
+        // Helper function to aggregate data based on granularity
+        function aggregateData(monthlyData, granularity) {
+            if (granularity === 'quarterly') {
+                return getQuarterlyData(monthlyData);
+            } else if (granularity === 'yearly') {
+                return getYearlyData(monthlyData);
+            }
+            return monthlyData;
+        }
+
+        // Chart instances
+        let charts = {};
+
+        // 1. Net Revenue Trend Chart
+        function initRevenueChart(granularity = 'monthly') {
+            const labels = getLabels(granularity);
+            const rev2025 = aggregateData(data2025.netRev, granularity);
+            const rev2024 = aggregateData(data2024.netRev, granularity);
+
+            if (charts.revenue) {
+                charts.revenue.destroy();
+            }
+
+                charts.revenue = new Chart(document.getElementById('revenueChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: rev2025,
+                            borderColor: colors.navy,
+                            backgroundColor: 'rgba(27, 42, 74, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: '2024',
+                            data: rev2024,
+                            borderColor: colors.gold,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { size: 12, weight: 600 },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Revenue Stream Breakdown (Stacked Area)
+        function initStreamChart(granularity = 'monthly') {
+            const labels = getLabels(granularity);
+            const food = aggregateData(data2025.food, granularity);
+            const beverage = aggregateData(data2025.beverage, granularity);
+            const alcohol = aggregateData(data2025.alcohol, granularity);
+            const room = aggregateData(data2025.room, granularity);
+
+            if (charts.stream) {
+                charts.stream.destroy();
+            }
+
+            charts.stream = new Chart(document.getElementById('streamChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Food',
+                            data: food,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Beverage',
+                            data: beverage,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Alcohol',
+                            data: alcohol,
+                            backgroundColor: colors.blue,
+                            borderColor: colors.blue,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Room',
+                            data: room,
+                            backgroundColor: colors.mediumBlue,
+                            borderColor: colors.mediumBlue,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'x',
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { size: 11, weight: 600 },
+                                padding: 12
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Margin Analysis (Bar + Line Combo)
+        function initMarginChart(granularity = 'monthly') {
+            const labels = getLabels(granularity);
+            const netRev = aggregateData(data2025.netRev, granularity);
+            const margin = aggregateData(data2025.margin, granularity);
+            const marginPercentData = margin.map((m, i) => ((m / netRev[i]) * 100).toFixed(1));
+
+            if (charts.margin) {
+                charts.margin.destroy();
+            }
+
+            charts.margin = new Chart(document.getElementById('marginChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Net Revenue',
+                            data: netRev,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'Margin %',
+                            data: marginPercentData,
+                            borderColor: colors.navy,
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            type: 'line',
+                            yAxisID: 'y1',
+                            pointRadius: 4,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2,
+                            tension: 0.4,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0) + '%';
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { size: 11, weight: 600 },
+                                padding: 12
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Discount Analysis
+        function initDiscountChart(granularity = 'monthly') {
+            const labels = getLabels(granularity);
+            const disc2025 = aggregateData(data2025.discount2025, granularity);
+            const disc2024 = aggregateData(data2024.discount2024, granularity);
+
+            if (charts.discount) {
+                charts.discount.destroy();
+            }
+
+            charts.discount = new Chart(document.getElementById('discountChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: disc2025,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '2024',
+                            data: disc2024,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { size: 12, weight: 600 },
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 5. Channel Revenue Mix (Horizontal Bar)
+        function initChannelChart(granularity = 'monthly') {
+            const channelNames = Object.keys(channels2025);
+            const channelValues2025 = Object.values(channels2025);
+            const channelValues2024 = channelNames.map(name => channels2024[name] || 0);
+
+            if (charts.channel) {
+                charts.channel.destroy();
+            }
+
+            charts.channel = new Chart(document.getElementById('channelChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: channelNames,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: channelValues2025,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '2024',
+                            data: channelValues2024,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { size: 12, weight: 600 },
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 6. Brand Performance
+        function initBrandChart(granularity = 'monthly') {
+            const brandNames = Object.keys(brands);
+            const brandValues2025 = brandNames.map(b => brands[b][2025]);
+            const brandValues2024 = brandNames.map(b => brands[b][2024]);
+
+            if (charts.brand) {
+                charts.brand.destroy();
+            }
+
+            charts.brand = new Chart(document.getElementById('brandChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: brandNames,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: brandValues2025,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '2024',
+                            data: brandValues2024,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { size: 12, weight: 600 },
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Populate detail table based on granularity
+        function populateDetailTable(granularity = 'monthly') {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+
+            let rowData = [];
+
+            if (granularity === 'quarterly') {
+                // Build quarterly rows
+                for (let q = 0; q < 4; q++) {
+                    const startMonth = q * 3;
+                    const endMonth = startMonth + 3;
+                    let grossRevQ = 0;
+                    let discQ = 0;
+                    let netRevQ = 0;
+                    let cogsQ = 0;
+                    let marginQ = 0;
+                    let pyNetRevQ = 0;
+
+                    for (let i = startMonth; i < endMonth; i++) {
+                        grossRevQ += data2025.netRev[i] + data2025.discount2025[i];
+                        discQ += data2025.discount2025[i];
+                        netRevQ += data2025.netRev[i];
+                        cogsQ += data2025.cogs[i];
+                        marginQ += data2025.margin[i];
+                        pyNetRevQ += data2024.netRev[i];
+                    }
+
+                    const marginPercentQ = (marginQ / netRevQ) * 100;
+                    const yoyChangeQ = ((netRevQ / pyNetRevQ) - 1) * 100;
+
+                    rowData.push({
+                        label: `Q${q + 1}`,
+                        grossRev: grossRevQ,
+                        disc: discQ,
+                        netRev: netRevQ,
+                        cogs: cogsQ,
+                        margin: marginQ,
+                        marginPercent: marginPercentQ,
+                        pyNetRev: pyNetRevQ,
+                        yoyChange: yoyChangeQ
+                    });
+                }
+            } else if (granularity === 'yearly') {
+                // Build yearly row
+                let grossRevY = 0;
+                let discY = 0;
+                let netRevY = 0;
+                let cogsY = 0;
+                let marginY = 0;
+                let pyNetRevY = 0;
+
+                for (let i = 0; i < 12; i++) {
+                    grossRevY += data2025.netRev[i] + data2025.discount2025[i];
+                    discY += data2025.discount2025[i];
+                    netRevY += data2025.netRev[i];
+                    cogsY += data2025.cogs[i];
+                    marginY += data2025.margin[i];
+                    pyNetRevY += data2024.netRev[i];
+                }
+
+                const marginPercentY = (marginY / netRevY) * 100;
+                const yoyChangeY = ((netRevY / pyNetRevY) - 1) * 100;
+
+                rowData.push({
+                    label: '2025',
+                    grossRev: grossRevY,
+                    disc: discY,
+                    netRev: netRevY,
+                    cogs: cogsY,
+                    margin: marginY,
+                    marginPercent: marginPercentY,
+                    pyNetRev: pyNetRevY,
+                    yoyChange: yoyChangeY
+                });
+            } else {
+                // Monthly rows
+                months.forEach((month, i) => {
+                    const grossRev = data2025.netRev[i] + data2025.discount2025[i];
+                    const yoyChange = ((data2025.netRev[i] / data2024.netRev[i]) - 1) * 100;
+
+                    rowData.push({
+                        label: month,
+                        grossRev: grossRev,
+                        disc: data2025.discount2025[i],
+                        netRev: data2025.netRev[i],
+                        cogs: data2025.cogs[i],
+                        margin: data2025.margin[i],
+                        marginPercent: parseFloat(marginPercent[i]),
+                        pyNetRev: data2024.netRev[i],
+                        yoyChange: yoyChange
+                    });
+                });
+            }
+
+            rowData.forEach(row => {
+                const tr = document.createElement('tr');
+                const yoyChangeClass = row.yoyChange < 0 ? 'negative-text' : 'positive-text';
+
+                tr.innerHTML = `
+                    <td>${row.label}</td>
+                    <td>$${(row.grossRev / 1000).toFixed(1)}K</td>
+                    <td>$${(row.disc / 1000).toFixed(1)}K</td>
+                    <td>$${(row.netRev / 1000).toFixed(1)}K</td>
+                    <td>$${(row.cogs / 1000).toFixed(1)}K</td>
+                    <td>$${(row.margin / 1000).toFixed(1)}K</td>
+                    <td>${row.marginPercent.toFixed(1)}%</td>
+                    <td>$${(row.pyNetRev / 1000).toFixed(1)}K</td>
+                    <td class="${yoyChangeClass}">${row.yoyChange.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initialize all charts on page load
+        initRevenueChart('monthly');
+        initStreamChart('monthly');
+        initMarginChart('monthly');
+        initDiscountChart('monthly');
+        initChannelChart('monthly');
+        initBrandChart('monthly');
+        populateDetailTable('monthly');
+
+        // Time filter functionality
+        document.querySelectorAll('.time-filter button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-filter button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const granularity = this.getAttribute('data-filter');
+
+                // Update all charts with the selected granularity
+                initRevenueChart(granularity);
+                initStreamChart(granularity);
+                initMarginChart(granularity);
+                initDiscountChart(granularity);
+                initChannelChart(granularity);
+                initBrandChart(granularity);
+                populateDetailTable(granularity);
+            });
+        });
+    </script>
+</body>
+</html>

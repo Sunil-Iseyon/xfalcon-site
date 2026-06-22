@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xFalcon IPL Analytics Hub - Financial Performance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F6F8;
+            color: #1A1A1A;
+        }
+
+        .topbar {
+            background-color: #1A1A1A;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .title-text {
+            margin-left: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: #4ECDC4;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #F7946B;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #4ECDC4;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #64748B;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+            word-break: break-word;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        .negative {
+            color: #FF4757;
+        }
+
+        .section-header {
+            background-color: #1A1A1A;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 30px 0 20px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            min-height: 400px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 15px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        .table-container {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #1A1A1A;
+            color: white;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 13px;
+            color: #1A1A1A;
+        }
+
+        tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .footer {
+            background-color: #1A1A1A;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            font-size: 12px;
+        }
+
+        .grid-full {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo">
+                <span style="color:#4ECDC4">x</span><span style="color:#F7946B">F</span>
+            </div>
+            <div class="title-text">xFalcon IPL Analytics Hub / 4. Financial Performance</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total League Revenue 2024</div>
+                <div class="kpi-value">₹1,078<span style="font-size:20px">Cr</span></div>
+                <div class="kpi-change positive">↑ 30.2% vs 2023</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Highest Profit Franchise</div>
+                <div class="kpi-value">LSG</div>
+                <div class="kpi-change">₹146.07Cr Operating Profit</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Average Franchise Profit</div>
+                <div class="kpi-value">₹108.8<span style="font-size:20px">Cr</span></div>
+                <div class="kpi-change positive">↑ Strong Growth</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Salary Spend</div>
+                <div class="kpi-value">₹1,320<span style="font-size:20px">Cr</span></div>
+                <div class="kpi-change">10 Franchises</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Salary per Franchise</div>
+                <div class="kpi-value">₹132<span style="font-size:20px">Cr</span></div>
+                <div class="kpi-change">2024 average</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Sponsorship Revenue</div>
+                <div class="kpi-value">₹328.7<span style="font-size:20px">Cr</span></div>
+                <div class="kpi-change">Title sponsors 2024</div>
+            </div>
+        </div>
+
+        <div class="section-header">Operating Profit by Franchise 2025</div>
+        <div class="chart-grid">
+            <div class="chart-container grid-full">
+                <div class="chart-title">Operating Profit Distribution</div>
+                <div class="chart-wrapper">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">Revenue Streams Analysis</div>
+        <div class="chart-grid">
+            <div class="chart-container grid-full">
+                <div class="chart-title">Revenue Composition by Franchise (2025)</div>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">Financial Metrics</div>
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Salary vs Operating Profit</div>
+                <div class="chart-wrapper">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Operating Profit Trend (2020-2025)</div>
+                <div class="chart-wrapper">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">Franchise Financial Data</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Franchise</th>
+                        <th>Operating Profit (₹Cr)</th>
+                        <th>Salary Spend (₹Cr)</th>
+                        <th>Title Sponsor (₹Cr)</th>
+                        <th>Gate Receipts (₹Cr)</th>
+                        <th>Broadcast Revenue (₹Cr)</th>
+                        <th>Profit Margin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lucknow Super Giants</td>
+                        <td style="color:#4CAF50; font-weight:600;">146.07</td>
+                        <td>123.12</td>
+                        <td>30.92</td>
+                        <td>43.56</td>
+                        <td>62.81</td>
+                        <td style="color:#4CAF50;">54.6%</td>
+                    </tr>
+                    <tr>
+                        <td>Rajasthan Royals</td>
+                        <td style="color:#4CAF50; font-weight:600;">126.15</td>
+                        <td>154.90</td>
+                        <td>28.62</td>
+                        <td>55.32</td>
+                        <td>72.12</td>
+                        <td style="color:#4CAF50;">51.9%</td>
+                    </tr>
+                    <tr>
+                        <td>Chennai Super Kings</td>
+                        <td style="color:#4CAF50; font-weight:600;">116.59</td>
+                        <td>166.49</td>
+                        <td>12.70</td>
+                        <td>70.69</td>
+                        <td>72.15</td>
+                        <td style="color:#4CAF50;">93.7%</td>
+                    </tr>
+                    <tr>
+                        <td>Sunrisers Hyderabad</td>
+                        <td style="color:#4CAF50; font-weight:600;">109.63</td>
+                        <td>131.19</td>
+                        <td>20.89</td>
+                        <td>52.99</td>
+                        <td>68.41</td>
+                        <td style="color:#4CAF50;">78.8%</td>
+                    </tr>
+                    <tr>
+                        <td>Punjab Kings</td>
+                        <td style="color:#4CAF50; font-weight:600;">109.44</td>
+                        <td>135.26</td>
+                        <td>29.04</td>
+                        <td>53.84</td>
+                        <td>46.59</td>
+                        <td style="color:#4CAF50;">73.3%</td>
+                    </tr>
+                    <tr>
+                        <td>Delhi Capitals</td>
+                        <td style="color:#4CAF50; font-weight:600;">107.17</td>
+                        <td>121.23</td>
+                        <td>18.66</td>
+                        <td>34.87</td>
+                        <td>66.52</td>
+                        <td style="color:#4CAF50;">40.1%</td>
+                    </tr>
+                    <tr>
+                        <td>Royal Challengers Bangalore</td>
+                        <td style="color:#4CAF50; font-weight:600;">103.07</td>
+                        <td>160.02</td>
+                        <td>31.28</td>
+                        <td>71.52</td>
+                        <td>61.50</td>
+                        <td style="color:#4CAF50;">86.3%</td>
+                    </tr>
+                    <tr>
+                        <td>Kolkata Knight Riders</td>
+                        <td style="color:#4CAF50; font-weight:600;">65.63</td>
+                        <td>171.07</td>
+                        <td>15.62</td>
+                        <td>50.47</td>
+                        <td>72.24</td>
+                        <td style="color:#4CAF50;">43.4%</td>
+                    </tr>
+                    <tr>
+                        <td>Mumbai Indians</td>
+                        <td style="color:#4CAF50; font-weight:600;">64.21</td>
+                        <td>236.09</td>
+                        <td>27.51</td>
+                        <td>67.37</td>
+                        <td>56.74</td>
+                        <td style="color:#4CAF50;">69.1%</td>
+                    </tr>
+                    <tr>
+                        <td>Gujarat Titans</td>
+                        <td style="color:#4CAF50; font-weight:600;">35.24</td>
+                        <td>169.94</td>
+                        <td>25.49</td>
+                        <td>26.44</td>
+                        <td>48.89</td>
+                        <td style="color:#4CAF50;">50.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-header">Historical Trends</div>
+        <div class="chart-grid">
+            <div class="chart-container grid-full">
+                <div class="chart-title">League Total Operating Profit Trend (2020-2025)</div>
+                <div class="chart-wrapper">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        xFalcon IPL Analytics Kit | Financial Performance Dashboard | 2025 Season Data
+    </div>
+
+    <script>
+        var chartInstances = {};
+
+        function mk(canvasId, config) {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            chartInstances[canvasId] = new Chart(ctx, config);
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var parent = el.parentElement;
+                var parentWidth = parent.offsetWidth;
+                var fontSize = 28;
+                el.style.fontSize = fontSize + 'px';
+                while (el.scrollWidth > parentWidth - 40 && fontSize > 16) {
+                    fontSize -= 2;
+                    el.style.fontSize = fontSize + 'px';
+                }
+            });
+        }
+
+        window.addEventListener('load', function() {
+            fitKpiText();
+        });
+
+        window.addEventListener('resize', function() {
+            fitKpiText();
+        });
+
+        // Profit Chart
+        mk('profitChart', {
+            type: 'bar',
+            data: {
+                labels: ['LSG', 'RR', 'CSK', 'SRH', 'PBKS', 'DC', 'RCB', 'KKR', 'MI', 'GT'],
+                datasets: [{
+                    label: 'Operating Profit (₹Cr)',
+                    data: [146.07, 126.15, 116.59, 109.63, 109.44, 107.17, 103.07, 65.63, 64.21, 35.24],
+                    backgroundColor: '#4ECDC4',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Revenue Stacked Bar Chart
+        mk('revenueChart', {
+            type: 'bar',
+            data: {
+                labels: ['LSG', 'RR', 'CSK', 'SRH', 'PBKS', 'DC', 'RCB', 'KKR', 'MI', 'GT'],
+                datasets: [
+                    {
+                        label: 'Title Sponsor (₹Cr)',
+                        data: [30.92, 28.62, 12.70, 20.89, 29.04, 18.66, 31.28, 15.62, 27.51, 25.49],
+                        backgroundColor: '#4ECDC4'
+                    },
+                    {
+                        label: 'Gate Receipts (₹Cr)',
+                        data: [43.56, 55.32, 70.69, 52.99, 53.84, 34.87, 71.52, 50.47, 67.37, 26.44],
+                        backgroundColor: '#F7946B'
+                    },
+                    {
+                        label: 'Broadcast Revenue (₹Cr)',
+                        data: [62.81, 72.12, 72.15, 68.41, 46.59, 66.52, 61.50, 72.24, 56.74, 48.89],
+                        backgroundColor: '#94A3B8'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Scatter Chart - Salary vs Profit
+        mk('scatterChart', {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Franchise Performance',
+                    data: [
+                        {x: 123.12, y: 146.07},
+                        {x: 154.90, y: 126.15},
+                        {x: 166.49, y: 116.59},
+                        {x: 131.19, y: 109.63},
+                        {x: 135.26, y: 109.44},
+                        {x: 121.23, y: 107.17},
+                        {x: 160.02, y: 103.07},
+                        {x: 171.07, y: 65.63},
+                        {x: 236.09, y: 64.21},
+                        {x: 169.94, y: 35.24}
+                    ],
+                    backgroundColor: '#4ECDC4',
+                    borderColor: '#4ECDC4',
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Salary Spend (₹Cr)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12,
+                                weight: 600
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Operating Profit (₹Cr)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12,
+                                weight: 600
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+
+        // Profit Trend Chart
+        mk('trendChart', {
+            type: 'line',
+            data: {
+                labels: ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+                datasets: [{
+                    label: 'Total Operating Profit (₹Cr)',
+                    data: [358.53, 361.48, 397.69, 457.89, 408.10, 461.27, 466.05, 390.35, 433.17, 523.63, 521.72, 589.83, 730.01, 622.83, 649.17, 829.00, 983.20],
+                    borderColor: '#4ECDC4',
+                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#4ECDC4',
+                    pointBorderColor: '#FFFFFF',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Historical Trend Chart
+        mk('historyChart', {
+            type: 'line',
+            data: {
+                labels: ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: 'League Total Op. Profit (₹Cr)',
+                        data: [358.53, 361.48, 397.69, 457.89, 408.10, 461.27, 466.05, 390.35, 433.17, 523.63, 521.72, 589.83, 730.01, 622.83, 649.17, 829.00, 983.20],
+                        borderColor: '#4ECDC4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.15)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4ECDC4',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Trend Line',
+                        data: [358.53, 361.48, 397.69, 457.89, 408.10, 461.27, 466.05, 390.35, 433.17, 523.63, 521.72, 589.83, 730.01, 622.83, 649.17, 829.00, 983.20],
+                        borderColor: '#F7946B',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

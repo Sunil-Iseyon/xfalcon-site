@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Pipeline & Conversion | Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+        }
+
+        header {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #E02B20;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .filters-section {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #1A1A1A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #FFFFFF;
+            color: #1A1A1A;
+            cursor: pointer;
+        }
+
+        .filter-group select:hover {
+            border-color: #E02B20;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E02B20;
+            box-shadow: 0 0 0 2px rgba(224, 43, 32, 0.1);
+        }
+
+        .kpis-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-top: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+
+        .chart-analysis {
+            border-left: 3px solid #E02B20;
+            padding: 15px;
+            background-color: #fafafa;
+            font-size: 13px;
+            color: #555;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        footer {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            margin-top: 50px;
+        }
+
+        .full-width-chart {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width-chart {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-link">← Back to Home</a>
+        <h1>02 | Lead Pipeline & Conversion</h1>
+        <p>Falcon Auto B2B</p>
+    </header>
+
+    <div class="container">
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="yearFilter">Year</label>
+                    <select id="yearFilter">
+                        <option value="all">All Time</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="bizTypeFilter">Business Type</label>
+                    <select id="bizTypeFilter">
+                        <option value="all">All</option>
+                        <option value="body_shop">Body Shop</option>
+                        <option value="collision_shop">Collision Shop</option>
+                        <option value="dealership">Dealership</option>
+                        <option value="service_center">Service Center</option>
+                        <option value="auto_trade_school">Auto Trade School</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sourceFilter">Lead Source</label>
+                    <select id="sourceFilter">
+                        <option value="all">All</option>
+                        <option value="web_form">Web Form</option>
+                        <option value="referral">Referral</option>
+                        <option value="trade_show">Trade Show</option>
+                        <option value="cold_outreach">Cold Outreach</option>
+                        <option value="social_media">Social Media</option>
+                        <option value="partner">Partner</option>
+                        <option value="direct_mail">Direct Mail</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpis-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Leads</div>
+                <div class="kpi-value" id="kpiTotalLeads">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Conversion Rate</div>
+                <div class="kpi-value" id="kpiConversionRate">0%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Days to Convert</div>
+                <div class="kpi-value" id="kpiAvgDaysConvert">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Lost Rate</div>
+                <div class="kpi-value" id="kpiLostRate">0%</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Lead Volume by Source</div>
+                <div class="chart-wrapper">
+                    <canvas id="volumeBySourceChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis-volumeBySource"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Lead Status Distribution</div>
+                <div class="chart-wrapper">
+                    <canvas id="statusDistributionChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis-statusDistribution"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Leads by Business Type</div>
+                <div class="chart-wrapper">
+                    <canvas id="leadsByTypeChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis-leadsByType"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Conversion Rate by Source</div>
+                <div class="chart-wrapper">
+                    <canvas id="conversionRateSourceChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis-conversionRateSource"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Avg Days to Convert by Source</div>
+                <div class="chart-wrapper">
+                    <canvas id="avgDaysSourceChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis-avgDaysSource"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Dashboard generated on March 13, 2026 | Falcon Auto B2B Lead Pipeline Analytics
+    </footer>
+
+    <script>
+        // Color palette
+        const colors = ['#E02B20', '#1A1A1A', '#4A7C9B', '#2E7D32', '#F9A825', '#5C9DC0', '#8E6BBF', '#4ECDC4'];
+
+        // Raw data
+        const rawData = [{"year":2022,"status":"converted","source":"cold_outreach","bizType":"dealership","count":2,"converted":2,"avgDays":743.5},{"year":2022,"status":"converted","source":"partner","bizType":"collision_shop","count":1,"converted":1,"avgDays":373},{"year":2022,"status":"converted","source":"partner","bizType":"dealership","count":2,"converted":2,"avgDays":257},{"year":2022,"status":"converted","source":"partner","bizType":"service_center","count":1,"converted":1,"avgDays":885},{"year":2022,"status":"converted","source":"referral","bizType":"body_shop","count":2,"converted":2,"avgDays":302.5},{"year":2022,"status":"converted","source":"referral","bizType":"dealership","count":2,"converted":2,"avgDays":819},{"year":2022,"status":"converted","source":"referral","bizType":"service_center","count":2,"converted":2,"avgDays":644},{"year":2022,"status":"converted","source":"social_media","bizType":"collision_shop","count":2,"converted":2,"avgDays":268.5},{"year":2022,"status":"converted","source":"trade_show","bizType":"body_shop","count":1,"converted":1,"avgDays":256},{"year":2022,"status":"converted","source":"trade_show","bizType":"dealership","count":1,"converted":1,"avgDays":178},{"year":2022,"status":"converted","source":"trade_show","bizType":"service_center","count":1,"converted":1,"avgDays":366},{"year":2022,"status":"converted","source":"web_form","bizType":"collision_shop","count":2,"converted":2,"avgDays":725.5},{"year":2022,"status":"converted","source":"web_form","bizType":"dealership","count":4,"converted":4,"avgDays":403.5},{"year":2022,"status":"converted","source":"web_form","bizType":"service_center","count":1,"converted":1,"avgDays":1079},{"year":2022,"status":"lost","source":"cold_outreach","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"cold_outreach","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"direct_mail","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"direct_mail","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"partner","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"referral","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"referral","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"referral","bizType":"service_center","count":3,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"trade_show","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"trade_show","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"trade_show","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"web_form","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"web_form","bizType":"collision_shop","count":4,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"web_form","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"lost","source":"web_form","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"cold_outreach","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"cold_outreach","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"direct_mail","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"referral","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"referral","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"referral","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"social_media","bizType":"auto_trade_school","count":2,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"trade_show","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"trade_show","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"web_form","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"web_form","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2022,"status":"proposal_sent","source":"web_form","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"converted","source":"cold_outreach","bizType":"body_shop","count":1,"converted":1,"avgDays":752},{"year":2023,"status":"converted","source":"cold_outreach","bizType":"collision_shop","count":3,"converted":3,"avgDays":456.5},{"year":2023,"status":"converted","source":"cold_outreach","bizType":"dealership","count":3,"converted":3,"avgDays":160.5},{"year":2023,"status":"converted","source":"direct_mail","bizType":"body_shop","count":1,"converted":1,"avgDays":127},{"year":2023,"status":"converted","source":"partner","bizType":"dealership","count":2,"converted":2,"avgDays":108.5},{"year":2023,"status":"converted","source":"referral","bizType":"auto_trade_school","count":1,"converted":1,"avgDays":410},{"year":2023,"status":"converted","source":"referral","bizType":"body_shop","count":1,"converted":1,"avgDays":222},{"year":2023,"status":"converted","source":"referral","bizType":"dealership","count":4,"converted":4,"avgDays":362.75},{"year":2023,"status":"converted","source":"referral","bizType":"service_center","count":2,"converted":2,"avgDays":571},{"year":2023,"status":"converted","source":"social_media","bizType":"collision_shop","count":1,"converted":1,"avgDays":294},{"year":2023,"status":"converted","source":"social_media","bizType":"dealership","count":2,"converted":2,"avgDays":142.5},{"year":2023,"status":"converted","source":"social_media","bizType":"service_center","count":1,"converted":1,"avgDays":null},{"year":2023,"status":"converted","source":"trade_show","bizType":"collision_shop","count":5,"converted":5,"avgDays":349},{"year":2023,"status":"converted","source":"trade_show","bizType":"dealership","count":3,"converted":3,"avgDays":134.5},{"year":2023,"status":"converted","source":"trade_show","bizType":"service_center","count":1,"converted":1,"avgDays":null},{"year":2023,"status":"converted","source":"web_form","bizType":"body_shop","count":1,"converted":1,"avgDays":353},{"year":2023,"status":"converted","source":"web_form","bizType":"collision_shop","count":4,"converted":4,"avgDays":294.67},{"year":2023,"status":"converted","source":"web_form","bizType":"dealership","count":3,"converted":3,"avgDays":502.33},{"year":2023,"status":"converted","source":"web_form","bizType":"service_center","count":2,"converted":2,"avgDays":411},{"year":2023,"status":"lost","source":"cold_outreach","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"cold_outreach","bizType":"body_shop","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"cold_outreach","bizType":"dealership","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"cold_outreach","bizType":"service_center","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"partner","bizType":"body_shop","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"partner","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"referral","bizType":"auto_trade_school","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"referral","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"referral","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"referral","bizType":"dealership","count":3,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"social_media","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"social_media","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"social_media","bizType":"dealership","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"trade_show","bizType":"auto_trade_school","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"trade_show","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"trade_show","bizType":"collision_shop","count":3,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"trade_show","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"trade_show","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"web_form","bizType":"auto_trade_school","count":4,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"web_form","bizType":"body_shop","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"web_form","bizType":"collision_shop","count":3,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"web_form","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"lost","source":"web_form","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"cold_outreach","bizType":"body_shop","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"cold_outreach","bizType":"service_center","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"partner","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"referral","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"referral","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"referral","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"social_media","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"social_media","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"web_form","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2023,"status":"proposal_sent","source":"web_form","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"converted","source":"cold_outreach","bizType":"collision_shop","count":1,"converted":1,"avgDays":202},{"year":2024,"status":"converted","source":"cold_outreach","bizType":"dealership","count":4,"converted":4,"avgDays":187.5},{"year":2024,"status":"converted","source":"cold_outreach","bizType":"service_center","count":1,"converted":1,"avgDays":265},{"year":2024,"status":"converted","source":"direct_mail","bizType":"dealership","count":1,"converted":1,"avgDays":null},{"year":2024,"status":"converted","source":"partner","bizType":"collision_shop","count":1,"converted":1,"avgDays":null},{"year":2024,"status":"converted","source":"partner","bizType":"service_center","count":1,"converted":1,"avgDays":null},{"year":2024,"status":"converted","source":"referral","bizType":"auto_trade_school","count":1,"converted":1,"avgDays":null},{"year":2024,"status":"converted","source":"referral","bizType":"collision_shop","count":3,"converted":3,"avgDays":136},{"year":2024,"status":"converted","source":"referral","bizType":"dealership","count":2,"converted":2,"avgDays":153},{"year":2024,"status":"converted","source":"social_media","bizType":"body_shop","count":2,"converted":2,"avgDays":133},{"year":2024,"status":"converted","source":"social_media","bizType":"dealership","count":2,"converted":2,"avgDays":39},{"year":2024,"status":"converted","source":"trade_show","bizType":"body_shop","count":1,"converted":1,"avgDays":null},{"year":2024,"status":"converted","source":"trade_show","bizType":"collision_shop","count":1,"converted":1,"avgDays":78},{"year":2024,"status":"converted","source":"trade_show","bizType":"dealership","count":2,"converted":2,"avgDays":186},{"year":2024,"status":"converted","source":"trade_show","bizType":"service_center","count":2,"converted":2,"avgDays":49},{"year":2024,"status":"converted","source":"web_form","bizType":"body_shop","count":2,"converted":2,"avgDays":139.5},{"year":2024,"status":"converted","source":"web_form","bizType":"collision_shop","count":2,"converted":2,"avgDays":24.5},{"year":2024,"status":"converted","source":"web_form","bizType":"dealership","count":2,"converted":2,"avgDays":57.5},{"year":2024,"status":"converted","source":"web_form","bizType":"service_center","count":2,"converted":2,"avgDays":207.5},{"year":2024,"status":"lost","source":"cold_outreach","bizType":"body_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"cold_outreach","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"cold_outreach","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"direct_mail","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"direct_mail","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"partner","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"partner","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"partner","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"referral","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"referral","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"referral","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"referral","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"social_media","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"social_media","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"trade_show","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"trade_show","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"trade_show","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"trade_show","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"web_form","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"web_form","bizType":"collision_shop","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"web_form","bizType":"dealership","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"lost","source":"web_form","bizType":"service_center","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"cold_outreach","bizType":"auto_trade_school","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"cold_outreach","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"cold_outreach","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"direct_mail","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"direct_mail","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"partner","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"partner","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"referral","bizType":"auto_trade_school","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"referral","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"referral","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"social_media","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"social_media","bizType":"dealership","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"social_media","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"trade_show","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"trade_show","bizType":"service_center","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"web_form","bizType":"body_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"web_form","bizType":"collision_shop","count":1,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"web_form","bizType":"dealership","count":2,"converted":0,"avgDays":null},{"year":2024,"status":"proposal_sent","source":"web_form","bizType":"service_center","count":1,"converted":0,"avgDays":null}];
+
+        // Chart instances
+        let charts = {};
+
+        // Helper functions
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const bizType = document.getElementById('bizTypeFilter').value;
+            const source = document.getElementById('sourceFilter').value;
+
+            return rawData.filter(row => {
+                const yearMatch = year === 'all' || row.year.toString() === year;
+                const bizMatch = bizType === 'all' || row.bizType === bizType;
+                const sourceMatch = source === 'all' || row.source === source;
+                return yearMatch && bizMatch && sourceMatch;
+            });
+        }
+
+        function aggregateBySource(data) {
+            const agg = {};
+            data.forEach(row => {
+                if (!agg[row.source]) {
+                    agg[row.source] = { total: 0, converted: 0, lost: 0, proposal: 0, totalDays: 0, convertedCount: 0 };
+                }
+                agg[row.source].total += row.count;
+                if (row.status === 'converted') {
+                    agg[row.source].converted += row.count;
+                    if (row.avgDays !== null) {
+                        agg[row.source].totalDays += row.avgDays * row.count;
+                        agg[row.source].convertedCount += row.count;
+                    }
+                } else if (row.status === 'lost') {
+                    agg[row.source].lost += row.count;
+                } else if (row.status === 'proposal_sent') {
+                    agg[row.source].proposal += row.count;
+                }
+            });
+            return agg;
+        }
+
+        function aggregateByBizType(data) {
+            const agg = {};
+            data.forEach(row => {
+                if (!agg[row.bizType]) {
+                    agg[row.bizType] = 0;
+                }
+                agg[row.bizType] += row.count;
+            });
+            return agg;
+        }
+
+        function aggregateByStatus(data) {
+            const agg = { converted: 0, lost: 0, proposal_sent: 0 };
+            data.forEach(row => {
+                agg[row.status] += row.count;
+            });
+            return agg;
+        }
+
+        function calculateKPIs(data) {
+            const totalLeads = data.reduce((sum, row) => sum + row.count, 0);
+            const totalConverted = data.filter(r => r.status === 'converted').reduce((sum, row) => sum + row.count, 0);
+            const totalLost = data.filter(r => r.status === 'lost').reduce((sum, row) => sum + row.count, 0);
+
+            const conversionRate = totalLeads > 0 ? ((totalConverted / totalLeads) * 100).toFixed(1) : 0;
+            const lostRate = totalLeads > 0 ? ((totalLost / totalLeads) * 100).toFixed(1) : 0;
+
+            let totalDays = 0;
+            let convertedWithDays = 0;
+            data.forEach(row => {
+                if (row.status === 'converted' && row.avgDays !== null) {
+                    totalDays += row.avgDays * row.count;
+                    convertedWithDays += row.count;
+                }
+            });
+            const avgDays = convertedWithDays > 0 ? Math.round(totalDays / convertedWithDays) : 0;
+
+            return { totalLeads, conversionRate, avgDays, lostRate };
+        }
+
+        function destroyChart(chartId) {
+            if (charts[chartId]) {
+                charts[chartId].destroy();
+                charts[chartId] = null;
+            }
+        }
+
+        function formatSourceLabel(source) {
+            const labels = {
+                'web_form': 'Web Form',
+                'referral': 'Referral',
+                'trade_show': 'Trade Show',
+                'cold_outreach': 'Cold Outreach',
+                'social_media': 'Social Media',
+                'partner': 'Partner',
+                'direct_mail': 'Direct Mail'
+            };
+            return labels[source] || source;
+        }
+
+        function formatBizTypeLabel(type) {
+            const labels = {
+                'body_shop': 'Body Shop',
+                'collision_shop': 'Collision Shop',
+                'dealership': 'Dealership',
+                'service_center': 'Service Center',
+                'auto_trade_school': 'Auto Trade School'
+            };
+            return labels[type] || type;
+        }
+
+        function updateCharts() {
+            const filtered = getFilteredData();
+
+            // Update KPIs
+            const kpis = calculateKPIs(filtered);
+            document.getElementById('kpiTotalLeads').textContent = kpis.totalLeads;
+            document.getElementById('kpiConversionRate').textContent = kpis.conversionRate + '%';
+            document.getElementById('kpiAvgDaysConvert').textContent = kpis.avgDays;
+            document.getElementById('kpiLostRate').textContent = kpis.lostRate + '%';
+
+            // Chart 1: Lead Volume by Source
+            const sourceAgg = aggregateBySource(filtered);
+            const sourceLabels = Object.keys(sourceAgg).map(formatSourceLabel);
+            const sourceValues = Object.values(sourceAgg).map(s => s.total);
+
+            destroyChart('volumeBySourceChart');
+            const ctx1 = document.getElementById('volumeBySourceChart').getContext('2d');
+            charts['volumeBySourceChart'] = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: sourceLabels,
+                    datasets: [{
+                        label: 'Lead Count',
+                        data: sourceValues,
+                        backgroundColor: colors[0],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, max: Math.max(...sourceValues) * 1.1 }
+                    }
+                }
+            });
+
+            const topSource = Object.entries(sourceAgg).sort((a, b) => b[1].total - a[1].total)[0];
+            document.getElementById('analysis-volumeBySource').innerHTML =
+                `<strong>${formatSourceLabel(topSource[0])}</strong> is the strongest lead source with ${topSource[1].total} leads, accounting for ${((topSource[1].total / kpis.totalLeads) * 100).toFixed(1)}% of total volume.`;
+
+            // Chart 2: Lead Status Distribution
+            const statusAgg = aggregateByStatus(filtered);
+            destroyChart('statusDistributionChart');
+            const ctx2 = document.getElementById('statusDistributionChart').getContext('2d');
+            charts['statusDistributionChart'] = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Converted', 'Lost', 'Proposal Sent'],
+                    datasets: [{
+                        data: [statusAgg.converted, statusAgg.lost, statusAgg.proposal_sent],
+                        backgroundColor: [colors[3], colors[1], colors[4]],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            const statusTotal = statusAgg.converted + statusAgg.lost + statusAgg.proposal_sent;
+            document.getElementById('analysis-statusDistribution').innerHTML =
+                `Current pipeline shows ${statusAgg.converted} converted leads (${((statusAgg.converted / statusTotal) * 100).toFixed(1)}%), ${statusAgg.proposal_sent} pending proposals, and ${statusAgg.lost} lost opportunities.`;
+
+            // Chart 3: Leads by Business Type
+            const bizAgg = aggregateByBizType(filtered);
+            const bizLabels = Object.keys(bizAgg).map(formatBizTypeLabel).sort();
+            const bizValues = bizLabels.map(label => {
+                const key = Object.keys(bizAgg).find(k => formatBizTypeLabel(k) === label);
+                return bizAgg[key];
+            });
+
+            destroyChart('leadsByTypeChart');
+            const ctx3 = document.getElementById('leadsByTypeChart').getContext('2d');
+            charts['leadsByTypeChart'] = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: bizLabels,
+                    datasets: [{
+                        label: 'Lead Count',
+                        data: bizValues,
+                        backgroundColor: colors.slice(0, bizLabels.length),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            const topBiz = bizLabels[bizValues.indexOf(Math.max(...bizValues))];
+            document.getElementById('analysis-leadsByType').innerHTML =
+                `<strong>${topBiz}</strong> represents the highest lead volume at ${Math.max(...bizValues)} leads, indicating strong market penetration in this segment.`;
+
+            // Chart 4: Conversion Rate by Source
+            const convRateData = Object.entries(sourceAgg)
+                .map(([src, data]) => ({
+                    source: src,
+                    rate: data.total > 0 ? ((data.converted / data.total) * 100).toFixed(1) : 0
+                }))
+                .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate));
+
+            destroyChart('conversionRateSourceChart');
+            const ctx4 = document.getElementById('conversionRateSourceChart').getContext('2d');
+            charts['conversionRateSourceChart'] = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: convRateData.map(d => formatSourceLabel(d.source)),
+                    datasets: [{
+                        label: 'Conversion Rate (%)',
+                        data: convRateData.map(d => parseFloat(d.rate)),
+                        backgroundColor: colors[2],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+
+            const bestSource = convRateData[0];
+            document.getElementById('analysis-conversionRateSource').innerHTML =
+                `<strong>${formatSourceLabel(bestSource.source)}</strong> leads the conversion performance at ${bestSource.rate}%, demonstrating the quality and fit of leads from this channel.`;
+
+            // Chart 5: Avg Days to Convert by Source
+            const daysData = Object.entries(sourceAgg)
+                .filter(([src, data]) => data.convertedCount > 0)
+                .map(([src, data]) => ({
+                    source: src,
+                    days: Math.round(data.totalDays / data.convertedCount)
+                }))
+                .sort((a, b) => a.days - b.days);
+
+            destroyChart('avgDaysSourceChart');
+            const ctx5 = document.getElementById('avgDaysSourceChart').getContext('2d');
+            charts['avgDaysSourceChart'] = new Chart(ctx5, {
+                type: 'bar',
+                data: {
+                    labels: daysData.map(d => formatSourceLabel(d.source)),
+                    datasets: [{
+                        label: 'Avg Days',
+                        data: daysData.map(d => d.days),
+                        backgroundColor: colors[5],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
+            const fastestSource = daysData[0];
+            const slowestSource = daysData[daysData.length - 1];
+            document.getElementById('analysis-avgDaysSource').innerHTML =
+                `<strong>${formatSourceLabel(fastestSource.source)}</strong> converts fastest at ${fastestSource.days} days average, while <strong>${formatSourceLabel(slowestSource.source)}</strong> takes ${slowestSource.days} days, highlighting efficiency variations across channels.`;
+        }
+
+        // Event listeners
+        document.getElementById('yearFilter').addEventListener('change', updateCharts);
+        document.getElementById('bizTypeFilter').addEventListener('change', updateCharts);
+        document.getElementById('sourceFilter').addEventListener('change', updateCharts);
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', updateCharts);
+    </script>
+</body>
+</html>

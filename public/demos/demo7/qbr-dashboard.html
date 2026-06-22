@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quarterly Business Review — Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F6F9;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #1A1A1A 0%, #2C2C2C 100%);
+            color: #FFF;
+            padding: 32px 20px;
+            margin-bottom: 30px;
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+        .header p { font-size: 14px; opacity: 0.85; }
+        .header-right { text-align: right; }
+        .header-right .quarter-badge {
+            display: inline-block;
+            background: #E02B20;
+            color: #FFF;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .header-link {
+            display: inline-block;
+            color: #E02B20;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 12px;
+            border: 1px solid #E02B20;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .header-link:hover { background-color: #E02B20; color: #FFF; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        /* Section headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 36px 0 18px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E02B20;
+        }
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+        .section-num {
+            background: #E02B20;
+            color: #FFF;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* KPI cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: #FFF;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-left: 4px solid #E02B20;
+        }
+        .kpi-card .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .kpi-card .value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+        .kpi-card .change {
+            font-size: 12px;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+        .positive { color: #2E7D32; }
+        .negative { color: #E02B20; }
+        .neutral { color: #888; }
+
+        /* Chart cards */
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: #FFF;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .chart-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 2px solid #dfe6e9;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f2f6;
+        }
+        .data-table tr:hover { background: #f8f9fa; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+        /* Insight box */
+        .insight-box {
+            background: #FFF8F0;
+            border-left: 4px solid #E02B20;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0 24px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #444;
+        }
+        .insight-box strong { color: #1A1A1A; }
+
+        /* Tab navigation */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: #FFF;
+            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #E02B20;
+            color: #FFF;
+        }
+        .tab-btn:hover:not(.active) { background: #f0f0f0; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #b2bec3;
+            margin: 40px 0 20px;
+            padding-top: 16px;
+            border-top: 1px solid #dfe6e9;
+        }
+
+        @media (max-width: 850px) {
+            .header-content { flex-direction: column; }
+            .header-right { text-align: left; margin-top: 12px; }
+            .chart-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-content">
+        <div>
+            <h1>Quarterly Business Review</h1>
+            <p>Falcon Auto B2B &mdash; Q3 & Q4 2025 (Jul&ndash;Dec)</p>
+        </div>
+        <div class="header-right">
+            <div class="quarter-badge">H2 2025</div><br>
+            <a href="index.html" class="header-link">&larr; Back to Dashboard Hub</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="overview">Executive Overview</button>
+        <button class="tab-btn" data-tab="sales">Sales & Revenue</button>
+        <button class="tab-btn" data-tab="leads">Lead Pipeline</button>
+        <button class="tab-btn" data-tab="product">Product & Pricing</button>
+        <button class="tab-btn" data-tab="inventory">Inventory</button>
+        <button class="tab-btn" data-tab="programs">Programs</button>
+        <button class="tab-btn" data-tab="customers">Customers</button>
+        <button class="tab-btn" data-tab="cost">Cost & Vendor</button>
+    </div>
+
+    <!-- ==================== OVERVIEW TAB ==================== -->
+    <div class="tab-content active" id="tab-overview">
+        <div class="section-header">
+            <div class="section-num">1</div>
+            <h2>Executive Summary — H2 2025</h2>
+        </div>
+
+        <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
+            <div class="kpi-card">
+                <div class="label">H2 Revenue</div>
+                <div class="value">$469K</div>
+                <div class="change neutral">Q3: $235K | Q4: $234K</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Total Orders</div>
+                <div class="value">601</div>
+                <div class="change neutral">Q3: 311 | Q4: 290</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Total Units</div>
+                <div class="value">3,535</div>
+                <div class="change neutral">Q3: 1,782 | Q4: 1,753</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Total Savings</div>
+                <div class="value">$99K</div>
+                <div class="change neutral">Q3: $49K | Q4: $50K</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Active Customers</div>
+                <div class="value">155</div>
+                <div class="change neutral">Q3: 108 | Q4: 115</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <h3>Monthly Revenue Trend — H2 2025</h3>
+                <canvas id="overviewTrend" height="80"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Revenue by Business Segment</h3>
+                <canvas id="overviewSegment"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Revenue by Region</h3>
+                <canvas id="overviewRegion"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Key Takeaways:</strong> H2 2025 generated <strong>$468.8K</strong> in revenue across <strong>601 orders</strong> from <strong>155 unique customers</strong>.
+            Revenue was evenly split between Q3 ($234.7K) and Q4 ($234.0K), indicating stable demand.
+            September was the strongest month ($105K), driven by seasonal buying. Q4 saw a notable shift: Northeast revenue surged from $25K to $60K (+135%) while Southwest declined significantly.
+            Body Shops remain the largest segment (~47% of revenue), with Dealerships gaining ground in Q4.
+        </div>
+    </div>
+
+    <!-- ==================== SALES TAB ==================== -->
+    <div class="tab-content" id="tab-sales">
+        <div class="section-header">
+            <div class="section-num">2</div>
+            <h2>Sales & Revenue Performance</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Q3 Revenue</div>
+                <div class="value">$234.7K</div>
+                <div class="change neutral">311 orders</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q4 Revenue</div>
+                <div class="value">$234.0K</div>
+                <div class="change negative">&#9660; 0.3% QoQ</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q3 Avg Price</div>
+                <div class="value">$141.93</div>
+                <div class="change neutral">per unit</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q4 Avg Price</div>
+                <div class="value">$133.90</div>
+                <div class="change negative">&#9660; 5.7% QoQ</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <h3>Monthly Revenue & Orders</h3>
+                <canvas id="salesMonthly" height="80"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Revenue by Category — Q3 vs Q4</h3>
+                <canvas id="salesCategory"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Units Sold by Category — Q3 vs Q4</h3>
+                <canvas id="salesUnits"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Sales Insights:</strong> Revenue held steady QoQ, but <strong>average unit price declined 5.7%</strong> ($142 → $134), suggesting a shift toward lower-priced items.
+            <strong>Equipment</strong> dominates at 62% of revenue despite having the fewest units (171 total) — a high-value, low-volume segment.
+            September ($105K) and November ($121K) were peak months, likely driven by end-of-quarter purchasing.
+            December dipped to $52K, indicating holiday seasonality.
+        </div>
+    </div>
+
+    <!-- ==================== LEADS TAB ==================== -->
+    <div class="tab-content" id="tab-leads">
+        <div class="section-header">
+            <div class="section-num">3</div>
+            <h2>Lead Pipeline</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Q3 New Leads</div>
+                <div class="value">19</div>
+                <div class="change neutral">6 sources</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Converted</div>
+                <div class="value">12</div>
+                <div class="change positive">63% rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Lost</div>
+                <div class="value">5</div>
+                <div class="change negative">26% rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">In Progress</div>
+                <div class="value">2</div>
+                <div class="change neutral">Proposal sent</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Lead Status — Q3 2025</h3>
+                <canvas id="leadStatus"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Lead Sources — Q3 2025</h3>
+                <canvas id="leadSource"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <h3>Leads by Business Type — Q3 2025</h3>
+                <canvas id="leadBizType" height="80"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Pipeline Insights:</strong> Q3 generated <strong>19 leads</strong> with a strong <strong>63% conversion rate</strong> (12 converted).
+            Note: Q4 lead data is not yet available in the system.
+            <strong>Web forms</strong> are the top lead source (6 leads), followed by direct mail and referrals (4 each).
+            Dealerships and service centers represent the largest opportunity pools. Two proposals remain active (collision shop and service center) — follow-up recommended.
+        </div>
+    </div>
+
+    <!-- ==================== PRODUCT TAB ==================== -->
+    <div class="tab-content" id="tab-product">
+        <div class="section-header">
+            <div class="section-num">4</div>
+            <h2>Product & Pricing Analysis</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Avg Savings %</div>
+                <div class="value">17.6%</div>
+                <div class="change neutral">vs MSRP</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">H2 Total Savings</div>
+                <div class="value">$99.0K</div>
+                <div class="change neutral">Q3: $49K | Q4: $50K</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Equipment Avg Savings</div>
+                <div class="value">$357/unit</div>
+                <div class="change neutral">Highest per-unit</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Categories</div>
+                <div class="value">6</div>
+                <div class="change neutral">Active categories</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Avg Savings % by Category — Q3 vs Q4</h3>
+                <canvas id="prodSavings"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Avg Savings per Unit ($) by Category</h3>
+                <canvas id="prodSavingsUnit"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <h3>Category Performance Summary</h3>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" id="prodTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="num">Q3 Revenue</th>
+                                <th class="num">Q4 Revenue</th>
+                                <th class="num">QoQ Change</th>
+                                <th class="num">Q3 Units</th>
+                                <th class="num">Q4 Units</th>
+                                <th class="num">Avg Savings %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Pricing Insights:</strong> Average savings vs MSRP is <strong>17.6%</strong>, fairly consistent across categories (16-19%).
+            <strong>Paint & Coatings</strong> shows highest savings rate (18.6% in Q3), while <strong>Abrasives</strong> saw the biggest QoQ decline (18.1% → 16.2%).
+            Equipment delivers the highest dollar savings per unit ($335-$379), making it a strong value proposition for members despite lower percentage savings.
+        </div>
+    </div>
+
+    <!-- ==================== INVENTORY TAB ==================== -->
+    <div class="tab-content" id="tab-inventory">
+        <div class="section-header">
+            <div class="section-num">5</div>
+            <h2>Inventory Health</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Total On-Hand</div>
+                <div class="value">4,260</div>
+                <div class="change neutral">30 SKUs</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Total Reserved</div>
+                <div class="value">284</div>
+                <div class="change neutral">6.7% of stock</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Below Reorder</div>
+                <div class="value">0</div>
+                <div class="change positive">All stocked</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Product Categories</div>
+                <div class="value">6</div>
+                <div class="change neutral">All active</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Inventory On-Hand by Category</h3>
+                <canvas id="invOnHand"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Inventory Utilization (Reserved / On-Hand)</h3>
+                <canvas id="invUtil"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <h3>Inventory Snapshot by Category</h3>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" id="invTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="num">Products</th>
+                                <th class="num">Qty On Hand</th>
+                                <th class="num">Qty Reserved</th>
+                                <th class="num">Available</th>
+                                <th class="num">% Utilized</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Inventory Insights:</strong> All categories are above reorder thresholds — no stockout risk.
+            <strong>Equipment</strong> has only 34 units on-hand with 41% reserved — the tightest category. At H2's sell rate of ~171 units over 6 months, equipment may need replenishment planning.
+            Paint & Coatings and Autobody Tools have the deepest stock (~1,050 units each).
+            Note: Inventory data is a point-in-time snapshot, not trended by quarter.
+        </div>
+    </div>
+
+    <!-- ==================== PROGRAMS TAB ==================== -->
+    <div class="tab-content" id="tab-programs">
+        <div class="section-header">
+            <div class="section-num">6</div>
+            <h2>Programs & Engagement</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Q3 Enrollments</div>
+                <div class="value">33</div>
+                <div class="change neutral">9 programs</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q4 Enrollments</div>
+                <div class="value">14</div>
+                <div class="change negative">&#9660; 57.6% QoQ</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q3 Member Events</div>
+                <div class="value">417</div>
+                <div class="change neutral">118 orgs active</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q4 Member Events</div>
+                <div class="value">521</div>
+                <div class="change positive">&#9650; 24.9% QoQ</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Program Enrollments — Q3 vs Q4</h3>
+                <canvas id="progEnroll"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Member Activity by Type — Q3 vs Q4</h3>
+                <canvas id="progActivity"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Program Insights:</strong> Enrollment velocity dropped <strong>57.6%</strong> from Q3 (33) to Q4 (14), with several programs seeing zero new enrollments in Q4 (Financial Services, Capital Equipment, Security).
+            However, <strong>member activity surged 25%</strong> (417 → 521 events), suggesting existing members became more engaged even as new enrollment slowed.
+            <strong>Utilities Optimization</strong> and <strong>Shop Equipment Leasing</strong> were the most popular programs both quarters.
+            Waste & Recycling grew from 1 to 3 enrollments — an emerging program to watch.
+        </div>
+    </div>
+
+    <!-- ==================== CUSTOMERS TAB ==================== -->
+    <div class="tab-content" id="tab-customers">
+        <div class="section-header">
+            <div class="section-num">7</div>
+            <h2>Customer Analysis</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Q3 Customers</div>
+                <div class="value">108</div>
+                <div class="change neutral">$2,174 avg rev</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q4 Customers</div>
+                <div class="value">115</div>
+                <div class="change positive">&#9650; 6.5% QoQ</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Q4 Avg Revenue</div>
+                <div class="value">$2,035</div>
+                <div class="change negative">&#9660; 6.4% QoQ</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Elite Rev/Customer</div>
+                <div class="value">$3,246</div>
+                <div class="change neutral">Avg across H2</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Revenue by Membership Tier — Q3 vs Q4</h3>
+                <canvas id="custTier"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Revenue per Customer by Tier</h3>
+                <canvas id="custRevPer"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Revenue by Region — Q3 vs Q4</h3>
+                <canvas id="custRegion"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Revenue by Business Type — Q3 vs Q4</h3>
+                <canvas id="custBizType"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Customer Insights:</strong> Customer count grew <strong>6.5%</strong> (108 → 115), but average revenue per customer fell 6.4%, meaning new customers are spending less.
+            <strong>Preferred tier</strong> overtook Elite in Q4 revenue ($100K vs $94K), driven by a 23% increase in spend per customer ($1,984 → $2,440).
+            <strong>Standard tier</strong> saw a concerning 41% revenue drop ($64K → $40K). Northeast region had a breakout quarter (+135% revenue), while Southwest declined 63%.
+        </div>
+    </div>
+
+    <!-- ==================== COST & VENDOR TAB ==================== -->
+    <div class="tab-content" id="tab-cost">
+        <div class="section-header">
+            <div class="section-num">8</div>
+            <h2>Cost Savings & Vendor Analysis</h2>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="label">Cost Analyses (H2)</div>
+                <div class="value">25</div>
+                <div class="change neutral">Q3: 11 | Q4: 14</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Completed</div>
+                <div class="value">17</div>
+                <div class="change neutral">68% completion</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Spend Analyzed</div>
+                <div class="value">$9.6M</div>
+                <div class="change neutral">All submissions</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Est. Savings</div>
+                <div class="value">$1.05M</div>
+                <div class="change neutral">17.3% avg rate</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Cost Analysis Submissions — Q3 vs Q4</h3>
+                <canvas id="costSubmissions"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Top 5 Vendors by H2 Revenue</h3>
+                <canvas id="costTopVendors"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <h3>Vendor Performance — H2 2025</h3>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" id="vendorTable">
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Type</th>
+                                <th class="num">Q3 Revenue</th>
+                                <th class="num">Q4 Revenue</th>
+                                <th class="num">QoQ Change</th>
+                                <th class="num">H2 Savings</th>
+                                <th class="num">Avg Savings %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Vendor & Cost Insights:</strong> Cost analysis volume grew <strong>27%</strong> QoQ (11 → 14 submissions), with Q4 completing 10 analyses vs 7 in Q3.
+            <strong>$9.6M</strong> in spend was analyzed with estimated savings of <strong>$1.05M</strong> (17.3% avg rate).
+            <strong>TorqMaster Equipment</strong> dominates vendor revenue ($291K, 62% of total), all via direct partnership.
+            All 10 vendors are <strong>Direct Partners</strong> except CleanRun Chemicals and ClearView Glass (Indirect), which together represent only 2% of revenue.
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    Falcon Auto B2B &mdash; Quarterly Business Review &mdash; Generated March 2026 &mdash; Data: Q3 & Q4 2025
+</div>
+
+<script>
+// ============ EMBEDDED DATA ============
+const monthlyData = [
+    {month:'Jul', quarter:'Q3', revenue:81605, units:470, orders:94},
+    {month:'Aug', quarter:'Q3', revenue:48159, units:542, orders:91},
+    {month:'Sep', quarter:'Q3', revenue:104972, units:770, orders:126},
+    {month:'Oct', quarter:'Q4', revenue:61471, units:520, orders:91},
+    {month:'Nov', quarter:'Q4', revenue:120936, units:652, orders:105},
+    {month:'Dec', quarter:'Q4', revenue:51625, units:581, orders:94}
+];
+
+const categoryData = [
+    {cat:'Equipment', q3rev:146456, q4rev:144955, q3units:89, q4units:82, q3price:1660, q4price:1717},
+    {cat:'Autobody Tools', q3rev:57905, q4rev:56090, q3units:475, q4units:445, q3price:122, q4price:124},
+    {cat:'Paint & Coatings', q3rev:12618, q4rev:14668, q3units:337, q4units:377, q3price:39, q4price:39},
+    {cat:'Shop Supplies', q3rev:7981, q4rev:9744, q3units:292, q4units:312, q3price:28, q4price:31},
+    {cat:'Abrasives', q3rev:5357, q4rev:5439, q3units:311, q4units:315, q3price:18, q4price:18},
+    {cat:'Safety & PPE', q3rev:4418, q4rev:3136, q3units:278, q4units:222, q3price:16, q4price:15}
+];
+
+const savingsData = [
+    {cat:'Paint & Coatings', q3pct:18.55, q4pct:17.05, q3perunit:8.83, q4perunit:7.91},
+    {cat:'Abrasives', q3pct:18.12, q4pct:16.20, q3perunit:3.90, q4perunit:3.37},
+    {cat:'Safety & PPE', q3pct:18.00, q4pct:17.67, q3perunit:3.43, q4perunit:3.14},
+    {cat:'Shop Supplies', q3pct:17.58, q4pct:17.88, q3perunit:5.80, q4perunit:6.63},
+    {cat:'Autobody Tools', q3pct:17.58, q4pct:17.32, q3perunit:26.46, q4perunit:26.35},
+    {cat:'Equipment', q3pct:17.12, q4pct:17.74, q3perunit:335.41, q4perunit:378.95}
+];
+
+const leadStatusData = [{status:'Converted', count:12}, {status:'Lost', count:5}, {status:'Proposal Sent', count:2}];
+const leadSourceData = [
+    {source:'Web Form', count:6}, {source:'Direct Mail', count:4}, {source:'Referral', count:4},
+    {source:'Cold Outreach', count:2}, {source:'Trade Show', count:2}, {source:'Partner', count:1}
+];
+const leadBizData = [
+    {type:'Dealership', converted:5, lost:3, active:0},
+    {type:'Service Center', converted:4, lost:0, active:1},
+    {type:'Collision Shop', converted:2, lost:1, active:1},
+    {type:'Body Shop', converted:1, lost:1, active:0}
+];
+
+const inventoryData = [
+    {cat:'Paint & Coatings', products:6, onHand:1068, reserved:66},
+    {cat:'Autobody Tools', products:8, onHand:1040, reserved:68},
+    {cat:'Abrasives', products:4, onHand:854, reserved:29},
+    {cat:'Safety & PPE', products:4, onHand:722, reserved:44},
+    {cat:'Shop Supplies', products:6, onHand:542, reserved:63},
+    {cat:'Equipment', products:2, onHand:34, reserved:14}
+];
+
+const programData = [
+    {program:'Utilities Optimization', q3:8, q4:4},
+    {program:'Financial Services', q3:6, q4:0},
+    {program:'Shop Equipment Leasing', q3:5, q4:4},
+    {program:'Oil & Lubricants', q3:4, q4:1},
+    {program:'Safety & Compliance', q3:4, q4:1},
+    {program:'Paint & Supplies', q3:3, q4:1},
+    {program:'Capital Equipment', q3:1, q4:0},
+    {program:'Security & Surveillance', q3:1, q4:0},
+    {program:'Waste & Recycling', q3:1, q4:3}
+];
+
+const activityData = [
+    {type:'Engagement', q3:201, q4:255, q3orgs:118, q4orgs:137},
+    {type:'Transaction', q3:196, q4:243, q3orgs:119, q4orgs:144},
+    {type:'Admin', q3:20, q4:23, q3orgs:19, q4orgs:21}
+];
+
+const tierData = [
+    {tier:'Elite', q3rev:97126, q4rev:94263, q3cust:29, q4cust:30, q3rpc:3349, q4rpc:3142},
+    {tier:'Preferred', q3rev:73394, q4rev:100026, q3cust:37, q4cust:41, q3rpc:1984, q4rpc:2440},
+    {tier:'Standard', q3rev:64215, q4rev:39743, q3cust:42, q4cust:44, q3rpc:1529, q4rpc:903}
+];
+
+const regionData = [
+    {region:'Southeast', q3rev:63016, q4rev:60065, q3cust:31, q4cust:29},
+    {region:'Midwest', q3rev:61992, q4rev:42530, q3cust:29, q4cust:26},
+    {region:'West', q3rev:48129, q4rev:58289, q3cust:21, q4cust:25},
+    {region:'Northeast', q3rev:25409, q4rev:59836, q3cust:13, q4cust:20},
+    {region:'Southwest', q3rev:36189, q4rev:13312, q3cust:14, q4cust:15}
+];
+
+const bizTypeData = [
+    {type:'Body Shop', q3rev:132393, q4rev:90498, q3cust:43, q4cust:46},
+    {type:'Dealership', q3rev:56324, q4rev:75113, q3cust:40, q4cust:40},
+    {type:'Service', q3rev:37974, q4rev:54299, q3cust:23, q4cust:26},
+    {type:'Education', q3rev:8044, q4rev:14122, q3cust:2, q4cust:3}
+];
+
+const costData = [
+    {quarter:'Q3', completed:7, in_review:3, pending:1, totalSpend:3562036, estSavings:331916, avgPct:17.6},
+    {quarter:'Q4', completed:10, in_review:1, pending:3, totalSpend:6056802, estSavings:721981, avgPct:17.0}
+];
+
+const vendorData = [
+    {vendor:'TorqMaster Equipment', type:'Direct', q3rev:146456, q4rev:144955, q3sav:29055, q4sav:31713, q3pct:17.1, q4pct:17.7},
+    {vendor:'Alpha Surface Solutions', type:'Direct', q3rev:31200, q4rev:35082, q3sav:7160, q4sav:7369, q3pct:18.3, q4pct:17.7},
+    {vendor:'PrecisionSpray LLC', type:'Direct', q3rev:16383, q4rev:12515, q3sav:3836, q4sav:2582, q3pct:17.8, q4pct:16.5},
+    {vendor:'BodRight Tools Inc.', type:'Direct', q3rev:13480, q4rev:11413, q3sav:2815, q4sav:2212, q3pct:16.7, q4pct:17.5},
+    {vendor:'ProCoat Industries', type:'Direct', q3rev:9460, q4rev:11749, q3sav:2192, q4sav:2351, q3pct:18.6, q4pct:16.6},
+    {vendor:'LubriMax Oil & Fluids', type:'Direct', q3rev:3249, q4rev:5596, q3sav:595, q4sav:1190, q3pct:15.9, q4pct:17.3},
+    {vendor:'Apex Abrasive Co.', type:'Direct', q3rev:5357, q4rev:5439, q3sav:1218, q4sav:1075, q3pct:18.1, q4pct:16.2},
+    {vendor:'ShieldTech Safety', type:'Direct', q3rev:4418, q4rev:3136, q3sav:937, q4sav:678, q3pct:18.0, q4pct:17.7},
+    {vendor:'CleanRun Chemicals', type:'Indirect', q3rev:2816, q4rev:2498, q3sav:638, q4sav:608, q3pct:17.8, q4pct:18.7},
+    {vendor:'ClearView Glass & Detail', type:'Indirect', q3rev:1916, q4rev:1650, q3sav:432, q4sav:353, q3pct:18.6, q4pct:17.4}
+];
+
+// ============ COLORS ============
+const COLORS = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4','#FF6B6B','#C0392B'];
+const Q3_COLOR = '#E02B20';
+const Q4_COLOR = '#1A1A1A';
+
+// ============ HELPERS ============
+function fmtK(v) { return v >= 1000000 ? '$' + (v/1000000).toFixed(1) + 'M' : '$' + (v/1000).toFixed(0) + 'K'; }
+function fmtD(v) { return '$' + v.toLocaleString(); }
+function pctChange(a, b) { return b !== 0 ? ((a-b)/b*100).toFixed(1) + '%' : 'N/A'; }
+
+// ============ TAB LOGIC ============
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const charts = {};
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        // Resize charts after tab switch
+        setTimeout(() => {
+            Object.values(charts).forEach(c => { if (c && c.resize) c.resize(); });
+        }, 50);
+    });
+});
+
+// ============ OVERVIEW CHARTS ============
+charts.overviewTrend = new Chart(document.getElementById('overviewTrend'), {
+    type: 'bar',
+    data: {
+        labels: monthlyData.map(m => m.month),
+        datasets: [
+            {
+                type: 'bar',
+                label: 'Revenue',
+                data: monthlyData.map(m => m.revenue),
+                backgroundColor: monthlyData.map(m => m.quarter === 'Q3' ? Q3_COLOR : Q4_COLOR),
+                borderRadius: 4,
+                order: 2
+            },
+            {
+                type: 'line',
+                label: 'Orders',
+                data: monthlyData.map(m => m.orders),
+                borderColor: '#4A7C9B',
+                backgroundColor: '#4A7C9B',
+                pointRadius: 5,
+                yAxisID: 'y1',
+                tension: 0.3,
+                order: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, ticks: { callback: v => fmtK(v) }, title: { display: true, text: 'Revenue' } },
+            y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Orders' } }
+        }
+    }
+});
+
+charts.overviewSegment = new Chart(document.getElementById('overviewSegment'), {
+    type: 'bar',
+    data: {
+        labels: bizTypeData.map(b => b.type),
+        datasets: [
+            { label: 'Q3', data: bizTypeData.map(b => b.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: bizTypeData.map(b => b.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+charts.overviewRegion = new Chart(document.getElementById('overviewRegion'), {
+    type: 'bar',
+    data: {
+        labels: regionData.map(r => r.region),
+        datasets: [
+            { label: 'Q3', data: regionData.map(r => r.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: regionData.map(r => r.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+// ============ SALES CHARTS ============
+charts.salesMonthly = new Chart(document.getElementById('salesMonthly'), {
+    type: 'bar',
+    data: {
+        labels: monthlyData.map(m => m.month),
+        datasets: [
+            {
+                type: 'bar', label: 'Revenue',
+                data: monthlyData.map(m => m.revenue),
+                backgroundColor: monthlyData.map(m => m.quarter === 'Q3' ? Q3_COLOR : Q4_COLOR),
+                borderRadius: 4, order: 2
+            },
+            {
+                type: 'line', label: 'Units',
+                data: monthlyData.map(m => m.units),
+                borderColor: '#2E7D32', backgroundColor: '#2E7D32',
+                pointRadius: 5, yAxisID: 'y1', tension: 0.3, order: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, ticks: { callback: v => fmtK(v) }, title: { display: true, text: 'Revenue' } },
+            y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Units' } }
+        }
+    }
+});
+
+charts.salesCategory = new Chart(document.getElementById('salesCategory'), {
+    type: 'bar',
+    data: {
+        labels: categoryData.map(c => c.cat),
+        datasets: [
+            { label: 'Q3', data: categoryData.map(c => c.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: categoryData.map(c => c.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { x: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+charts.salesUnits = new Chart(document.getElementById('salesUnits'), {
+    type: 'bar',
+    data: {
+        labels: categoryData.map(c => c.cat),
+        datasets: [
+            { label: 'Q3', data: categoryData.map(c => c.q3units), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: categoryData.map(c => c.q4units), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { x: { beginAtZero: true } }
+    }
+});
+
+// ============ LEADS CHARTS ============
+charts.leadStatus = new Chart(document.getElementById('leadStatus'), {
+    type: 'doughnut',
+    data: {
+        labels: leadStatusData.map(l => l.status),
+        datasets: [{ data: leadStatusData.map(l => l.count), backgroundColor: ['#2E7D32','#E02B20','#F9A825'] }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' leads' } }
+        }
+    }
+});
+
+charts.leadSource = new Chart(document.getElementById('leadSource'), {
+    type: 'bar',
+    data: {
+        labels: leadSourceData.map(l => l.source),
+        datasets: [{ label: 'Leads', data: leadSourceData.map(l => l.count), backgroundColor: Q3_COLOR, borderRadius: 4 }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+
+charts.leadBizType = new Chart(document.getElementById('leadBizType'), {
+    type: 'bar',
+    data: {
+        labels: leadBizData.map(l => l.type),
+        datasets: [
+            { label: 'Converted', data: leadBizData.map(l => l.converted), backgroundColor: '#2E7D32', borderRadius: 4 },
+            { label: 'Lost', data: leadBizData.map(l => l.lost), backgroundColor: '#E02B20', borderRadius: 4 },
+            { label: 'Active', data: leadBizData.map(l => l.active), backgroundColor: '#F9A825', borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+
+// ============ PRODUCT CHARTS ============
+charts.prodSavings = new Chart(document.getElementById('prodSavings'), {
+    type: 'bar',
+    data: {
+        labels: savingsData.map(s => s.cat),
+        datasets: [
+            { label: 'Q3 %', data: savingsData.map(s => s.q3pct), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4 %', data: savingsData.map(s => s.q4pct), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, max: 25, ticks: { callback: v => v + '%' } } }
+    }
+});
+
+charts.prodSavingsUnit = new Chart(document.getElementById('prodSavingsUnit'), {
+    type: 'bar',
+    data: {
+        labels: savingsData.map(s => s.cat),
+        datasets: [
+            { label: 'Q3 $/unit', data: savingsData.map(s => s.q3perunit), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4 $/unit', data: savingsData.map(s => s.q4perunit), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v } } }
+    }
+});
+
+// Product table
+(function() {
+    const tbody = document.querySelector('#prodTable tbody');
+    categoryData.forEach(c => {
+        const qoq = ((c.q4rev - c.q3rev) / c.q3rev * 100).toFixed(1);
+        const s = savingsData.find(s => s.cat === c.cat);
+        const avgSavings = s ? ((s.q3pct + s.q4pct) / 2).toFixed(1) + '%' : 'N/A';
+        const cls = parseFloat(qoq) >= 0 ? 'positive' : 'negative';
+        tbody.innerHTML += `<tr>
+            <td>${c.cat}</td>
+            <td class="num">${fmtK(c.q3rev)}</td>
+            <td class="num">${fmtK(c.q4rev)}</td>
+            <td class="num"><span class="${cls}">${qoq}%</span></td>
+            <td class="num">${c.q3units.toLocaleString()}</td>
+            <td class="num">${c.q4units.toLocaleString()}</td>
+            <td class="num">${avgSavings}</td>
+        </tr>`;
+    });
+})();
+
+// ============ INVENTORY CHARTS ============
+charts.invOnHand = new Chart(document.getElementById('invOnHand'), {
+    type: 'bar',
+    data: {
+        labels: inventoryData.map(i => i.cat),
+        datasets: [{
+            label: 'On Hand', data: inventoryData.map(i => i.onHand),
+            backgroundColor: COLORS.slice(0, 6), borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } }
+    }
+});
+
+charts.invUtil = new Chart(document.getElementById('invUtil'), {
+    type: 'bar',
+    data: {
+        labels: inventoryData.map(i => i.cat),
+        datasets: [{
+            label: '% Utilized', data: inventoryData.map(i => (i.reserved / i.onHand * 100).toFixed(1)),
+            backgroundColor: inventoryData.map(i => i.reserved / i.onHand > 0.3 ? '#E02B20' : '#4A7C9B'),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { callback: v => v + '%' } } }
+    }
+});
+
+// Inventory table
+(function() {
+    const tbody = document.querySelector('#invTable tbody');
+    inventoryData.forEach(i => {
+        const avail = i.onHand - i.reserved;
+        const util = (i.reserved / i.onHand * 100).toFixed(1);
+        tbody.innerHTML += `<tr>
+            <td>${i.cat}</td>
+            <td class="num">${i.products}</td>
+            <td class="num">${i.onHand.toLocaleString()}</td>
+            <td class="num">${i.reserved.toLocaleString()}</td>
+            <td class="num">${avail.toLocaleString()}</td>
+            <td class="num">${util}%</td>
+        </tr>`;
+    });
+})();
+
+// ============ PROGRAMS CHARTS ============
+charts.progEnroll = new Chart(document.getElementById('progEnroll'), {
+    type: 'bar',
+    data: {
+        labels: programData.map(p => p.program),
+        datasets: [
+            { label: 'Q3', data: programData.map(p => p.q3), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: programData.map(p => p.q4), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+
+charts.progActivity = new Chart(document.getElementById('progActivity'), {
+    type: 'bar',
+    data: {
+        labels: activityData.map(a => a.type),
+        datasets: [
+            { label: 'Q3 Events', data: activityData.map(a => a.q3), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4 Events', data: activityData.map(a => a.q4), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// ============ CUSTOMER CHARTS ============
+charts.custTier = new Chart(document.getElementById('custTier'), {
+    type: 'bar',
+    data: {
+        labels: tierData.map(t => t.tier.charAt(0).toUpperCase() + t.tier.slice(1)),
+        datasets: [
+            { label: 'Q3', data: tierData.map(t => t.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: tierData.map(t => t.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+charts.custRevPer = new Chart(document.getElementById('custRevPer'), {
+    type: 'bar',
+    data: {
+        labels: tierData.map(t => t.tier.charAt(0).toUpperCase() + t.tier.slice(1)),
+        datasets: [
+            { label: 'Q3 $/Customer', data: tierData.map(t => t.q3rpc), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4 $/Customer', data: tierData.map(t => t.q4rpc), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } } }
+    }
+});
+
+charts.custRegion = new Chart(document.getElementById('custRegion'), {
+    type: 'bar',
+    data: {
+        labels: regionData.map(r => r.region),
+        datasets: [
+            { label: 'Q3', data: regionData.map(r => r.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: regionData.map(r => r.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+charts.custBizType = new Chart(document.getElementById('custBizType'), {
+    type: 'bar',
+    data: {
+        labels: bizTypeData.map(b => b.type),
+        datasets: [
+            { label: 'Q3', data: bizTypeData.map(b => b.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: bizTypeData.map(b => b.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+// ============ COST & VENDOR CHARTS ============
+charts.costSubmissions = new Chart(document.getElementById('costSubmissions'), {
+    type: 'bar',
+    data: {
+        labels: ['Q3', 'Q4'],
+        datasets: [
+            { label: 'Completed', data: [7, 10], backgroundColor: '#2E7D32', borderRadius: 4 },
+            { label: 'In Review', data: [3, 1], backgroundColor: '#F9A825', borderRadius: 4 },
+            { label: 'Pending', data: [1, 3], backgroundColor: '#4A7C9B', borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 2 } } }
+    }
+});
+
+const top5Vendors = vendorData.slice(0, 5);
+charts.costTopVendors = new Chart(document.getElementById('costTopVendors'), {
+    type: 'bar',
+    data: {
+        labels: top5Vendors.map(v => v.vendor.split(' ').slice(0, 2).join(' ')),
+        datasets: [
+            { label: 'Q3', data: top5Vendors.map(v => v.q3rev), backgroundColor: Q3_COLOR, borderRadius: 4 },
+            { label: 'Q4', data: top5Vendors.map(v => v.q4rev), backgroundColor: Q4_COLOR, borderRadius: 4 }
+        ]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: { x: { beginAtZero: true, ticks: { callback: v => fmtK(v) } } }
+    }
+});
+
+// Vendor table
+(function() {
+    const tbody = document.querySelector('#vendorTable tbody');
+    vendorData.forEach(v => {
+        const qoq = ((v.q4rev - v.q3rev) / v.q3rev * 100).toFixed(1);
+        const cls = parseFloat(qoq) >= 0 ? 'positive' : 'negative';
+        const h2sav = v.q3sav + v.q4sav;
+        const avgPct = ((v.q3pct + v.q4pct) / 2).toFixed(1);
+        tbody.innerHTML += `<tr>
+            <td>${v.vendor}</td>
+            <td>${v.type}</td>
+            <td class="num">${fmtK(v.q3rev)}</td>
+            <td class="num">${fmtK(v.q4rev)}</td>
+            <td class="num"><span class="${cls}">${qoq}%</span></td>
+            <td class="num">${fmtK(h2sav)}</td>
+            <td class="num">${avgPct}%</td>
+        </tr>`;
+    });
+})();
+</script>
+
+</body>
+</html>

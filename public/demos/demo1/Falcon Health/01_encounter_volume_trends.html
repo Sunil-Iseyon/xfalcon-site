@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 1: Encounter Volume Trends</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2d3436;
+            padding: 24px;
+        }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .header .subtitle { font-size: 14px; color: #636e72; }
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .kpi-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #636e72;
+            margin-bottom: 8px;
+        }
+        .kpi-card .value { font-size: 28px; font-weight: 700; }
+        .kpi-card .sub { font-size: 12px; color: #636e72; margin-top: 4px; }
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #2d3436; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-bar label { font-size: 13px; font-weight: 600; color: #636e72; }
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            min-width: 120px;
+        }
+        .filter-bar select:focus {
+            outline: none;
+            border-color: #2C5F8A;
+            box-shadow: 0 0 0 2px rgba(44,95,138,0.15);
+        }
+        .filter-reset {
+            padding: 8px 16px;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #f5f6fa;
+            color: #636e72;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        .filter-reset:hover { background: #e0e0e0; }
+        .filter-badge {
+            font-size: 11px;
+            color: #2C5F8A;
+            background: rgba(44,95,138,0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 2px solid #dfe6e9;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #636e72;
+        }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f2f6; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .generated-note {
+            text-align: center;
+            font-size: 11px;
+            color: #b2bec3;
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #dfe6e9;
+        }
+        .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Area 1: Encounter Volume Trends</h1>
+    <div class="subtitle">Jan 2023 – Dec 2025 (3 Years) | Generated March 11, 2026</div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row" id="kpiRow">
+    <div class="kpi-card">
+        <div class="label">Total Encounters</div>
+        <div class="value" id="kpiEnc">1,497</div>
+        <div class="sub" id="kpiEncSub">Across 3 years</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Unique Patients</div>
+        <div class="value" id="kpiPat">477</div>
+        <div class="sub" id="kpiPatSub">3.1 encounters/patient avg</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Total Billed</div>
+        <div class="value" id="kpiBilled">$11.9M</div>
+        <div class="sub" id="kpiBilledSub">$7,969 avg per encounter</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Total Paid</div>
+        <div class="value" id="kpiPaid">$5.1M</div>
+        <div class="sub" id="kpiPaidSub">42.3% collection rate</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Avg Length of Stay</div>
+        <div class="value" id="kpiLos">0.40</div>
+        <div class="sub">Days (mostly outpatient)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Weekend Encounters</div>
+        <div class="value" id="kpiWeekend">27.7%</div>
+        <div class="sub" id="kpiWeekendSub">415 of 1,497 total</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+    <div class="filter-group">
+        <label>Year:</label>
+        <select id="yearFilter" onchange="applyFilter()">
+            <option value="All">All Years</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>Month:</label>
+        <select id="monthFilter" onchange="applyFilter()">
+            <option value="All">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+    </div>
+    <span class="filter-badge" id="filterBadge">Showing: All Data (1,497 encounters)</span>
+    <button class="filter-reset" onclick="resetFilters()">Reset Filters</button>
+</div>
+
+<!-- Monthly Trend (full width) -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Encounter Volume Trend</h3>
+        <div class="chart-wrap h300">
+            <canvas id="monthlyTrendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Day of Week + Quarterly side by side -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Encounters by Day of Week</h3>
+        <div class="chart-wrap h300">
+            <canvas id="dowChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Quarterly Volume & Billed Amount</h3>
+        <div class="chart-wrap h300">
+            <canvas id="quarterlyChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Weekend vs Weekday + Year-over-Year -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Weekend vs Weekday Split</h3>
+        <div class="chart-wrap h300">
+            <canvas id="weekendChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Year-over-Year Monthly Comparison</h3>
+        <div class="chart-wrap h300">
+            <canvas id="yoyChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Table -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Detail Grid</h3>
+        <div style="overflow-x: auto;">
+            <table class="data-table" id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th style="text-align:right">Encounters</th>
+                        <th style="text-align:right">Total Billed</th>
+                        <th style="text-align:right">Total Paid</th>
+                        <th style="text-align:right">Avg LOS (Days)</th>
+                        <th style="text-align:right">Collection Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="generated-note">
+    Generated by IDA | Healthcare Encounter Analysis | Data: Jan 2023 – Dec 2025
+</div>
+
+<script>
+const COLORS = {
+    primary: '#2C5F8A', secondary: '#E8913A', success: '#5BA67D',
+    danger: '#C75B5B', warning: '#D4A843', info: '#6A9BC3',
+    muted: '#B2BEC3', purple: '#8E6BBF'
+};
+const CHART_COLORS = ['#2C5F8A','#E8913A','#5BA67D','#C75B5B','#D4A843','#6A9BC3','#8E6BBF','#4ECDC4'];
+
+function formatDollars(v) {
+    if (Math.abs(v) >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
+    if (Math.abs(v) >= 1000) return '$' + (v/1000).toFixed(0) + 'K';
+    return '$' + v.toFixed(0);
+}
+
+const monthNames = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+const monthShort = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// === GRANULAR DATA: year, month, dow_num, day_name, is_weekend, quarter, enc, billed, paid, avg_los ===
+const rawData = [
+{y:2023,m:1,d:1,dn:"Monday",w:0,q:1,e:10,b:81475.69,p:26762.83,l:0.300},
+{y:2023,m:1,d:2,dn:"Tuesday",w:0,q:1,e:11,b:36980.19,p:18470.54,l:0.182},
+{y:2023,m:1,d:3,dn:"Wednesday",w:0,q:1,e:5,b:45608.79,p:17198.02,l:0.200},
+{y:2023,m:1,d:4,dn:"Thursday",w:0,q:1,e:2,b:16685.16,p:6426.76,l:0.000},
+{y:2023,m:1,d:5,dn:"Friday",w:0,q:1,e:2,b:3665.11,p:2284.62,l:0.000},
+{y:2023,m:1,d:6,dn:"Saturday",w:1,q:1,e:7,b:12834.84,p:5160.59,l:0.000},
+{y:2023,m:1,d:7,dn:"Sunday",w:1,q:1,e:10,b:208281.90,p:85833.34,l:0.800},
+{y:2023,m:2,d:1,dn:"Monday",w:0,q:1,e:11,b:14426.50,p:6538.85,l:0.000},
+{y:2023,m:2,d:2,dn:"Tuesday",w:0,q:1,e:5,b:96341.59,p:51627.02,l:0.200},
+{y:2023,m:2,d:3,dn:"Wednesday",w:0,q:1,e:7,b:52957.29,p:22145.16,l:0.429},
+{y:2023,m:2,d:4,dn:"Thursday",w:0,q:1,e:1,b:385.79,p:233.92,l:0.000},
+{y:2023,m:2,d:5,dn:"Friday",w:0,q:1,e:6,b:6131.14,p:2578.92,l:0.000},
+{y:2023,m:2,d:6,dn:"Saturday",w:1,q:1,e:5,b:53982.33,p:29020.76,l:0.400},
+{y:2023,m:2,d:7,dn:"Sunday",w:1,q:1,e:5,b:21256.63,p:9913.74,l:0.000},
+{y:2023,m:3,d:1,dn:"Monday",w:0,q:1,e:4,b:26095.60,p:8847.79,l:0.000},
+{y:2023,m:3,d:2,dn:"Tuesday",w:0,q:1,e:5,b:5627.19,p:2749.51,l:0.000},
+{y:2023,m:3,d:3,dn:"Wednesday",w:0,q:1,e:3,b:1426.84,p:550.97,l:0.000},
+{y:2023,m:3,d:4,dn:"Thursday",w:0,q:1,e:4,b:5953.48,p:2811.40,l:0.000},
+{y:2023,m:3,d:5,dn:"Friday",w:0,q:1,e:5,b:21597.56,p:8142.06,l:0.200},
+{y:2023,m:3,d:6,dn:"Saturday",w:1,q:1,e:5,b:49639.38,p:20887.76,l:0.400},
+{y:2023,m:3,d:7,dn:"Sunday",w:1,q:1,e:3,b:946.25,p:448.83,l:0.000},
+{y:2023,m:4,d:1,dn:"Monday",w:0,q:2,e:9,b:129703.02,p:44418.05,l:0.333},
+{y:2023,m:4,d:2,dn:"Tuesday",w:0,q:2,e:7,b:10610.90,p:5222.76,l:0.000},
+{y:2023,m:4,d:3,dn:"Wednesday",w:0,q:2,e:6,b:10659.35,p:4787.78,l:0.000},
+{y:2023,m:4,d:4,dn:"Thursday",w:0,q:2,e:6,b:10207.14,p:5537.31,l:0.000},
+{y:2023,m:4,d:5,dn:"Friday",w:0,q:2,e:4,b:64236.49,p:30826.33,l:1.000},
+{y:2023,m:4,d:6,dn:"Saturday",w:1,q:2,e:10,b:17329.87,p:8080.89,l:0.000},
+{y:2023,m:4,d:7,dn:"Sunday",w:1,q:2,e:7,b:36471.95,p:14230.58,l:0.429},
+{y:2023,m:5,d:1,dn:"Monday",w:0,q:2,e:6,b:84092.62,p:32950.89,l:0.500},
+{y:2023,m:5,d:2,dn:"Tuesday",w:0,q:2,e:5,b:199257.96,p:62841.22,l:2.000},
+{y:2023,m:5,d:3,dn:"Wednesday",w:0,q:2,e:10,b:62839.53,p:25028.86,l:0.100},
+{y:2023,m:5,d:4,dn:"Thursday",w:0,q:2,e:5,b:21748.86,p:11659.54,l:0.000},
+{y:2023,m:5,d:5,dn:"Friday",w:0,q:2,e:4,b:6688.44,p:2907.35,l:0.000},
+{y:2023,m:5,d:6,dn:"Saturday",w:1,q:2,e:6,b:9092.01,p:3973.47,l:0.000},
+{y:2023,m:5,d:7,dn:"Sunday",w:1,q:2,e:9,b:94880.70,p:45474.53,l:1.222},
+{y:2023,m:6,d:1,dn:"Monday",w:0,q:2,e:3,b:4623.36,p:2315.23,l:0.000},
+{y:2023,m:6,d:2,dn:"Tuesday",w:0,q:2,e:8,b:147913.93,p:68787.38,l:0.375},
+{y:2023,m:6,d:3,dn:"Wednesday",w:0,q:2,e:6,b:80252.17,p:43748.69,l:2.333},
+{y:2023,m:6,d:4,dn:"Thursday",w:0,q:2,e:6,b:11295.94,p:5616.22,l:0.000},
+{y:2023,m:6,d:5,dn:"Friday",w:0,q:2,e:6,b:9608.49,p:3855.49,l:0.000},
+{y:2023,m:6,d:6,dn:"Saturday",w:1,q:2,e:6,b:75758.44,p:36548.01,l:1.167},
+{y:2023,m:6,d:7,dn:"Sunday",w:1,q:2,e:7,b:99718.57,p:37095.56,l:0.429},
+{y:2023,m:7,d:1,dn:"Monday",w:0,q:3,e:11,b:82805.58,p:30394.81,l:0.182},
+{y:2023,m:7,d:2,dn:"Tuesday",w:0,q:3,e:7,b:18052.40,p:7470.20,l:0.000},
+{y:2023,m:7,d:3,dn:"Wednesday",w:0,q:3,e:8,b:177751.55,p:65054.03,l:1.250},
+{y:2023,m:7,d:4,dn:"Thursday",w:0,q:3,e:5,b:54742.25,p:30154.29,l:0.400},
+{y:2023,m:7,d:5,dn:"Friday",w:0,q:3,e:1,b:384.18,p:207.04,l:0.000},
+{y:2023,m:7,d:6,dn:"Saturday",w:1,q:3,e:3,b:90898.21,p:36176.83,l:1.000},
+{y:2023,m:7,d:7,dn:"Sunday",w:1,q:3,e:9,b:38187.87,p:18017.73,l:0.556},
+{y:2023,m:8,d:1,dn:"Monday",w:0,q:3,e:10,b:137649.35,p:55877.53,l:0.400},
+{y:2023,m:8,d:2,dn:"Tuesday",w:0,q:3,e:5,b:8462.83,p:3848.45,l:0.000},
+{y:2023,m:8,d:3,dn:"Wednesday",w:0,q:3,e:4,b:19158.33,p:7753.54,l:0.750},
+{y:2023,m:8,d:4,dn:"Thursday",w:0,q:3,e:4,b:9944.36,p:5583.62,l:0.000},
+{y:2023,m:8,d:5,dn:"Friday",w:0,q:3,e:3,b:5014.65,p:2416.07,l:0.000},
+{y:2023,m:8,d:6,dn:"Saturday",w:1,q:3,e:8,b:9549.56,p:4113.43,l:0.000},
+{y:2023,m:8,d:7,dn:"Sunday",w:1,q:3,e:4,b:20320.95,p:12372.84,l:0.000},
+{y:2023,m:9,d:1,dn:"Monday",w:0,q:3,e:3,b:43724.16,p:16708.46,l:0.667},
+{y:2023,m:9,d:2,dn:"Tuesday",w:0,q:3,e:6,b:127471.11,p:47573.45,l:0.333},
+{y:2023,m:9,d:3,dn:"Wednesday",w:0,q:3,e:3,b:2826.21,p:1112.89,l:0.000},
+{y:2023,m:9,d:4,dn:"Thursday",w:0,q:3,e:2,b:7313.83,p:2638.22,l:0.000},
+{y:2023,m:9,d:5,dn:"Friday",w:0,q:3,e:7,b:57033.27,p:22020.74,l:0.571},
+{y:2023,m:9,d:6,dn:"Saturday",w:1,q:3,e:3,b:2462.32,p:1158.74,l:0.000},
+{y:2023,m:9,d:7,dn:"Sunday",w:1,q:3,e:4,b:19434.43,p:7272.68,l:0.000},
+{y:2023,m:10,d:1,dn:"Monday",w:0,q:4,e:5,b:11023.05,p:5333.54,l:0.000},
+{y:2023,m:10,d:2,dn:"Tuesday",w:0,q:4,e:4,b:3906.75,p:1775.06,l:0.000},
+{y:2023,m:10,d:3,dn:"Wednesday",w:0,q:4,e:6,b:182310.58,p:79311.50,l:1.667},
+{y:2023,m:10,d:4,dn:"Thursday",w:0,q:4,e:9,b:22881.39,p:12392.11,l:0.000},
+{y:2023,m:10,d:5,dn:"Friday",w:0,q:4,e:6,b:31163.54,p:11923.87,l:0.833},
+{y:2023,m:10,d:6,dn:"Saturday",w:1,q:4,e:5,b:5330.46,p:2323.14,l:0.000},
+{y:2023,m:10,d:7,dn:"Sunday",w:1,q:4,e:7,b:6524.81,p:3131.08,l:0.000},
+{y:2023,m:11,d:1,dn:"Monday",w:0,q:4,e:5,b:19395.69,p:8663.58,l:0.000},
+{y:2023,m:11,d:2,dn:"Tuesday",w:0,q:4,e:7,b:9165.35,p:4493.24,l:0.000},
+{y:2023,m:11,d:3,dn:"Wednesday",w:0,q:4,e:4,b:7035.69,p:3473.54,l:0.000},
+{y:2023,m:11,d:4,dn:"Thursday",w:0,q:4,e:9,b:10683.49,p:4973.76,l:0.000},
+{y:2023,m:11,d:5,dn:"Friday",w:0,q:4,e:13,b:29286.13,p:14091.26,l:0.000},
+{y:2023,m:11,d:6,dn:"Saturday",w:1,q:4,e:5,b:115803.93,p:37736.70,l:0.400},
+{y:2023,m:11,d:7,dn:"Sunday",w:1,q:4,e:5,b:80740.40,p:31992.14,l:0.400},
+{y:2023,m:12,d:1,dn:"Monday",w:0,q:4,e:5,b:93076.65,p:37796.48,l:2.400},
+{y:2023,m:12,d:2,dn:"Tuesday",w:0,q:4,e:7,b:34356.13,p:17425.27,l:0.000},
+{y:2023,m:12,d:3,dn:"Wednesday",w:0,q:4,e:7,b:15720.72,p:6798.74,l:0.000},
+{y:2023,m:12,d:4,dn:"Thursday",w:0,q:4,e:4,b:10842.92,p:5946.26,l:0.000},
+{y:2023,m:12,d:5,dn:"Friday",w:0,q:4,e:12,b:142999.05,p:64418.91,l:0.417},
+{y:2023,m:12,d:6,dn:"Saturday",w:1,q:4,e:5,b:49895.96,p:23624.83,l:1.400},
+{y:2023,m:12,d:7,dn:"Sunday",w:1,q:4,e:7,b:68536.11,p:39959.22,l:0.857},
+{y:2024,m:1,d:1,dn:"Monday",w:0,q:1,e:8,b:60892.63,p:26058.23,l:1.375},
+{y:2024,m:1,d:2,dn:"Tuesday",w:0,q:1,e:12,b:116772.39,p:47113.13,l:0.667},
+{y:2024,m:1,d:3,dn:"Wednesday",w:0,q:1,e:5,b:7036.63,p:2909.48,l:0.000},
+{y:2024,m:1,d:4,dn:"Thursday",w:0,q:1,e:5,b:11804.27,p:5088.70,l:0.000},
+{y:2024,m:1,d:5,dn:"Friday",w:0,q:1,e:3,b:75248.52,p:29759.54,l:0.333},
+{y:2024,m:1,d:6,dn:"Saturday",w:1,q:1,e:1,b:238.45,p:93.09,l:0.000},
+{y:2024,m:1,d:7,dn:"Sunday",w:1,q:1,e:2,b:5185.01,p:2383.48,l:0.000},
+{y:2024,m:2,d:1,dn:"Monday",w:0,q:1,e:7,b:66609.51,p:26512.77,l:0.143},
+{y:2024,m:2,d:2,dn:"Tuesday",w:0,q:1,e:9,b:33184.85,p:14528.02,l:0.000},
+{y:2024,m:2,d:3,dn:"Wednesday",w:0,q:1,e:5,b:19164.05,p:9999.37,l:0.000},
+{y:2024,m:2,d:4,dn:"Thursday",w:0,q:1,e:9,b:106922.34,p:43689.16,l:0.333},
+{y:2024,m:2,d:5,dn:"Friday",w:0,q:1,e:11,b:152453.43,p:67999.07,l:0.545},
+{y:2024,m:2,d:6,dn:"Saturday",w:1,q:1,e:8,b:13878.33,p:7372.12,l:0.000},
+{y:2024,m:2,d:7,dn:"Sunday",w:1,q:1,e:6,b:66027.86,p:31398.08,l:0.833},
+{y:2024,m:3,d:1,dn:"Monday",w:0,q:1,e:3,b:4464.96,p:2098.75,l:0.000},
+{y:2024,m:3,d:2,dn:"Tuesday",w:0,q:1,e:4,b:4186.57,p:2068.16,l:0.000},
+{y:2024,m:3,d:3,dn:"Wednesday",w:0,q:1,e:6,b:11610.77,p:5742.44,l:0.000},
+{y:2024,m:3,d:4,dn:"Thursday",w:0,q:1,e:7,b:13047.32,p:5351.65,l:0.000},
+{y:2024,m:3,d:5,dn:"Friday",w:0,q:1,e:8,b:129293.05,p:59191.51,l:1.250},
+{y:2024,m:3,d:6,dn:"Saturday",w:1,q:1,e:13,b:143126.82,p:63394.94,l:0.385},
+{y:2024,m:3,d:7,dn:"Sunday",w:1,q:1,e:7,b:188676.81,p:74275.24,l:2.143},
+{y:2024,m:4,d:1,dn:"Monday",w:0,q:2,e:6,b:11632.82,p:5114.08,l:0.000},
+{y:2024,m:4,d:2,dn:"Tuesday",w:0,q:2,e:4,b:44564.60,p:18966.98,l:0.750},
+{y:2024,m:4,d:3,dn:"Wednesday",w:0,q:2,e:7,b:266264.96,p:99147.74,l:2.857},
+{y:2024,m:4,d:4,dn:"Thursday",w:0,q:2,e:3,b:7169.44,p:2852.53,l:0.000},
+{y:2024,m:4,d:5,dn:"Friday",w:0,q:2,e:8,b:124265.07,p:44790.43,l:0.125},
+{y:2024,m:4,d:6,dn:"Saturday",w:1,q:2,e:5,b:95726.07,p:37522.23,l:4.800},
+{y:2024,m:4,d:7,dn:"Sunday",w:1,q:2,e:6,b:11604.39,p:5750.52,l:0.000},
+{y:2024,m:5,d:1,dn:"Monday",w:0,q:2,e:7,b:17183.55,p:8498.51,l:0.000},
+{y:2024,m:5,d:2,dn:"Tuesday",w:0,q:2,e:9,b:18629.95,p:7583.45,l:0.111},
+{y:2024,m:5,d:3,dn:"Wednesday",w:0,q:2,e:7,b:4952.14,p:2512.24,l:0.000},
+{y:2024,m:5,d:4,dn:"Thursday",w:0,q:2,e:5,b:111674.61,p:33554.54,l:1.400},
+{y:2024,m:5,d:5,dn:"Friday",w:0,q:2,e:13,b:47757.08,p:20927.26,l:0.231},
+{y:2024,m:5,d:6,dn:"Saturday",w:1,q:2,e:8,b:14032.62,p:6396.26,l:0.000},
+{y:2024,m:5,d:7,dn:"Sunday",w:1,q:2,e:6,b:47541.38,p:16399.94,l:0.333},
+{y:2024,m:6,d:1,dn:"Monday",w:0,q:2,e:6,b:118771.11,p:31940.08,l:0.667},
+{y:2024,m:6,d:2,dn:"Tuesday",w:0,q:2,e:3,b:4014.42,p:1488.09,l:0.000},
+{y:2024,m:6,d:3,dn:"Wednesday",w:0,q:2,e:10,b:208918.85,p:84120.76,l:0.400},
+{y:2024,m:6,d:4,dn:"Thursday",w:0,q:2,e:3,b:1791.06,p:936.39,l:0.000},
+{y:2024,m:6,d:5,dn:"Friday",w:0,q:2,e:10,b:130927.68,p:54591.42,l:2.400},
+{y:2024,m:6,d:6,dn:"Saturday",w:1,q:2,e:4,b:1211.18,p:648.86,l:0.000},
+{y:2024,m:6,d:7,dn:"Sunday",w:1,q:2,e:3,b:3198.85,p:1437.59,l:0.000},
+{y:2024,m:7,d:1,dn:"Monday",w:0,q:3,e:5,b:48525.95,p:20531.42,l:1.000},
+{y:2024,m:7,d:2,dn:"Tuesday",w:0,q:3,e:3,b:41352.95,p:15568.96,l:2.000},
+{y:2024,m:7,d:3,dn:"Wednesday",w:0,q:3,e:5,b:32784.64,p:16559.07,l:0.400},
+{y:2024,m:7,d:4,dn:"Thursday",w:0,q:3,e:6,b:198441.09,p:73267.57,l:1.500},
+{y:2024,m:7,d:5,dn:"Friday",w:0,q:3,e:7,b:10168.79,p:5291.65,l:0.000},
+{y:2024,m:7,d:6,dn:"Saturday",w:1,q:3,e:5,b:6146.58,p:3100.26,l:0.000},
+{y:2024,m:7,d:7,dn:"Sunday",w:1,q:3,e:3,b:131901.95,p:52896.25,l:3.333},
+{y:2024,m:8,d:1,dn:"Monday",w:0,q:3,e:5,b:17172.99,p:7530.84,l:0.000},
+{y:2024,m:8,d:2,dn:"Tuesday",w:0,q:3,e:7,b:96392.78,p:45849.90,l:0.286},
+{y:2024,m:8,d:3,dn:"Wednesday",w:0,q:3,e:7,b:14494.20,p:6339.39,l:0.000},
+{y:2024,m:8,d:4,dn:"Thursday",w:0,q:3,e:4,b:3961.67,p:1981.13,l:0.000},
+{y:2024,m:8,d:5,dn:"Friday",w:0,q:3,e:4,b:19266.25,p:10119.08,l:0.000},
+{y:2024,m:8,d:6,dn:"Saturday",w:1,q:3,e:9,b:15865.80,p:7413.16,l:0.000},
+{y:2024,m:8,d:7,dn:"Sunday",w:1,q:3,e:3,b:3691.09,p:1780.18,l:0.000},
+{y:2024,m:9,d:1,dn:"Monday",w:0,q:3,e:7,b:28001.17,p:11383.54,l:0.000},
+{y:2024,m:9,d:2,dn:"Tuesday",w:0,q:3,e:10,b:30267.33,p:15092.63,l:0.000},
+{y:2024,m:9,d:3,dn:"Wednesday",w:0,q:3,e:4,b:11268.87,p:4915.92,l:0.000},
+{y:2024,m:9,d:4,dn:"Thursday",w:0,q:3,e:5,b:16089.85,p:8523.00,l:0.000},
+{y:2024,m:9,d:5,dn:"Friday",w:0,q:3,e:3,b:5177.69,p:1997.84,l:0.000},
+{y:2024,m:9,d:6,dn:"Saturday",w:1,q:3,e:3,b:5271.13,p:2558.02,l:0.000},
+{y:2024,m:9,d:7,dn:"Sunday",w:1,q:3,e:4,b:7707.87,p:3988.84,l:0.000},
+{y:2024,m:10,d:1,dn:"Monday",w:0,q:4,e:7,b:157233.43,p:61202.58,l:1.143},
+{y:2024,m:10,d:2,dn:"Tuesday",w:0,q:4,e:8,b:14582.62,p:7705.22,l:0.000},
+{y:2024,m:10,d:3,dn:"Wednesday",w:0,q:4,e:3,b:6848.04,p:2816.70,l:0.000},
+{y:2024,m:10,d:4,dn:"Thursday",w:0,q:4,e:10,b:14803.41,p:6717.26,l:0.000},
+{y:2024,m:10,d:5,dn:"Friday",w:0,q:4,e:7,b:7557.23,p:3754.42,l:0.000},
+{y:2024,m:10,d:6,dn:"Saturday",w:1,q:4,e:7,b:10932.42,p:5837.25,l:0.000},
+{y:2024,m:10,d:7,dn:"Sunday",w:1,q:4,e:6,b:103284.93,p:44246.59,l:0.333},
+{y:2024,m:11,d:1,dn:"Monday",w:0,q:4,e:6,b:9723.69,p:4404.23,l:0.000},
+{y:2024,m:11,d:2,dn:"Tuesday",w:0,q:4,e:5,b:14841.77,p:7551.16,l:0.000},
+{y:2024,m:11,d:3,dn:"Wednesday",w:0,q:4,e:8,b:81686.57,p:36095.64,l:0.500},
+{y:2024,m:11,d:4,dn:"Thursday",w:0,q:4,e:6,b:85376.28,p:46907.53,l:1.833},
+{y:2024,m:11,d:5,dn:"Friday",w:0,q:4,e:3,b:6757.81,p:2935.37,l:0.000},
+{y:2024,m:11,d:6,dn:"Saturday",w:1,q:4,e:11,b:56483.22,p:25382.12,l:0.182},
+{y:2024,m:11,d:7,dn:"Sunday",w:1,q:4,e:3,b:1741.06,p:660.85,l:0.000},
+{y:2024,m:12,d:1,dn:"Monday",w:0,q:4,e:5,b:8518.36,p:3762.14,l:0.000},
+{y:2024,m:12,d:2,dn:"Tuesday",w:0,q:4,e:9,b:121027.46,p:44940.04,l:0.444},
+{y:2024,m:12,d:3,dn:"Wednesday",w:0,q:4,e:6,b:51094.04,p:18634.77,l:4.000},
+{y:2024,m:12,d:4,dn:"Thursday",w:0,q:4,e:3,b:8999.13,p:4434.01,l:0.000},
+{y:2024,m:12,d:5,dn:"Friday",w:0,q:4,e:3,b:2097.55,p:1499.86,l:0.000},
+{y:2024,m:12,d:6,dn:"Saturday",w:1,q:4,e:5,b:4764.35,p:2051.33,l:0.000},
+{y:2024,m:12,d:7,dn:"Sunday",w:1,q:4,e:9,b:79756.85,p:26137.08,l:0.222},
+{y:2025,m:1,d:1,dn:"Monday",w:0,q:1,e:4,b:11049.80,p:5861.61,l:0.000},
+{y:2025,m:1,d:2,dn:"Tuesday",w:0,q:1,e:7,b:7518.88,p:3956.40,l:0.000},
+{y:2025,m:1,d:3,dn:"Wednesday",w:0,q:1,e:3,b:118343.50,p:54021.16,l:0.667},
+{y:2025,m:1,d:4,dn:"Thursday",w:0,q:1,e:10,b:86433.33,p:37993.24,l:0.600},
+{y:2025,m:1,d:5,dn:"Friday",w:0,q:1,e:5,b:4913.63,p:2600.85,l:0.000},
+{y:2025,m:1,d:6,dn:"Saturday",w:1,q:1,e:7,b:156437.27,p:75494.09,l:1.000},
+{y:2025,m:1,d:7,dn:"Sunday",w:1,q:1,e:4,b:8182.57,p:4051.93,l:0.000},
+{y:2025,m:2,d:1,dn:"Monday",w:0,q:1,e:7,b:144256.88,p:49972.60,l:0.571},
+{y:2025,m:2,d:2,dn:"Tuesday",w:0,q:1,e:10,b:21884.30,p:10787.95,l:0.000},
+{y:2025,m:2,d:3,dn:"Wednesday",w:0,q:1,e:9,b:43013.30,p:19921.69,l:1.111},
+{y:2025,m:2,d:4,dn:"Thursday",w:0,q:1,e:7,b:24384.70,p:10481.81,l:0.714},
+{y:2025,m:2,d:5,dn:"Friday",w:0,q:1,e:6,b:58801.65,p:26573.00,l:0.167},
+{y:2025,m:2,d:6,dn:"Saturday",w:1,q:1,e:9,b:7118.58,p:3330.61,l:0.000},
+{y:2025,m:2,d:7,dn:"Sunday",w:1,q:1,e:7,b:34336.62,p:15666.76,l:0.143},
+{y:2025,m:3,d:1,dn:"Monday",w:0,q:1,e:7,b:45378.61,p:24888.96,l:0.286},
+{y:2025,m:3,d:2,dn:"Tuesday",w:0,q:1,e:3,b:12136.96,p:6567.66,l:0.000},
+{y:2025,m:3,d:3,dn:"Wednesday",w:0,q:1,e:8,b:8747.01,p:3594.54,l:0.000},
+{y:2025,m:3,d:4,dn:"Thursday",w:0,q:1,e:3,b:75058.36,p:34890.93,l:0.333},
+{y:2025,m:3,d:5,dn:"Friday",w:0,q:1,e:6,b:66708.60,p:22498.06,l:0.833},
+{y:2025,m:3,d:6,dn:"Saturday",w:1,q:1,e:7,b:123799.68,p:48232.72,l:0.857},
+{y:2025,m:3,d:7,dn:"Sunday",w:1,q:1,e:8,b:206045.19,p:84719.68,l:1.500},
+{y:2025,m:4,d:1,dn:"Monday",w:0,q:2,e:5,b:38599.73,p:15746.11,l:0.400},
+{y:2025,m:4,d:2,dn:"Tuesday",w:0,q:2,e:5,b:77511.19,p:35078.54,l:0.400},
+{y:2025,m:4,d:3,dn:"Wednesday",w:0,q:2,e:6,b:62585.46,p:30472.03,l:1.000},
+{y:2025,m:4,d:4,dn:"Thursday",w:0,q:2,e:4,b:8804.80,p:4781.52,l:0.000},
+{y:2025,m:4,d:5,dn:"Friday",w:0,q:2,e:7,b:45053.80,p:15621.10,l:1.000},
+{y:2025,m:4,d:6,dn:"Saturday",w:1,q:2,e:6,b:89085.83,p:39904.76,l:0.833},
+{y:2025,m:4,d:7,dn:"Sunday",w:1,q:2,e:9,b:210201.95,p:101207.10,l:1.111},
+{y:2025,m:5,d:1,dn:"Monday",w:0,q:2,e:3,b:2251.89,p:1366.27,l:0.000},
+{y:2025,m:5,d:2,dn:"Tuesday",w:0,q:2,e:3,b:6812.05,p:2673.06,l:0.000},
+{y:2025,m:5,d:3,dn:"Wednesday",w:0,q:2,e:12,b:161826.20,p:57536.20,l:1.000},
+{y:2025,m:5,d:4,dn:"Thursday",w:0,q:2,e:7,b:111682.24,p:56033.65,l:0.571},
+{y:2025,m:5,d:5,dn:"Friday",w:0,q:2,e:9,b:30485.64,p:12953.38,l:0.000},
+{y:2025,m:5,d:6,dn:"Saturday",w:1,q:2,e:5,b:12775.34,p:5899.95,l:0.000},
+{y:2025,m:5,d:7,dn:"Sunday",w:1,q:2,e:7,b:71777.97,p:26510.18,l:0.429},
+{y:2025,m:6,d:1,dn:"Monday",w:0,q:2,e:7,b:125072.04,p:52101.39,l:1.429},
+{y:2025,m:6,d:2,dn:"Tuesday",w:0,q:2,e:6,b:20626.62,p:8541.15,l:0.000},
+{y:2025,m:6,d:3,dn:"Wednesday",w:0,q:2,e:3,b:9925.10,p:3749.66,l:1.667},
+{y:2025,m:6,d:4,dn:"Thursday",w:0,q:2,e:4,b:5425.87,p:2864.02,l:0.000},
+{y:2025,m:6,d:5,dn:"Friday",w:0,q:2,e:7,b:24132.52,p:12931.65,l:0.000},
+{y:2025,m:6,d:6,dn:"Saturday",w:1,q:2,e:5,b:104310.21,p:49269.84,l:1.200},
+{y:2025,m:6,d:7,dn:"Sunday",w:1,q:2,e:8,b:121557.76,p:67549.89,l:0.125},
+{y:2025,m:7,d:2,dn:"Tuesday",w:0,q:3,e:9,b:107126.50,p:53155.59,l:0.222},
+{y:2025,m:7,d:3,dn:"Wednesday",w:0,q:3,e:8,b:17638.64,p:8324.80,l:0.000},
+{y:2025,m:7,d:4,dn:"Thursday",w:0,q:3,e:5,b:8007.22,p:3272.28,l:0.000},
+{y:2025,m:7,d:5,dn:"Friday",w:0,q:3,e:5,b:81783.72,p:38932.73,l:0.800},
+{y:2025,m:7,d:6,dn:"Saturday",w:1,q:3,e:2,b:807.89,p:545.64,l:0.000},
+{y:2025,m:7,d:7,dn:"Sunday",w:1,q:3,e:7,b:16327.37,p:7099.52,l:0.429},
+{y:2025,m:8,d:1,dn:"Monday",w:0,q:3,e:9,b:107429.43,p:36183.26,l:0.444},
+{y:2025,m:8,d:2,dn:"Tuesday",w:0,q:3,e:5,b:22445.75,p:10890.32,l:0.000},
+{y:2025,m:8,d:3,dn:"Wednesday",w:0,q:3,e:1,b:107919.92,p:51654.32,l:1.000},
+{y:2025,m:8,d:4,dn:"Thursday",w:0,q:3,e:9,b:19873.04,p:9281.63,l:0.000},
+{y:2025,m:8,d:5,dn:"Friday",w:0,q:3,e:9,b:160332.29,p:63900.00,l:0.667},
+{y:2025,m:8,d:6,dn:"Saturday",w:1,q:3,e:7,b:8976.77,p:3858.17,l:0.000},
+{y:2025,m:8,d:7,dn:"Sunday",w:1,q:3,e:4,b:20155.20,p:10466.15,l:0.000},
+{y:2025,m:9,d:1,dn:"Monday",w:0,q:3,e:5,b:2626.68,p:1213.85,l:0.000},
+{y:2025,m:9,d:3,dn:"Wednesday",w:0,q:3,e:3,b:5502.17,p:2412.70,l:0.000},
+{y:2025,m:9,d:4,dn:"Thursday",w:0,q:3,e:3,b:1134.76,p:684.33,l:0.000},
+{y:2025,m:9,d:5,dn:"Friday",w:0,q:3,e:5,b:19645.96,p:6943.51,l:0.000},
+{y:2025,m:9,d:6,dn:"Saturday",w:1,q:3,e:3,b:3817.28,p:2052.49,l:0.000},
+{y:2025,m:9,d:7,dn:"Sunday",w:1,q:3,e:3,b:5184.23,p:2638.05,l:0.000},
+{y:2025,m:10,d:1,dn:"Monday",w:0,q:4,e:5,b:74432.02,p:35422.53,l:0.800},
+{y:2025,m:10,d:2,dn:"Tuesday",w:0,q:4,e:10,b:11043.69,p:6309.90,l:0.000},
+{y:2025,m:10,d:3,dn:"Wednesday",w:0,q:4,e:1,b:293.75,p:191.50,l:0.000},
+{y:2025,m:10,d:4,dn:"Thursday",w:0,q:4,e:5,b:10200.55,p:3853.45,l:0.000},
+{y:2025,m:10,d:5,dn:"Friday",w:0,q:4,e:13,b:113074.25,p:49309.00,l:0.154},
+{y:2025,m:10,d:6,dn:"Saturday",w:1,q:4,e:7,b:11470.39,p:5904.86,l:0.000},
+{y:2025,m:10,d:7,dn:"Sunday",w:1,q:4,e:3,b:92441.53,p:47951.78,l:0.667},
+{y:2025,m:11,d:1,dn:"Monday",w:0,q:4,e:8,b:8003.84,p:3959.09,l:0.000},
+{y:2025,m:11,d:2,dn:"Tuesday",w:0,q:4,e:5,b:91391.06,p:34117.05,l:0.400},
+{y:2025,m:11,d:3,dn:"Wednesday",w:0,q:4,e:3,b:5164.93,p:2301.11,l:0.000},
+{y:2025,m:11,d:4,dn:"Thursday",w:0,q:4,e:6,b:6549.99,p:3868.36,l:0.000},
+{y:2025,m:11,d:5,dn:"Friday",w:0,q:4,e:2,b:4930.87,p:2233.38,l:0.000},
+{y:2025,m:11,d:6,dn:"Saturday",w:1,q:4,e:4,b:9848.05,p:4178.21,l:0.000},
+{y:2025,m:11,d:7,dn:"Sunday",w:1,q:4,e:1,b:469.85,p:303.93,l:0.000},
+{y:2025,m:12,d:1,dn:"Monday",w:0,q:4,e:12,b:151972.23,p:52175.40,l:0.167},
+{y:2025,m:12,d:2,dn:"Tuesday",w:0,q:4,e:5,b:8074.93,p:4436.97,l:0.000},
+{y:2025,m:12,d:3,dn:"Wednesday",w:0,q:4,e:7,b:7598.55,p:3377.32,l:0.000},
+{y:2025,m:12,d:4,dn:"Thursday",w:0,q:4,e:6,b:7036.37,p:2744.43,l:0.000},
+{y:2025,m:12,d:5,dn:"Friday",w:0,q:4,e:7,b:33570.77,p:12629.45,l:0.857},
+{y:2025,m:12,d:6,dn:"Saturday",w:1,q:4,e:8,b:12792.91,p:5910.99,l:0.000},
+{y:2025,m:12,d:7,dn:"Sunday",w:1,q:4,e:2,b:707.33,p:251.65,l:0.000}
+];
+
+// Unique patients per year-month (can't deduplicate from DOW-level data)
+const patientsByYM = {
+"2023-1":45,"2023-2":39,"2023-3":29,"2023-4":45,"2023-5":44,"2023-6":40,
+"2023-7":42,"2023-8":38,"2023-9":28,"2023-10":39,"2023-11":48,"2023-12":46,
+"2024-1":36,"2024-2":51,"2024-3":47,"2024-4":37,"2024-5":51,"2024-6":37,
+"2024-7":33,"2024-8":39,"2024-9":34,"2024-10":45,"2024-11":39,"2024-12":40,
+"2025-1":38,"2025-2":52,"2025-3":40,"2025-4":42,"2025-5":45,"2025-6":37,
+"2025-7":35,"2025-8":41,"2025-9":22,"2025-10":41,"2025-11":29,"2025-12":45
+};
+
+// === AGGREGATION HELPERS ===
+function filterData(yearVal, monthVal) {
+    return rawData.filter(r => {
+        if (yearVal !== 'All' && r.y != yearVal) return false;
+        if (monthVal !== 'All' && r.m != monthVal) return false;
+        return true;
+    });
+}
+
+function aggByMonth(data) {
+    const map = {};
+    data.forEach(r => {
+        const key = r.y + '-' + String(r.m).padStart(2, '0');
+        if (!map[key]) map[key] = {ym: key, year: r.y, month: r.m, name: monthNames[r.m], enc: 0, billed: 0, paid: 0, losSum: 0, losCount: 0};
+        map[key].enc += r.e;
+        map[key].billed += r.b;
+        map[key].paid += r.p;
+        map[key].losSum += r.l * r.e;
+        map[key].losCount += r.e;
+    });
+    return Object.values(map).sort((a,b) => a.ym.localeCompare(b.ym)).map(r => ({
+        ...r, los: r.losCount > 0 ? r.losSum / r.losCount : 0
+    }));
+}
+
+function aggByDOW(data) {
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const map = {};
+    days.forEach((d,i) => map[i+1] = {day: d, num: i+1, enc: 0, billed: 0});
+    data.forEach(r => {
+        map[r.d].enc += r.e;
+        map[r.d].billed += r.b;
+    });
+    return days.map((d,i) => {
+        const row = map[i+1];
+        return { day: row.day, num: row.num, enc: row.enc, avgBilled: row.enc > 0 ? Math.round(row.billed / row.enc) : 0 };
+    });
+}
+
+function aggByQuarter(data) {
+    const map = {};
+    data.forEach(r => {
+        const key = r.y + '-Q' + r.q;
+        if (!map[key]) map[key] = {q: key, enc: 0, billed: 0, paid: 0};
+        map[key].enc += r.e;
+        map[key].billed += r.b;
+        map[key].paid += r.p;
+    });
+    return Object.values(map).sort((a,b) => a.q.localeCompare(b.q));
+}
+
+function aggWeekend(data) {
+    let weekday = 0, weekend = 0, wdBilled = 0, weBilled = 0;
+    data.forEach(r => {
+        if (r.w) { weekend += r.e; weBilled += r.b; }
+        else { weekday += r.e; wdBilled += r.b; }
+    });
+    return {
+        weekday, weekend,
+        wdAvgBilled: weekday > 0 ? Math.round(wdBilled / weekday) : 0,
+        weAvgBilled: weekend > 0 ? Math.round(weBilled / weekend) : 0
+    };
+}
+
+function aggTotals(data) {
+    let enc = 0, billed = 0, paid = 0, losSum = 0, losCount = 0, weekend = 0;
+    const ymSeen = new Set();
+    data.forEach(r => {
+        enc += r.e;
+        billed += r.b;
+        paid += r.p;
+        losSum += r.l * r.e;
+        losCount += r.e;
+        if (r.w) weekend += r.e;
+        ymSeen.add(r.y + '-' + r.m);
+    });
+    // Sum unique patients across filtered year-months (note: cross-month patients may be counted more than once)
+    let patients = 0;
+    ymSeen.forEach(key => { patients += (patientsByYM[key] || 0); });
+    // For "All" data, use the true deduplicated count
+    if (ymSeen.size === 36) patients = 477;
+    return { enc, billed, paid, patients, avgBilled: enc > 0 ? billed / enc : 0, avgLos: losCount > 0 ? losSum / losCount : 0, weekend, collection: billed > 0 ? (paid / billed * 100) : 0 };
+}
+
+// === CHARTS ===
+let monthlyChart, dowChartObj, quarterlyChart, weekendChart, yoyChart;
+
+function buildMonthlyTrend(monthly) {
+    const ctx = document.getElementById('monthlyTrendChart');
+    if (monthlyChart) monthlyChart.destroy();
+    monthlyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthly.map(r => r.ym),
+            datasets: [
+                {
+                    label: 'Encounters',
+                    data: monthly.map(r => r.enc),
+                    borderColor: COLORS.primary,
+                    backgroundColor: 'rgba(44,95,138,0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Total Billed ($)',
+                    data: monthly.map(r => r.billed),
+                    borderColor: COLORS.secondary,
+                    backgroundColor: 'transparent',
+                    borderDash: [5,5],
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Encounters' } },
+                y1: {
+                    beginAtZero: true, position: 'right',
+                    title: { display: true, text: 'Billed ($)' },
+                    grid: { drawOnChartArea: false },
+                    ticks: { callback: v => formatDollars(v) }
+                }
+            }
+        }
+    });
+}
+
+function buildDOW(dowArr) {
+    const ctx = document.getElementById('dowChart');
+    if (dowChartObj) dowChartObj.destroy();
+    dowChartObj = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dowArr.map(r => r.day),
+            datasets: [{
+                label: 'Encounters',
+                data: dowArr.map(r => r.enc),
+                backgroundColor: dowArr.map((r,i) => i >= 5 ? COLORS.warning : COLORS.primary),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(ctx) {
+                            return 'Avg Billed: ' + formatDollars(dowArr[ctx.dataIndex].avgBilled);
+                        }
+                    }
+                }
+            },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+        }
+    });
+}
+
+function buildQuarterly(qData) {
+    const ctx = document.getElementById('quarterlyChart');
+    if (quarterlyChart) quarterlyChart.destroy();
+    quarterlyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: qData.map(r => r.q),
+            datasets: [
+                {
+                    label: 'Encounters',
+                    data: qData.map(r => r.enc),
+                    backgroundColor: COLORS.primary,
+                    borderRadius: 4,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Billed ($)',
+                    data: qData.map(r => r.billed),
+                    type: 'line',
+                    borderColor: COLORS.secondary,
+                    backgroundColor: 'transparent',
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Encounters' } },
+                y1: {
+                    beginAtZero: true, position: 'right',
+                    grid: { drawOnChartArea: false },
+                    ticks: { callback: v => formatDollars(v) }
+                }
+            }
+        }
+    });
+}
+
+function buildWeekend(we) {
+    const ctx = document.getElementById('weekendChart');
+    if (weekendChart) weekendChart.destroy();
+    const total = we.weekday + we.weekend;
+    weekendChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Weekday (' + we.weekday.toLocaleString() + ')', 'Weekend (' + we.weekend.toLocaleString() + ')'],
+            datasets: [{
+                data: [we.weekday, we.weekend],
+                backgroundColor: [COLORS.primary, COLORS.warning],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(ctx) {
+                            const avg = ctx.dataIndex === 0 ? we.wdAvgBilled : we.weAvgBilled;
+                            return 'Avg Billed/Enc: ' + formatDollars(avg);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function buildYOY(filtered, yearFilter, monthFilter) {
+    const ctx = document.getElementById('yoyChart');
+    if (yoyChart) yoyChart.destroy();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // Always show all 3 years for comparison, but respect month filter
+    const getYearData = (yr) => {
+        let d = rawData.filter(r => r.y === yr);
+        if (monthFilter !== 'All') d = d.filter(r => r.m == monthFilter);
+        const monthly = {};
+        d.forEach(r => {
+            if (!monthly[r.m]) monthly[r.m] = 0;
+            monthly[r.m] += r.e;
+        });
+        return Array.from({length: 12}, (_, i) => monthly[i+1] || 0);
+    };
+
+    const datasets = [
+        { label: '2023', data: getYearData(2023), borderColor: COLORS.muted, tension: 0.3, borderDash: [5,5] },
+        { label: '2024', data: getYearData(2024), borderColor: COLORS.info, tension: 0.3 },
+        { label: '2025', data: getYearData(2025), borderColor: COLORS.primary, tension: 0.3, borderWidth: 2.5 }
+    ];
+
+    // If year filter is set, highlight that year
+    if (yearFilter !== 'All') {
+        datasets.forEach(ds => {
+            if (ds.label !== yearFilter) {
+                ds.borderColor = '#e0e0e0';
+                ds.borderDash = [3,3];
+                ds.borderWidth = 1;
+            } else {
+                ds.borderWidth = 3;
+                ds.borderDash = undefined;
+            }
+        });
+    }
+
+    yoyChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: months, datasets },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+        }
+    });
+}
+
+function buildTable(monthly) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = monthly.map(r => {
+        const rate = r.billed > 0 ? ((r.paid / r.billed) * 100).toFixed(1) + '%' : '—';
+        return '<tr>' +
+            '<td>' + r.ym + ' (' + r.name + ')</td>' +
+            '<td class="num">' + r.enc + '</td>' +
+            '<td class="num">' + formatDollars(r.billed) + '</td>' +
+            '<td class="num">' + formatDollars(r.paid) + '</td>' +
+            '<td class="num">' + r.los.toFixed(2) + '</td>' +
+            '<td class="num">' + rate + '</td>' +
+        '</tr>';
+    }).join('');
+}
+
+function updateKPIs(totals) {
+    document.getElementById('kpiEnc').textContent = totals.enc.toLocaleString();
+    document.getElementById('kpiEncSub').textContent = totals.enc === 1497 ? 'Across 3 years' : 'Filtered selection';
+    document.getElementById('kpiPat').textContent = totals.patients.toLocaleString();
+    const encPerPat = totals.patients > 0 ? (totals.enc / totals.patients).toFixed(1) : '0';
+    document.getElementById('kpiPatSub').textContent = encPerPat + ' encounters/patient avg';
+    document.getElementById('kpiBilled').textContent = formatDollars(totals.billed);
+    document.getElementById('kpiBilledSub').textContent = formatDollars(totals.avgBilled) + ' avg per encounter';
+    document.getElementById('kpiPaid').textContent = formatDollars(totals.paid);
+    document.getElementById('kpiPaidSub').textContent = totals.collection.toFixed(1) + '% collection rate';
+    document.getElementById('kpiLos').textContent = totals.avgLos.toFixed(2);
+    const wePct = totals.enc > 0 ? (totals.weekend / totals.enc * 100).toFixed(1) : '0.0';
+    document.getElementById('kpiWeekend').textContent = wePct + '%';
+    document.getElementById('kpiWeekendSub').textContent = totals.weekend.toLocaleString() + ' of ' + totals.enc.toLocaleString() + ' total';
+}
+
+function updateBadge(yearVal, monthVal, totalEnc) {
+    let label = 'Showing: ';
+    if (yearVal === 'All' && monthVal === 'All') label += 'All Data';
+    else if (monthVal === 'All') label += yearVal;
+    else if (yearVal === 'All') label += monthNames[parseInt(monthVal)] + ' (All Years)';
+    else label += monthNames[parseInt(monthVal)] + ' ' + yearVal;
+    label += ' (' + totalEnc.toLocaleString() + ' encounters)';
+    document.getElementById('filterBadge').textContent = label;
+}
+
+function applyFilter() {
+    const yearVal = document.getElementById('yearFilter').value;
+    const monthVal = document.getElementById('monthFilter').value;
+    const filtered = filterData(yearVal, monthVal);
+    const monthly = aggByMonth(filtered);
+    const dowArr = aggByDOW(filtered);
+    const qData = aggByQuarter(filtered);
+    const we = aggWeekend(filtered);
+    const totals = aggTotals(filtered);
+
+    updateKPIs(totals);
+    updateBadge(yearVal, monthVal, totals.enc);
+    buildMonthlyTrend(monthly);
+    buildDOW(dowArr);
+    buildQuarterly(qData);
+    buildWeekend(we);
+    buildYOY(filtered, yearVal, monthVal);
+    buildTable(monthly);
+}
+
+function resetFilters() {
+    document.getElementById('yearFilter').value = 'All';
+    document.getElementById('monthFilter').value = 'All';
+    applyFilter();
+}
+
+// === INIT ===
+applyFilter();
+</script>
+
+</body>
+</html>

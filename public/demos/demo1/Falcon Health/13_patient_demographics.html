@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 13: Patient Demographics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2d3436;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #636e72;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2C5F8A;
+            line-height: 1.2;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-inner {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            background: #f5f6fa;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #2d3436;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #b2bec3;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .numeric {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 13: Patient Age, Gender & Geographic Distribution</h1>
+            <p>477 Unique Patients | 10 States | Jan 2023 – Dec 2025 | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Patients</div>
+                <div class="kpi-value">477</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">Unique individuals</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Female</div>
+                <div class="kpi-value">248</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">52% of population</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Largest Age Band</div>
+                <div class="kpi-value" style="font-size: 20px;">65-74</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">85 patients, 266 enc</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top State</div>
+                <div class="kpi-value">GA</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">54 patients, 187 enc</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Costliest Cohort</div>
+                <div class="kpi-value" style="font-size: 18px;">$9,986</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">Age 75+, avg billed</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Gender Distribution</div>
+                <div class="chart-inner"><canvas id="genderChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Age Band: Encounters & Patients</div>
+                <div class="chart-inner"><canvas id="ageChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">State Distribution (Encounters)</div>
+                <div class="chart-inner"><canvas id="stateChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Race Distribution</div>
+                <div class="chart-inner"><canvas id="raceChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Avg Billed by Age Band</div>
+                <div class="chart-inner"><canvas id="avgBilledChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Avg LOS by Age Band</div>
+                <div class="chart-inner"><canvas id="losChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="chart-title">Age Band Summary</div>
+            <table id="ageTableBody">
+            </table>
+        </div>
+
+        <div class="footer">
+            Dashboard generated with Chart.js • Data represents consolidated encounters Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const genderData = [
+            {gender:"Female",enc:800,billed:5902098,avg:7378,los:0.38,patients:248},
+            {gender:"Male",enc:697,billed:6027631,avg:8648,los:0.42,patients:229}
+        ];
+
+        const ageData = [
+            {band:"18-25",enc:129,billed:841843,avg:6526,los:0.29,patients:41},
+            {band:"26-34",enc:210,billed:1336036,avg:6362,los:0.39,patients:70},
+            {band:"35-44",enc:228,billed:1533901,avg:6728,los:0.50,patients:73},
+            {band:"45-54",enc:224,billed:2161383,avg:9649,los:0.48,patients:67},
+            {band:"55-64",enc:218,billed:1904167,avg:8735,los:0.48,patients:71},
+            {band:"65-74",enc:266,billed:1935513,avg:7276,los:0.29,patients:85},
+            {band:"75+",enc:222,billed:2216885,avg:9986,los:0.33,patients:70}
+        ];
+
+        const stateData = [
+            {state:"GA",enc:187,avg:7008,patients:54},
+            {state:"MI",enc:167,avg:8565,patients:53},
+            {state:"TX",enc:161,avg:11008,patients:53},
+            {state:"FL",enc:158,avg:7633,patients:50},
+            {state:"IL",enc:154,avg:9004,patients:49},
+            {state:"PA",enc:152,avg:8609,patients:52},
+            {state:"OH",enc:145,avg:6921,patients:45},
+            {state:"NY",enc:144,avg:5744,patients:46},
+            {state:"NC",enc:137,avg:5670,patients:41},
+            {state:"CA",enc:92,avg:9870,patients:34}
+        ];
+
+        const raceData = [
+            {race:"Unknown",enc:242,avg:6499,patients:71},
+            {race:"Asian",enc:207,avg:6987,patients:69},
+            {race:"Pacific Islander",enc:204,avg:7796,patients:56},
+            {race:"Hispanic/Latino",enc:173,avg:11783,patients:56},
+            {race:"White",enc:171,avg:10399,patients:54},
+            {race:"Black/African American",enc:171,avg:6023,patients:55},
+            {race:"Other",enc:165,avg:5616,patients:59},
+            {race:"Native American",enc:164,avg:9433,patients:57}
+        ];
+
+        const chartColors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Gender Distribution
+        const genderCtx = document.getElementById('genderChart').getContext('2d');
+        new Chart(genderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Female (52%)', 'Male (48%)'],
+                datasets: [{
+                    data: [248, 229],
+                    backgroundColor: [chartColors.info, chartColors.warning]
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 12 }, padding: 15 }
+                    }
+                }
+            }
+        });
+
+        // Age Band Chart (Dual Axis)
+        const ageCtx = document.getElementById('ageChart').getContext('2d');
+        new Chart(ageCtx, {
+            type: 'bar',
+            data: {
+                labels: ageData.map(a => a.band),
+                datasets: [
+                    {
+                        label: 'Encounters',
+                        data: ageData.map(a => a.enc),
+                        backgroundColor: chartColors.primary,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Patients',
+                        data: ageData.map(a => a.patients),
+                        backgroundColor: chartColors.success,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 12 }, padding: 10 }
+                    }
+                },
+                scales: {
+                    y: {
+                        position: 'left',
+                        title: { display: true, text: 'Encounters', color: '#636e72' },
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    y1: {
+                        position: 'right',
+                        title: { display: true, text: 'Patients', color: '#636e72' },
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { display: false }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // State Distribution
+        const stateCtx = document.getElementById('stateChart').getContext('2d');
+        new Chart(stateCtx, {
+            type: 'bar',
+            data: {
+                labels: stateData.map(s => s.state),
+                datasets: [{
+                    label: 'Encounters',
+                    data: stateData.map(s => s.enc),
+                    backgroundColor: chartColors.secondary,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    y: { ticks: { color: '#636e72', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Race Distribution
+        const raceCtx = document.getElementById('raceChart').getContext('2d');
+        new Chart(raceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: raceData.map(r => r.race),
+                datasets: [{
+                    data: raceData.map(r => r.patients),
+                    backgroundColor: [
+                        chartColors.primary, chartColors.secondary, chartColors.success,
+                        chartColors.danger, chartColors.warning, chartColors.info,
+                        chartColors.purple, chartColors.teal
+                    ]
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 10 }, padding: 10 }
+                    }
+                }
+            }
+        });
+
+        // Avg Billed by Age Band
+        const avgBilledCtx = document.getElementById('avgBilledChart').getContext('2d');
+        new Chart(avgBilledCtx, {
+            type: 'line',
+            data: {
+                labels: ageData.map(a => a.band),
+                datasets: [{
+                    label: 'Avg Billed per Encounter',
+                    data: ageData.map(a => a.avg),
+                    borderColor: chartColors.primary,
+                    backgroundColor: 'rgba(44, 95, 138, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: chartColors.primary,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'bottom' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // LOS by Age Band
+        const losCtx = document.getElementById('losChart').getContext('2d');
+        new Chart(losCtx, {
+            type: 'bar',
+            data: {
+                labels: ageData.map(a => a.band),
+                datasets: [{
+                    label: 'Avg LOS (Days)',
+                    data: ageData.map(a => a.los),
+                    backgroundColor: chartColors.warning
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Populate Age Table
+        const tableBody = document.getElementById('ageTableBody');
+        let html = '<tr><th>Age Band</th><th>Encounters</th><th>Patients</th><th>Enc/Patient</th><th>Total Billed</th><th>Avg Billed</th><th>Avg LOS</th></tr>';
+        ageData.forEach(a => {
+            const encPerPatient = (a.enc / a.patients).toFixed(2);
+            html += `<tr>
+                <td>${a.band}</td>
+                <td class="numeric">${a.enc}</td>
+                <td class="numeric">${a.patients}</td>
+                <td class="numeric">${encPerPatient}</td>
+                <td class="numeric">$${a.billed.toLocaleString()}</td>
+                <td class="numeric">$${a.avg.toLocaleString()}</td>
+                <td class="numeric">${a.los}</td>
+            </tr>`;
+        });
+        tableBody.innerHTML = html;
+    </script>
+</body>
+</html>

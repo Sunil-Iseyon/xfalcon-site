@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rush Energy Co. - ESG & Sustainability Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background: #0D1B2A;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        
+        
+
+        
+
+        
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0.1;
+            }
+        }
+
+/* Film strip border */
+        
+
+        .film-dots {
+            display: flex;
+            gap: 15px;
+            animation: scroll-film 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #16A34A;
+            border-radius: 2px;
+        }
+
+        
+        
+
+        .marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-right: 100%;
+            animation: marquee 20s linear infinite;
+            font-size: 13px;
+            color: #16A34A;
+            font-weight: 600;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Header */
+        header {
+            margin-top: 80px;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #16A34A;
+            background: linear-gradient(180deg, rgba(123, 193, 66, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        h1 {
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 48px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            color: #8B9DB7;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        nav a, nav button {
+            background: #142238;
+            color: #FFFFFF;
+            border: 1px solid #1E3A5F;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav a:hover, nav button:hover {
+            background: #16A34A;
+            color: #FFFFFF;
+            border-color: #16A34A;
+            transform: translateY(-2px);
+        }
+
+        nav a {
+            text-decoration: none;
+        }
+
+        /* Filter section */
+        .filter-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quarter-btn {
+            background: #142238;
+            color: #C9D6E3;
+            border: 2px solid #1E3A5F;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .quarter-btn:hover {
+            border-color: #16A34A;
+            background: rgba(123, 193, 66, 0.1);
+        }
+
+        .quarter-btn.active {
+            background: #16A34A;
+            color: #FFFFFF;
+            border-color: #16A34A;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: #142238;
+            border: 1px solid #1E3A5F;
+            border-top: 3px solid #16A34A;
+            border-radius: 4px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before { display: none; }
+
+        .kpi-card:hover {
+            background: rgba(123, 193, 66, 0.05);
+            border-color: #16A34A;
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            color: #8B9DB7;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #16A34A;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: #142238;
+            border: 1px solid #1E3A5F;
+            border-top: 3px solid #16A34A;
+            border-radius: 4px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before { display: none; }
+
+        .chart-title {
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 18px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: #FFFFFF;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            z-index: 2;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid #1E3A5F;
+            color: #8B9DB7;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: #16A34A;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            
+
+            
+
+            header {
+                margin-top: 65px;
+                padding: 20px;
+            }
+        }
+    
+    /* Dark Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0D1B2A; }
+    ::-webkit-scrollbar-thumb { background: #1E3A5F; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2A4A6F; }
+  
+    /* === Navigation Bar === */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 30px;
+      background: #0F2136;
+      border-bottom: 1px solid #1E3A5F;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .nav-bar .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: #142238;
+      color: #22C55E;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      border: 1px solid #1E3A5F;
+    }
+    .nav-bar .back-link:hover {
+      background: #22C55E;
+      color: #FFFFFF;
+      border-color: #22C55E;
+    }
+    .nav-bar .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .nav-bar .nav-link {
+      padding: 8px 18px;
+      background: #142238;
+      color: #C9D6E3;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid #1E3A5F;
+      transition: all 0.3s ease;
+    }
+    .nav-bar .nav-link:hover {
+      background: #22C55E;
+      color: #FFFFFF;
+      border-color: #22C55E;
+    }
+    .nav-bar .filter-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8B9DB7;
+    }
+    .nav-bar .quarter-btn {
+      padding: 6px 14px;
+      background: #142238;
+      color: #C9D6E3;
+      border: 1px solid #1E3A5F;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .nav-bar .quarter-btn:hover {
+      border-color: #22C55E;
+      color: #22C55E;
+    }
+    .nav-bar .quarter-btn.active {
+      background: #22C55E;
+      color: #FFFFFF;
+      border-color: #22C55E;
+    }
+    /* === Dashboard Header === */
+    .dash-header {
+      padding: 25px 30px 15px;
+      background: linear-gradient(135deg, #0F2136 0%, #142238 100%);
+      border-bottom: 3px solid #22C55E;
+    }
+    .dash-header h1 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 36px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      margin: 0;
+    }
+    .dash-header h1 .dash-num {
+      color: #1E3A5F;
+      margin-right: 12px;
+    }
+    .dash-header .dash-subtitle {
+      color: #8B9DB7;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Dashboard Header -->
+  <div class="dash-header" style="border-bottom-color:#22C55E;">
+    <h1><span class="dash-num">08</span>ESG & SUSTAINABILITY</h1>
+    <p class="dash-subtitle">RUSH ENERGY CO. | SUSTAINABILITY METRICS</p>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="nav-bar">
+    <a href="index.html" class="back-link">← BACK TO HOME</a>
+    <div class="nav-right">
+      <a href="marketing-roi.html" class="nav-link">VIEW MARKETING ROI →</a>
+      
+        <span class="filter-label">QUARTER:</span>
+        <button class="quarter-btn active" data-quarter="all" onclick="handleNavFilter(this)">ALL</button>
+        <button class="quarter-btn" data-quarter="1" onclick="handleNavFilter(this)">Q1</button>
+        <button class="quarter-btn" data-quarter="2" onclick="handleNavFilter(this)">Q2</button>
+        <button class="quarter-btn" data-quarter="3" onclick="handleNavFilter(this)">Q3</button>
+        <button class="quarter-btn" data-quarter="4" onclick="handleNavFilter(this)">Q4</button>
+    </div>
+  </div>
+
+  <!-- Main container -->
+    <div class="container">
+        <!-- KPI Section -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">CARBON EMISSIONS</div>
+                <div class="kpi-value" id="kpi-carbon">0</div>
+                <div style="font-size: 11px; color: #8B9DB7;">Tonnes CO₂</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">WATER USAGE</div>
+                <div class="kpi-value" id="kpi-water">0</div>
+                <div style="font-size: 11px; color: #8B9DB7;">Cubic Metres</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">RENEWABLE ENERGY %</div>
+                <div class="kpi-value" id="kpi-renewable">0.00%</div>
+                <div style="font-size: 11px; color: #8B9DB7;">Of Total Energy</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">ECO PACKAGING %</div>
+                <div class="kpi-value" id="kpi-packaging">0.00%</div>
+                <div style="font-size: 11px; color: #8B9DB7;">Sustainable Materials</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">BOTTLES RETURNED</div>
+                <div class="kpi-value" id="kpi-bottles">0</div>
+                <div style="font-size: 11px; color: #8B9DB7;">Circular Economy</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 class="chart-title">CARBON EMISSIONS TREND</h3>
+                <div class="chart-container">
+                    <canvas id="carbonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">RENEWABLE ENERGY & ECO PACKAGING</h3>
+                <div class="chart-container">
+                    <canvas id="renewableChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">WATER & WASTE MANAGEMENT</h3>
+                <div class="chart-container">
+                    <canvas id="waterChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">GLASS RECYCLED VS BOTTLES RETURNED</h3>
+                <div class="chart-container">
+                    <canvas id="recycleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>RUSH ENERGY CO.</p>
+        <p><a href="#">PRIVACY POLICY</a> | <a href="#">SUSTAINABILITY COMMITMENTS</a> | <a href="#">CONTACT SUPPORT</a></p>
+    </footer>
+
+    <script>
+        // Data
+        const DATA = [
+            {year:2024,quarter:3,carbonTonnes:944.5,waterM3:96188,renewablePct:26.8,wasteKg:64684,ecoPackagingPct:43.0,glassRecycled:443028,bottlesReturned:199429},
+            {year:2024,quarter:4,carbonTonnes:873.6,waterM3:72975,renewablePct:25.9,wasteKg:66310,ecoPackagingPct:44.0,glassRecycled:482441,bottlesReturned:178547},
+            {year:2025,quarter:1,carbonTonnes:676.6,waterM3:64806,renewablePct:29.9,wasteKg:72343,ecoPackagingPct:53.9,glassRecycled:416440,bottlesReturned:217393},
+            {year:2025,quarter:2,carbonTonnes:752.9,waterM3:89011,renewablePct:29.0,wasteKg:58846,ecoPackagingPct:54.2,glassRecycled:458159,bottlesReturned:174935},
+            {year:2025,quarter:3,carbonTonnes:839.6,waterM3:97508,renewablePct:29.7,wasteKg:66553,ecoPackagingPct:53.4,glassRecycled:365358,bottlesReturned:173303},
+            {year:2025,quarter:4,carbonTonnes:752.1,waterM3:80334,renewablePct:29.5,wasteKg:63972,ecoPackagingPct:53.8,glassRecycled:366122,bottlesReturned:205540}
+        ];
+
+        const COLORS = ['#DC2626','#DC2626','#16A34A','#D97706','#EA580C','#7C3AED','#87CEEB','#8B4513'];
+
+        // Chart instances
+        let carbonChartInstance = null;
+        let renewableChartInstance = null;
+        let waterChartInstance = null;
+        let recycleChartInstance = null;
+
+        // Helper functions
+        function formatDollars(v) {
+            return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        function formatNumber(v) {
+            return v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        function formatPercent(v) {
+            return (v).toFixed(2) + '%';
+        }
+
+        // Filter data
+        function filterData(quarter) {
+            if (quarter === 'all') {
+                return DATA;
+            }
+
+            let q, y;
+            if (quarter === '3') { q = 3; y = 2024; }
+            else if (quarter === '4') { q = 4; y = 2024; }
+            else if (quarter === '1q25') { q = 1; y = 2025; }
+            else if (quarter === '2q25') { q = 2; y = 2025; }
+            else if (quarter === '3q25') { q = 3; y = 2025; }
+            else if (quarter === '4q25') { q = 4; y = 2025; }
+
+            return DATA.filter(d => d.quarter === q && d.year === y);
+        }
+
+        // Update KPIs
+        function updateKPIs(filtered) {
+            const totalCarbon = filtered.reduce((sum, d) => sum + d.carbonTonnes, 0);
+            const totalWater = filtered.reduce((sum, d) => sum + d.waterM3, 0);
+            const avgRenewable = filtered.reduce((sum, d) => sum + d.renewablePct, 0) / filtered.length;
+            const avgPackaging = filtered.reduce((sum, d) => sum + d.ecoPackagingPct, 0) / filtered.length;
+            const totalBottles = filtered.reduce((sum, d) => sum + d.bottlesReturned, 0);
+
+            document.getElementById('kpi-carbon').textContent = formatNumber(totalCarbon);
+            document.getElementById('kpi-water').textContent = formatNumber(totalWater);
+            document.getElementById('kpi-renewable').textContent = formatPercent(avgRenewable);
+            document.getElementById('kpi-packaging').textContent = formatPercent(avgPackaging);
+            document.getElementById('kpi-bottles').textContent = formatNumber(totalBottles);
+        }
+
+        // Chart.js default options
+        Chart.defaults.color = '#64748B';
+        Chart.defaults.borderColor = '#E2E8F0';
+
+        // Carbon Emissions Chart
+        function createCarbonChart(filtered) {
+            if (carbonChartInstance) {
+                carbonChartInstance.destroy();
+            }
+
+            const labels = filtered.map(d => `${d.year} Q${d.quarter}`);
+            const ctx = document.getElementById('carbonChart').getContext('2d');
+
+            carbonChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Carbon Emissions (Tonnes)',
+                        data: filtered.map(d => d.carbonTonnes),
+                        backgroundColor: COLORS[2],
+                        borderColor: COLORS[2],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        x: {
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Renewable Energy & Eco Packaging Chart
+        function createRenewableChart(filtered) {
+            if (renewableChartInstance) {
+                renewableChartInstance.destroy();
+            }
+
+            const labels = filtered.map(d => `${d.year} Q${d.quarter}`);
+            const ctx = document.getElementById('renewableChart').getContext('2d');
+
+            renewableChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Renewable Energy %',
+                            data: filtered.map(d => d.renewablePct),
+                            borderColor: COLORS[2],
+                            backgroundColor: 'rgba(123, 193, 66, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: COLORS[2],
+                            pointBorderColor: '#0D1B2A',
+                            pointBorderWidth: 2,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Eco Packaging %',
+                            data: filtered.map(d => d.ecoPackagingPct),
+                            borderColor: COLORS[0],
+                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: COLORS[0],
+                            pointBorderColor: '#0D1B2A',
+                            pointBorderWidth: 2,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#C9D6E3' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        x: {
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Water & Waste Chart
+        function createWaterChart(filtered) {
+            if (waterChartInstance) {
+                waterChartInstance.destroy();
+            }
+
+            const labels = filtered.map(d => `${d.year} Q${d.quarter}`);
+            const ctx = document.getElementById('waterChart').getContext('2d');
+
+            waterChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Water Usage (M³)',
+                            data: filtered.map(d => d.waterM3),
+                            backgroundColor: COLORS[0],
+                            borderColor: COLORS[0],
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Waste (Kg)',
+                            data: filtered.map(d => d.wasteKg),
+                            backgroundColor: COLORS[1],
+                            borderColor: COLORS[1],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#C9D6E3' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        x: {
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Glass Recycled vs Bottles Returned Chart
+        function createRecycleChart(filtered) {
+            if (recycleChartInstance) {
+                recycleChartInstance.destroy();
+            }
+
+            const labels = filtered.map(d => `${d.year} Q${d.quarter}`);
+            const ctx = document.getElementById('recycleChart').getContext('2d');
+
+            recycleChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Glass Recycled',
+                            data: filtered.map(d => d.glassRecycled),
+                            backgroundColor: COLORS[2],
+                            borderColor: COLORS[2],
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Bottles Returned',
+                            data: filtered.map(d => d.bottlesReturned),
+                            backgroundColor: COLORS[0],
+                            borderColor: COLORS[0],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#C9D6E3' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stacked: false,
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        x: {
+                            ticks: { color: '#8B9DB7' },
+                            grid: { color: '#F1F5F9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update all charts
+        function updateCharts(filtered) {
+            createCarbonChart(filtered);
+            createRenewableChart(filtered);
+            createWaterChart(filtered);
+            createRecycleChart(filtered);
+        }
+
+        // Filter function
+        function updateData(quarter) {
+            const filtered = filterData(quarter);
+            updateKPIs(filtered);
+            updateCharts(filtered);
+        }
+
+        // Event listeners
+        document.querySelectorAll('.quarter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.quarter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                updateData(this.dataset.quarter);
+            });
+        });
+
+        // Initialize
+        updateData('all');
+    
+    // Bridge: nav filter → existing quarter-based filterData + updateDashboard
+    function handleNavFilter(btn) {
+      document.querySelectorAll('.nav-bar .quarter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const q = btn.getAttribute('data-quarter');
+      if (typeof updateDashboard === 'function') { updateDashboard(q); }
+      else if (typeof filterData === 'function') {
+        var filtered = filterData(q);
+        if (typeof updateKPIs === 'function') updateKPIs(filtered);
+        if (typeof updateCharts === 'function') updateCharts(filtered);
+      }
+    }
+
+  </script>
+</body>
+</html>

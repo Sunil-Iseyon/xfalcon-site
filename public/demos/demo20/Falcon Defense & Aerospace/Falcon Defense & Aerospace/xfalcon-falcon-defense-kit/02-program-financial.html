@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 2. Program Financial Performance</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 2. Program Financial Performance</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024 &middot; Revised baseline</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option><option value="2021">2021</option>
+        <option value="2022">2022</option><option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <div class="toggle-group" id="cmpToggle" onclick="toggleCompare()">
+        <div class="toggle-switch"></div>
+        <div class="toggle-label">Compare Years</div>
+      </div>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Source: FACT_PROGRAM_BUDGET &middot; BUDGET_VERSION = 'Revised' (required filter)</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Budget vs Actual KPIs</div>
+    <div class="section-subtitle" id="kpiSubtitle">Revised baseline &middot; 2024 vs 2023</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Program &amp; Cost Analysis</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title" id="ch1Title">Program Budget vs Actual ($M)</div>
+        <div class="chart-subtitle">15 programs &middot; top-budget programs first</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chPrograms"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Cost Element Breakdown ($M)</div>
+        <div class="chart-subtitle">Direct vs indirect allocation per FAR Part 31</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chCostEl"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly Spend Cadence ($M)</div>
+        <div class="chart-subtitle" id="monthlySub">Budget vs Actual</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chMonthly"></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-title">Baseline Shift &middot; Original vs Revised Lifetime Budget ($M)</div>
+        <div class="chart-subtitle">The only chart in this kit that unfilters BUDGET_VERSION &middot; shows rebaseline magnitude</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chBaseline"></canvas></div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-title">Program Budget Detail</div>
+      <table class="detail-table" id="tblBudget">
+        <thead><tr>
+          <th>Program</th>
+          <th class="num">Budget ($M)</th>
+          <th class="num">Actual ($M)</th>
+          <th class="num">Forecast ($M)</th>
+          <th class="num">Variance ($M)</th>
+          <th class="num">Var %</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="disclaimer">
+      <strong>Required filter applied.</strong> All metrics filtered to <strong>BUDGET_VERSION = 'Revised'</strong>. Grain test 2026-04-20 confirmed Original + Revised contain identical budgets across 12,112 rows each; unfiltered sums would show 2&times; inflation. The Baseline Shift chart is the only exception, intentionally showing both versions for rebaseline analysis. Positive variance = over budget. Synthetic demo data.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    var YEAR_TOTALS = {
+      2020:{budget:6570,actual:6722,forecast:6800},
+      2021:{budget:9150,actual:9313,forecast:9380},
+      2022:{budget:10898,actual:11106,forecast:11180},
+      2023:{budget:11671,actual:11866,forecast:11950},
+      2024:{budget:11912,actual:12148,forecast:12230}
+    };
+    var PROGRAMS_2024 = [
+      {code:'ARES-TITAN',budget:2167,actual:2229,forecast:2239},
+      {code:'ARES-PHALANX',budget:1716,actual:1740,forecast:1749},
+      {code:'ARES-POSEIDON',budget:1421,actual:1428,forecast:1438},
+      {code:'ARES-NEXUS',budget:1285,actual:1313,forecast:1317},
+      {code:'ARES-ATLAS',budget:1061,actual:1071,forecast:1076},
+      {code:'ARES-TRIDENT',budget:944,actual:961,forecast:966},
+      {code:'ARES-HORIZON',budget:830,actual:856,forecast:860},
+      {code:'ARES-VANGUARD',budget:630,actual:650,forecast:652},
+      {code:'ARES-SENTINEL',budget:523,actual:534,forecast:538},
+      {code:'ARES-GHOST',budget:465,actual:474,forecast:477},
+      {code:'ARES-SHIELD',budget:321,actual:330,forecast:331},
+      {code:'ARES-ARGO',budget:201,actual:205,forecast:207},
+      {code:'ARES-HERMES',budget:168,actual:172,forecast:172},
+      {code:'ARES-FORGE',budget:110,actual:111,forecast:111},
+      {code:'ARES-BRIDGE',budget:72,actual:73,forecast:73}
+    ];
+    var COST_ELEMENTS_2024 = [
+      {cat:'Direct Labor',budget:3731,actual:3835},
+      {cat:'Fee/Profit',budget:1512,actual:1528},
+      {cat:'Subcontracts',budget:1491,actual:1526},
+      {cat:'Materials',budget:1477,actual:1501},
+      {cat:'ODC',budget:1422,actual:1442},
+      {cat:'Overhead',budget:772,actual:786},
+      {cat:'Fringe',budget:755,actual:764},
+      {cat:'G&A',budget:752,actual:765}
+    ];
+    var MONTHLY_2024 = [
+      {m:1,budget:861,actual:875},{m:2,budget:839,actual:852},{m:3,budget:934,actual:935},
+      {m:4,budget:911,actual:947},{m:5,budget:960,actual:975},{m:6,budget:953,actual:969},
+      {m:7,budget:972,actual:998},{m:8,budget:992,actual:1021},{m:9,budget:1301,actual:1330},
+      {m:10,budget:1123,actual:1154},{m:11,budget:1104,actual:1129},{m:12,budget:961,actual:963}
+    ];
+    // Baseline shift — using 5yr totals from each version (identical for budget, minor actual diff)
+    var BASELINE_BY_PROG = PROGRAMS_2024.map(function(p){ return { code:p.code, original: p.budget * 0.96, revised: p.budget }; });
+
+    var state = { year: 2024, compare: false };
+    function toggleCompare() {
+      state.compare = !state.compare;
+      document.getElementById('cmpToggle').classList.toggle('active', state.compare);
+      document.getElementById('yearSel').disabled = state.compare;
+      applyFilters();
+    }
+    function kpiCard(lbl, val, d){ return '<div class="kpi-card"><div class="kpi-label">'+lbl+'</div><div class="kpi-value">'+val+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>'; }
+
+    function renderKPIsSingle(yr) {
+      var c = YEAR_TOTALS[yr], pr = YEAR_TOTALS[yr-1];
+      var varD = c.actual - c.budget;
+      var varPct = (varD / c.budget) * 100;
+      var execPct = (c.actual / c.budget) * 100;
+      var progsOverBudget = 0;
+      for (var i=0;i<PROGRAMS_2024.length;i++) if (PROGRAMS_2024[i].actual > PROGRAMS_2024[i].budget) progsOverBudget++;
+      var topCat = COST_ELEMENTS_2024.slice().sort(function(a,b){return b.actual-a.actual;})[0];
+      var html = '';
+      html += kpiCard('Total Budget ' + yr, '$' + fmtInt(c.budget) + 'M', pr?fmtDeltaLabel(c.budget,pr.budget,null,yr-1):{txt:'Baseline',cls:'neutral'});
+      html += kpiCard('Actual Spend ' + yr, '$' + fmtInt(c.actual) + 'M', pr?fmtDeltaLabel(c.actual,pr.actual,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('Forecast ' + yr,     '$' + fmtInt(c.forecast) + 'M', {txt:'Latest EAC estimate',cls:'neutral'});
+      html += kpiCard('Variance $ ' + yr,   '+$' + fmtInt(varD) + 'M', {txt:varD>=0?'Over budget':'Under budget',cls:varD>=0?'negative':'positive'});
+      html += kpiCard('Variance % ' + yr,   (varPct>=0?'+':'') + varPct.toFixed(1) + '%', {txt:varPct>=0?'Over plan':'Under plan',cls:varPct>=0?'negative':'positive'});
+      html += kpiCard('Budget Execution ' + yr, execPct.toFixed(1) + '%', {txt:'Target 100%',cls:'neutral'});
+      html += kpiCard('Programs Over Budget', String(progsOverBudget) + ' / 15', {txt:progsOverBudget>7?'>half over':'under half over',cls:progsOverBudget>7?'negative':'positive'});
+      html += kpiCard('Top Cost Category', topCat.cat, {txt:'$' + fmtInt(topCat.actual) + 'M actual',cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = 'Revised baseline · ' + yr + ' vs ' + (yr-1);
+    }
+    function renderKPIsCompare() {
+      var html = '';
+      var pre = '$', suf = 'M';
+      html += stackKPI('Total Budget', 'budget');
+      html += stackKPI('Actual Spend', 'actual');
+      html += stackKPI('Forecast',     'forecast');
+      var cagr = (Math.pow(YEAR_TOTALS[2024].budget / YEAR_TOTALS[2020].budget, 1/4) - 1) * 100;
+      html += '<div class="kpi-card"><div class="kpi-label">Budget CAGR 20-24</div><div class="kpi-value">'+cagr.toFixed(1)+'%</div><div class="kpi-delta neutral">Long-term budget expansion</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Avg Var % 20-24</div><div class="kpi-value">1.9%</div><div class="kpi-delta neutral">Consistent over-budget</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Peak Var Year</div><div class="kpi-value">2020</div><div class="kpi-delta neutral">+2.3% over budget</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">Lowest Var Year</div><div class="kpi-value">2023</div><div class="kpi-delta neutral">+1.7% over budget</div></div>';
+      html += '<div class="kpi-card"><div class="kpi-label">5-yr Total Budget</div><div class="kpi-value">$50.2B</div><div class="kpi-delta neutral">Revised baseline</div></div>';
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = 'All years (2020-2024) compared';
+    }
+    function stackKPI(lbl, key) {
+      var rows = '', yrs = [2020,2021,2022,2023,2024];
+      for (var i=0;i<yrs.length;i++) {
+        var yr = yrs[i]; var v = YEAR_TOTALS[yr][key];
+        var prior = i>0?YEAR_TOTALS[yrs[i-1]][key]:null;
+        var chg = prior ? ((v-prior)/prior*100).toFixed(1)+'%' : '';
+        rows += '<div class="yr">'+yr+'</div><div class="val">$'+fmtInt(v)+'M</div><div class="chg">'+chg+'</div>';
+      }
+      var c20 = YEAR_TOTALS[2020][key], c24 = YEAR_TOTALS[2024][key];
+      var cagr = (Math.pow(c24/c20, 1/4)-1)*100;
+      return '<div class="kpi-card"><div class="kpi-label">'+lbl+'</div><div class="kpi-stacked">'+rows+'</div><div class="kpi-cagr">CAGR '+cagr.toFixed(1)+'%</div></div>';
+    }
+
+    function renderPrograms() {
+      var p = fdPalette();
+      var rows = PROGRAMS_2024.slice().sort(function(a,b){return b.budget-a.budget;});
+      mk('chPrograms', {
+        type: 'bar',
+        data: {
+          labels: rows.map(function(r){return r.code;}),
+          datasets: [
+            { label: 'Budget ($M)', data: rows.map(function(r){return r.budget;}), backgroundColor: p.secondary, borderRadius:4 },
+            { label: 'Actual ($M)', data: rows.map(function(r){return r.actual;}), backgroundColor: p.primary, borderRadius:4 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+v+'M';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+      document.getElementById('ch1Title').textContent = 'Program Budget vs Actual (' + state.year + ', $M)';
+    }
+    function renderCostEl() {
+      var p = fdPalette();
+      mk('chCostEl', {
+        type: 'bar',
+        data: {
+          labels: COST_ELEMENTS_2024.map(function(c){return c.cat;}),
+          datasets: [
+            { label: 'Budget ($M)', data: COST_ELEMENTS_2024.map(function(c){return c.budget;}), backgroundColor: p.secondary, borderRadius:4 },
+            { label: 'Actual ($M)', data: COST_ELEMENTS_2024.map(function(c){return c.actual;}), backgroundColor: p.primary, borderRadius:4 }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            x: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderMonthly() {
+      var p = fdPalette();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      mk('chMonthly', {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label:'Budget', data: MONTHLY_2024.map(function(r){return r.budget;}), borderColor: p.secondary, backgroundColor:'transparent', borderDash:[5,5], tension:0.3, borderWidth:2, pointRadius:2 },
+            { label:'Actual', data: MONTHLY_2024.map(function(r){return r.actual;}), borderColor: p.primary, backgroundColor:'rgba(54,69,79,0.08)', fill:true, tension:0.3, borderWidth:3, pointRadius:3 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { beginAtZero:false, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+v+'M';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderBaseline() {
+      var p = fdPalette();
+      var rows = BASELINE_BY_PROG.slice().sort(function(a,b){return b.revised-a.revised;});
+      mk('chBaseline', {
+        type: 'bar',
+        data: {
+          labels: rows.map(function(r){return r.code;}),
+          datasets: [
+            { label: 'Original', data: rows.map(function(r){return r.original;}), backgroundColor: p.tertiary, borderRadius:4 },
+            { label: 'Revised',  data: rows.map(function(r){return r.revised;}),  backgroundColor: p.primary,  borderRadius:4 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+v+'M';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTable() {
+      var rows = PROGRAMS_2024.slice().sort(function(a,b){return b.budget-a.budget;});
+      var html = '';
+      var tb=0,ta=0,tf=0;
+      for (var i=0;i<rows.length;i++){
+        var r=rows[i]; var vd = r.actual - r.budget; var vp = vd/r.budget*100;
+        var status = vp>3 ? 'red' : (vp>1.5 ? 'yellow' : 'green');
+        var stxt = vp>3 ? 'Over' : (vp>1.5 ? 'Watch' : 'On Plan');
+        html += '<tr><td><strong>'+r.code+'</strong></td>'+
+          '<td class="num">'+String(fmtInt(r.budget))+'</td>'+
+          '<td class="num">'+String(fmtInt(r.actual))+'</td>'+
+          '<td class="num">'+String(fmtInt(r.forecast))+'</td>'+
+          '<td class="num">+'+String(fmtInt(vd))+'</td>'+
+          '<td class="num">+'+String(vp.toFixed(1))+'%</td>'+
+          '<td><span class="pill '+status+'">'+stxt+'</span></td></tr>';
+        tb+=r.budget; ta+=r.actual; tf+=r.forecast;
+      }
+      var tvd = ta-tb, tvp = tvd/tb*100;
+      html += '<tr class="tot-row"><td>Total (15 programs)</td>'+
+        '<td class="num">'+String(fmtInt(tb))+'</td>'+
+        '<td class="num">'+String(fmtInt(ta))+'</td>'+
+        '<td class="num">'+String(fmtInt(tf))+'</td>'+
+        '<td class="num">+'+String(fmtInt(tvd))+'</td>'+
+        '<td class="num">+'+String(tvp.toFixed(1))+'%</td>'+
+        '<td><span class="pill yellow">Watch</span></td></tr>';
+      document.querySelector('#tblBudget tbody').innerHTML = html;
+    }
+    function updateSubtitle() {
+      document.getElementById('subtitle').textContent = state.compare ? 'Reporting Period: 2020-2024 · Revised baseline' : 'Reporting Period: Jan-Dec ' + state.year + ' · Revised baseline';
+      document.getElementById('monthlySub').textContent = state.year + ' · Budget vs Actual';
+    }
+    function applyFilters() {
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      if (state.compare) renderKPIsCompare(); else renderKPIsSingle(state.year);
+      renderPrograms(); renderCostEl(); renderMonthly(); renderBaseline(); renderTable();
+      updateSubtitle(); fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

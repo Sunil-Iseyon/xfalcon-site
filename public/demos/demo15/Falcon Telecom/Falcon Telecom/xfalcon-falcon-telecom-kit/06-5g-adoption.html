@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Telecom / 6. 5G Adoption</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+    .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .logo-x { color: #E20074; }
+    .logo-f { color: white; }
+    .topbar-title { display: flex; flex-direction: column; }
+    .topbar-title-main { font-size: 16px; font-weight: 600; }
+    .topbar-title-sub { font-size: 12px; color: #94A3B8; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .back-link { color: white; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .filters { background: white; padding: 16px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; border-bottom: 1px solid #E2E8F0; }
+    .filter-group { display: flex; flex-direction: column; }
+    .filter-group label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+    .filter-group select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 4px; font-size: 14px; }
+    .container { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #E20074; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #E20074; margin-bottom: 8px; }
+    .kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; }
+    .kpi-delta { font-size: 12px; margin-top: 8px; }
+    .kpi-delta.positive { color: #059669; }
+    .kpi-delta.negative { color: #D32F2F; }
+    .chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+    .chart-container { background: white; padding: 24px; border-radius: 8px; }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+    .chart-wrapper { position: relative; height: 300px; }
+    .table-container { background: white; padding: 24px; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
+    .table-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table th { background: #1D1D2C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+    table td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+    table tr:hover { background: #F9FAFB; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="topbar-title">
+        <div class="topbar-title-main">Falcon Telecom / 6. 5G Adoption</div>
+        <div class="topbar-title-sub" id="reporting-period">2025 5G Strategy</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a class="back-link" href="index.html">← Back</a>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="brandSelect">Brand</label>
+      <select id="brandSelect" onchange="applyFilters()">
+        <option value="">All Brands</option>
+        <option value="Samsung">Samsung</option>
+        <option value="Apple">Apple</option>
+        <option value="Xiaomi">Xiaomi</option>
+        <option value="OPPO">OPPO</option>
+        <option value="OnePlus">OnePlus</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi1">31,281</div>
+        <div class="kpi-label">5G Subscribers</div>
+        <div class="kpi-delta positive">+2,847</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi2">39.1%</div>
+        <div class="kpi-label">5G Penetration</div>
+        <div class="kpi-delta positive">+3.2pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi3">36</div>
+        <div class="kpi-label">5G Towers</div>
+        <div class="kpi-delta positive">+12</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi4">12.9%</div>
+        <div class="kpi-label">5G Tower Coverage</div>
+        <div class="kpi-delta positive">+2.1pp</div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi5">892TB</div>
+        <div class="kpi-label">5G Data 2025</div>
+        <div class="kpi-delta positive">+24.3%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi6">30.8</div>
+        <div class="kpi-label">5G Avg Throughput (Mbps)</div>
+        <div class="kpi-delta negative">-0.6</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi7">1.50%</div>
+        <div class="kpi-label">5G Drop Rate</div>
+        <div class="kpi-delta positive">-0.02pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi8">Samsung</div>
+        <div class="kpi-label">Top 5G Brand</div>
+        <div class="kpi-delta">50.0%</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">5G Device Penetration by Brand</div>
+        <div class="chart-wrapper"><canvas id="chart1"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">5G vs Non-5G Subscriber Split</div>
+        <div class="chart-wrapper"><canvas id="chart2"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">5G Tower Deployment by Area Type</div>
+        <div class="chart-wrapper"><canvas id="chart3"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">5G Data Consumption by Region</div>
+        <div class="chart-wrapper"><canvas id="chart4"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">5G vs 4G Network Quality</div>
+        <div class="chart-wrapper"><canvas id="chart5"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">5G Adoption Growth Potential</div>
+        <div class="chart-wrapper"><canvas id="chart6"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-title">5G Device Adoption Details</div>
+      <table id="adoptionTable">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>5G Subs</th>
+            <th>Total Subs</th>
+            <th>5G %</th>
+            <th>Avg LTV (₹)</th>
+            <th>Avg NPS</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+    var FG_DATA = [
+      {brand:'Samsung', fgSubs:15992, totalSubs:31981, pct:50.0, avgLtv:48200, avgNps:5.3},
+      {brand:'Xiaomi', fgSubs:5613, totalSubs:16860, pct:33.3, avgLtv:35800, avgNps:5.1},
+      {brand:'OPPO', fgSubs:2866, totalSubs:8639, pct:33.2, avgLtv:32500, avgNps:4.9},
+      {brand:'Apple', fgSubs:3959, totalSubs:3959, pct:100.0, avgLtv:62300, avgNps:5.4},
+      {brand:'OnePlus', fgSubs:2851, totalSubs:2851, pct:100.0, avgLtv:48900, avgNps:5.2}
+    ];
+
+    var NETWORK_DATA_5G = [
+      {year:2024, region:'Central', dropRate:1.49, throughput:32.4},
+      {year:2024, region:'East', dropRate:1.51, throughput:30.8},
+      {year:2024, region:'North', dropRate:1.50, throughput:30.8},
+      {year:2024, region:'South', dropRate:1.50, throughput:30.4},
+      {year:2024, region:'West', dropRate:1.49, throughput:31.2},
+      {year:2025, region:'Central', dropRate:1.48, throughput:29.4},
+      {year:2025, region:'East', dropRate:1.51, throughput:31.4},
+      {year:2025, region:'North', dropRate:1.51, throughput:30.5},
+      {year:2025, region:'South', dropRate:1.52, throughput:30.7},
+      {year:2025, region:'West', dropRate:1.49, throughput:31.9}
+    ];
+
+    var NETWORK_DATA_4G = [
+      {year:2024, region:'Central', dropRate:1.52, throughput:32.1},
+      {year:2024, region:'East', dropRate:1.52, throughput:31.9},
+      {year:2024, region:'North', dropRate:1.51, throughput:30.9},
+      {year:2024, region:'South', dropRate:1.51, throughput:30.7},
+      {year:2024, region:'West', dropRate:1.51, throughput:31.8},
+      {year:2025, region:'Central', dropRate:1.53, throughput:31.9},
+      {year:2025, region:'East', dropRate:1.51, throughput:31.6},
+      {year:2025, region:'North', dropRate:1.50, throughput:31.0},
+      {year:2025, region:'South', dropRate:1.52, throughput:30.6},
+      {year:2025, region:'West', dropRate:1.51, throughput:31.1}
+    ];
+
+    var TOWERS_5G = [
+      {urban:'Rural', count:6},
+      {urban:'Semi-Urban', count:14},
+      {urban:'Urban', count:16}
+    ];
+
+    var NETWORK_DATA_FULL = [
+      {year:2025, tech:'5G', region:'Central', dataGB:19778},
+      {year:2025, tech:'5G', region:'East', dataGB:200873},
+      {year:2025, tech:'5G', region:'North', dataGB:269745},
+      {year:2025, tech:'5G', region:'South', dataGB:219036},
+      {year:2025, tech:'5G', region:'West', dataGB:183134}
+    ];
+
+    function getFilters() {
+      return {
+        brand: document.getElementById('brandSelect').value
+      };
+    }
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function fitKpiText(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var parentWidth = el.parentElement.offsetWidth;
+      var textWidth = el.offsetWidth;
+      if (textWidth > parentWidth - 40) {
+        el.style.fontSize = '20px';
+      }
+    }
+
+    function updateSubtitle() {
+      var filters = getFilters();
+      var period = '5G Adoption 2025';
+      if (filters.brand) period = filters.brand + ' / 5G Adoption 2025';
+      document.getElementById('reporting-period').textContent = period;
+    }
+
+    function updateKPIs(filtered) {
+      var total5G = filtered.reduce(function(sum, row) { return sum + row.fgSubs; }, 0);
+      var totalSubs = filtered.reduce(function(sum, row) { return sum + row.totalSubs; }, 0);
+      var penetration = totalSubs > 0 ? ((total5G / totalSubs) * 100) : 0;
+
+      var avg5GData = NETWORK_DATA_FULL.reduce(function(sum, row) { return sum + row.dataGB; }, 0);
+      var data5GGb = (avg5GData / 1000000);
+
+      var avg5GDropRate = NETWORK_DATA_5G.filter(function(row) { return row.year === 2025; }).reduce(function(sum, row) { return sum + row.dropRate; }, 0);
+      var count5G = NETWORK_DATA_5G.filter(function(row) { return row.year === 2025; }).length;
+      var avgDrop = count5G > 0 ? (avg5GDropRate / count5G) : 1.50;
+
+      var avg5GThroughput = NETWORK_DATA_5G.filter(function(row) { return row.year === 2025; }).reduce(function(sum, row) { return sum + row.throughput; }, 0);
+      var avgThroughput = count5G > 0 ? (avg5GThroughput / count5G) : 30.8;
+
+      var topBrand = filtered.length > 0 ? filtered.reduce(function(max, row) { return row.fgSubs > max.fgSubs ? row : max; }) : {brand: 'Samsung'};
+      var fgTowersCount = TOWERS_5G.reduce(function(sum, t) { return sum + t.count; }, 0);
+      var allTowersEstimate = 280;
+      var fgCoverage = allTowersEstimate > 0 ? ((fgTowersCount / allTowersEstimate) * 100) : 12.9;
+
+      document.getElementById('kpi1').textContent = String(total5G.toLocaleString());
+      document.getElementById('kpi2').textContent = String(penetration.toFixed(1)) + '%';
+      document.getElementById('kpi3').textContent = String(fgTowersCount);
+      document.getElementById('kpi4').textContent = String(fgCoverage.toFixed(1)) + '%';
+      document.getElementById('kpi5').textContent = String(data5GGb.toFixed(0)) + 'TB';
+      document.getElementById('kpi6').textContent = String(avgThroughput.toFixed(1));
+      document.getElementById('kpi7').textContent = String(avgDrop.toFixed(2)) + '%';
+      document.getElementById('kpi8').textContent = topBrand.brand;
+
+      fitKpiText('kpi1');
+      fitKpiText('kpi2');
+      fitKpiText('kpi5');
+      fitKpiText('kpi6');
+    }
+
+    function updateCharts(filtered) {
+      // Chart 1: 5G Device Penetration by Brand
+      mk('chart1', {
+        type: 'bar',
+        data: {
+          labels: filtered.map(function(row) { return row.brand; }),
+          datasets: [{
+            label: '5G Penetration %',
+            data: filtered.map(function(row) { return row.pct; }),
+            backgroundColor: '#006AFF'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, max: 105 } }
+        }
+      });
+
+      // Chart 2: 5G vs Non-5G Split
+      var total5G = filtered.reduce(function(sum, row) { return sum + row.fgSubs; }, 0);
+      var totalSubs = filtered.reduce(function(sum, row) { return sum + row.totalSubs; }, 0);
+      var nonFG = totalSubs - total5G;
+      mk('chart2', {
+        type: 'bar',
+        data: {
+          labels: ['Subscribers'],
+          datasets: [
+            {
+              label: '5G',
+              data: [total5G],
+              backgroundColor: '#E20074'
+            },
+            {
+              label: 'Non-5G',
+              data: [nonFG],
+              backgroundColor: '#94A3B8'
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { stacked: true, beginAtZero: true } }
+        }
+      });
+
+      // Chart 3: 5G Tower Deployment by Area Type
+      mk('chart3', {
+        type: 'bar',
+        data: {
+          labels: TOWERS_5G.map(function(t) { return t.urban; }),
+          datasets: [{
+            label: '5G Towers',
+            data: TOWERS_5G.map(function(t) { return t.count; }),
+            backgroundColor: '#1A7F64'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+
+      // Chart 4: 5G Data by Region
+      var regions = ['North', 'South', 'East', 'West', 'Central'];
+      var dataByRegion = {};
+      regions.forEach(function(r) { dataByRegion[r] = 0; });
+      NETWORK_DATA_FULL.forEach(function(row) {
+        dataByRegion[row.region] += row.dataGB;
+      });
+      mk('chart4', {
+        type: 'bar',
+        data: {
+          labels: regions,
+          datasets: [{
+            label: '5G Data (TB)',
+            data: regions.map(function(r) { return (dataByRegion[r] / 1000000); }),
+            backgroundColor: '#0EA5E9'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+
+      // Chart 5: 5G vs 4G Quality
+      var filtered5G = NETWORK_DATA_5G.filter(function(row) { return row.year === 2025; });
+      var filtered4G = NETWORK_DATA_4G.filter(function(row) { return row.year === 2025; });
+      var avg5GDrop = filtered5G.length > 0 ? filtered5G.reduce(function(sum, row) { return sum + row.dropRate; }, 0) / filtered5G.length : 1.50;
+      var avg5GThroughput = filtered5G.length > 0 ? filtered5G.reduce(function(sum, row) { return sum + row.throughput; }, 0) / filtered5G.length : 30.8;
+      var avg4GDrop = filtered4G.length > 0 ? filtered4G.reduce(function(sum, row) { return sum + row.dropRate; }, 0) / filtered4G.length : 1.51;
+      var avg4GThroughput = filtered4G.length > 0 ? filtered4G.reduce(function(sum, row) { return sum + row.throughput; }, 0) / filtered4G.length : 31.0;
+      mk('chart5', {
+        type: 'bar',
+        data: {
+          labels: ['Drop Rate (%)', 'Throughput (Mbps)'],
+          datasets: [
+            {
+              label: '5G',
+              data: [avg5GDrop, avg5GThroughput],
+              backgroundColor: '#E20074'
+            },
+            {
+              label: '4G',
+              data: [avg4GDrop, avg4GThroughput],
+              backgroundColor: '#1A7F64'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // Chart 6: Adoption Growth Potential
+      var adoptionStages = ['5G Capable', '5G Towers', '5G Subs', 'Target 60%'];
+      var capablePct = 39.1;
+      var towerPct = 12.9;
+      var subsPct = (filtered.reduce(function(sum, row) { return sum + row.fgSubs; }, 0) / filtered.reduce(function(sum, row) { return sum + row.totalSubs; }, 0)) * 100;
+      var targetPct = 60;
+      mk('chart6', {
+        type: 'bar',
+        data: {
+          labels: adoptionStages,
+          datasets: [{
+            label: 'Adoption %',
+            data: [capablePct, towerPct, subsPct, targetPct],
+            backgroundColor: '#F59E0B'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, max: 70 } }
+        }
+      });
+    }
+
+    function updateTable(filtered) {
+      var tbody = document.querySelector('#adoptionTable tbody');
+      tbody.innerHTML = '';
+      filtered.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.brand + '</td><td>' + String(row.fgSubs.toLocaleString()) + '</td><td>' + String(row.totalSubs.toLocaleString()) + '</td><td>' + String(row.pct.toFixed(1)) + '%</td><td>\u20B9' + String(row.avgLtv.toLocaleString()) + '</td><td>' + String(row.avgNps.toFixed(1)) + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      var filters = getFilters();
+      var filtered = FG_DATA;
+      if (filters.brand) {
+        filtered = filtered.filter(function(row) { return row.brand === filters.brand; });
+      }
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+    }
+
+    applyFilters();
+  </script>
+</body>
+</html>

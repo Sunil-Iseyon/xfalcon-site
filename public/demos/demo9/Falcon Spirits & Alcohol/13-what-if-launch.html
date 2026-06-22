@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13 — What-If: New Product Launch | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+        .scenario-badge { display: inline-block; background: #E74C3C; color: #FFF; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; letter-spacing: 1px; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        /* ═══ CONFIGURATOR PANEL ═══ */
+        .config-panel { background: linear-gradient(145deg, #1E2A45, #232340); border: 2px solid rgba(212,168,67,0.3); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .config-panel h2 { font-family: 'Playfair Display', serif; font-size: 18px; color: #D4A843; margin-bottom: 16px; }
+        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .config-item { margin-bottom: 8px; }
+        .config-item label { display: block; font-size: 11px; font-weight: 600; color: #C0C0C0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .config-item select, .config-item input[type="range"] { width: 100%; background: #1A1A2E; border: 1px solid rgba(212,168,67,0.3); color: #D4A843; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-family: 'Inter', sans-serif; }
+        .config-item select:focus { outline: none; border-color: #D4A843; }
+        .config-item input[type="range"] { -webkit-appearance: none; height: 6px; padding: 0; border: none; background: rgba(212,168,67,0.2); border-radius: 3px; cursor: pointer; }
+        .config-item input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #D4A843; border-radius: 50%; cursor: pointer; }
+        .range-value { font-size: 14px; font-weight: 700; color: #D4A843; display: inline-block; min-width: 60px; text-align: right; }
+        .range-row { display: flex; align-items: center; gap: 12px; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html" class="active">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>What-If: New Product Launch <span class="fy-badge">Scenario Planner</span> <span class="scenario-badge">INTERACTIVE</span></h1>
+    <div class="subtitle">Configure launch parameters below — all projections update dynamically based on 7 years of historical benchmarks (FY2019–FY2025)</div>
+    <div class="dash-num">13</div>
+</div>
+
+<div class="container">
+
+<!-- ═══ CONFIGURATOR ═══ -->
+<div class="config-panel">
+    <h2>Launch Configuration</h2>
+    <div class="config-grid">
+        <div class="config-item">
+            <label>Spirit Type</label>
+            <select id="cfgSpirit">
+                <option value="Whiskey">Whiskey</option>
+                <option value="Vodka">Vodka</option>
+                <option value="Tequila" selected>Tequila</option>
+                <option value="Rum">Rum</option>
+                <option value="Gin">Gin</option>
+                <option value="Liqueur">Liqueur</option>
+            </select>
+        </div>
+        <div class="config-item">
+            <label>Price Tier</label>
+            <select id="cfgTier">
+                <option value="Value">Value</option>
+                <option value="Standard">Standard</option>
+                <option value="Premium" selected>Premium</option>
+                <option value="Super-Premium">Super-Premium</option>
+                <option value="Ultra-Premium">Ultra-Premium</option>
+                <option value="Prestige">Prestige</option>
+            </select>
+        </div>
+        <div class="config-item">
+            <label>Launch SKUs</label>
+            <div class="range-row">
+                <input type="range" id="cfgSKUs" min="1" max="10" value="3">
+                <span class="range-value" id="skuVal">3</span>
+            </div>
+        </div>
+        <div class="config-item">
+            <label>Target Markets (States)</label>
+            <div class="range-row">
+                <input type="range" id="cfgMarkets" min="5" max="50" value="15" step="5">
+                <span class="range-value" id="mktVal">15</span>
+            </div>
+        </div>
+        <div class="config-item">
+            <label>Distribution Target % (Year 1)</label>
+            <div class="range-row">
+                <input type="range" id="cfgDist" min="10" max="80" value="35" step="5">
+                <span class="range-value" id="distVal">35%</span>
+            </div>
+        </div>
+        <div class="config-item">
+            <label>Annual Trade Spend Budget</label>
+            <div class="range-row">
+                <input type="range" id="cfgTrade" min="100000" max="5000000" value="1500000" step="100000">
+                <span class="range-value" id="tradeVal">$1.5M</span>
+            </div>
+        </div>
+        <div class="config-item">
+            <label>Ramp Speed</label>
+            <select id="cfgRamp">
+                <option value="slow">Slow (18-mo ramp)</option>
+                <option value="moderate" selected>Moderate (12-mo ramp)</option>
+                <option value="aggressive">Aggressive (6-mo ramp)</option>
+            </select>
+        </div>
+        <div class="config-item">
+            <label>Distributor Coverage</label>
+            <select id="cfgDistributors">
+                <option value="3">3 Distributors (Regional)</option>
+                <option value="6" selected>6 Distributors (Multi-Regional)</option>
+                <option value="9">9 Distributors (Near-National)</option>
+                <option value="12">12 Distributors (Full National)</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ KPI CARDS ═══ -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ═══ 24-MONTH REVENUE FORECAST ═══ -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>24-Month Revenue Ramp Forecast</h3>
+        <div class="chart-subtitle">Projected monthly shipment revenue with cumulative line overlay</div>
+        <canvas id="revenueRampChart" height="70"></canvas>
+    </div>
+</div>
+
+<!-- ═══ THREE-TIER FLOW ═══ -->
+<div class="section-label">Three-Tier Flow Projection — 24 Months</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Quarterly Three-Tier Volume</h3>
+        <div class="chart-subtitle">Shipments → Depletions → Consumption (8 quarters)</div>
+        <canvas id="threeTierChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Projected P&L Waterfall</h3>
+        <div class="chart-subtitle">Year 1 gross revenue through net profit</div>
+        <canvas id="waterfallChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTION & MARKET ═══ -->
+<div class="section-label">Distribution Build & Market Penetration</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Distribution Ramp — 24 Months</h3>
+        <div class="chart-subtitle">Weighted distribution % build over time</div>
+        <canvas id="distBuildChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Projected Market Share Capture</h3>
+        <div class="chart-subtitle">Share of category by quarter</div>
+        <canvas id="mktShareChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ CHANNEL & TRADE ═══ -->
+<div class="section-label">Channel Allocation & Trade Spend ROI</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Revenue by Region — Year 1</h3>
+        <div class="chart-subtitle">Projected revenue distribution across target regions</div>
+        <canvas id="regionChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Trade Spend Allocation & Projected ROI</h3>
+        <div class="chart-subtitle">Budget allocation by program type with expected return</div>
+        <canvas id="tradeChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ BREAKEVEN ═══ -->
+<div class="section-label">Breakeven & Profitability Analysis</div>
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Cumulative P&L — Path to Breakeven</h3>
+        <div class="chart-subtitle">Monthly cumulative gross profit minus trade spend showing breakeven point</div>
+        <canvas id="breakevenChart" height="60"></canvas>
+    </div>
+</div>
+
+<!-- ═══ PROJECTION TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Projection Detail — 24 Months</h3>
+    <div class="chart-subtitle">Revenue, cases, GP, trade spend, cumulative P&L and distribution build by month</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Shipment Rev.</th>
+            <th class="num">Cases</th>
+            <th class="num">Gross Profit</th>
+            <th class="num">GP %</th>
+            <th class="num">Trade Spend</th>
+            <th class="num">Net Contrib.</th>
+            <th class="num">Cumul. P&L</th>
+            <th class="num">Dist. %</th>
+        </tr></thead>
+        <tbody id="projTable"></tbody>
+        <tfoot id="projTfoot"></tfoot>
+    </table>
+</div>
+
+<!-- ═══ SCENARIO COMPARISON TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Scenario Summary — Year 1 vs Year 2</h3>
+    <div class="chart-subtitle">Key metrics comparison between first and second year of launch</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Metric</th><th class="num">Year 1</th><th class="num">Year 2</th><th class="num">Growth</th>
+        </tr></thead>
+        <tbody id="scenarioTable"></tbody>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 13 of 13 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; What-If Scenario Planner</div>
+
+<script>
+// ── THEME ──
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':v.toFixed(0);}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+
+const months24 = ['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12','M13','M14','M15','M16','M17','M18','M19','M20','M21','M22','M23','M24'];
+const moNames = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+// ── HISTORICAL BENCHMARKS ──
+const spiritBench = {
+    Whiskey:{avgRevPerCase:57.85,costPerCase:25.3,fobPerCase:41.7,margin:0.40,avgGrowthYoY:0.12,seasonality:[1.07,1.02,1.11,1.21,1.36,1.75,0.94,0.92,1.01,1.03,1.05,1.10],wtdDist:57.3,velocity:3.49,mktShare:7.72,promoPct:0.17,yr25rev:27747388},
+    Vodka:{avgRevPerCase:21.80,costPerCase:11.6,fobPerCase:19.1,margin:0.39,avgGrowthYoY:0.04,seasonality:[1.07,1.02,0.97,1.03,1.21,1.52,0.84,0.82,0.93,0.95,0.99,1.06],wtdDist:57.4,velocity:2.49,mktShare:7.78,promoPct:0.15,yr25rev:4422155},
+    Tequila:{avgRevPerCase:59.77,costPerCase:37.4,fobPerCase:58.6,margin:0.37,avgGrowthYoY:0.18,seasonality:[1.04,1.15,0.97,0.92,0.98,1.46,0.89,0.93,1.00,1.04,1.31,1.22],wtdDist:57.7,velocity:6.04,mktShare:7.78,promoPct:0.21,yr25rev:2174412},
+    Rum:{avgRevPerCase:17.82,costPerCase:12.8,fobPerCase:21.6,margin:0.41,avgGrowthYoY:0.03,seasonality:[1.11,1.04,0.84,0.78,0.94,1.21,0.73,0.72,0.79,0.85,0.97,1.07],wtdDist:57.7,velocity:2.65,mktShare:7.74,promoPct:0.15,yr25rev:2194945},
+    Gin:{avgRevPerCase:31.82,costPerCase:17.8,fobPerCase:30.1,margin:0.41,avgGrowthYoY:0.07,seasonality:[1.07,1.07,0.95,1.00,1.18,1.52,0.82,0.80,0.99,0.94,1.06,1.03],wtdDist:57.7,velocity:2.05,mktShare:7.80,promoPct:0.14,yr25rev:265126},
+    Liqueur:{avgRevPerCase:27.47,costPerCase:16.0,fobPerCase:27.5,margin:0.42,avgGrowthYoY:0.06,seasonality:[1.05,0.97,0.99,1.14,1.45,1.98,0.85,0.84,0.85,0.92,1.00,1.04],wtdDist:57.5,velocity:2.09,mktShare:7.73,promoPct:0.14,yr25rev:184370}
+};
+
+const tierMultiplier = {Value:0.5,Standard:0.8,Premium:1.0,'Super-Premium':1.5,'Ultra-Premium':2.2,Prestige:4.0};
+const tierMarginAdj = {Value:-0.06,Standard:-0.02,Premium:0,'Super-Premium':0.02,'Ultra-Premium':0.03,Prestige:0.04};
+
+const regionWeights = {West:0.28,Midwest:0.22,Southeast:0.22,Northeast:0.21,Southwest:0.07};
+const tradePrograms = [
+    {type:'Display',pct:0.30,roi:2.74},{type:'Volume Incentive',pct:0.22,roi:3.36},
+    {type:'Sampling',pct:0.18,roi:3.18},{type:'Price Reduction',pct:0.12,roi:2.36},
+    {type:'Menu Placement',pct:0.10,roi:2.34},{type:'Co-op Ad',pct:0.08,roi:2.74}
+];
+
+const rampCurves = {
+    slow:[0.05,0.08,0.12,0.16,0.20,0.25,0.30,0.36,0.42,0.50,0.58,0.65,0.72,0.78,0.82,0.86,0.90,0.93,0.95,0.96,0.97,0.98,0.99,1.00],
+    moderate:[0.08,0.14,0.22,0.30,0.38,0.46,0.54,0.62,0.70,0.78,0.86,0.92,0.95,0.96,0.97,0.98,0.98,0.99,0.99,1.00,1.00,1.00,1.00,1.00],
+    aggressive:[0.15,0.28,0.42,0.56,0.68,0.80,0.88,0.93,0.96,0.98,0.99,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00]
+};
+
+// ── CHART INSTANCES (for re-rendering) ──
+let charts = {};
+
+function destroyCharts() {
+    Object.values(charts).forEach(c => { if(c) c.destroy(); });
+    charts = {};
+}
+
+function runScenario() {
+    destroyCharts();
+    const spirit = document.getElementById('cfgSpirit').value;
+    const tier = document.getElementById('cfgTier').value;
+    const skus = +document.getElementById('cfgSKUs').value;
+    const markets = +document.getElementById('cfgMarkets').value;
+    const targetDist = +document.getElementById('cfgDist').value;
+    const tradeBudget = +document.getElementById('cfgTrade').value;
+    const ramp = document.getElementById('cfgRamp').value;
+    const numDist = +document.getElementById('cfgDistributors').value;
+
+    const bench = spiritBench[spirit];
+    const tierMult = tierMultiplier[tier];
+    const curve = rampCurves[ramp];
+    const margin = bench.margin + (tierMarginAdj[tier] || 0);
+    const fobPerCase = bench.fobPerCase * tierMult;
+    const costPerCase = fobPerCase * (1 - margin);
+    const mktFraction = markets / 50;
+
+    // Base annual potential: benchmark category revenue * (skus/avg_skus) * market fraction * tier multiplier
+    const avgSkusInCategory = 20;
+    const basePotential = bench.yr25rev * (skus / avgSkusInCategory) * mktFraction * Math.sqrt(tierMult) * (numDist / 12);
+
+    // Monthly projections
+    const monthly = [];
+    let cumulPL = 0;
+    for (let i = 0; i < 24; i++) {
+        const rampFactor = curve[i];
+        const seasonIdx = i % 12;
+        const seasonFactor = bench.seasonality[seasonIdx];
+        const yearGrowth = i >= 12 ? (1 + bench.avgGrowthYoY) : 1;
+
+        const monthlyRev = (basePotential / 12) * rampFactor * seasonFactor * yearGrowth;
+        const cases = monthlyRev / fobPerCase;
+        const gp = monthlyRev * margin;
+        const tradeM = (tradeBudget / 12) * (i < 6 ? 1.4 : i < 12 ? 1.0 : 0.7);
+        const netContrib = gp - tradeM;
+        cumulPL += netContrib;
+        const dist = targetDist * rampFactor * (i >= 12 ? Math.min(1.3, 1 + bench.avgGrowthYoY) : 1);
+
+        monthly.push({
+            month: i + 1,
+            moName: moNames[seasonIdx],
+            qtr: Math.floor(i / 3) + 1,
+            rev: monthlyRev,
+            cases: cases,
+            gp: gp,
+            gpPct: margin * 100,
+            trade: tradeM,
+            net: netContrib,
+            cumulPL: cumulPL,
+            dist: Math.min(dist, 95),
+            ramp: rampFactor
+        });
+    }
+
+    // ── AGGREGATES ──
+    const yr1 = monthly.slice(0, 12);
+    const yr2 = monthly.slice(12, 24);
+    const yr1Rev = yr1.reduce((s,d)=>s+d.rev,0);
+    const yr2Rev = yr2.reduce((s,d)=>s+d.rev,0);
+    const yr1Cases = yr1.reduce((s,d)=>s+d.cases,0);
+    const yr2Cases = yr2.reduce((s,d)=>s+d.cases,0);
+    const yr1GP = yr1.reduce((s,d)=>s+d.gp,0);
+    const yr2GP = yr2.reduce((s,d)=>s+d.gp,0);
+    const yr1Trade = yr1.reduce((s,d)=>s+d.trade,0);
+    const yr2Trade = yr2.reduce((s,d)=>s+d.trade,0);
+    const yr1Net = yr1.reduce((s,d)=>s+d.net,0);
+    const yr2Net = yr2.reduce((s,d)=>s+d.net,0);
+    const breakevenMonth = monthly.findIndex(d => d.cumulPL > 0) + 1;
+
+    // ── DEPLETION & CONSUMPTION ESTIMATES ──
+    const deplRatio = 0.82; // typical depletion-to-shipment ratio
+    const consRatio = 0.65; // typical consumption-to-shipment ratio (POS lag)
+
+    // ── KPI CARDS ──
+    const kpis = [
+        {label:'Year 1 Revenue',val:yr1Rev,sub:'Projected shipments'},
+        {label:'Year 1 Cases',val:yr1Cases,sub:skus+' SKUs × '+markets+' markets',isCases:true},
+        {label:'Gross Margin',val:margin*100,sub:'Based on '+tier+' '+spirit,isPct:true},
+        {label:'Breakeven Month',val:breakevenMonth||'N/A',sub:breakevenMonth?'Month '+breakevenMonth+' of 24':'Not within 24 months',isCount:true},
+        {label:'Year 2 Revenue',val:yr2Rev,sub:'&#9650; '+pct(yr2Rev,yr1Rev)+'% vs Year 1'},
+        {label:'24-Mo Net P&L',val:monthly[23].cumulPL,sub:monthly[23].cumulPL>=0?'Profitable':'Investment phase'}
+    ];
+    const kpiRow = document.getElementById('kpiRow');
+    kpiRow.innerHTML = '';
+    kpis.forEach(k => {
+        const displayVal = k.isPct ? k.val.toFixed(1)+'%' : k.isCases ? fmtK(k.val) : k.isCount ? k.val : fmt$(k.val);
+        const sparkVals = monthly.map(d=>d.rev);
+        const sparkMax = Math.max(...sparkVals);
+        const bars = sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');
+        kpiRow.innerHTML += `<div class="kpi-card">
+            <div class="label">${k.label}</div>
+            <div class="value">${displayVal}</div>
+            <div class="sub-value">${k.sub}</div>
+            <div class="sparkline-row">${bars}</div>
+        </div>`;
+    });
+
+    // ── REVENUE RAMP CHART ──
+    charts.revenueRamp = new Chart(document.getElementById('revenueRampChart'),{type:'bar',data:{
+        labels:months24,
+        datasets:[
+            {label:'Monthly Revenue',data:monthly.map(d=>d.rev),backgroundColor:monthly.map((_,i)=>i<12?G:LG),borderRadius:3,order:2},
+            {label:'Cumulative Revenue',data:monthly.reduce((acc,d)=>{const prev=acc.length?acc[acc.length-1]:0;acc.push(prev+d.rev);return acc;},[]),type:'line',borderColor:DG,borderWidth:2,tension:0.3,pointRadius:2,yAxisID:'y1',order:1}
+        ]
+    },options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y1:{type:'linear',position:'right',ticks:{callback:v=>fmt$(v)},grid:{display:false}},x:{grid:{display:false}}}}});
+
+    // ── THREE-TIER QUARTERLY ──
+    const qtrs = [];
+    for(let q=0;q<8;q++){
+        const slice = monthly.slice(q*3,q*3+3);
+        qtrs.push({
+            q:'Q'+(q+1),
+            ship:slice.reduce((s,d)=>s+d.cases,0),
+            depl:slice.reduce((s,d)=>s+d.cases*deplRatio,0),
+            cons:slice.reduce((s,d)=>s+d.cases*consRatio,0)
+        });
+    }
+    charts.threeTier = new Chart(document.getElementById('threeTierChart'),{type:'bar',data:{
+        labels:qtrs.map(d=>d.q),
+        datasets:[
+            {label:'Shipments',data:qtrs.map(d=>d.ship),backgroundColor:G,borderRadius:3},
+            {label:'Depletions',data:qtrs.map(d=>d.depl),backgroundColor:DG,borderRadius:3},
+            {label:'Consumption',data:qtrs.map(d=>d.cons),backgroundColor:PY,borderRadius:3}
+        ]
+    },options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmtK(ctx.raw)+' cases'}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+    // ── P&L WATERFALL ──
+    const grossRev = yr1Rev / (1 - 0.005); // ~0.5% returns
+    const returns = grossRev * 0.005;
+    const cogs = yr1Rev * (1 - margin);
+    charts.waterfall = new Chart(document.getElementById('waterfallChart'),{type:'bar',data:{
+        labels:['Gross Rev.','Returns','Net Rev.','COGS','Gross Profit','Trade Spend','Net Contrib.'],
+        datasets:[{
+            data:[grossRev,-returns,yr1Rev,-cogs,yr1GP,-yr1Trade,yr1Net],
+            backgroundColor:[G,'#E74C3C',G,'#E74C3C',LG,'#E74C3C',yr1Net>=0?'#2ECC71':'#E74C3C'],
+            borderRadius:3
+        }]
+    },options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt$(Math.abs(ctx.raw))}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+    // ── DISTRIBUTION BUILD ──
+    charts.distBuild = new Chart(document.getElementById('distBuildChart'),{type:'line',data:{
+        labels:months24,
+        datasets:[
+            {label:'Weighted Dist. %',data:monthly.map(d=>d.dist),borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',fill:true,tension:0.3,pointRadius:3,borderWidth:2,pointBackgroundColor:G},
+            {label:'Target',data:monthly.map((_,i)=>i<12?targetDist:targetDist*Math.min(1.3,1+bench.avgGrowthYoY)),borderColor:PY,borderDash:[5,3],tension:0,pointRadius:0,borderWidth:1.5}
+        ]
+    },options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(1)+'%'}}},scales:{y:{min:0,max:Math.max(80,targetDist*1.5),ticks:{callback:v=>v+'%'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+    // ── MARKET SHARE ──
+    const catRevByQtr = bench.yr25rev / 4;
+    charts.mktShare = new Chart(document.getElementById('mktShareChart'),{type:'line',data:{
+        labels:qtrs.map(d=>d.q),
+        datasets:[{label:'Projected Share %',data:qtrs.map(d=>{const qRev=d.ship*fobPerCase;return (qRev/(catRevByQtr+qRev)*100);}),borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',fill:true,tension:0.3,pointRadius:5,borderWidth:2,pointBackgroundColor:G}]
+    },options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(2)+'% share'}}},scales:{y:{min:0,ticks:{callback:v=>v.toFixed(1)+'%'},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+    // ── REGION CHART ──
+    const regions = Object.entries(regionWeights).map(([r,w])=>({r,rev:yr1Rev*w*(r==='West'||r==='Northeast'?1.1:1.0)}));
+    const regTotal = regions.reduce((s,d)=>s+d.rev,0);
+    regions.forEach(d=>d.rev=d.rev*(yr1Rev/regTotal));
+    charts.region = new Chart(document.getElementById('regionChart'),{type:'bar',data:{
+        labels:regions.map(d=>d.r),
+        datasets:[{data:regions.map(d=>d.rev),backgroundColor:[G,LG,DG,'#CD853F','#8B7355'],borderRadius:4}]
+    },options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Revenue: '+fmt$(ctx.raw)+' ('+((ctx.raw/yr1Rev)*100).toFixed(1)+'%)'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+    // ── TRADE SPEND CHART ──
+    charts.trade = new Chart(document.getElementById('tradeChart'),{type:'bar',data:{
+        labels:tradePrograms.map(d=>d.type),
+        datasets:[
+            {label:'Budget',data:tradePrograms.map(d=>tradeBudget*d.pct),backgroundColor:G,borderRadius:3,yAxisID:'y'},
+            {label:'Proj. ROI',data:tradePrograms.map(d=>d.roi),backgroundColor:DG,borderRadius:3,yAxisID:'y1'}
+        ]
+    },options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?'Budget: '+fmt$(ctx.raw):'ROI: '+ctx.raw.toFixed(2)+'x'}}},scales:{y:{position:'left',ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y1:{type:'linear',position:'right',ticks:{callback:v=>v.toFixed(1)+'x'},grid:{display:false}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+    // ── BREAKEVEN CHART ──
+    charts.breakeven = new Chart(document.getElementById('breakevenChart'),{type:'line',data:{
+        labels:months24,
+        datasets:[
+            {label:'Cumulative Net P&L',data:monthly.map(d=>d.cumulPL),borderColor:monthly.map(d=>d.cumulPL>=0?'#2ECC71':'#E74C3C'),segment:{borderColor:ctx=>(ctx.p0.parsed.y>=0&&ctx.p1.parsed.y>=0)?'#2ECC71':'#E74C3C'},backgroundColor:monthly.map(d=>d.cumulPL>=0?'rgba(46,204,113,0.08)':'rgba(231,76,60,0.08)'),fill:true,tension:0.3,pointRadius:3,borderWidth:2,pointBackgroundColor:monthly.map(d=>d.cumulPL>=0?'#2ECC71':'#E74C3C')},
+            {label:'Breakeven',data:Array(24).fill(0),borderColor:'rgba(255,255,255,0.3)',borderDash:[5,5],borderWidth:1,pointRadius:0}
+        ]
+    },options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?'Cumul. P&L: '+fmt$(ctx.raw):''}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+    // ── PROJECTION TABLE ──
+    const projTable = document.getElementById('projTable');
+    projTable.innerHTML = '';
+    let ttlRev=0,ttlCases=0,ttlGP=0,ttlTrade=0;
+    monthly.forEach(d => {
+        ttlRev+=d.rev;ttlCases+=d.cases;ttlGP+=d.gp;ttlTrade+=d.trade;
+        const cls = d.net >= 0 ? 'pos' : 'neg';
+        projTable.innerHTML += `<tr>
+            <td>${d.moName} (M${d.month})</td><td>Q${d.qtr}</td>
+            <td class="num">${fmt$(d.rev)}</td>
+            <td class="num">${fmtK(d.cases)}</td>
+            <td class="num">${fmt$(d.gp)}</td>
+            <td class="num">${d.gpPct.toFixed(1)}%</td>
+            <td class="num">${fmt$(d.trade)}</td>
+            <td class="num ${cls}">${fmt$(d.net)}</td>
+            <td class="num ${d.cumulPL>=0?'pos':'neg'}">${fmt$(d.cumulPL)}</td>
+            <td class="num">${d.dist.toFixed(1)}%</td>
+        </tr>`;
+    });
+    document.getElementById('projTfoot').innerHTML = `<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+        <td style="color:#D4A843">24-MO TOTAL</td><td></td>
+        <td class="num" style="color:#D4A843">${fmt$(ttlRev)}</td>
+        <td class="num" style="color:#D4A843">${fmtK(ttlCases)}</td>
+        <td class="num" style="color:#D4A843">${fmt$(ttlGP)}</td>
+        <td class="num">${(margin*100).toFixed(1)}%</td>
+        <td class="num" style="color:#D4A843">${fmt$(ttlTrade)}</td>
+        <td class="num ${monthly[23].cumulPL>=0?'pos':'neg'}" style="color:#D4A843">${fmt$(monthly[23].cumulPL)}</td>
+        <td class="num"></td>
+        <td class="num">${monthly[23].dist.toFixed(1)}%</td>
+    </tr>`;
+
+    // ── SCENARIO COMPARISON TABLE ──
+    const scenTable = document.getElementById('scenarioTable');
+    scenTable.innerHTML = '';
+    const rows = [
+        ['Shipment Revenue',yr1Rev,yr2Rev],
+        ['Cases Shipped',yr1Cases,yr2Cases],
+        ['Gross Profit',yr1GP,yr2GP],
+        ['Trade Spend',yr1Trade,yr2Trade],
+        ['Net Contribution',yr1Net,yr2Net],
+        ['Depletion Revenue (est.)',yr1Rev*deplRatio,yr2Rev*deplRatio],
+        ['Consumer Sales (est.)',yr1Rev*consRatio,yr2Rev*consRatio],
+        ['Avg Distribution %',yr1.reduce((s,d)=>s+d.dist,0)/12,yr2.reduce((s,d)=>s+d.dist,0)/12],
+        ['Est. Market Share %',(yr1Rev/(bench.yr25rev+yr1Rev)*100),(yr2Rev/(bench.yr25rev+yr2Rev)*100)]
+    ];
+    rows.forEach(r => {
+        const isDist = r[0].includes('Distribution') || r[0].includes('Share');
+        const isCase = r[0].includes('Cases');
+        const fmtV = isDist ? v=>v.toFixed(1)+'%' : isCase ? v=>fmtK(v) : v=>fmt$(v);
+        const growth = pct(r[2],r[1]);
+        const cls = growth >= 0 ? 'pos' : 'neg';
+        scenTable.innerHTML += `<tr>
+            <td>${r[0]}</td>
+            <td class="num">${fmtV(r[1])}</td>
+            <td class="num">${fmtV(r[2])}</td>
+            <td class="num ${cls}">${growth>=0?'&#9650;':'&#9660;'} ${Math.abs(growth)}%</td>
+        </tr>`;
+    });
+}
+
+// ── EVENT LISTENERS ──
+const controls = ['cfgSpirit','cfgTier','cfgSKUs','cfgMarkets','cfgDist','cfgTrade','cfgRamp','cfgDistributors'];
+controls.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('change', () => { updateLabels(); runScenario(); });
+    if (el.type === 'range') el.addEventListener('input', updateLabels);
+});
+
+function updateLabels() {
+    document.getElementById('skuVal').textContent = document.getElementById('cfgSKUs').value;
+    document.getElementById('mktVal').textContent = document.getElementById('cfgMarkets').value;
+    document.getElementById('distVal').textContent = document.getElementById('cfgDist').value + '%';
+    const trade = +document.getElementById('cfgTrade').value;
+    document.getElementById('tradeVal').textContent = trade >= 1e6 ? '$' + (trade/1e6).toFixed(1) + 'M' : '$' + (trade/1e3).toFixed(0) + 'K';
+}
+
+// ── INITIAL RUN ──
+updateLabels();
+runScenario();
+</script>
+</body>
+</html>

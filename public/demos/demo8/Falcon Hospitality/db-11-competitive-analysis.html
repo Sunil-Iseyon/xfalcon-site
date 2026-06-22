@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitive Benchmarking - Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F4F5F7; color: #2D3436; line-height: 1.6; }
+
+        nav { position: sticky; top: 0; background: #1B2A4A; color: #FFF; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #C8A951; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
+        .nav-links a { color: #FFF; text-decoration: none; font-size: 0.85rem; padding-bottom: 0.5rem; border-bottom: 3px solid transparent; transition: border-color 0.3s; }
+        .nav-links a:hover { border-bottom-color: #C8A951; }
+        .nav-links a.active { border-bottom-color: #C8A951; color: #C8A951; }
+
+        .page-header { background: linear-gradient(135deg, #1B2A4A 0%, #2a3f6e 100%); color: #FFF; padding: 2rem; }
+        .page-header h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+        .page-header p { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+        .page-header .sources { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.5rem; }
+
+        .dashboard { padding: 1.5rem 2rem; max-width: 1500px; margin: 0 auto; }
+
+        .section-title { font-size: 1.15rem; font-weight: 700; color: #1B2A4A; margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #C8A951; }
+
+        /* Benchmark Cards */
+        .bench-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 1.5rem; }
+        .bench-card { background: #FFF; border-radius: 10px; padding: 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
+        .bench-card .indicator { position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .bench-card .indicator.above { background: #2E7D32; }
+        .bench-card .indicator.below { background: #C62828; }
+        .bench-card .indicator.inline { background: #C8A951; }
+        .bench-card .metric-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #636E72; margin-bottom: 0.5rem; font-weight: 600; }
+        .bench-card .values { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.4rem; }
+        .bench-card .falcon-val { font-size: 1.6rem; font-weight: 700; color: #1B2A4A; }
+        .bench-card .industry-val { font-size: 1rem; color: #636E72; }
+        .bench-card .industry-val span { font-size: 0.7rem; display: block; color: #B2BEC3; }
+        .bench-card .bar-container { height: 8px; background: #E0E0E0; border-radius: 4px; overflow: hidden; margin-bottom: 0.4rem; position: relative; }
+        .bench-card .bar-falcon { height: 100%; border-radius: 4px; transition: width 0.6s; }
+        .bench-card .bar-industry { position: absolute; top: -4px; height: 16px; width: 3px; background: #C62828; border-radius: 2px; }
+        .bench-card .verdict { font-size: 0.78rem; font-weight: 600; }
+        .bench-card .verdict.above { color: #2E7D32; }
+        .bench-card .verdict.below { color: #C62828; }
+        .bench-card .verdict.inline { color: #C8A951; }
+
+        /* Chart Cards */
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-card { background: #FFF; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .chart-card h3 { font-size: 0.95rem; color: #1B2A4A; margin-bottom: 1rem; }
+        .chart-card canvas { max-height: 320px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        /* SWOT */
+        .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+        .swot-card { background: #FFF; border-radius: 10px; padding: 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .swot-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 4px; display: inline-block; color: #FFF; }
+        .swot-card .s-title { background: #2E7D32; }
+        .swot-card .w-title { background: #C62828; }
+        .swot-card .o-title { background: #1B2A4A; }
+        .swot-card .t-title { background: #C8A951; color: #1B2A4A; }
+        .swot-card ul { list-style: none; padding: 0; }
+        .swot-card li { padding: 0.4rem 0; border-bottom: 1px solid #F0F0F0; font-size: 0.85rem; color: #2D3436; padding-left: 1.2rem; position: relative; }
+        .swot-card li:last-child { border-bottom: none; }
+        .swot-card li::before { content: ''; position: absolute; left: 0; top: 0.7rem; width: 6px; height: 6px; border-radius: 50%; }
+        .swot-card.strengths li::before { background: #2E7D32; }
+        .swot-card.weaknesses li::before { background: #C62828; }
+        .swot-card.opportunities li::before { background: #1B2A4A; }
+        .swot-card.threats li::before { background: #C8A951; }
+
+        /* Recommendations */
+        .rec-list { display: grid; gap: 1rem; margin-bottom: 1.5rem; }
+        .rec-card { background: #FFF; border-radius: 10px; padding: 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 1.2rem; align-items: flex-start; border-left: 4px solid #C8A951; }
+        .rec-num { font-size: 1.8rem; font-weight: 700; color: #1B2A4A; min-width: 40px; text-align: center; line-height: 1; }
+        .rec-content h4 { font-size: 0.95rem; color: #1B2A4A; margin-bottom: 0.3rem; }
+        .rec-content p { font-size: 0.85rem; color: #636E72; }
+        .rec-impact { margin-left: auto; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+        .rec-impact.high { background: #E8F5E9; color: #2E7D32; }
+        .rec-impact.medium { background: #FFF8E1; color: #8D6E00; }
+
+        .footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: #B2BEC3; border-top: 1px solid #E0E0E0; margin-top: 2rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .dashboard { padding: 1rem; }
+            .bench-grid, .chart-grid { grid-template-columns: 1fr; }
+            .swot-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="nav-brand">Falcon Hotels & Restaurants</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="db-01-executive-overview.html">Executive</a></li>
+            <li><a href="db-02-revenue-finance.html">Revenue</a></li>
+            <li><a href="db-03-hotel-operations.html">Hotels</a></li>
+            <li><a href="db-04-restaurant-fb.html">Restaurant</a></li>
+            <li><a href="db-05-guest-experience.html">Guest Exp</a></li>
+            <li><a href="db-06-labor-workforce.html">Labor</a></li>
+            <li><a href="db-07-inventory-supply.html">Inventory</a></li>
+            <li><a href="db-08-social-marketing.html">Social</a></li>
+            <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html" class="active">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>DB-11 | Competitive Benchmarking Analysis</h1>
+        <p>Falcon Hotels & Restaurants performance vs U.S. hospitality industry benchmarks (2025 data)</p>
+        <div class="sources">Sources: STR/CoStar, National Restaurant Association, QuestionPro, Sprout Social, HC-Resource | Benchmark year: 2025</div>
+    </div>
+
+    <div class="dashboard">
+
+        <!-- HOTEL BENCHMARKS -->
+        <div class="section-title">Hotel Performance vs Industry</div>
+        <div class="bench-grid">
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Occupancy Rate</div>
+                <div class="values">
+                    <div class="falcon-val">73.3%</div>
+                    <div class="industry-val">62.3%<span>Industry Avg</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:77%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:65.5%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">+11.0 pts above industry — Top-quartile performance</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator below"></div>
+                <div class="metric-label">Average Daily Rate (ADR)</div>
+                <div class="values">
+                    <div class="falcon-val">$151.96</div>
+                    <div class="industry-val">$160.54<span>Industry Avg</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:72%;background:#C62828;"></div>
+                    <div class="bar-industry" style="left:76%;background:#636E72;"></div>
+                </div>
+                <div class="verdict below">-5.3% below industry — Pricing opportunity of ~$9/night</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">RevPAR</div>
+                <div class="values">
+                    <div class="falcon-val">$111.39</div>
+                    <div class="industry-val">$100.02<span>Industry Avg</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:74%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:67%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">+11.4% above industry — Occupancy compensates for lower ADR</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator below"></div>
+                <div class="metric-label">Digital Key Adoption</div>
+                <div class="values">
+                    <div class="falcon-val">37.8%</div>
+                    <div class="industry-val">70%<span>Industry Target</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:38%;background:#C62828;"></div>
+                    <div class="bar-industry" style="left:70%;background:#636E72;"></div>
+                </div>
+                <div class="verdict below">-32.2 pts gap — Major adoption opportunity (23% higher satisfaction)</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Upgrade Acceptance Rate</div>
+                <div class="values">
+                    <div class="falcon-val">11.1%</div>
+                    <div class="industry-val">8-10%<span>Industry Range</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:55%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:45%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Above industry range — Strong upsell execution</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator inline"></div>
+                <div class="metric-label">Room Revenue Mix (F&B %)</div>
+                <div class="values">
+                    <div class="falcon-val">15.7%</div>
+                    <div class="industry-val">12-18%<span>Industry Range</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:52%;background:#C8A951;"></div>
+                    <div class="bar-industry" style="left:50%;background:#636E72;"></div>
+                </div>
+                <div class="verdict inline">In-line with industry — Healthy ancillary capture</div>
+            </div>
+        </div>
+
+        <!-- RESTAURANT BENCHMARKS -->
+        <div class="section-title">Restaurant & F&B Performance vs Industry</div>
+        <div class="bench-grid">
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Average Ticket Size</div>
+                <div class="values">
+                    <div class="falcon-val">$48.63</div>
+                    <div class="industry-val">$15-$30<span>Casual Dining</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:81%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:40%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Premium positioning — Aligns with upscale casual / fine dining tier ($33-$60)</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator inline"></div>
+                <div class="metric-label">Food Cost %</div>
+                <div class="values">
+                    <div class="falcon-val">32%</div>
+                    <div class="industry-val">28-35%<span>Industry Range</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:64%;background:#C8A951;"></div>
+                    <div class="bar-industry" style="left:63%;background:#636E72;"></div>
+                </div>
+                <div class="verdict inline">In-line — Within industry norms for full-service restaurants</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator inline"></div>
+                <div class="metric-label">Order Accuracy Rate</div>
+                <div class="values">
+                    <div class="falcon-val">95.3%</div>
+                    <div class="industry-val">95%+<span>Industry Target</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:95%;background:#C8A951;"></div>
+                    <div class="bar-industry" style="left:95%;background:#636E72;"></div>
+                </div>
+                <div class="verdict inline">Meeting target — Room for improvement toward 97%+ top performers</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">On-Time Delivery Rate</div>
+                <div class="values">
+                    <div class="falcon-val">94.1%</div>
+                    <div class="industry-val">93%<span>Industry Target</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:94%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:93%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Above target — Consistent kitchen & service throughput</div>
+            </div>
+        </div>
+
+        <!-- FINANCIAL BENCHMARKS -->
+        <div class="section-title">Financial & Labor Performance vs Industry</div>
+        <div class="bench-grid">
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Gross Margin Rate</div>
+                <div class="values">
+                    <div class="falcon-val">71.4%</div>
+                    <div class="industry-val">65-70%<span>Full-Service Avg</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:89%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:84%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Above industry average — Strong cost management across streams</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Labor Cost % of Sales</div>
+                <div class="values">
+                    <div class="falcon-val">29.7%</div>
+                    <div class="industry-val">30-40%<span>Industry Range</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:49%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:55%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Below industry range — Efficient staffing model</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator inline"></div>
+                <div class="metric-label">Prime Cost (Food + Labor)</div>
+                <div class="values">
+                    <div class="falcon-val">~62%</div>
+                    <div class="industry-val">55-65%<span>Industry Target</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:77%;background:#C8A951;"></div>
+                    <div class="bar-industry" style="left:75%;background:#636E72;"></div>
+                </div>
+                <div class="verdict inline">Within target range — Monitor for upward pressure</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator below"></div>
+                <div class="metric-label">Employee Turnover (Industry)</div>
+                <div class="values">
+                    <div class="falcon-val">Monitor</div>
+                    <div class="industry-val">75%<span>Industry Avg</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:50%;background:#C8A951;"></div>
+                    <div class="bar-industry" style="left:75%;background:#C62828;"></div>
+                </div>
+                <div class="verdict below">Industry faces 75% annual turnover — Retention is critical</div>
+            </div>
+        </div>
+
+        <!-- GUEST EXPERIENCE BENCHMARKS -->
+        <div class="section-title">Guest Experience & Satisfaction vs Industry</div>
+        <div class="bench-grid">
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Customer Satisfaction (CSAT)</div>
+                <div class="values">
+                    <div class="falcon-val">85.6%</div>
+                    <div class="industry-val">70%+<span>Industry Good</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:86%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:70%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">4.28/5 score = 85.6% — Well above "good" threshold</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator inline"></div>
+                <div class="metric-label">NPS Rating (Avg Score)</div>
+                <div class="values">
+                    <div class="falcon-val">8.81</div>
+                    <div class="industry-val">8.5+<span>Excellent Threshold</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:88%;background:#C8A951;"></div>
+                    <div class="bar-industry" style="left:85%;background:#636E72;"></div>
+                </div>
+                <div class="verdict inline">Above "excellent" threshold — Hyatt 58, Hilton 56 NPS leaders</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator below"></div>
+                <div class="metric-label">Complaint Rate</div>
+                <div class="values">
+                    <div class="falcon-val">6.0%</div>
+                    <div class="industry-val">&lt;5%<span>Industry Target</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:60%;background:#C62828;"></div>
+                    <div class="bar-industry" style="left:50%;background:#636E72;"></div>
+                </div>
+                <div class="verdict below">Above 5% target — +17.6% YoY increase is a concern</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator below"></div>
+                <div class="metric-label">Value Perception Rating</div>
+                <div class="values">
+                    <div class="falcon-val">3.61/5</div>
+                    <div class="industry-val">4.0+<span>Target</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:72%;background:#C62828;"></div>
+                    <div class="bar-industry" style="left:80%;background:#636E72;"></div>
+                </div>
+                <div class="verdict below">-14% YoY decline — Guests feel price-value gap is widening</div>
+            </div>
+        </div>
+
+        <!-- INVENTORY & MARKETING BENCHMARKS -->
+        <div class="section-title">Inventory & Marketing vs Industry</div>
+        <div class="bench-grid">
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Food Waste Rate</div>
+                <div class="values">
+                    <div class="falcon-val">1.22%</div>
+                    <div class="industry-val">4-10%<span>Industry Range</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:12%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:50%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Exceptional — 3-8x better than industry average</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Social Engagement Rate</div>
+                <div class="values">
+                    <div class="falcon-val">4.83%</div>
+                    <div class="industry-val">1-3.5%<span>Industry Range</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:69%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:40%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">+38% above top of industry range — Highly resonant content</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator above"></div>
+                <div class="metric-label">Sentiment Score</div>
+                <div class="values">
+                    <div class="falcon-val">0.69</div>
+                    <div class="industry-val">0.60<span>Positive Threshold</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:69%;background:#2E7D32;"></div>
+                    <div class="bar-industry" style="left:60%;background:#636E72;"></div>
+                </div>
+                <div class="verdict above">Above positive threshold — Strong brand perception online</div>
+            </div>
+            <div class="bench-card">
+                <div class="indicator below"></div>
+                <div class="metric-label">Impressions Trend</div>
+                <div class="values">
+                    <div class="falcon-val">-8.7% YoY</div>
+                    <div class="industry-val">Stable<span>Industry Trend</span></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-falcon" style="width:40%;background:#C62828;"></div>
+                    <div class="bar-industry" style="left:50%;background:#636E72;"></div>
+                </div>
+                <div class="verdict below">Declining reach — Invest in paid amplification & new platforms</div>
+            </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="section-title">Visual Benchmarking Comparison</div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Hotel KPIs: Falcon vs Industry</h3>
+                <canvas id="hotelCompChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Financial & Operational Efficiency (%)</h3>
+                <canvas id="financialCompChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Guest Experience Scores</h3>
+                <canvas id="guestCompChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Marketing Performance Index (Falcon as % of Industry Best)</h3>
+                <canvas id="marketingCompChart"></canvas>
+            </div>
+        </div>
+
+        <!-- SWOT ANALYSIS -->
+        <div class="section-title">SWOT Analysis — Competitive Position</div>
+        <div class="swot-grid">
+            <div class="swot-card strengths">
+                <h4><span class="s-title">Strengths</span></h4>
+                <ul>
+                    <li>Occupancy rate 11pts above national average (73.3% vs 62.3%)</li>
+                    <li>Waste rate 3-8x better than industry (1.22% vs 4-10%)</li>
+                    <li>Social engagement rate 38% above top of industry range</li>
+                    <li>Gross margin 71.4% exceeds full-service industry average</li>
+                    <li>Labor cost 29.7% below industry 30-40% range</li>
+                    <li>RevPAR 11.4% above national benchmark</li>
+                    <li>Room upgrade acceptance rate above industry norms</li>
+                </ul>
+            </div>
+            <div class="swot-card weaknesses">
+                <h4><span class="w-title">Weaknesses</span></h4>
+                <ul>
+                    <li>ADR $8.58 below industry average — underpriced vs market</li>
+                    <li>Digital key adoption at 37.8% vs 70% industry target</li>
+                    <li>Complaint rate 6.0% rising (+17.6% YoY) above 5% target</li>
+                    <li>Value perception rating 3.61/5 declining 14% YoY</li>
+                    <li>Social impressions declining 8.7% year-over-year</li>
+                    <li>Reach down 21.9% — organic visibility shrinking</li>
+                </ul>
+            </div>
+            <div class="swot-card opportunities">
+                <h4><span class="o-title">Opportunities</span></h4>
+                <ul>
+                    <li>Close ADR gap (+$9/night) with dynamic pricing — est. $1.2M+ revenue</li>
+                    <li>Digital key rollout to 70% — 23% higher guest satisfaction</li>
+                    <li>Leverage 4.83% engagement rate for attributed revenue growth</li>
+                    <li>Menu expansion in high-margin beverage/alcohol (78% margin)</li>
+                    <li>Expand into TikTok (3.5% avg engagement in hospitality)</li>
+                    <li>Convert strong CSAT (85.6%) into loyalty program enrollment</li>
+                </ul>
+            </div>
+            <div class="swot-card threats">
+                <h4><span class="t-title">Threats</span></h4>
+                <ul>
+                    <li>Industry-wide 75% annual employee turnover rate</li>
+                    <li>Menu prices rose 42% (2020-2025), 2x inflation — pushback risk</li>
+                    <li>National RevPAR declined in 2025 for first time since 2020</li>
+                    <li>Food cost inflation impacting 28-35% COGS baseline</li>
+                    <li>Third-party delivery platforms compressing restaurant margins</li>
+                    <li>Rising guest expectations for digital experiences</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RECOMMENDATIONS -->
+        <div class="section-title">Strategic Recommendations</div>
+        <div class="rec-list">
+            <div class="rec-card">
+                <div class="rec-num">01</div>
+                <div class="rec-content">
+                    <h4>Implement Dynamic ADR Pricing to Close $9/Night Gap</h4>
+                    <p>With occupancy 11pts above industry, Falcon has pricing power. Increasing ADR from $152 to $161 (industry average) across 20 hotels with 477 rooms at 73.3% occupancy = ~$1.2M incremental annual room revenue with minimal cost impact.</p>
+                </div>
+                <div class="rec-impact high">HIGH IMPACT</div>
+            </div>
+            <div class="rec-card">
+                <div class="rec-num">02</div>
+                <div class="rec-content">
+                    <h4>Accelerate Digital Key Adoption to 70% Target</h4>
+                    <p>Current 37.8% vs 70% industry target represents a 32-point gap. Hotels with mobile check-in see 23% higher guest satisfaction. Deploy in-app promotion campaigns, front-desk incentives, and loyalty point bonuses for digital key users.</p>
+                </div>
+                <div class="rec-impact high">HIGH IMPACT</div>
+            </div>
+            <div class="rec-card">
+                <div class="rec-num">03</div>
+                <div class="rec-content">
+                    <h4>Address Rising Complaint Rate (6.0% → <5% Target)</h4>
+                    <p>Complaint rate increased 17.6% YoY and value perception dropped 14%. Conduct root-cause analysis on complaint categories, implement service recovery protocols, and ensure price increases are paired with visible quality improvements.</p>
+                </div>
+                <div class="rec-impact high">HIGH IMPACT</div>
+            </div>
+            <div class="rec-card">
+                <div class="rec-num">04</div>
+                <div class="rec-content">
+                    <h4>Expand High-Margin Beverage & Alcohol Program</h4>
+                    <p>Alcohol stream delivers 78% margin vs 68% for food. Expand cocktail menu, introduce wine pairings, and develop signature drinks across brands. Target 15% increase in beverage share of F&B revenue.</p>
+                </div>
+                <div class="rec-impact medium">MEDIUM IMPACT</div>
+            </div>
+            <div class="rec-card">
+                <div class="rec-num">05</div>
+                <div class="rec-content">
+                    <h4>Monetize Social Engagement Advantage</h4>
+                    <p>4.83% engagement rate is exceptional vs 1-3.5% industry range. Convert this audience connection into bookings via shoppable content, Instagram direct booking links, and influencer partnerships. Counter the -8.7% impression decline with paid amplification.</p>
+                </div>
+                <div class="rec-impact medium">MEDIUM IMPACT</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Falcon Hotels & Restaurants — Competitive Benchmarking Analysis | Industry data from STR/CoStar, NRA, QuestionPro, Sprout Social (2025) | Generated March 2026
+    </div>
+
+    <script>
+        const C = { navy: '#1B2A4A', gold: '#C8A951', white: '#FFFFFF', green: '#2E7D32', red: '#C62828', gray: '#636E72', lightNavy: 'rgba(27,42,74,0.7)', lightGold: 'rgba(200,169,81,0.7)' };
+
+        // Hotel Comparison
+        new Chart(document.getElementById('hotelCompChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['ADR ($)', 'Occupancy (%)', 'RevPAR ($)', 'Digital Key (%)', 'Upgrade Rate (%)'],
+                datasets: [
+                    { label: 'Falcon', data: [151.96, 73.3, 111.39, 37.8, 11.1], backgroundColor: C.navy, borderRadius: 4 },
+                    { label: 'Industry', data: [160.54, 62.3, 100.02, 70, 9], backgroundColor: C.gold, borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { color: C.navy, font: { weight: 'bold' } } } },
+                scales: {
+                    y: { ticks: { color: C.gray }, grid: { color: '#E0E0E0' } },
+                    x: { ticks: { color: C.gray }, grid: { display: false } }
+                }
+            }
+        });
+
+        // Financial Comparison (radar)
+        new Chart(document.getElementById('financialCompChart').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Gross Margin %', 'Labor Cost % (inv)', 'Food Cost % (inv)', 'Prime Cost % (inv)', 'Waste Rate % (inv)', 'On-Time %'],
+                datasets: [
+                    { label: 'Falcon', data: [71.4, 70.3, 68, 38, 98.8, 94.1], borderColor: C.navy, backgroundColor: 'rgba(27,42,74,0.15)', borderWidth: 2, pointBackgroundColor: C.navy },
+                    { label: 'Industry Avg', data: [67.5, 65, 67, 37.5, 93, 93], borderColor: C.gold, backgroundColor: 'rgba(200,169,81,0.15)', borderWidth: 2, pointBackgroundColor: C.gold }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { color: C.navy, font: { weight: 'bold' } } } },
+                scales: { r: { angleLines: { color: '#E0E0E0' }, grid: { color: '#E0E0E0' }, pointLabels: { color: C.navy, font: { size: 10 } }, suggestedMin: 30, suggestedMax: 100 } }
+            }
+        });
+
+        // Guest Experience Comparison
+        new Chart(document.getElementById('guestCompChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['CSAT (/5)', 'NPS Rating (/10)', 'Food Rating (/5)', 'Service (/5)', 'Value (/5)', 'Complaint % (lower=better)'],
+                datasets: [
+                    { label: 'Falcon', data: [4.28, 8.81, 4.21, 4.15, 3.61, 6.0], backgroundColor: C.navy, borderRadius: 4 },
+                    { label: 'Industry Target', data: [4.0, 8.5, 4.0, 4.0, 4.0, 5.0], backgroundColor: C.gold, borderRadius: 4 }
+                ]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { color: C.navy, font: { weight: 'bold' } } } },
+                scales: {
+                    x: { ticks: { color: C.gray }, grid: { color: '#E0E0E0' } },
+                    y: { ticks: { color: C.gray, font: { size: 10 } }, grid: { display: false } }
+                }
+            }
+        });
+
+        // Marketing Performance Index
+        new Chart(document.getElementById('marketingCompChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Engagement — 138%', 'Sentiment — 115%', 'Reach — 82%', 'Resonance — 130%'],
+                datasets: [{
+                    data: [138, 115, 82, 130],
+                    backgroundColor: [C.navy, C.gold, C.red, C.lightNavy],
+                    borderColor: C.white, borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: C.navy, font: { size: 11, weight: 'bold' }, padding: 16, usePointStyle: true, pointStyle: 'rectRounded' } },
+                    tooltip: { callbacks: { label: ctx => ctx.label + ' of industry best' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

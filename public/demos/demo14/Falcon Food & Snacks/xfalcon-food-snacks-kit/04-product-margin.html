@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Food & Snacks - Product Margin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; }
+    .topbar { background-color: #0F172A; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .logo-x { color: #006AFF; }
+    .logo-f { color: #1A7F64; }
+    .topbar-title { color: #FFFFFF; font-size: 16px; font-weight: 500; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .back-link { color: #006AFF; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .back-link:hover { text-decoration: underline; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    .filter-bar { background-color: #FFFFFF; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; gap: 16px; align-items: center; }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 12px; font-weight: 600; color: #0F172A; }
+    .filter-group select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 4px; font-family: 'Inter', sans-serif; cursor: pointer; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background-color: #FFFFFF; padding: 20px; border-radius: 8px; }
+    .kpi-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 8px; }
+    .kpi-value { font-size: 24px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
+    .kpi-delta { font-size: 13px; font-weight: 500; color: #64748B; }
+    .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+    .chart-card { background-color: #FFFFFF; padding: 20px; border-radius: 8px; }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-title { font-size: 14px; font-weight: 600; color: #0F172A; margin-bottom: 16px; }
+    canvas { max-height: 300px; }
+    .table-card { background-color: #FFFFFF; padding: 20px; border-radius: 8px; }
+    .table-title { font-size: 14px; font-weight: 600; color: #0F172A; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table thead { background-color: #0F172A; }
+    table th { color: #FFFFFF; padding: 12px; text-align: left; font-weight: 600; }
+    table td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+    table tbody tr:hover { background-color: #F8FAFC; }
+    .text-right { text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="topbar-title">Falcon Food & Snacks / 4. Product Margin</div>
+    </div>
+    <div class="topbar-right">
+      <a href="index.html" class="back-link">Back</a>
+    </div>
+  </div>
+  <div class="container">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="yearFilter">Year</label>
+        <select id="yearFilter" onchange="applyFilters()">
+          <option value="all">All</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">2025 GM%</div>
+        <div class="kpi-value">55.8%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">2025 GP</div>
+        <div class="kpi-value">$17.6M</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">2025 COGS</div>
+        <div class="kpi-value">$13.9M</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Trade Disc %</div>
+        <div class="kpi-value">13.5%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Best Margin</div>
+        <div class="kpi-value">57.3%</div>
+        <div class="kpi-delta">Confectionery</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">COGS/Unit</div>
+        <div class="kpi-value">$2.80</div>
+      </div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">GM% by Brand (2024 vs 2025)</div>
+        <canvas id="gmBrandChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">COGS Trend (6 Years)</div>
+        <canvas id="cogsTrendChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Margin Waterfall (2025)</div>
+        <canvas id="marginWaterfallChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">GM% Trend (6 Years)</div>
+        <canvas id="gmTrendChart"></canvas>
+      </div>
+      <div class="chart-card full">
+        <div class="chart-title">Trade Discount by Brand (2024 vs 2025)</div>
+        <canvas id="tradeDiscChart"></canvas>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-title">Brand × Category Margin Detail (2025)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Category</th>
+            <th class="text-right">Net Revenue</th>
+            <th class="text-right">COGS</th>
+            <th class="text-right">Trade Discount</th>
+            <th class="text-right">Gross Profit</th>
+            <th class="text-right">GM%</th>
+            <th class="text-right">COGS/Unit</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    var chartInstances = {};
+    function mk(id, cfg) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    var brandMarginData = [
+      {brand: 'Crestview Biscuits', rev2024: 7.04, rev2025: 10.29, cogs2024: 3.14, cogs2025: 4.59, gm2024: 55.5, gm2025: 55.4, units2024: 1.19, units2025: 1.62},
+      {brand: 'Sunrise Bars', rev2024: 5.26, rev2025: 7.54, cogs2024: 2.26, cogs2025: 3.27, gm2024: 56.9, gm2025: 56.5, units2024: 0.88, units2025: 1.19},
+      {brand: 'Crestfield Confections', rev2024: 3.62, rev2025: 6.10, cogs2024: 1.55, cogs2025: 2.61, gm2024: 57.8, gm2025: 57.3, units2024: 0.78, units2025: 1.06},
+      {brand: 'Morning Ridge Cereals', rev2024: 4.02, rev2025: 5.49, cogs2024: 1.86, cogs2025: 2.49, gm2024: 53.7, gm2025: 54.6, units2024: 0.65, units2025: 0.89},
+      {brand: 'Prairie Pantry Frozen', rev2024: 1.00, rev2025: 1.31, cogs2024: 0.45, cogs2025: 0.59, gm2024: 55.0, gm2025: 55.3, units2024: 0.15, units2025: 0.21},
+      {brand: 'Prairie Pantry Condiments', rev2024: 0.68, rev2025: 0.78, cogs2024: 0.32, cogs2025: 0.36, gm2024: 53.2, gm2025: 53.7, units2024: 0.10, units2025: 0.13}
+    ];
+
+    var cogsHistorical = [8.9, 9.2, 10.1, 9.4, 9.6, 13.9];
+    var gmHistorical = [56.5, 56.2, 52.4, 55.3, 55.7, 55.8];
+    var yearLabels = ['2020', '2021', '2022', '2023', '2024', '2025'];
+
+    function applyFilters() {
+      var brandLabels = brandMarginData.map(function(d) { return d.brand; });
+      var gmValues2024 = brandMarginData.map(function(d) { return d.gm2024; });
+      var gmValues2025 = brandMarginData.map(function(d) { return d.gm2025; });
+
+      mk('gmBrandChart', {
+        type: 'bar',
+        data: {
+          labels: brandLabels,
+          datasets: [
+            {label: '2024', data: gmValues2024, backgroundColor: '#94A3B8'},
+            {label: '2025', data: gmValues2025, backgroundColor: '#006AFF'}
+          ]
+        },
+        options: {responsive: true, maintainAspectRatio: true, indexAxis: 'y', scales: {x: {beginAtZero: true, max: 100, stacked: false}}}
+      });
+
+      mk('cogsTrendChart', {
+        type: 'bar',
+        data: {
+          labels: yearLabels,
+          datasets: [{label: 'COGS ($M)', data: cogsHistorical, backgroundColor: '#006AFF'}]
+        },
+        options: {responsive: true, maintainAspectRatio: true, scales: {y: {beginAtZero: true}}}
+      });
+
+      mk('marginWaterfallChart', {
+        type: 'bar',
+        data: {
+          labels: ['Net Revenue', 'COGS', 'Gross Profit'],
+          datasets: [{label: 'Amount ($M)', data: [31.5, -13.9, 17.6], backgroundColor: ['#006AFF', '#D32F2F', '#059669']}]
+        },
+        options: {responsive: true, maintainAspectRatio: true, scales: {y: {beginAtZero: true}}}
+      });
+
+      mk('gmTrendChart', {
+        type: 'line',
+        data: {
+          labels: yearLabels,
+          datasets: [{
+            label: 'GM%',
+            data: gmHistorical,
+            borderColor: '#1A7F64',
+            backgroundColor: 'rgba(26, 127, 100, 0.05)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 4
+          }]
+        },
+        options: {responsive: true, maintainAspectRatio: true, scales: {y: {beginAtZero: true, max: 100}}}
+      });
+
+      var tradeDiscValues2024 = brandMarginData.map(function(d) { return (d.rev2024 * 0.135); });
+      var tradeDiscValues2025 = brandMarginData.map(function(d) { return (d.rev2025 * 0.135); });
+
+      mk('tradeDiscChart', {
+        type: 'bar',
+        data: {
+          labels: brandLabels,
+          datasets: [
+            {label: '2024', data: tradeDiscValues2024, backgroundColor: '#94A3B8'},
+            {label: '2025', data: tradeDiscValues2025, backgroundColor: '#006AFF'}
+          ]
+        },
+        options: {responsive: true, maintainAspectRatio: true, indexAxis: 'y', scales: {x: {beginAtZero: true, stacked: false}}}
+      });
+
+      var tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      var categories = ['B&C', 'Snack Bars', 'Confectionery', 'Cereals', 'Frozen', 'Condiments'];
+      for (var i = 0; i < brandMarginData.length; i++) {
+        var d = brandMarginData[i];
+        var tradeDisc = d.rev2025 * 0.135;
+        var gp = d.rev2025 - d.cogs2025;
+        var cogsPerUnit = (d.cogs2025 / d.units2025).toFixed(2);
+        var row = '<tr><td>' + d.brand + '</td><td>' + categories[i] + '</td><td class="text-right">$' + d.rev2025.toFixed(2) + 'M</td><td class="text-right">$' + d.cogs2025.toFixed(2) + 'M</td><td class="text-right">$' + tradeDisc.toFixed(2) + 'M</td><td class="text-right">$' + gp.toFixed(2) + 'M</td><td class="text-right">' + d.gm2025.toFixed(1) + '%</td><td class="text-right">$' + cogsPerUnit + '</td></tr>';
+        tbody.innerHTML = tbody.innerHTML + row;
+      }
+    }
+
+    // Read URL params to set filters from training guide generator
+    function getUrlParam(name) {
+        var match = window.location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+    var urlYear = getUrlParam('year');
+    if (urlYear) {
+        var yearSelect = document.getElementById('yearFilter');
+        for (var i = 0; i < yearSelect.options.length; i++) {
+            if (yearSelect.options[i].value === urlYear) {
+                yearSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    applyFilters();
+  </script>
+</body>
+</html>

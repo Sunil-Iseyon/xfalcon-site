@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon World Cup 360 / 2. Match Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F3F4F6;
+      color: #1F2937;
+    }
+    .topbar {
+      background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+      border-bottom: 3px solid #FFD600;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -2px;
+    }
+    .logo-x {
+      color: #66BB6A;
+    }
+    .logo-f {
+      color: #FFD600;
+    }
+    .title-section h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #F1FAE5;
+      margin: 0;
+    }
+    .title-section p {
+      font-size: 14px;
+      color: #FFD600;
+      margin: 4px 0 0 0;
+    }
+    .back-link {
+      color: #FFD600;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .back-link:hover {
+      opacity: 0.8;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 20px;
+      border-top: 3px solid #FFD600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2E7D32;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-delta {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .delta-positive {
+      color: #059669;
+    }
+    .delta-negative {
+      color: #D32F2F;
+    }
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .chart-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 24px;
+      border-top: 3px solid #FFD600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 16px;
+    }
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 12px;
+    }
+    .table-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 24px;
+      border-top: 3px solid #FFD600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    .table-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    table thead {
+      background: #2E7D32;
+      color: #FFFFFF;
+    }
+    table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    table tbody tr:hover {
+      background: #F9FAFB;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo-section">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="title-section">
+        <h1>Falcon World Cup 360 / 2. Match Analytics</h1>
+        <p>All Tournaments: 1930–2014</p>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">← Back</a>
+  </div>
+
+  <div class="container">
+    <div class="kpis">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total-matches">836</div>
+        <div class="kpi-label">Total Matches</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total-goals">2,379</div>
+        <div class="kpi-label">Total Goals</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-goals">2.84</div>
+        <div class="kpi-label">Avg Goals/Match</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-home-win">57.5%</div>
+        <div class="kpi-label">Home Win %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-away-win">20.8%</div>
+        <div class="kpi-label">Away Win %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-draw">21.2%</div>
+        <div class="kpi-label">Draw %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-highest">5.38</div>
+        <div class="kpi-label">Highest Scoring (1954)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-att">45.6K</div>
+        <div class="kpi-label">Avg Attendance</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Goals per Match by Tournament</div>
+        <div class="chart-container">
+          <canvas id="chart1"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Results Distribution by Stage</div>
+        <div class="chart-container">
+          <canvas id="chart2"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Attendance by Stage</div>
+        <div class="chart-container">
+          <canvas id="chart3"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Match Outcomes Overall</div>
+        <div class="chart-container">
+          <canvas id="chart4"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Goals by Stage</div>
+        <div class="chart-container">
+          <canvas id="chart5"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Goals per Match by Stage</div>
+        <div class="chart-container">
+          <canvas id="chart6"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-title">Stage Breakdown</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Stage Name</th>
+            <th>Type</th>
+            <th>Matches</th>
+            <th>Goals</th>
+            <th>Avg Goals</th>
+            <th>Avg Attendance</th>
+            <th>Home Win %</th>
+            <th>Away Win %</th>
+            <th>Draw %</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var STAGES = [
+      {name:'Group Stage', type:'Group', matches:622, goals:1691, avgGoals:2.72, avgAtt:43052, homeWins:337, awayWins:129, draws:156},
+      {name:'Round of 16', type:'Knockout', matches:64, goals:164, avgGoals:2.56, avgAtt:51491, homeWins:41, awayWins:15, draws:8},
+      {name:'Quarter-finals', type:'Knockout', matches:62, goals:175, avgGoals:2.82, avgAtt:44544, homeWins:41, awayWins:8, draws:13},
+      {name:'Semi-finals', type:'Knockout', matches:34, goals:123, avgGoals:3.62, avgAtt:59130, homeWins:20, awayWins:9, draws:5},
+      {name:'Third Place', type:'Knockout', matches:18, goals:71, avgGoals:3.94, avgAtt:52569, homeWins:13, awayWins:5, draws:0},
+      {name:'Final', type:'Knockout', matches:19, goals:68, avgGoals:3.58, avgAtt:76312, homeWins:14, awayWins:3, draws:2},
+      {name:'Preliminary', type:'Knockout', matches:8, goals:43, avgGoals:5.38, avgAtt:16875, homeWins:8, awayWins:0, draws:0},
+      {name:'First Round', type:'Knockout', matches:9, goals:44, avgGoals:4.89, avgAtt:16120, homeWins:7, awayWins:0, draws:2}
+    ];
+
+    var TRENDS = [
+      {year:1930, avgGoals:3.89, avgAtt:32808, teams:13, matches:18},
+      {year:1934, avgGoals:4.12, avgAtt:21353, teams:16, matches:17},
+      {year:1938, avgGoals:4.67, avgAtt:20872, teams:15, matches:18},
+      {year:1950, avgGoals:4.00, avgAtt:47511, teams:13, matches:22},
+      {year:1954, avgGoals:5.38, avgAtt:29562, teams:16, matches:26},
+      {year:1958, avgGoals:3.60, avgAtt:23423, teams:16, matches:35},
+      {year:1962, avgGoals:2.78, avgAtt:27912, teams:16, matches:32},
+      {year:1966, avgGoals:2.78, avgAtt:48848, teams:16, matches:32},
+      {year:1970, avgGoals:2.97, avgAtt:50309, teams:16, matches:32},
+      {year:1974, avgGoals:2.55, avgAtt:49020, teams:16, matches:38},
+      {year:1978, avgGoals:2.68, avgAtt:40679, teams:16, matches:38},
+      {year:1982, avgGoals:2.81, avgAtt:40572, teams:24, matches:52},
+      {year:1986, avgGoals:2.54, avgAtt:46039, teams:24, matches:52},
+      {year:1990, avgGoals:2.21, avgAtt:48389, teams:24, matches:52},
+      {year:1994, avgGoals:2.71, avgAtt:68991, teams:24, matches:52},
+      {year:1998, avgGoals:2.67, avgAtt:43517, teams:32, matches:64},
+      {year:2002, avgGoals:2.52, avgAtt:42530, teams:32, matches:64},
+      {year:2006, avgGoals:2.30, avgAtt:52491, teams:32, matches:64},
+      {year:2010, avgGoals:2.27, avgAtt:49670, teams:32, matches:64},
+      {year:2014, avgGoals:2.67, avgAtt:53624, teams:32, matches:64}
+    ];
+
+    function mk(id, type, data, options) {
+      var canvas = document.getElementById(id);
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      return new Chart(ctx, {
+        type: type,
+        data: data,
+        options: options
+      });
+    }
+
+    function fitKpiText(elementId, maxWidth) {
+      var elem = document.getElementById(elementId);
+      if (!elem) return;
+      var width = elem.offsetWidth;
+      if (width > maxWidth) {
+        var scale = maxWidth / width;
+        elem.style.transform = 'scale(' + scale + ')';
+        elem.style.transformOrigin = 'left top';
+      }
+    }
+
+    // Chart 1: Goals per Match by Tournament (Line)
+    mk('chart1', 'line', {
+      labels: TRENDS.map(function(d){ return d.year; }),
+      datasets: [{
+        label: 'Avg Goals/Match',
+        data: TRENDS.map(function(d){ return d.avgGoals; }),
+        borderColor: '#2E7D32',
+        backgroundColor: 'rgba(46, 125, 50, 0.08)',
+        borderWidth: 3,
+        tension: 0.3,
+        pointBackgroundColor: '#FFD600',
+        pointBorderColor: '#2E7D32',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: true
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'top' }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        },
+        x: {
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        }
+      }
+    });
+
+    // Chart 2: Results Distribution by Stage (Grouped Bar)
+    mk('chart2', 'bar', {
+      labels: STAGES.map(function(s){ return s.name; }),
+      datasets: [
+        {
+          label: 'Home Wins',
+          data: STAGES.map(function(s){ return s.homeWins; }),
+          backgroundColor: '#2E7D32'
+        },
+        {
+          label: 'Away Wins',
+          data: STAGES.map(function(s){ return s.awayWins; }),
+          backgroundColor: '#94A3B8'
+        },
+        {
+          label: 'Draws',
+          data: STAGES.map(function(s){ return s.draws; }),
+          backgroundColor: '#C8A415'
+        }
+      ]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: true, position: 'right' }
+      },
+      scales: {
+        x: {
+          stacked: false,
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        },
+        y: {
+          ticks: { color: '#64748B' },
+          grid: { display: false }
+        }
+      }
+    });
+
+    // Chart 3: Attendance by Stage (Horizontal Bar)
+    mk('chart3', 'bar', {
+      labels: STAGES.map(function(s){ return s.name; }),
+      datasets: [{
+        label: 'Avg Attendance',
+        data: STAGES.map(function(s){ return s.avgAtt; }),
+        backgroundColor: '#2E7D32'
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#64748B',
+            callback: function(v){ return (v/1000).toFixed(0) + 'K'; }
+          },
+          grid: { color: '#E2E8F0' }
+        },
+        y: {
+          ticks: { color: '#64748B' },
+          grid: { display: false }
+        }
+      }
+    });
+
+    // Chart 4: Match Outcomes Overall (Horizontal Bar)
+    mk('chart4', 'bar', {
+      labels: ['Home Win', 'Away Win', 'Draw'],
+      datasets: [{
+        label: 'Matches',
+        data: [481, 174, 181],
+        backgroundColor: ['#2E7D32', '#94A3B8', '#C8A415']
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        },
+        y: {
+          ticks: { color: '#64748B' },
+          grid: { display: false }
+        }
+      }
+    });
+
+    // Chart 5: Goals by Stage (Bar)
+    mk('chart5', 'bar', {
+      labels: STAGES.map(function(s){ return s.name; }),
+      datasets: [{
+        label: 'Total Goals',
+        data: STAGES.map(function(s){ return s.goals; }),
+        backgroundColor: '#2E7D32'
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        },
+        x: {
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        }
+      }
+    });
+
+    // Chart 6: Goals per Match by Stage (Bar)
+    mk('chart6', 'bar', {
+      labels: STAGES.map(function(s){ return s.name; }),
+      datasets: [{
+        label: 'Avg Goals/Match',
+        data: STAGES.map(function(s){ return s.avgGoals; }),
+        backgroundColor: '#FFD600'
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        },
+        x: {
+          ticks: { color: '#64748B' },
+          grid: { color: '#E2E8F0' }
+        }
+      }
+    });
+
+    // Populate table
+    var tbody = document.getElementById('table-body');
+    STAGES.forEach(function(stage) {
+      var homeWinPct = ((stage.homeWins / stage.matches) * 100).toFixed(1);
+      var awayWinPct = ((stage.awayWins / stage.matches) * 100).toFixed(1);
+      var drawPct = ((stage.draws / stage.matches) * 100).toFixed(1);
+      var row = '<tr>' +
+        '<td>' + stage.name + '</td>' +
+        '<td>' + stage.type + '</td>' +
+        '<td>' + stage.matches + '</td>' +
+        '<td>' + stage.goals + '</td>' +
+        '<td>' + stage.avgGoals.toFixed(2) + '</td>' +
+        '<td>' + (stage.avgAtt).toLocaleString() + '</td>' +
+        '<td>' + homeWinPct + '%</td>' +
+        '<td>' + awayWinPct + '%</td>' +
+        '<td>' + drawPct + '%</td>' +
+        '</tr>';
+      tbody.innerHTML += row;
+    });
+
+    // Fit KPI text
+    fitKpiText('kpi-total-matches', 140);
+    fitKpiText('kpi-total-goals', 140);
+    fitKpiText('kpi-avg-goals', 140);
+    fitKpiText('kpi-home-win', 140);
+    fitKpiText('kpi-away-win', 140);
+    fitKpiText('kpi-draw', 140);
+    fitKpiText('kpi-highest', 140);
+    fitKpiText('kpi-avg-att', 140);
+  </script>
+</body>
+</html>

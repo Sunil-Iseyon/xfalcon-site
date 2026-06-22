@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon HR Analytics - 04. Attrition & Retention</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-base-darkest: #0A1628;
+      --color-base-dark: #141E30;
+      --color-base-darker: #1A2540;
+      --color-cyan: #00D4FF;
+      --color-coral: #FF6B35;
+      --color-lime: #7CFF01;
+      --color-red: #FF3366;
+      --color-amber: #FFB800;
+      --color-text-primary: #F5F7FA;
+      --color-text-secondary: #8B95A5;
+      --color-text-tertiary: #5A6370;
+      --gradient-hero: linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%);
+      --gradient-card: linear-gradient(135deg, #141E30 0%, #1A2540 100%);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --chart-primary: #006AFF;
+      --chart-secondary: #1A7F64;
+      --chart-tertiary: #94A3B8;
+      --chart-ext1: #0EA5E9;
+      --chart-ext2: #F59E0B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-base-darkest);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, var(--color-base-dark) 0%, var(--color-base-darker) 100%);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .back-link {
+      color: var(--color-cyan);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-coral);
+    }
+
+    .filter-bar {
+      background: var(--color-base-dark);
+      padding: 20px 30px;
+      display: flex;
+      gap: 30px;
+      align-items: flex-end;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .filter-bar select {
+      padding: 10px 15px;
+      background: var(--color-base-darker);
+      color: var(--color-text-primary);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-bar select:hover,
+    .filter-bar select:focus {
+      border-color: var(--color-cyan);
+      outline: none;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .kpi-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kpi-delta {
+      font-size: 11px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .kpi-delta.positive {
+      color: #7CFF01;
+    }
+
+    .kpi-delta.negative {
+      color: #FF3366;
+    }
+
+    .kpi-delta.neutral {
+      color: #94A3B8;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .chart-container {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .chart-container:hover {
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 16px;
+      letter-spacing: 0.3px;
+    }
+
+    canvas {
+      max-height: 350px;
+    }
+
+    .drill-down-section {
+      margin-top: 40px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .table-wrapper {
+      background: var(--gradient-card);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #141E30;
+      color: #F5F7FA;
+      font-weight: 600;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--color-text-primary);
+    }
+
+    tr:hover {
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-yes {
+      background: rgba(124, 255, 1, 0.2);
+      color: #7CFF01;
+    }
+
+    .badge-no {
+      background: rgba(255, 51, 102, 0.2);
+      color: #FF3366;
+    }
+
+    .badge-voluntary {
+      background: rgba(0, 212, 255, 0.2);
+      color: #00D4FF;
+    }
+
+    .badge-involuntary {
+      background: rgba(245, 158, 11, 0.2);
+      color: #F59E0B;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span style="color:#00D4FF">x</span><span style="color:#FF6B35">F</span></div>
+      <div class="topbar-content">
+        <div class="topbar-title">04 | Attrition & Retention</div>
+        <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Department</label>
+      <select id="filterDept" onchange="applyFilters()">
+        <option value="All">All Departments</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Location</label>
+      <select id="filterLoc" onchange="applyFilters()">
+        <option value="All">All Locations</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Year</label>
+      <select id="filterYear" onchange="applyFilters()">
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-total-exits">--</div>
+        <div class="kpi-delta neutral" id="kpi-total-exits-delta"></div>
+        <div class="kpi-label">Total Exits</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-voluntary-pct">--</div>
+        <div class="kpi-label">Voluntary %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-involuntary-pct">--</div>
+        <div class="kpi-label">Involuntary %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-regrettable-pct">--</div>
+        <div class="kpi-label">Regrettable %</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-exit-interview-rate">--</div>
+        <div class="kpi-label">Exit Interview Rate</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-top-exit-reason">--</div>
+        <div class="kpi-label">Top Exit Reason</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-yoy-change">--</div>
+        <div class="kpi-delta neutral" id="kpi-yoy-change-delta"></div>
+        <div class="kpi-label">YoY Change</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-avg-exits-qtr">--</div>
+        <div class="kpi-label">Avg Exits/Quarter</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-container">
+        <div class="chart-title">Attrition Trend by Year</div>
+        <canvas id="chart-attrition-trend"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Exits by Department</div>
+        <canvas id="chart-quarterly-exits"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Exits by Location</div>
+        <canvas id="chart-exit-reasons"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Voluntary vs Involuntary Split</div>
+        <canvas id="chart-vol-invol"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Exits by City</div>
+        <canvas id="chart-regrettable-trend"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Voluntary vs Involuntary by Dept</div>
+        <canvas id="chart-reasons-yoy"></canvas>
+      </div>
+    </div>
+
+    <div class="drill-down-section">
+      <div class="section-title">Exit Details - Drill Down</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Department</th>
+              <th>Location</th>
+              <th>Exits</th>
+              <th>Voluntary</th>
+              <th>Involuntary</th>
+            </tr>
+          </thead>
+          <tbody id="drill-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var EXIT_DATA = [
+      {yr:2021,qtr:1,exits:4,voluntary:3,involuntary:1,regrettable:0,exitInterviews:2},
+      {yr:2021,qtr:2,exits:10,voluntary:6,involuntary:3,regrettable:4,exitInterviews:9},
+      {yr:2021,qtr:3,exits:8,voluntary:6,involuntary:1,regrettable:2,exitInterviews:6},
+      {yr:2021,qtr:4,exits:8,voluntary:6,involuntary:2,regrettable:4,exitInterviews:6},
+      {yr:2022,qtr:1,exits:8,voluntary:6,involuntary:2,regrettable:2,exitInterviews:7},
+      {yr:2022,qtr:2,exits:10,voluntary:8,involuntary:1,regrettable:4,exitInterviews:7},
+      {yr:2022,qtr:3,exits:8,voluntary:5,involuntary:2,regrettable:2,exitInterviews:7},
+      {yr:2022,qtr:4,exits:8,voluntary:6,involuntary:2,regrettable:2,exitInterviews:5},
+      {yr:2023,qtr:1,exits:8,voluntary:7,involuntary:1,regrettable:6,exitInterviews:7},
+      {yr:2023,qtr:2,exits:8,voluntary:8,involuntary:0,regrettable:4,exitInterviews:7},
+      {yr:2023,qtr:3,exits:9,voluntary:4,involuntary:2,regrettable:4,exitInterviews:7},
+      {yr:2023,qtr:4,exits:5,voluntary:5,involuntary:0,regrettable:3,exitInterviews:5},
+      {yr:2024,qtr:1,exits:3,voluntary:3,involuntary:0,regrettable:1,exitInterviews:2},
+      {yr:2024,qtr:2,exits:3,voluntary:3,involuntary:0,regrettable:3,exitInterviews:3},
+      {yr:2024,qtr:3,exits:7,voluntary:7,involuntary:0,regrettable:5,exitInterviews:7},
+      {yr:2024,qtr:4,exits:2,voluntary:2,involuntary:0,regrettable:2,exitInterviews:2},
+      {yr:2025,qtr:1,exits:4,voluntary:4,involuntary:0,regrettable:2,exitInterviews:4}
+    ];
+
+    var REASON_DATA = [
+      {reason:'Management',total:29,y2023:13,y2024:3},
+      {reason:'Compensation',total:22,y2023:3,y2024:9},
+      {reason:'Restructuring',total:15,y2023:4,y2024:0},
+      {reason:'Career Growth',total:13,y2023:3,y2024:1},
+      {reason:'Personal',total:12,y2023:1,y2024:2},
+      {reason:'Relocation',total:12,y2023:3,y2024:0},
+      {reason:'Performance',total:10,y2023:3,y2024:0}
+    ];
+
+    var EXIT_DETAIL = [
+      {dept:'Backend Engineering',city:'London',yr:2021,exits:1,voluntary:0,involuntary:1},
+      {dept:'SMB Sales',city:'Bangalore',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Human Resources',city:'Singapore',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'SMB Sales',city:'San Francisco',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Customer Success',city:'Remote',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Human Resources',city:'New York',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2021,exits:1,voluntary:0,involuntary:1},
+      {dept:'Customer Success',city:'Austin',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'New York',yr:2021,exits:2,voluntary:1,involuntary:1},
+      {dept:'Data & AI',city:'San Francisco',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'Bangalore',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Data & AI',city:'Singapore',yr:2021,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'New York',yr:2021,exits:1,voluntary:0,involuntary:1},
+      {dept:'Frontend Engineering',city:'Remote',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'SMB Sales',city:'Austin',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2022,exits:1,voluntary:0,involuntary:1},
+      {dept:'Human Resources',city:'London',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'SMB Sales',city:'New York',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Customer Success',city:'Bangalore',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Human Resources',city:'San Francisco',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'Singapore',yr:2022,exits:1,voluntary:0,involuntary:1},
+      {dept:'Customer Success',city:'San Francisco',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'Remote',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'New York',yr:2022,exits:1,voluntary:0,involuntary:1},
+      {dept:'Data & AI',city:'San Francisco',yr:2022,exits:1,voluntary:0,involuntary:1},
+      {dept:'Backend Engineering',city:'Austin',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'New York',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Data & AI',city:'London',yr:2022,exits:1,voluntary:0,involuntary:1},
+      {dept:'Finance',city:'Singapore',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'Bangalore',yr:2022,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'Singapore',yr:2023,exits:1,voluntary:0,involuntary:1},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2023,exits:2,voluntary:2,involuntary:0},
+      {dept:'Backend Engineering',city:'Remote',yr:2023,exits:5,voluntary:5,involuntary:0},
+      {dept:'SMB Sales',city:'Remote',yr:2023,exits:1,voluntary:1,involuntary:0},
+      {dept:'Human Resources',city:'San Francisco',yr:2023,exits:1,voluntary:1,involuntary:0},
+      {dept:'Customer Success',city:'New York',yr:2023,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2023,exits:1,voluntary:0,involuntary:1},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2023,exits:1,voluntary:1,involuntary:0},
+      {dept:'DevOps & Infra',city:'Remote',yr:2023,exits:3,voluntary:0,involuntary:3},
+      {dept:'Data & AI',city:'New York',yr:2023,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'Austin',yr:2023,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'London',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Customer Success',city:'San Francisco',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Human Resources',city:'London',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'Bangalore',yr:2024,exits:2,voluntary:2,involuntary:0},
+      {dept:'Frontend Engineering',city:'London',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'Bangalore',yr:2024,exits:2,voluntary:2,involuntary:0},
+      {dept:'Backend Engineering',city:'San Francisco',yr:2024,exits:2,voluntary:2,involuntary:0},
+      {dept:'SMB Sales',city:'Austin',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Data & AI',city:'London',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Human Resources',city:'San Francisco',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'San Francisco',yr:2024,exits:1,voluntary:1,involuntary:0},
+      {dept:'SMB Sales',city:'London',yr:2025,exits:1,voluntary:1,involuntary:0},
+      {dept:'Customer Success',city:'Bangalore',yr:2025,exits:1,voluntary:1,involuntary:0},
+      {dept:'Backend Engineering',city:'New York',yr:2025,exits:1,voluntary:1,involuntary:0},
+      {dept:'Frontend Engineering',city:'Austin',yr:2025,exits:1,voluntary:1,involuntary:0}
+    ];
+
+    var chartInstances = {};
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) {
+        chartInstances[id].destroy();
+      }
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function getFilters() {
+      var dept = document.getElementById('filterDept').value;
+      var loc = document.getElementById('filterLoc').value;
+      var yr = document.getElementById('filterYear').value;
+      return { dept: dept, loc: loc, yr: yr };
+    }
+
+    function filterExitDetail(data) {
+      var f = getFilters();
+      return data.filter(function(row) {
+        var deptOk = f.dept === 'All' || row.dept === f.dept;
+        var locOk = f.loc === 'All' || row.city === f.loc;
+        var yrOk = f.yr === 'All' || String(row.yr) === f.yr;
+        return deptOk && locOk && yrOk;
+      });
+    }
+
+    function initFilterOptions() {
+      var depts = {};
+      var locs = {};
+      var yrs = {};
+
+      EXIT_DETAIL.forEach(function(row) {
+        depts[row.dept] = true;
+        locs[row.city] = true;
+        yrs[row.yr] = true;
+      });
+
+      var deptSel = document.getElementById('filterDept');
+      Object.keys(depts).sort().forEach(function(d) {
+        var opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        deptSel.appendChild(opt);
+      });
+
+      var locSel = document.getElementById('filterLoc');
+      Object.keys(locs).sort().forEach(function(l) {
+        var opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        locSel.appendChild(opt);
+      });
+
+      var yrSel = document.getElementById('filterYear');
+      yrSel.innerHTML = '<option value="All">All Years</option>';
+      Object.keys(yrs).sort().reverse().forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yrSel.appendChild(opt);
+      });
+    }
+
+    function updateSubtitle() {
+      var yr = document.getElementById('filterYear').value;
+      var text = yr === 'All' ? 'Reporting Period: All Years' : 'Reporting Period: Jan–Dec ' + yr;
+      document.getElementById('reporting-period').textContent = text;
+    }
+
+    function updateKPIs(filtered) {
+      var totalExits = 0;
+      var totalVol = 0;
+      var totalInvol = 0;
+
+      filtered.forEach(function(row) {
+        totalExits += row.exits;
+        totalVol += row.voluntary;
+        totalInvol += row.involuntary;
+      });
+
+      var voluntaryPct = totalExits > 0 ? ((totalVol / totalExits) * 100).toFixed(1) : 0;
+      var involuntaryPct = totalExits > 0 ? ((totalInvol / totalExits) * 100).toFixed(1) : 0;
+
+      var f = getFilters();
+      var regTotal = 0;
+      var intTotal = 0;
+      var edTotal = 0;
+      EXIT_DATA.forEach(function(d) {
+        var yrOk = f.yr === 'All' || String(d.yr) === f.yr;
+        if (yrOk) {
+          regTotal += d.regrettable;
+          intTotal += d.exitInterviews;
+          edTotal += d.exits;
+        }
+      });
+      var regrettablePct = edTotal > 0 ? ((regTotal / edTotal) * 100).toFixed(1) : 0;
+      var interviewRate = edTotal > 0 ? ((intTotal / edTotal) * 100).toFixed(1) : 0;
+
+      var deptExits = {};
+      filtered.forEach(function(row) {
+        if (!deptExits[row.dept]) deptExits[row.dept] = 0;
+        deptExits[row.dept] += row.exits;
+      });
+      var topDept = '';
+      var topDeptCount = 0;
+      for (var d in deptExits) {
+        if (deptExits[d] > topDeptCount) {
+          topDeptCount = deptExits[d];
+          topDept = d;
+        }
+      }
+
+      var years = {};
+      filtered.forEach(function(row) { years[row.yr] = true; });
+      var numYears = Object.keys(years).length;
+      var avgExitsYr = numYears > 0 ? (totalExits / numYears).toFixed(1) : '0';
+
+      document.getElementById('kpi-total-exits').textContent = totalExits;
+      document.getElementById('kpi-voluntary-pct').textContent = voluntaryPct + '%';
+      document.getElementById('kpi-involuntary-pct').textContent = involuntaryPct + '%';
+      document.getElementById('kpi-regrettable-pct').textContent = regrettablePct + '%';
+      document.getElementById('kpi-exit-interview-rate').textContent = interviewRate + '%';
+      document.getElementById('kpi-top-exit-reason').textContent = topDept || 'N/A';
+      document.getElementById('kpi-yoy-change').textContent = totalExits;
+      document.getElementById('kpi-avg-exits-qtr').textContent = avgExitsYr;
+    }
+
+    function updateCharts(filtered) {
+      var stdTooltip = { backgroundColor: 'rgba(10, 22, 40, 0.95)', titleColor: '#F5F7FA', bodyColor: '#8B95A5', borderColor: 'rgba(0, 212, 255, 0.2)', borderWidth: 1, padding: 12 };
+      var stdScales = { y: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } }, x: { ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } } };
+
+      var byYear = {};
+      filtered.forEach(function(row) {
+        if (!byYear[row.yr]) byYear[row.yr] = 0;
+        byYear[row.yr] += row.exits;
+      });
+      var yearLabels = Object.keys(byYear).sort();
+      var yearData = yearLabels.map(function(y) { return byYear[y]; });
+
+      mk('chart-attrition-trend', {
+        type: 'bar',
+        data: { labels: yearLabels, datasets: [{ label: 'Total Exits', data: yearData, backgroundColor: '#006AFF', borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: stdTooltip }, scales: stdScales }
+      });
+
+      var byDept = {};
+      filtered.forEach(function(row) {
+        if (!byDept[row.dept]) byDept[row.dept] = 0;
+        byDept[row.dept] += row.exits;
+      });
+      var deptLabels = Object.keys(byDept).sort();
+      var deptData = deptLabels.map(function(d) { return byDept[d]; });
+
+      mk('chart-quarterly-exits', {
+        type: 'bar',
+        data: { labels: deptLabels, datasets: [{ label: 'Exits', data: deptData, backgroundColor: '#1A7F64', borderRadius: 4 }] },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: stdTooltip }, scales: { x: { ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } }, y: { ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } } } }
+      });
+
+      var byLoc = {};
+      filtered.forEach(function(row) {
+        if (!byLoc[row.city]) byLoc[row.city] = 0;
+        byLoc[row.city] += row.exits;
+      });
+      var locLabels = Object.keys(byLoc).sort();
+      var locData = locLabels.map(function(l) { return byLoc[l]; });
+
+      mk('chart-exit-reasons', {
+        type: 'bar',
+        data: { labels: locLabels, datasets: [{ label: 'Exits', data: locData, backgroundColor: '#0EA5E9', borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: stdTooltip }, scales: stdScales }
+      });
+
+      var volTotal = 0;
+      var involTotal = 0;
+      filtered.forEach(function(row) {
+        volTotal += row.voluntary;
+        involTotal += row.involuntary;
+      });
+
+      mk('chart-vol-invol', {
+        type: 'doughnut',
+        data: { labels: ['Voluntary', 'Involuntary'], datasets: [{ data: [volTotal, involTotal], backgroundColor: ['#0EA5E9', '#F59E0B'], borderColor: '#0A1628', borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 }, padding: 15 } }, tooltip: stdTooltip } }
+      });
+
+      var volByLoc = {};
+      var involByLoc = {};
+      filtered.forEach(function(row) {
+        if (!volByLoc[row.city]) volByLoc[row.city] = 0;
+        if (!involByLoc[row.city]) involByLoc[row.city] = 0;
+        volByLoc[row.city] += row.voluntary;
+        involByLoc[row.city] += row.involuntary;
+      });
+      var locLabels2 = Object.keys(volByLoc).sort();
+      var volLocData = locLabels2.map(function(l) { return volByLoc[l] || 0; });
+      var involLocData = locLabels2.map(function(l) { return involByLoc[l] || 0; });
+
+      mk('chart-regrettable-trend', {
+        type: 'bar',
+        data: { labels: locLabels2, datasets: [{ label: 'Voluntary', data: volLocData, backgroundColor: '#1A7F64' }, { label: 'Involuntary', data: involLocData, backgroundColor: '#F59E0B' }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } }, tooltip: stdTooltip }, scales: { x: { stacked: true, ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } }, y: { stacked: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } } } }
+      });
+
+      var volByDept = {};
+      var involByDept = {};
+      filtered.forEach(function(row) {
+        if (!volByDept[row.dept]) volByDept[row.dept] = 0;
+        if (!involByDept[row.dept]) involByDept[row.dept] = 0;
+        volByDept[row.dept] += row.voluntary;
+        involByDept[row.dept] += row.involuntary;
+      });
+      var deptLabels2 = Object.keys(volByDept).sort();
+      var volDeptData = deptLabels2.map(function(d) { return volByDept[d] || 0; });
+      var involDeptData = deptLabels2.map(function(d) { return involByDept[d] || 0; });
+
+      mk('chart-reasons-yoy', {
+        type: 'bar',
+        data: { labels: deptLabels2, datasets: [{ label: 'Voluntary', data: volDeptData, backgroundColor: '#006AFF' }, { label: 'Involuntary', data: involDeptData, backgroundColor: '#F59E0B' }] },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#8B95A5', font: { size: 11 } } }, tooltip: stdTooltip }, scales: { x: { stacked: true, ticks: { color: '#8B95A5' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } }, y: { stacked: true, ticks: { color: '#8B95A5' }, grid: { display: false }, border: { display: false } } } }
+      });
+    }
+
+    function updateTable(filtered) {
+      var tbody = document.getElementById('drill-table');
+      tbody.innerHTML = '';
+      filtered.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.yr + '</td><td>' + row.dept + '</td><td>' + row.city + '</td><td>' + row.exits + '</td><td>' + row.voluntary + '</td><td>' + row.involuntary + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function fitKpiText() {
+      var cards = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < cards.length; i++) {
+        var el = cards[i];
+        var len = el.textContent.length;
+        if (len > 12) {
+          el.style.fontSize = '18px';
+        } else if (len > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function applyFilters() {
+      var filtered = filterExitDetail(EXIT_DETAIL);
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText();
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      initFilterOptions();
+      applyFilters();
+    });
+  </script>
+</body>
+</html>

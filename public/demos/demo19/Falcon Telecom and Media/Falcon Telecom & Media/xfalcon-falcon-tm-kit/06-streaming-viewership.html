@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 6. Streaming Viewership</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.filter-bar{background:#FFF;border-bottom:1px solid var(--color-border);padding:14px 24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.filter-group select{border:1px solid var(--color-border);background:#FFF;color:var(--color-text);padding:7px 10px;border-radius:4px;font-family:inherit;font-size:13px;min-width:130px;}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:7px 10px;border:1px solid var(--color-border);border-radius:4px;background:#FFF;}
+.toggle-switch{width:32px;height:18px;border-radius:10px;background:#CBD5E1;position:relative;transition:background 0.18s ease;}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#FFF;transition:left 0.18s ease;}
+.toggle-switch.active{background:var(--color-primary);}.toggle-switch.active::after{left:16px;}.toggle-label{font-size:13px;font-weight:500;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:32px 0 14px 0;display:flex;align-items:center;gap:10px;}
+.section-title:first-of-type{margin-top:8px;}.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;margin-bottom:6px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);line-height:1.1;letter-spacing:-0.5px;}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px;}
+.kpi-delta.positive{color:var(--color-positive);}.kpi-delta.negative{color:var(--color-negative);}.kpi-delta.neutral{color:var(--color-neutral);}
+.kpi-stack-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:var(--color-text-muted);}
+.kpi-stack-row .v{color:var(--color-text);font-weight:600;font-variant-numeric:tabular-nums;}
+.charts-row{display:grid;gap:16px;margin-top:8px;}.charts-row.two{grid-template-columns:1fr 1fr;}.charts-row.split{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.charts-row.two,.charts-row.split{grid-template-columns:1fr;}}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin:0 0 14px 0;}.chart-wrap{position:relative;height:300px;}
+.detail-table{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;width:100%;border-collapse:collapse;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.detail-table th{background:var(--color-secondary);color:var(--color-text-on-dark);text-align:left;padding:12px 14px;font-size:13px;font-weight:600;}
+.detail-table td{padding:10px 14px;font-size:13px;border-top:1px solid var(--color-border);}
+.detail-table tr:hover td{background:#F8FAFC;}.detail-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);line-height:1.5;}.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media / 6. Streaming Viewership</div><div class="topbar-subtitle" id="subtitle">Reporting Period: FY 2025</div></div></div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+<div class="filter-bar">
+  <div class="filter-group"><label for="yearSel">Year</label><select id="yearSel" onchange="applyFilters()"><option value="2025" selected>2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option></select></div>
+  <div class="filter-group"><label>&nbsp;</label><div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div></div>
+  <div class="filter-group"><label for="platSel">Platform Lens</label><select id="platSel" onchange="applyFilters()"><option value="prospect" selected>Prospect platforms (9)</option><option value="all">All platforms (12)</option></select></div>
+</div>
+<div class="container">
+  <div class="section-title">Streaming KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Annual Viewership Trends</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Sessions &amp; Total View Minutes by Year</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Monthly Sessions — 2024 vs 2025</div><div class="chart-wrap"><canvas id="monthChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Platform Performance</div>
+  <div class="charts-row two">
+    <div class="chart-card">
+      <div class="chart-title">Platform Sessions vs Mean (Lifetime)</div>
+      <div style="font-size:11px;color:var(--color-text-muted);margin-top:-8px;margin-bottom:10px;">All platforms within ~1% of the mean — viewership concentrates on titles (Pareto: top 20% of content drives 80% of sessions), not on platform brands.</div>
+      <div class="chart-wrap" style="height:340px;"><canvas id="platChart"></canvas></div>
+    </div>
+    <div class="chart-card"><div class="chart-title">Avg Completion % by Platform</div><div class="chart-wrap" style="height:340px;"><canvas id="complChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Platform-Level Detail (Lifetime)</div>
+  <table class="detail-table">
+    <thead><tr><th>Platform</th><th>Parent</th><th>Type</th><th class="num">Sessions</th><th class="num">View Minutes (M)</th><th class="num">Completion %</th><th class="num">Binge Rate</th></tr></thead>
+    <tbody id="platTable"></tbody>
+  </table>
+
+  <div class="disclaimer"><strong>Data:</strong> FACT_VIEWERSHIP · 1.3M sessions · 12 platforms · 2,500 titles · <strong>Notes:</strong> 9 prospect-owned platforms (Disney+, Hulu, Max, etc.) + 3 reference (Netflix, Prime, Apple TV+) · Sessions distributed near-uniformly across platforms; concentration is on titles (Pareto: top 20% of content drives 80% of sessions)</div>
+</div>
+
+<script>
+// [year, sessions, total_min_M, avg_compl, binge_rate, completion_flag_rate, avg_rebuf]
+var ANNUAL = [
+  [2018, 125054, 6.26, 54.83, 0.0779, 0.5519, 1.50],
+  [2019, 131418, 6.60, 54.93, 0.0785, 0.5516, 1.50],
+  [2020, 154393, 7.72, 54.67, 0.0785, 0.5481, 1.50],
+  [2021, 145024, 7.29, 54.94, 0.0785, 0.5510, 1.50],
+  [2022, 156882, 7.83, 55.05, 0.0773, 0.5543, 1.50],
+  [2023, 166615, 8.35, 54.87, 0.0773, 0.5501, 1.50],
+  [2024, 176382, 8.83, 54.85, 0.0772, 0.5503, 1.50],
+  [2025, 186274, 9.34, 54.68, 0.0779, 0.5483, 1.50]
+];
+var MONTH_24 = [16355,14115,13994,13265,13111,12836,13628,14276,14431,15872,16766,17733];
+var MONTH_25 = [17429,14542,15141,13794,13599,13496,14138,15305,15478,16752,17758,18842];
+// [platform, parent, type, sessions, minutes_M, compl, binge, prospect]
+var PLATFORMS = [
+  ['Fox Nation','Fox Corporation','SVOD',109106,5.48,54.95,0.0786,true],
+  ['Tubi','Fox Corporation','FAST',108928,5.47,54.83,0.0783,true],
+  ['Paramount+','Paramount Skydance','SVOD',108802,5.45,54.89,0.0782,true],
+  ['Disney+','Walt Disney Company','SVOD',108343,5.42,54.84,0.0774,true],
+  ['ESPN+','Walt Disney Company','SVOD',108298,5.43,54.90,0.0778,true],
+  ['Max','Warner Bros. Discovery','SVOD',108281,5.44,54.83,0.0780,true],
+  ['Netflix','Netflix','SVOD',108264,5.41,54.90,0.0779,false],
+  ['Apple TV+','Apple','SVOD',108161,5.41,54.85,0.0778,false],
+  ['Discovery+','Warner Bros. Discovery','SVOD',108051,5.42,54.70,0.0768,true],
+  ['Amazon Prime Video','Amazon','SVOD',108045,5.39,54.95,0.0769,false],
+  ['Hulu','Walt Disney Company','SVOD/AVOD',107966,5.44,54.81,0.0795,true],
+  ['Peacock','Comcast','AVOD/SVOD',107755,5.37,54.71,0.0768,true]
+];
+
+var state={year:2025,compare:false,platLens:'prospect'};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();var ctx=document.getElementById(id).getContext('2d');chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+function fmt(n,d){d=(d===undefined)?1:d;return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtInt(n){return Math.round(n).toLocaleString('en-US');}
+function getPalette(){var t=document.documentElement.getAttribute('data-theme')||'spectrum';if(t==='tech')return{primary:'#00D4FF',secondary:'#7C3AED',tertiary:'#94A3B8',ext1:'#7CFF01',ext2:'#FF00C8',grid:'rgba(255,255,255,0.06)',text:'#F1F5F9',textMuted:'#94A3B8'};return{primary:'#0099D8',secondary:'#003057',tertiary:'#77787B',ext1:'#0EA5E9',ext2:'#F59E0B',grid:'rgba(15,23,42,0.05)',text:'#0F172A',textMuted:'#64748B'};}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var l=els[i].textContent.length;els[i].style.fontSize=l>12?'18px':(l>8?'22px':'28px');}}
+function deltaPct(c,p){if(!p)return null;return (c-p)/p*100;}
+function deltaText(d){if(d===null||isNaN(d))return '<div class="kpi-delta neutral">—</div>';var cls=d>0?'positive':(d<0?'negative':'neutral');var arr=d>0?'↑ ':(d<0?'↓ ':'');return '<div class="kpi-delta '+cls+'">'+arr+fmt(Math.abs(d),1)+'% vs LY</div>';}
+function rowFor(yr){for(var i=0;i<ANNUAL.length;i++)if(ANNUAL[i][0]===yr)return ANNUAL[i];return null;}
+
+function renderKpis(){
+  var grid=document.getElementById('kpiGrid');
+  if(state.compare){
+    var rows=ANNUAL.filter(function(r){return r[0]>=2023;});
+    grid.innerHTML =
+      kpiCompare('Sessions',rows,function(r){return r[1];},function(v){return fmtInt(v);}) +
+      kpiCompare('View Minutes (M)',rows,function(r){return r[2];},function(v){return fmt(v,2)+'M';}) +
+      kpiCompare('Avg Completion %',rows,function(r){return r[3];},function(v){return fmt(v,2)+'%';}) +
+      kpiCompare('Binge Rate %',rows,function(r){return r[4]*100;},function(v){return fmt(v,2)+'%';}) +
+      kpiCompare('Completion-Flag Rate',rows,function(r){return r[5]*100;},function(v){return fmt(v,2)+'%';}) +
+      kpiCompare('Avg Rebuffers',rows,function(r){return r[6];},function(v){return fmt(v,2);}) +
+      kpiCompare('Total Hours (M)',rows,function(r){return r[2]/60;},function(v){return fmt(v,1)+'M hrs';}) +
+      kpiCompare('Avg Session (min)',rows,function(r){return r[2]*1e6/r[1];},function(v){return fmt(v,1)+' min';});
+  } else {
+    var r=rowFor(state.year),p=rowFor(state.year-1);
+    grid.innerHTML =
+      kpiSingle('Sessions '+state.year,fmtInt(r[1]),p?deltaPct(r[1],p[1]):null) +
+      kpiSingle('View Minutes '+state.year,fmt(r[2],2)+'M',p?deltaPct(r[2],p[2]):null) +
+      kpiSingle('Avg Completion '+state.year,fmt(r[3],2)+'%',p?deltaPct(r[3],p[3]):null) +
+      kpiSingle('Binge Rate '+state.year,fmt(r[4]*100,2)+'%',p?deltaPct(r[4],p[4]):null) +
+      kpiSingle('Completion-Flag '+state.year,fmt(r[5]*100,2)+'%',p?deltaPct(r[5],p[5]):null) +
+      kpiSingle('Avg Rebuffers '+state.year,fmt(r[6],2),p?deltaPct(r[6],p[6]):null) +
+      kpiSingle('Total Hours '+state.year,fmt(r[2]/60,1)+'M',p?deltaPct(r[2]/60,p[2]/60):null) +
+      kpiSingle('Avg Session '+state.year,fmt(r[2]*1e6/r[1],1)+' min',p?deltaPct(r[2]*1e6/r[1],p[2]*1e6/p[1]):null);
+  }
+  fitKpiText();
+}
+function kpiSingle(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div>'+deltaText(d)+'</div>';}
+function kpiCompare(label,rows,deriveFn,fmtFn){var html='<div class="kpi-card"><div class="kpi-label">'+label+'</div>';var first=null,last=null;for(var i=0;i<rows.length;i++){var r=rows[i];var v=deriveFn(r);if(first===null)first=v;last=v;html+='<div class="kpi-stack-row"><span>'+r[0]+'</span><span class="v">'+fmtFn(v)+'</span></div>';}var n=rows.length-1;if(n>0&&first>0){var c=(Math.pow(last/first,1/n)-1)*100;var cls=c>0?'positive':(c<0?'negative':'neutral');html+='<div class="kpi-delta '+cls+'" style="margin-top:8px;">CAGR: '+(c>0?'+':'')+fmt(c,1)+'%</div>';}return html+'</div>';}
+
+function renderTrend(){
+  var p=getPalette();var labels=ANNUAL.map(function(r){return String(r[0]);});
+  mk('trendChart',{type:'line',
+    data:{labels:labels,datasets:[
+      {label:'Sessions',data:ANNUAL.map(function(r){return r[1];}),borderColor:p.primary,backgroundColor:p.primary,borderWidth:2.5,tension:0.3,fill:false,yAxisID:'y'},
+      {label:'View Minutes (M)',data:ANNUAL.map(function(r){return r[2];}),borderColor:p.secondary,backgroundColor:p.secondary,borderWidth:2,tension:0.3,fill:false,yAxisID:'y1',borderDash:[5,5]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}},y:{position:'left',title:{display:true,text:'Sessions',color:p.textMuted,font:{size:11}},grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}},y1:{position:'right',title:{display:true,text:'Minutes (M)',color:p.textMuted,font:{size:11}},grid:{drawOnChartArea:false},ticks:{color:p.textMuted,callback:function(v){return v+'M';}}}}}
+  });
+}
+
+function renderMonth(){
+  var p=getPalette();var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  mk('monthChart',{type:'line',data:{labels:months,datasets:[
+    {label:'2025',data:MONTH_25,borderColor:p.primary,backgroundColor:p.primary,borderWidth:2.5,tension:0.3,fill:false},
+    {label:'2024',data:MONTH_24,borderColor:p.tertiary,backgroundColor:p.tertiary,borderWidth:2,tension:0.3,fill:false,borderDash:[5,5]}
+  ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}}}}
+  });
+}
+
+function renderPlat(){
+  var p=getPalette();
+  var data=state.platLens==='prospect'?PLATFORMS.filter(function(pl){return pl[7];}):PLATFORMS;
+  // Compute mean session count, map each platform to its deviation, sort descending
+  var sum = 0; for (var i = 0; i < data.length; i++) sum += data[i][3];
+  var mean = sum / data.length;
+  var dev = data.map(function(pl){ return { label: pl[0], sess: pl[3], dev: pl[3] - mean, prospect: pl[7] }; });
+  dev.sort(function(a, b){ return b.dev - a.dev; });
+  mk('platChart', { type: 'bar',
+    data: {
+      labels: dev.map(function(d){ return d.label; }),
+      datasets: [{
+        label: 'Sessions vs Mean',
+        data: dev.map(function(d){ return d.dev; }),
+        backgroundColor: dev.map(function(d){ return d.dev >= 0 ? p.primary : p.tertiary; }),
+        borderColor: dev.map(function(d){ return d.dev >= 0 ? p.primary : p.tertiary; }),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(c){
+          var d = dev[c.dataIndex];
+          var diff = d.dev;
+          var pct = (diff / mean * 100);
+          var sign = diff >= 0 ? '+' : '';
+          return [ fmtInt(d.sess) + ' sessions total', sign + fmtInt(diff) + ' (' + sign + fmt(pct, 2) + '%) vs mean' ];
+        } } }
+      },
+      scales: {
+        x: {
+          grid: { color: p.grid },
+          ticks: { color: p.textMuted, callback: function(v){ return (v >= 0 ? '+' : '') + (v / 1000).toFixed(1) + 'K'; } },
+          title: { display: true, text: 'Deviation from platform mean (' + fmtInt(mean) + ' sessions)', color: p.textMuted, font: { family: 'Inter', size: 11 } }
+        },
+        y: { grid: { display: false }, ticks: { color: p.text, font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+function renderCompl(){
+  var p=getPalette();
+  var data=state.platLens==='prospect'?PLATFORMS.filter(function(pl){return pl[7];}):PLATFORMS;
+  mk('complChart',{type:'bar',
+    data:{labels:data.map(function(pl){return pl[0];}),datasets:[{label:'Avg Completion %',data:data.map(function(pl){return pl[5];}),backgroundColor:p.secondary,borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt(c.parsed.x,2)+'%';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return v+'%';}},min:53,max:56},y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderTable(){
+  var tbody=document.getElementById('platTable');tbody.innerHTML='';
+  var data=state.platLens==='prospect'?PLATFORMS.filter(function(pl){return pl[7];}):PLATFORMS;
+  for(var i=0;i<data.length;i++){
+    var pl=data[i];var tr=document.createElement('tr');
+    var cells=[pl[0],pl[1],pl[2],fmtInt(pl[3]),fmt(pl[4],2)+'M',fmt(pl[5],2)+'%',fmt(pl[6]*100,2)+'%'];
+    var cls=['','','','num','num','num','num'];
+    for(var j=0;j<cells.length;j++){var td=document.createElement('td');td.textContent=cells[j];if(cls[j])td.className=cls[j];tr.appendChild(td);}
+    tbody.appendChild(tr);
+  }
+}
+
+function applyFilters(){state.year=parseInt(document.getElementById('yearSel').value,10);state.platLens=document.getElementById('platSel').value;document.getElementById('subtitle').textContent=state.compare?'Reporting Period: All Years (Compare)':'Reporting Period: FY '+state.year;renderKpis();renderTrend();renderMonth();renderPlat();renderCompl();renderTable();}
+function toggleCompare(){state.compare=!state.compare;var s=document.getElementById('cmpSwitch');if(state.compare)s.classList.add('active');else s.classList.remove('active');document.getElementById('yearSel').disabled=state.compare;applyFilters();}
+document.addEventListener('DOMContentLoaded',applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

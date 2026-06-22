@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview - Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #1B2A4A;
+            color: #FFFFFF;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #C8A951;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 0.95rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            border-bottom-color: #C8A951;
+        }
+
+        .nav-links a.active {
+            border-bottom-color: #C8A951;
+            color: #C8A951;
+        }
+
+        /* Time Filter Bar */
+        .filter-bar {
+            background-color: #FFFFFF;
+            padding: 1.5rem 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid #E0E0E0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #2D3436;
+            margin-right: 0.5rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            background-color: #F4F5F7;
+            padding: 0.3rem;
+            border-radius: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background-color: transparent;
+            color: #2D3436;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 0.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background-color: #1B2A4A;
+            color: #C8A951;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            color: #1B2A4A;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #1B2A4A;
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #636E72;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1B2A4A;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.4rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .kpi-change.positive {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .kpi-change.negative {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+
+        .kpi-change.neutral {
+            background-color: #F5F5F5;
+            color: #636E72;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1B2A4A;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #C8A951;
+            padding-bottom: 0.75rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        .chart-full {
+            grid-column: 1 / -1;
+        }
+
+        .chart-full .chart-wrapper {
+            height: 300px;
+        }
+
+        /* Table */
+        .table-container {
+            background-color: #FFFFFF;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1B2A4A;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #C8A951;
+            padding-bottom: 0.75rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #1B2A4A;
+            color: #FFFFFF;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #E0E0E0;
+            color: #2D3436;
+        }
+
+        tr:hover {
+            background-color: #F9F9FB;
+        }
+
+        .positive-change {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .negative-change {
+            color: #C62828;
+            font-weight: 600;
+        }
+
+        .neutral-change {
+            color: #636E72;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1B2A4A;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #C8A951;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .kpi-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            td, th {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">Falcon Hotels & Restaurants</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Index</a></li>
+            <li><a href="db-01-executive-overview.html" class="active">DB-01</a></li>
+            <li><a href="db-02-revenue-finance.html">DB-02</a></li>
+            <li><a href="db-03-hotel-operations.html">DB-03</a></li>
+            <li><a href="db-04-restaurant-fb.html">DB-04</a></li>
+            <li><a href="db-05-guest-experience.html">DB-05</a></li>
+            <li><a href="db-06-labor-workforce.html">DB-06</a></li>
+            <li><a href="db-07-inventory-supply.html">DB-07</a></li>
+            <li><a href="db-08-social-marketing.html">DB-08</a></li>
+            <li><a href="db-09-whatif-analysis.html">What-If</a></li>
+            <li><a href="db-10-metrics-dictionary.html">Metrics</a></li>
+            <li><a href="db-11-competitive-analysis.html">Competitive</a></li>
+        </ul>
+    </nav>
+
+    <!-- Time Filter Bar -->
+    <div class="filter-bar">
+        <span class="filter-label">Time Granularity:</span>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-granularity="monthly">Monthly</button>
+            <button class="filter-btn" data-granularity="quarterly">Quarterly</button>
+            <button class="filter-btn" data-granularity="yearly">Yearly</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="page-title">Executive Overview Dashboard</h1>
+
+        <!-- KPI Row -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value">$408,588</div>
+                <div class="kpi-change negative">
+                    <span>↓</span>
+                    <span>-37.1% vs 2024</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Gross Margin</div>
+                <div class="kpi-value">$301,065</div>
+                <div class="kpi-change negative">
+                    <span>↓</span>
+                    <span>-36.8% vs 2024</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total Orders</div>
+                <div class="kpi-value">10,630</div>
+                <div class="kpi-change negative">
+                    <span>↓</span>
+                    <span>-44.2% vs 2024</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Ticket</div>
+                <div class="kpi-value">$48.63</div>
+                <div class="kpi-change positive">
+                    <span>↑</span>
+                    <span>+13.5% vs 2024</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Occupancy</div>
+                <div class="kpi-value">73.3%</div>
+                <div class="kpi-change neutral">
+                    <span>=</span>
+                    <span>0% vs 2024</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Labor Cost %</div>
+                <div class="kpi-value">29.7%</div>
+                <div class="kpi-change negative">
+                    <span>↑</span>
+                    <span>+3.5% vs 2024</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Revenue Trend with YoY Comparison -->
+            <div class="chart-container chart-full">
+                <h3 class="chart-title">Revenue Trend with Year-over-Year Comparison</h3>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Revenue by Stream -->
+            <div class="chart-container">
+                <h3 class="chart-title">Revenue by Stream (2025)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="streamChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Revenue by Brand & Region -->
+            <div class="chart-container">
+                <h3 class="chart-title">Revenue by Brand & Region (2025 vs 2024)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="brandChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Revenue by Channel -->
+            <div class="chart-container">
+                <h3 class="chart-title">Revenue by Channel (2025)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Revenue by Region -->
+            <div class="chart-container">
+                <h3 class="chart-title">Revenue by Region (2025 vs 2024)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="table-container">
+            <h3 class="table-title">Monthly Performance Detail (2025 vs 2024)</h3>
+            <table id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>2025 Revenue</th>
+                        <th>vs 2024 %</th>
+                        <th>2025 Margin</th>
+                        <th>vs 2024 %</th>
+                        <th>Transactions</th>
+                        <th>Avg Ticket</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Falcon Hotels & Restaurants | Executive Overview | Generated March 2026</p>
+    </footer>
+
+    <script>
+        // Data
+        const monthlyData = {
+            2025: {
+                revenue: [31290, 28963, 34391, 33892, 35721, 35148, 35232, 35924, 33798, 34516, 34864, 34849],
+                food: [9562, 8568, 10706, 10445, 11516, 11324, 11259, 11839, 10363, 10225, 10831, 10862],
+                room: [8980, 8204, 9103, 8601, 8750, 8747, 8843, 8669, 8784, 8842, 8608, 9098],
+                beverage: [6407, 6015, 7337, 7480, 7434, 7576, 7378, 7769, 6903, 7855, 7854, 7356],
+                alcohol: [6341, 6176, 7246, 7365, 8022, 7500, 7752, 7647, 7748, 7594, 7571, 7533]
+            },
+            2024: {
+                revenue: [48431, 45679, 57897, 56934, 58586, 54321, 54626, 55420, 53386, 54331, 54152, 55525]
+            }
+        };
+
+        const brandData = {
+            brands: ['Grand Slice Kitchen', 'Ember & Oak', 'Crestview Hotels', 'Whisk & Co'],
+            2025: [139006, 124070, 105229, 40282],
+            2024: [217480, 176058, 160084, 95668]
+        };
+
+        const channelData = {
+            labels: ['Dine-In', 'Third-Party', 'Hotel Restaurant', 'Carryout', 'Drive-Thru', 'Room Service', 'Mobile App', 'Catering', 'First-Party Delivery'],
+            values: [48719, 47448, 47018, 46389, 46139, 45463, 43287, 42268, 41859]
+        };
+
+        const regionData = {
+            regions: ['South', 'West', 'Midwest', 'Northeast'],
+            2025: [155862, 137145, 59577, 56004],
+            2024: [246661, 219205, 93726, 89697]
+        };
+
+        const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const quarterLabels = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+        // Calculate quarterly data
+        function getQuarterlyData(monthlyArray) {
+            return [
+                monthlyArray.slice(0, 3).reduce((a, b) => a + b, 0),
+                monthlyArray.slice(3, 6).reduce((a, b) => a + b, 0),
+                monthlyArray.slice(6, 9).reduce((a, b) => a + b, 0),
+                monthlyArray.slice(9, 12).reduce((a, b) => a + b, 0)
+            ];
+        }
+
+        // Calculate yearly total
+        function getYearlyTotal(monthlyArray) {
+            return [monthlyArray.reduce((a, b) => a + b, 0)];
+        }
+
+        // Chart instances
+        let revenueChartInstance;
+        let streamChartInstance;
+        let brandChartInstance;
+        let channelChartInstance;
+        let regionChartInstance;
+
+        // Colors
+        const colors = {
+            navy: '#1B2A4A',
+            gold: '#C8A951',
+            lightBlue: '#3A6B8A',
+            darkGold: '#D4B96A',
+            blue: '#6C8EBF',
+            lightGold: '#E8D5A0',
+            white: '#FFFFFF',
+            positive: '#2E7D32',
+            negative: '#C62828'
+        };
+
+        // Initialize Revenue Trend Chart
+        function initRevenueChart(granularity = 'monthly') {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+
+            let labels, data2025, data2024;
+
+            if (granularity === 'monthly') {
+                labels = monthLabels;
+                data2025 = monthlyData[2025].revenue;
+                data2024 = monthlyData[2024].revenue;
+            } else if (granularity === 'quarterly') {
+                labels = quarterLabels;
+                data2025 = getQuarterlyData(monthlyData[2025].revenue);
+                data2024 = getQuarterlyData(monthlyData[2024].revenue);
+            } else {
+                labels = ['2025'];
+                data2025 = [monthlyData[2025].revenue.reduce((a, b) => a + b, 0)];
+                data2024 = [monthlyData[2024].revenue.reduce((a, b) => a + b, 0)];
+            }
+
+            if (revenueChartInstance) revenueChartInstance.destroy();
+
+            revenueChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: data2025,
+                            borderColor: colors.navy,
+                            backgroundColor: 'rgba(27, 42, 74, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        },
+                        {
+                            label: '2024',
+                            data: data2024,
+                            borderColor: colors.gold,
+                            borderWidth: 3,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: colors.navy,
+                                font: { weight: 'bold', size: 12 },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#636E72', callback: function(v) { return '$' + v.toLocaleString(); } },
+                            grid: { color: '#E0E0E0' },
+                            title: { display: true, text: 'Revenue ($)', color: colors.navy }
+                        },
+                        x: {
+                            ticks: { color: '#636E72' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Revenue by Stream Chart
+        function initStreamChart(granularity = 'monthly') {
+            const ctx = document.getElementById('streamChart').getContext('2d');
+
+            let labels, foodData, roomData, beverageData, alcoholData;
+
+            if (granularity === 'monthly') {
+                labels = monthLabels;
+                foodData = monthlyData[2025].food;
+                roomData = monthlyData[2025].room;
+                beverageData = monthlyData[2025].beverage;
+                alcoholData = monthlyData[2025].alcohol;
+            } else if (granularity === 'quarterly') {
+                labels = quarterLabels;
+                foodData = getQuarterlyData(monthlyData[2025].food);
+                roomData = getQuarterlyData(monthlyData[2025].room);
+                beverageData = getQuarterlyData(monthlyData[2025].beverage);
+                alcoholData = getQuarterlyData(monthlyData[2025].alcohol);
+            } else {
+                labels = ['2025'];
+                foodData = [monthlyData[2025].food.reduce((a, b) => a + b, 0)];
+                roomData = [monthlyData[2025].room.reduce((a, b) => a + b, 0)];
+                beverageData = [monthlyData[2025].beverage.reduce((a, b) => a + b, 0)];
+                alcoholData = [monthlyData[2025].alcohol.reduce((a, b) => a + b, 0)];
+            }
+
+            if (streamChartInstance) streamChartInstance.destroy();
+
+            streamChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Food',
+                            data: foodData,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Room',
+                            data: roomData,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Beverage',
+                            data: beverageData,
+                            backgroundColor: colors.lightBlue,
+                            borderColor: colors.lightBlue,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Alcohol',
+                            data: alcoholData,
+                            backgroundColor: colors.darkGold,
+                            borderColor: colors.darkGold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: colors.navy, font: { weight: 'bold', size: 11 }, padding: 12 }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, ticks: { color: '#636E72' }, grid: { display: false } },
+                        y: {
+                            stacked: true,
+                            ticks: { color: '#636E72', callback: function(v) { return '$' + (v / 1000).toFixed(0) + 'k'; } },
+                            grid: { color: '#E0E0E0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Revenue by Brand & Region Chart
+        function initBrandChart(granularity = 'monthly') {
+            const ctx = document.getElementById('brandChart').getContext('2d');
+
+            // For granular views, we still show the aggregate brand totals
+            // as per requirements - just recalculate from existing aggregate data
+            let data2025 = brandData[2025];
+            let data2024 = brandData[2024];
+
+            if (brandChartInstance) brandChartInstance.destroy();
+
+            brandChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: brandData.brands,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: data2025,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '2024',
+                            data: data2024,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: colors.navy, font: { weight: 'bold', size: 11 }, padding: 12 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#636E72', callback: function(v) { return '$' + (v / 1000).toFixed(0) + 'k'; } },
+                            grid: { color: '#E0E0E0' }
+                        },
+                        y: { ticks: { color: '#636E72' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Initialize Revenue by Channel Chart
+        function initChannelChart(granularity = 'monthly') {
+            const ctx = document.getElementById('channelChart').getContext('2d');
+
+            // For granular views, we still show the aggregate channel totals
+            let data = channelData.values;
+
+            if (channelChartInstance) channelChartInstance.destroy();
+
+            channelChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: channelData.labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            colors.navy,
+                            colors.gold,
+                            colors.lightBlue,
+                            colors.darkGold,
+                            colors.blue,
+                            colors.lightGold,
+                            '#5A7FB8',
+                            '#A0956B',
+                            '#8B9DC3'
+                        ],
+                        borderColor: colors.white,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: { color: colors.navy, font: { size: 10 }, padding: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Revenue by Region Chart
+        function initRegionChart(granularity = 'monthly') {
+            const ctx = document.getElementById('regionChart').getContext('2d');
+
+            // For granular views, we still show the aggregate region totals
+            let data2025 = regionData[2025];
+            let data2024 = regionData[2024];
+
+            if (regionChartInstance) regionChartInstance.destroy();
+
+            regionChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: regionData.regions,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: data2025,
+                            backgroundColor: colors.navy,
+                            borderColor: colors.navy,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '2024',
+                            data: data2024,
+                            backgroundColor: colors.gold,
+                            borderColor: colors.gold,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: colors.navy, font: { weight: 'bold', size: 11 }, padding: 12 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#636E72', callback: function(v) { return '$' + (v / 1000).toFixed(0) + 'k'; } },
+                            grid: { color: '#E0E0E0' }
+                        },
+                        x: { ticks: { color: '#636E72' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Initialize Detail Table
+        function initDetailTable(granularity = 'monthly') {
+            const tbody = document.getElementById('tableBody');
+            const titleElement = document.querySelector('.table-title');
+            tbody.innerHTML = '';
+
+            let rows = [];
+            let labels = [];
+
+            if (granularity === 'monthly') {
+                labels = monthLabels;
+                for (let i = 0; i < 12; i++) {
+                    rows.push({
+                        label: monthLabels[i],
+                        revenue2025: monthlyData[2025].revenue[i],
+                        revenue2024: monthlyData[2024].revenue[i]
+                    });
+                }
+                titleElement.textContent = 'Monthly Performance Detail (2025 vs 2024)';
+            } else if (granularity === 'quarterly') {
+                labels = quarterLabels;
+                const q1_2025 = monthlyData[2025].revenue.slice(0, 3).reduce((a, b) => a + b, 0);
+                const q2_2025 = monthlyData[2025].revenue.slice(3, 6).reduce((a, b) => a + b, 0);
+                const q3_2025 = monthlyData[2025].revenue.slice(6, 9).reduce((a, b) => a + b, 0);
+                const q4_2025 = monthlyData[2025].revenue.slice(9, 12).reduce((a, b) => a + b, 0);
+                const q1_2024 = monthlyData[2024].revenue.slice(0, 3).reduce((a, b) => a + b, 0);
+                const q2_2024 = monthlyData[2024].revenue.slice(3, 6).reduce((a, b) => a + b, 0);
+                const q3_2024 = monthlyData[2024].revenue.slice(6, 9).reduce((a, b) => a + b, 0);
+                const q4_2024 = monthlyData[2024].revenue.slice(9, 12).reduce((a, b) => a + b, 0);
+
+                rows = [
+                    { label: 'Q1', revenue2025: q1_2025, revenue2024: q1_2024 },
+                    { label: 'Q2', revenue2025: q2_2025, revenue2024: q2_2024 },
+                    { label: 'Q3', revenue2025: q3_2025, revenue2024: q3_2024 },
+                    { label: 'Q4', revenue2025: q4_2025, revenue2024: q4_2024 }
+                ];
+                titleElement.textContent = 'Quarterly Performance Detail (2025 vs 2024)';
+            } else {
+                labels = ['2025'];
+                const total2025 = monthlyData[2025].revenue.reduce((a, b) => a + b, 0);
+                const total2024 = monthlyData[2024].revenue.reduce((a, b) => a + b, 0);
+                rows = [
+                    { label: '2025', revenue2025: total2025, revenue2024: total2024 }
+                ];
+                titleElement.textContent = 'Yearly Performance Detail (2025 vs 2024)';
+            }
+
+            rows.forEach(rowData => {
+                const revenue2025 = rowData.revenue2025;
+                const revenue2024 = rowData.revenue2024;
+                const revenueChange = ((revenue2025 - revenue2024) / revenue2024 * 100).toFixed(1);
+
+                const margin2025 = revenue2025 * 0.75; // Approximate 75% margin
+                const margin2024 = revenue2024 * 0.75;
+                const marginChange = ((margin2025 - margin2024) / margin2024 * 100).toFixed(1);
+
+                const transactions2025 = Math.round(revenue2025 / 48.63);
+                const avgTicket = (revenue2025 / transactions2025).toFixed(2);
+
+                const revenueChangeClass = revenueChange >= 0 ? 'positive-change' : 'negative-change';
+                const marginChangeClass = marginChange >= 0 ? 'positive-change' : 'negative-change';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${rowData.label}</strong></td>
+                    <td>$${revenue2025.toLocaleString()}</td>
+                    <td class="${revenueChangeClass}">${revenueChange > 0 ? '+' : ''}${revenueChange}%</td>
+                    <td>$${Math.round(margin2025).toLocaleString()}</td>
+                    <td class="${marginChangeClass}">${marginChange > 0 ? '+' : ''}${marginChange}%</td>
+                    <td>${transactions2025.toLocaleString()}</td>
+                    <td>$${avgTicket}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Time Filter Handler
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const granularity = this.dataset.granularity;
+
+                initRevenueChart(granularity);
+                initStreamChart(granularity);
+                initBrandChart(granularity);
+                initChannelChart(granularity);
+                initRegionChart(granularity);
+                initDetailTable(granularity);
+            });
+        });
+
+        // Initialize all charts on page load
+        window.addEventListener('load', function() {
+            initRevenueChart();
+            initStreamChart();
+            initBrandChart();
+            initChannelChart();
+            initRegionChart();
+            initDetailTable();
+        });
+    </script>
+</body>
+</html>

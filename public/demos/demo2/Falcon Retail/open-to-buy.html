@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open-to-Buy Dashboard | Falcon Retail</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #2D2D2D;
+            --color-gold: #C9A84C;
+            --color-border: #8B6F3A;
+            --text-primary: #F5F0E8;
+            --text-muted: #9A9590;
+            --success: #4CAF50;
+            --danger: #E74C3C;
+            --warning: #F39C12;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 2px solid var(--color-border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            color: var(--color-gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: var(--color-gold);
+            color: var(--bg-primary);
+        }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .kpi-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--color-gold);
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.1);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-subtext {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .tabs-container {
+            margin-top: 2rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 2px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-btn:hover {
+            color: var(--color-gold);
+        }
+
+        .tab-btn.active {
+            color: var(--color-gold);
+            border-bottom: 3px solid var(--color-gold);
+            padding-bottom: 0.45rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-container {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            height: 400px;
+        }
+
+        .chart-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-gold);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table thead {
+            background-color: rgba(201, 168, 76, 0.1);
+            border-bottom: 2px solid var(--color-gold);
+        }
+
+        .data-table th {
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            color: var(--color-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            color: var(--text-primary);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(201, 168, 76, 0.05);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .metric-positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .metric-negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .metric-neutral {
+            color: var(--text-muted);
+        }
+
+        .traffic-light {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .light-green {
+            background-color: var(--success);
+        }
+
+        .light-yellow {
+            background-color: var(--warning);
+        }
+
+        .light-red {
+            background-color: var(--danger);
+        }
+
+        .priority-section {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .priority-section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .priority-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg-primary);
+            border-left: 4px solid var(--color-gold);
+            border-radius: 4px;
+        }
+
+        .priority-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        .priority-label-urgent {
+            color: var(--danger);
+        }
+
+        .priority-label-high {
+            color: var(--warning);
+        }
+
+        .priority-label-medium {
+            color: var(--color-gold);
+        }
+
+        .priority-label-low {
+            color: var(--success);
+        }
+
+        .priority-content {
+            flex: 1;
+        }
+
+        .priority-category {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .priority-details {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .priority-recommendation {
+            font-size: 0.85rem;
+            color: var(--color-gold);
+            font-style: italic;
+        }
+
+        .actions-panel {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .actions-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-gold);
+            margin-bottom: 1rem;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .action-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-icon {
+            color: var(--color-gold);
+            font-weight: bold;
+            min-width: 20px;
+        }
+
+        .action-text {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 2px solid var(--color-border);
+            margin-top: 3rem;
+            font-size: 0.85rem;
+        }
+
+        .variance-positive {
+            color: var(--success);
+        }
+
+        .variance-negative {
+            color: var(--danger);
+        }
+
+        .scatter-container {
+            height: 450px;
+        }
+
+        .table-wrapper {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-bar {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .tab-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .data-table {
+                font-size: 0.85rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="logo">⬢ FALCON RETAIL</div>
+            <a href="index.html" class="back-link">← Back</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <h1 class="page-title">Open-to-Buy & Inventory Planning</h1>
+
+        <!-- KPI Bar -->
+        <div class="kpi-bar">
+            <div class="kpi-card">
+                <div class="kpi-label">Total OTB Budget</div>
+                <div class="kpi-value">$12.5M</div>
+                <div class="kpi-subtext">Annual allocation</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Committed</div>
+                <div class="kpi-value" style="color: var(--danger);">$8.2M</div>
+                <div class="kpi-subtext">65.6% of budget</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Available OTB</div>
+                <div class="kpi-value" style="color: var(--success);">$4.3M</div>
+                <div class="kpi-subtext">34.4% of budget</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Target Weeks of Supply</div>
+                <div class="kpi-value">12.0</div>
+                <div class="kpi-subtext">Target WOS</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Current Average WOS</div>
+                <div class="kpi-value" style="color: var(--warning);">16.7</div>
+                <div class="kpi-subtext">+4.7 above target</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab(event, 'tab-category')">
+                    Category OTB Status
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab-sellthrough')">
+                    Sell-Through Analysis
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab-replenishment')">
+                    Replenishment Priorities
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab-gmroi')">
+                    GMROI Analysis
+                </button>
+            </div>
+
+            <!-- Tab 1: Category OTB Status -->
+            <div id="tab-category" class="tab-content active">
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Units on Hand by Category</div>
+                        <canvas id="uohChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">Weeks of Supply: Current vs Target</div>
+                        <canvas id="wosChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>UOH</th>
+                                <th>Current WOS</th>
+                                <th>Target WOS</th>
+                                <th>Variance</th>
+                                <th>Sell-Through %</th>
+                                <th>OTB Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Outerwear</td>
+                                <td>1,112,396</td>
+                                <td>14.5</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+2.5</td>
+                                <td class="metric-neutral">74.4%</td>
+                                <td style="color: var(--text-muted);">Reduce orders</td>
+                            </tr>
+                            <tr>
+                                <td>Activewear</td>
+                                <td>915,565</td>
+                                <td>14.5</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+2.5</td>
+                                <td class="metric-positive">82.3%</td>
+                                <td style="color: var(--success);">Maintain</td>
+                            </tr>
+                            <tr>
+                                <td>Bottoms</td>
+                                <td>666,505</td>
+                                <td>15.8</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+3.8</td>
+                                <td class="metric-neutral">65.7%</td>
+                                <td style="color: var(--danger);">Reduce orders</td>
+                            </tr>
+                            <tr>
+                                <td>Tops</td>
+                                <td>461,284</td>
+                                <td>17.9</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+5.9</td>
+                                <td class="metric-neutral">76.2%</td>
+                                <td style="color: var(--danger);">Reduce orders</td>
+                            </tr>
+                            <tr>
+                                <td>Accessories</td>
+                                <td>360,118</td>
+                                <td>22.4</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+10.4</td>
+                                <td class="metric-positive">82.9%</td>
+                                <td style="color: var(--warning);">Monitor closely</td>
+                            </tr>
+                            <tr>
+                                <td>Loungewear</td>
+                                <td>192,095</td>
+                                <td>17.6</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+5.6</td>
+                                <td class="metric-positive">85.1%</td>
+                                <td style="color: var(--success);">Maintain</td>
+                            </tr>
+                            <tr>
+                                <td>Denim</td>
+                                <td>112,991</td>
+                                <td>17.0</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+5.0</td>
+                                <td class="metric-positive">91.6%</td>
+                                <td style="color: var(--success);">Maintain</td>
+                            </tr>
+                            <tr>
+                                <td>Footwear</td>
+                                <td>5,084</td>
+                                <td>14.5</td>
+                                <td>12.0</td>
+                                <td class="variance-negative">+2.5</td>
+                                <td class="metric-positive">98.2%</td>
+                                <td style="color: var(--danger);">Urgent reorder</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Sell-Through Analysis -->
+            <div id="tab-sellthrough" class="tab-content">
+                <div class="charts-grid">
+                    <div class="chart-container scatter-container">
+                        <div class="chart-title">Sell-Through vs Markdown by Category</div>
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">Sell-Through Rate Comparison</div>
+                        <canvas id="strChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Sell-Through %</th>
+                                <th>Units Sold</th>
+                                <th>Markdown Depth</th>
+                                <th>Trend</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Footwear</td>
+                                <td class="metric-positive">98.2%</td>
+                                <td>4,989</td>
+                                <td class="metric-positive">2.1%</td>
+                                <td style="color: var(--success);">↑ Strong</td>
+                                <td style="color: var(--success);">Excellent performance</td>
+                            </tr>
+                            <tr>
+                                <td>Denim</td>
+                                <td class="metric-positive">91.6%</td>
+                                <td>103,539</td>
+                                <td class="metric-positive">4.2%</td>
+                                <td style="color: var(--success);">↑ Strong</td>
+                                <td style="color: var(--success);">Increase allocation</td>
+                            </tr>
+                            <tr>
+                                <td>Loungewear</td>
+                                <td class="metric-positive">85.1%</td>
+                                <td>163,399</td>
+                                <td class="metric-neutral">6.5%</td>
+                                <td style="color: var(--success);">↑ Healthy</td>
+                                <td style="color: var(--success);">Maintain levels</td>
+                            </tr>
+                            <tr>
+                                <td>Activewear</td>
+                                <td class="metric-positive">82.3%</td>
+                                <td>753,457</td>
+                                <td class="metric-neutral">7.8%</td>
+                                <td style="color: var(--success);">↑ Strong</td>
+                                <td style="color: var(--success);">Stable allocation</td>
+                            </tr>
+                            <tr>
+                                <td>Accessories</td>
+                                <td class="metric-positive">82.9%</td>
+                                <td>298,618</td>
+                                <td class="metric-negative">11.2%</td>
+                                <td style="color: var(--warning);">→ Stable</td>
+                                <td style="color: var(--warning);">Monitor markdown</td>
+                            </tr>
+                            <tr>
+                                <td>Outerwear</td>
+                                <td class="metric-neutral">74.4%</td>
+                                <td>828,486</td>
+                                <td class="metric-negative">9.6%</td>
+                                <td style="color: var(--warning);">↓ Declining</td>
+                                <td style="color: var(--warning);">Review assortment</td>
+                            </tr>
+                            <tr>
+                                <td>Tops</td>
+                                <td class="metric-neutral">76.2%</td>
+                                <td>351,397</td>
+                                <td class="metric-negative">12.3%</td>
+                                <td style="color: var(--warning);">↓ Declining</td>
+                                <td style="color: var(--danger);">Clearance needed</td>
+                            </tr>
+                            <tr>
+                                <td>Bottoms</td>
+                                <td class="metric-neutral">65.7%</td>
+                                <td>437,860</td>
+                                <td class="metric-negative">14.1%</td>
+                                <td style="color: var(--danger);">↓ Weak</td>
+                                <td style="color: var(--danger);">Aggressive markdown</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 3: Replenishment Priorities -->
+            <div id="tab-replenishment" class="tab-content">
+                <div class="priority-section">
+                    <div class="priority-section-title">Category Priorities</div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-red"></span>
+                            <span class="priority-label-urgent">URGENT</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Footwear</div>
+                            <div class="priority-details">
+                                UOH: 5,084 | WOS: 14.5 | STR: 98.2%
+                            </div>
+                            <div class="priority-recommendation">
+                                Nearly sold out with exceptional sell-through. Immediate replenishment required to prevent stockouts and lost sales.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-yellow"></span>
+                            <span class="priority-label-high">HIGH</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Denim</div>
+                            <div class="priority-details">
+                                UOH: 112,991 | WOS: 17.0 | STR: 91.6%
+                            </div>
+                            <div class="priority-recommendation">
+                                Strong sell-through (91.6%) justifies increased buying. Current stock supports growth if demand continues.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-yellow"></span>
+                            <span class="priority-label-medium">MEDIUM</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Loungewear</div>
+                            <div class="priority-details">
+                                UOH: 192,095 | WOS: 17.6 | STR: 85.1%
+                            </div>
+                            <div class="priority-recommendation">
+                                Healthy inventory with strong performance. Monitor WOS growth; maintain current allocation levels.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-yellow"></span>
+                            <span class="priority-label-medium">MEDIUM</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Activewear</div>
+                            <div class="priority-details">
+                                UOH: 915,565 | WOS: 14.5 | STR: 82.3%
+                            </div>
+                            <div class="priority-recommendation">
+                                Solid performance with acceptable WOS. Hold current order pace pending seasonal demand trends.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light" style="background-color: #F39C12;"></span>
+                            <span class="priority-label-low">WATCH</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Accessories</div>
+                            <div class="priority-details">
+                                UOH: 360,118 | WOS: 22.4 | STR: 82.9%
+                            </div>
+                            <div class="priority-recommendation">
+                                Highest WOS (22.4) indicates overstocking. While STR is good (82.9%), prioritize selling through excess before new buys.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-green"></span>
+                            <span class="priority-label-low">LOW</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Bottoms</div>
+                            <div class="priority-details">
+                                UOH: 666,505 | WOS: 15.8 | STR: 65.7%
+                            </div>
+                            <div class="priority-recommendation">
+                                Weak sell-through (65.7%) with high WOS. Reduce orders; focus on clearing existing inventory through promotions.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-green"></span>
+                            <span class="priority-label-low">LOW</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Tops</div>
+                            <div class="priority-details">
+                                UOH: 461,284 | WOS: 17.9 | STR: 76.2%
+                            </div>
+                            <div class="priority-recommendation">
+                                Elevated WOS (17.9) with moderate sell-through. Reduce allocations and implement strategic markdowns.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="priority-indicator">
+                            <span class="traffic-light light-green"></span>
+                            <span class="priority-label-low">LOW</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-category">Outerwear</div>
+                            <div class="priority-details">
+                                UOH: 1,112,396 | WOS: 14.5 | STR: 74.4%
+                            </div>
+                            <div class="priority-recommendation">
+                                Largest inventory volume with lowest sell-through. Freeze buying and increase promotional activity.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-panel">
+                    <div class="actions-title">Immediate Action Items</div>
+
+                    <div class="action-item">
+                        <div class="action-icon">⚡</div>
+                        <div class="action-text">
+                            <strong>URGENT:</strong> Issue purchase order for Footwear within 48 hours. Target 100K+ units within 30 days to prevent stockouts.
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="action-icon">→</div>
+                        <div class="action-text">
+                            <strong>HIGH PRIORITY:</strong> Approve additional Denim allocation ($1.2M) for Q2. Strong demand supports investment.
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="action-icon">→</div>
+                        <div class="action-text">
+                            <strong>ROUTINE:</strong> Reduce Tops and Bottoms buying by 30% this quarter. Reallocate budget to higher-performing categories.
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="action-icon">→</div>
+                        <div class="action-text">
+                            <strong>ROUTINE:</strong> Launch aggressive 20%+ markdown campaign on Bottoms category. Target 30-day clearance plan.
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="action-icon">⚠</div>
+                        <div class="action-text">
+                            <strong>WATCH:</strong> Monitor Accessories sell-through weekly. Reduce order pace if WOS exceeds 25.0.
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="action-icon">✓</div>
+                        <div class="action-text">
+                            <strong>PLANNED:</strong> Review Loungewear category for seasonal expansion. STR (85.1%) supports potential 15% increase.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: GMROI Analysis -->
+            <div id="tab-gmroi" class="tab-content">
+                <!-- GMROI KPI Summary -->
+                <div class="kpi-bar" style="margin-bottom: 2rem;">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Portfolio GMROI</div>
+                        <div class="kpi-value">$82.6</div>
+                        <div class="kpi-subtext">Gross margin per $1 inventory cost</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Best Performer</div>
+                        <div class="kpi-value" style="color: var(--success); font-size: 1.6rem;">Footwear</div>
+                        <div class="kpi-subtext">GMROI: $264.5</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Lowest Performer</div>
+                        <div class="kpi-value" style="color: var(--danger); font-size: 1.6rem;">Outerwear</div>
+                        <div class="kpi-subtext">GMROI: $41.8</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Avg Inventory Turns</div>
+                        <div class="kpi-value">128.4</div>
+                        <div class="kpi-subtext">FY2026 annualized</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">GMROI by Category</div>
+                        <canvas id="gmroiBarChart"></canvas>
+                    </div>
+                    <div class="chart-container scatter-container">
+                        <div class="chart-title">GMROI vs Inventory Turns (Bubble = Net Sales)</div>
+                        <canvas id="gmroiBubbleChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Inventory Turns by Category</div>
+                        <canvas id="turnsChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Margin % vs Inventory Efficiency</div>
+                        <canvas id="efficiencyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- GMROI Quadrant Analysis -->
+                <div class="priority-section">
+                    <div class="priority-section-title">GMROI Quadrant Analysis</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="background: rgba(75, 175, 80, 0.08); border: 1px solid var(--success); border-radius: 8px; padding: 1.25rem;">
+                            <div style="color: var(--success); font-weight: 700; margin-bottom: 0.75rem; font-family: 'Playfair Display', serif;">★ STARS — High GMROI, High Margin</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>Footwear</strong> — GMROI $264.5 | Margin 41.5%</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>Denim</strong> — GMROI $157.3 | Margin 42.2%</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem;"><strong>Loungewear</strong> — GMROI $127.3 | Margin 41.8%</div>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.75rem; font-style: italic;">Action: Maximize investment. These categories generate the most margin per dollar of inventory held.</div>
+                        </div>
+                        <div style="background: rgba(106, 155, 195, 0.08); border: 1px solid #6A9BC3; border-radius: 8px; padding: 1.25rem;">
+                            <div style="color: #6A9BC3; font-weight: 700; margin-bottom: 0.75rem; font-family: 'Playfair Display', serif;">◆ SOLID — High GMROI, Moderate Margin</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>Accessories</strong> — GMROI $119.2 | Margin 41.5%</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem;"><strong>Tops</strong> — GMROI $99.1 | Margin 41.9%</div>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.75rem; font-style: italic;">Action: Maintain allocation. Efficient inventory use with room for margin improvement.</div>
+                        </div>
+                        <div style="background: rgba(243, 156, 18, 0.08); border: 1px solid var(--warning); border-radius: 8px; padding: 1.25rem;">
+                            <div style="color: var(--warning); font-weight: 700; margin-bottom: 0.75rem; font-family: 'Playfair Display', serif;">▲ WATCH — Moderate GMROI, High Volume</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem;"><strong>Bottoms</strong> — GMROI $70.4 | Margin 42.0%</div>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.75rem; font-style: italic;">Action: High margin but heavy inventory. Optimize buys to improve turns without sacrificing sell-through.</div>
+                        </div>
+                        <div style="background: rgba(231, 76, 60, 0.08); border: 1px solid var(--danger); border-radius: 8px; padding: 1.25rem;">
+                            <div style="color: var(--danger); font-weight: 700; margin-bottom: 0.75rem; font-family: 'Playfair Display', serif;">● DRAG — Low GMROI, Inventory-Heavy</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>Activewear</strong> — GMROI $44.6 | Margin 41.8%</div>
+                            <div style="color: var(--text-primary); font-size: 0.95rem;"><strong>Outerwear</strong> — GMROI $41.8 | Margin 41.8%</div>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.75rem; font-style: italic;">Action: Reduce open-to-buy. Excess inventory ties up capital. Accelerate sell-through via promotions or reallocation.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed GMROI Table -->
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Net Sales</th>
+                                <th>COGS</th>
+                                <th>Gross Margin</th>
+                                <th>Margin %</th>
+                                <th>Avg UOH</th>
+                                <th>Avg Inv at Cost</th>
+                                <th>Inv Turns</th>
+                                <th>GMROI</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gmroi-table-body"></tbody>
+                    </table>
+                </div>
+
+                <!-- GMROI Methodology -->
+                <div class="actions-panel" style="margin-top: 2rem;">
+                    <div class="actions-title">GMROI Methodology & Definitions</div>
+                    <div class="action-item">
+                        <div class="action-icon">📐</div>
+                        <div class="action-text"><strong>GMROI</strong> = Gross Margin ÷ Average Inventory at Cost. Measures how many dollars of gross margin are returned for every dollar invested in inventory.</div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-icon">📐</div>
+                        <div class="action-text"><strong>Avg Inventory at Cost</strong> = Average Daily Units on Hand × Average Unit Cost (COGS ÷ Units Sold). Derived from daily FACT_INVENTORY_SNAPSHOT data across FY2026.</div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-icon">📐</div>
+                        <div class="action-text"><strong>Inventory Turns</strong> = COGS ÷ Average Inventory at Cost. Higher turns = faster inventory cycling.</div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-icon">💡</div>
+                        <div class="action-text"><strong>Key Insight:</strong> Footwear and Denim deliver the highest GMROI despite not being the top revenue categories — capital is most efficiently deployed here. Outerwear and Activewear carry the most inventory relative to their margin contribution, signaling reallocation opportunity.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Generated March 16, 2026 | Data as of March 16, 2026
+    </footer>
+
+    <script>
+        const chartColors = ['#C9A84C', '#6A9BC3', '#5BA67D', '#E8913A', '#C75B5B', '#8E6BBF', '#4ECDC4', '#D4A843'];
+
+        function switchTab(event, tabName) {
+            event.preventDefault();
+
+            // Hide all tab content
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab and mark button as active
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Redraw charts if needed
+            setTimeout(() => {
+                if (tabName === 'tab-category') {
+                    uohChart.resize();
+                    wosChart.resize();
+                } else if (tabName === 'tab-sellthrough') {
+                    scatterChart.resize();
+                    strChart.resize();
+                } else if (tabName === 'tab-gmroi') {
+                    gmroiBarChart.resize();
+                    gmroiBubbleChart.resize();
+                    turnsChart.resize();
+                    efficiencyChart.resize();
+                }
+            }, 100);
+        }
+
+        // Chart data
+        const categoryLabels = ['Outerwear', 'Activewear', 'Bottoms', 'Tops', 'Accessories', 'Loungewear', 'Denim', 'Footwear'];
+        const uohData = [1112396, 915565, 666505, 461284, 360118, 192095, 112991, 5084];
+        const wosCurrentData = [14.5, 14.5, 15.8, 17.9, 22.4, 17.6, 17.0, 14.5];
+        const wosTargetData = [12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0];
+        const strData = [74.4, 82.3, 65.7, 76.2, 82.9, 85.1, 91.6, 98.2];
+
+        // Chart 1: UOH
+        const uohCtx = document.getElementById('uohChart').getContext('2d');
+        const uohChart = new Chart(uohCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: 'Units on Hand',
+                    data: uohData,
+                    backgroundColor: chartColors[0],
+                    borderColor: chartColors[0],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' }
+                    },
+                    y: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: WOS Comparison
+        const wosCtx = document.getElementById('wosChart').getContext('2d');
+        const wosChart = new Chart(wosCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [
+                    {
+                        label: 'Current WOS',
+                        data: wosCurrentData,
+                        backgroundColor: chartColors[0],
+                        borderWidth: 0,
+                    },
+                    {
+                        label: 'Target WOS',
+                        data: wosTargetData,
+                        backgroundColor: chartColors[1],
+                        borderWidth: 0,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' }
+                    },
+                    x: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Scatter - STR vs Markdown
+        const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+        const scatterData = [
+            { x: 2.1, y: 98.2, label: 'Footwear' },
+            { x: 4.2, y: 91.6, label: 'Denim' },
+            { x: 6.5, y: 85.1, label: 'Loungewear' },
+            { x: 7.8, y: 82.3, label: 'Activewear' },
+            { x: 11.2, y: 82.9, label: 'Accessories' },
+            { x: 9.6, y: 74.4, label: 'Outerwear' },
+            { x: 12.3, y: 76.2, label: 'Tops' },
+            { x: 14.1, y: 65.7, label: 'Bottoms' }
+        ];
+
+        const scatterChart = new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Category Performance',
+                    data: scatterData,
+                    backgroundColor: chartColors.slice(0, 8),
+                    borderColor: chartColors.slice(0, 8),
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.label + ': STR ' + context.raw.y.toFixed(1) + '%, MD ' + context.raw.x.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: { display: true, text: 'Sell-Through Rate (%)', color: '#C9A84C' },
+                        min: 60,
+                        max: 100,
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Markdown Depth (%)', color: '#C9A84C' },
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' }
+                    }
+                }
+            }
+        });
+
+        // GMROI Data
+        const gmroiData = [
+            { category: 'Footwear',    netSales: 29278892, cogs: 17123820, grossMargin: 12155072, marginPct: 41.5, units: 189282, avgUOH: 508,  avgInvCost: 45959,  invTurns: 372.6, gmroi: 264.5 },
+            { category: 'Denim',       netSales: 27953135, cogs: 16147225, grossMargin: 11805909, marginPct: 42.2, units: 178738, avgUOH: 831,  avgInvCost: 75061,  invTurns: 215.1, gmroi: 157.3 },
+            { category: 'Loungewear',  netSales: 27019879, cogs: 15719666, grossMargin: 11300213, marginPct: 41.8, units: 174384, avgUOH: 985,  avgInvCost: 88798,  invTurns: 177.0, gmroi: 127.3 },
+            { category: 'Accessories', netSales: 28389447, cogs: 16596548, grossMargin: 11792899, marginPct: 41.5, units: 184756, avgUOH: 1101, avgInvCost: 98893,  invTurns: 167.8, gmroi: 119.2 },
+            { category: 'Tops',        netSales: 29398977, cogs: 17068491, grossMargin: 12330486, marginPct: 41.9, units: 189415, avgUOH: 1381, avgInvCost: 124442, invTurns: 137.2, gmroi: 99.1 },
+            { category: 'Bottoms',     netSales: 30063118, cogs: 17427018, grossMargin: 12636100, marginPct: 42.0, units: 193693, avgUOH: 1996, avgInvCost: 179580, invTurns: 97.0,  gmroi: 70.4 },
+            { category: 'Activewear',  netSales: 26366462, cogs: 15347754, grossMargin: 11018708, marginPct: 41.8, units: 170269, avgUOH: 2741, avgInvCost: 247012, invTurns: 62.1,  gmroi: 44.6 },
+            { category: 'Outerwear',   netSales: 29987202, cogs: 17441755, grossMargin: 12545447, marginPct: 41.8, units: 193703, avgUOH: 3331, avgInvCost: 299843, invTurns: 58.2,  gmroi: 41.8 }
+        ];
+
+        // Populate GMROI table
+        const gmroiTbody = document.getElementById('gmroi-table-body');
+        gmroiData.forEach(d => {
+            const rating = d.gmroi >= 150 ? '<span style="color: var(--success); font-weight: 700;">★★★ Excellent</span>'
+                : d.gmroi >= 90 ? '<span style="color: #6A9BC3; font-weight: 700;">★★ Good</span>'
+                : d.gmroi >= 60 ? '<span style="color: var(--warning); font-weight: 700;">★ Watch</span>'
+                : '<span style="color: var(--danger); font-weight: 700;">● Drag</span>';
+            const row = `<tr>
+                <td style="font-weight: 600;">${d.category}</td>
+                <td>$${(d.netSales/1e6).toFixed(1)}M</td>
+                <td>$${(d.cogs/1e6).toFixed(1)}M</td>
+                <td>$${(d.grossMargin/1e6).toFixed(1)}M</td>
+                <td>${d.marginPct.toFixed(1)}%</td>
+                <td>${d.avgUOH.toLocaleString()}</td>
+                <td>$${(d.avgInvCost/1e3).toFixed(1)}K</td>
+                <td>${d.invTurns.toFixed(1)}</td>
+                <td style="font-weight: 700; color: ${d.gmroi >= 90 ? 'var(--success)' : d.gmroi >= 60 ? 'var(--warning)' : 'var(--danger)'};">$${d.gmroi.toFixed(1)}</td>
+                <td>${rating}</td>
+            </tr>`;
+            gmroiTbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        // Chart: GMROI Bar
+        const gmroiBarCtx = document.getElementById('gmroiBarChart').getContext('2d');
+        const gmroiBarChart = new Chart(gmroiBarCtx, {
+            type: 'bar',
+            data: {
+                labels: gmroiData.map(d => d.category),
+                datasets: [{
+                    label: 'GMROI ($)',
+                    data: gmroiData.map(d => d.gmroi),
+                    backgroundColor: gmroiData.map(d => d.gmroi >= 150 ? '#4CAF50' : d.gmroi >= 90 ? '#6A9BC3' : d.gmroi >= 60 ? '#F39C12' : '#E74C3C'),
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#F5F0E8', font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `GMROI: $${ctx.raw.toFixed(1)} per $1 inventory`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#9A9590', callback: v => '$' + v },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' },
+                        title: { display: true, text: 'GMROI ($)', color: '#C9A84C' }
+                    },
+                    x: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart: GMROI Bubble (GMROI vs Inventory Turns, bubble size = Net Sales)
+        const gmroiBubbleCtx = document.getElementById('gmroiBubbleChart').getContext('2d');
+        const maxSales = Math.max(...gmroiData.map(d => d.netSales));
+        const gmroiBubbleChart = new Chart(gmroiBubbleCtx, {
+            type: 'bubble',
+            data: {
+                datasets: gmroiData.map((d, i) => ({
+                    label: d.category,
+                    data: [{ x: d.invTurns, y: d.gmroi, r: Math.max(8, (d.netSales / maxSales) * 28) }],
+                    backgroundColor: chartColors[i] + '99',
+                    borderColor: chartColors[i],
+                    borderWidth: 2
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 10 }, boxWidth: 12, padding: 12 },
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const d = gmroiData[ctx.datasetIndex];
+                                return `${d.category}: GMROI $${d.gmroi.toFixed(1)}, Turns ${d.invTurns.toFixed(0)}, Sales $${(d.netSales/1e6).toFixed(1)}M`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Inventory Turns', color: '#C9A84C' },
+                        ticks: { color: '#9A9590' },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        title: { display: true, text: 'GMROI ($)', color: '#C9A84C' },
+                        ticks: { color: '#9A9590', callback: v => '$' + v },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Chart: Inventory Turns
+        const turnsCtx = document.getElementById('turnsChart').getContext('2d');
+        const turnsChart = new Chart(turnsCtx, {
+            type: 'bar',
+            data: {
+                labels: gmroiData.map(d => d.category),
+                datasets: [{
+                    label: 'Inventory Turns',
+                    data: gmroiData.map(d => d.invTurns),
+                    backgroundColor: chartColors[1],
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#F5F0E8', font: { size: 11 } } }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: '#9A9590' },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' },
+                        title: { display: true, text: 'Annual Turns', color: '#C9A84C' }
+                    },
+                    y: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart: Margin % vs Avg Inventory at Cost (efficiency)
+        const effCtx = document.getElementById('efficiencyChart').getContext('2d');
+        const efficiencyChart = new Chart(effCtx, {
+            type: 'bar',
+            data: {
+                labels: gmroiData.map(d => d.category),
+                datasets: [
+                    {
+                        label: 'Gross Margin ($M)',
+                        data: gmroiData.map(d => (d.grossMargin / 1e6)),
+                        backgroundColor: '#C9A84C',
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Avg Inv at Cost ($K)',
+                        data: gmroiData.map(d => (d.avgInvCost / 1e3)),
+                        backgroundColor: '#E74C3C88',
+                        borderColor: '#E74C3C',
+                        borderWidth: 2,
+                        type: 'line',
+                        yAxisID: 'y1',
+                        tension: 0.3,
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#F5F0E8', font: { size: 11 } } }
+                },
+                scales: {
+                    y: {
+                        position: 'left',
+                        beginAtZero: true,
+                        ticks: { color: '#C9A84C', callback: v => '$' + v.toFixed(1) + 'M' },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' },
+                        title: { display: true, text: 'Gross Margin ($M)', color: '#C9A84C' }
+                    },
+                    y1: {
+                        position: 'right',
+                        beginAtZero: true,
+                        ticks: { color: '#E74C3C', callback: v => '$' + v.toFixed(0) + 'K' },
+                        grid: { display: false },
+                        title: { display: true, text: 'Avg Inventory at Cost ($K)', color: '#E74C3C' }
+                    },
+                    x: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 4: STR by Category
+        const strCtx = document.getElementById('strChart').getContext('2d');
+        const strChart = new Chart(strCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: 'Sell-Through Rate (%)',
+                    data: strData,
+                    backgroundColor: chartColors,
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#F5F0E8', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { color: 'rgba(139, 111, 58, 0.2)' }
+                    },
+                    x: {
+                        ticks: { color: '#9A9590', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

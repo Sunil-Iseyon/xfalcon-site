@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Food & Snacks - Weekly Business Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; font-size: 13px; color: #1E293B; }
+    .topbar { background-color: #0F172A; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .logo-x { color: #006AFF; }
+    .logo-f { color: #1A7F64; }
+    .topbar-title { color: #FFFFFF; font-size: 16px; font-weight: 500; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .back-link { color: #006AFF; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .back-link:hover { text-decoration: underline; }
+    .container { max-width: 1500px; margin: 0 auto; padding: 20px; }
+
+    /* Week selector bar */
+    .week-bar { background: #FFFFFF; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .week-bar-left { display: flex; align-items: center; gap: 16px; }
+    .week-bar-left h2 { font-size: 20px; font-weight: 800; color: #0F172A; }
+    .week-badge { background: #006AFF; color: #FFF; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .week-bar select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; }
+    .week-bar-right { font-size: 12px; color: #64748B; }
+
+    /* Section headers matching PPT teal bar */
+    .section-header { background: #0F172A; color: #FFF; padding: 10px 20px; border-radius: 8px 8px 0 0; margin-top: 24px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; }
+    .section-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .section-header .dot-blue { background: #006AFF; }
+    .section-header .dot-teal { background: #1A7F64; }
+    .section-header .dot-amber { background: #F59E0B; }
+    .section-header .dot-red { background: #D32F2F; }
+    .section-body { background: #FFFFFF; border-radius: 0 0 8px 8px; padding: 20px; margin-bottom: 4px; }
+
+    /* KPI Headline Tile (PPT overall snapshot style) */
+    .headline-kpi { display: flex; align-items: center; gap: 20px; padding: 16px 0; border-bottom: 1px solid #E2E8F0; margin-bottom: 16px; }
+    .headline-kpi .big-number { font-size: 36px; font-weight: 800; color: #0F172A; }
+    .headline-kpi .big-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748B; letter-spacing: 0.5px; }
+    .headline-kpi .vs-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .vs-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+    .vs-pill.green { color: #059669; }
+    .vs-pill.red { color: #D32F2F; }
+    .vs-pill .vs-label { color: #94A3B8; font-weight: 500; }
+
+    /* Grid tiles (PPT channel/segment/price grid) */
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .tile { border: 1px solid #E2E8F0; border-radius: 6px; padding: 14px; position: relative; }
+    .tile-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #64748B; margin-bottom: 8px; }
+    .tile-value { font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .tile-vs { font-size: 11px; display: flex; gap: 6px; margin-bottom: 2px; }
+    .tile-vs .lbl { color: #94A3B8; min-width: 38px; }
+    .tile-vs .val { font-weight: 600; }
+    .tile-vs .val.g { color: #059669; }
+    .tile-vs .val.r { color: #D32F2F; }
+    .tile-pct { position: absolute; top: 14px; right: 14px; font-size: 11px; color: #94A3B8; font-weight: 600; }
+    .tile-accent { border-left: 3px solid #006AFF; }
+    .tile-accent-teal { border-left: 3px solid #1A7F64; }
+    .tile-accent-amber { border-left: 3px solid #F59E0B; }
+
+    /* Charts grid */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .chart-card { background: #FFF; border-radius: 8px; padding: 16px; border: 1px solid #E2E8F0; }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-title { font-size: 13px; font-weight: 600; color: #0F172A; margin-bottom: 12px; }
+    .chart-subtitle { font-size: 11px; color: #94A3B8; margin-bottom: 12px; }
+    canvas { max-height: 260px; }
+
+    /* Tables */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .data-table thead { background: #0F172A; }
+    .data-table th { color: #FFF; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid #F1F5F9; white-space: nowrap; }
+    .data-table tbody tr:hover { background: #F8FAFC; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .positive { color: #059669; font-weight: 600; }
+    .negative { color: #D32F2F; font-weight: 600; }
+    .muted { color: #94A3B8; }
+
+    /* Summary exec bar (PPT style narrative) */
+    .exec-summary { background: #EFF6FF; border-left: 4px solid #006AFF; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 16px; font-size: 13px; line-height: 1.5; color: #1E293B; }
+
+    /* In-stock badges */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: #DCFCE7; color: #166534; }
+    .badge-amber { background: #FEF3C7; color: #92400E; }
+    .badge-red { background: #FEE2E2; color: #991B1B; }
+
+    /* Tabs for brand drill-down */
+    .tab-bar { display: flex; gap: 0; margin-bottom: 0; }
+    .tab-btn { padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #E2E8F0; border-bottom: none; background: #F8FAFC; color: #64748B; border-radius: 6px 6px 0 0; }
+    .tab-btn.active { background: #FFF; color: #006AFF; border-bottom: 2px solid #006AFF; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Footer */
+    .footer-note { text-align: center; font-size: 11px; color: #94A3B8; margin-top: 32px; padding-top: 16px; border-top: 1px solid #E2E8F0; }
+
+    @media print {
+      .topbar { display: none; }
+      body { background: #FFF; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+    <div class="topbar-title">Falcon Food & Snacks / 12. Weekly Business Review (WBR)</div>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html" class="back-link">Back to Portal</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- WEEK SELECTOR BAR -->
+  <div class="week-bar">
+    <div class="week-bar-left">
+      <h2>Weekly Business Review</h2>
+      <span class="week-badge" id="weekBadge">W52</span>
+      <select id="weekFilter" onchange="applyWeekFilter()">
+        <option value="52" selected>Week 52 (Dec 22–28)</option>
+        <option value="51">Week 51 (Dec 15–21)</option>
+        <option value="50">Week 50 (Dec 8–14)</option>
+        <option value="49">Week 49 (Dec 1–7)</option>
+      </select>
+    </div>
+    <div class="week-bar-right">2025 vs. 2024 &nbsp;|&nbsp; Data through Dec 28, 2025</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1: OVERALL BUSINESS PERFORMANCE                      -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-blue"></span> Overall Business Performance &nbsp;&bull;&nbsp; <span id="weekLabel">Week 52</span> &nbsp;&bull;&nbsp; 2025</div>
+  <div class="section-body" id="overallSection">
+    <div class="exec-summary" id="execSummary"></div>
+    <div class="headline-kpi" id="headlineKpi"></div>
+
+    <!-- Channel tiles row -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#64748B;margin-bottom:8px;">By Channel</div>
+    <div class="tile-grid" id="channelTiles"></div>
+
+    <!-- Brand tiles row -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#64748B;margin-bottom:8px;">By Brand</div>
+    <div class="tile-grid" id="brandTiles"></div>
+
+    <!-- Price / Promo tiles -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#64748B;margin-bottom:8px;">Price Type</div>
+    <div class="tile-grid" id="priceTiles"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 2: BRAND PERFORMANCE DETAIL                          -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-teal"></span> Brand Performance &nbsp;&bull;&nbsp; Category vs. Last Year</div>
+  <div class="section-body">
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Category — TY vs LY</div>
+        <canvas id="catChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Channel — TY vs LY</div>
+        <canvas id="chanChart"></canvas>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Weekly Revenue Trend — Last 4 Weeks</div>
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Brand Revenue Mix (W52 2025)</div>
+        <canvas id="brandMixChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 3: TOP PRODUCTS (BEATS & MISSES)                     -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-blue"></span> Top Products — W52 2025</div>
+  <div class="section-body">
+    <div class="chart-title" style="margin-bottom:12px;">Top 10 Products by Net Revenue</div>
+    <table class="data-table" id="topProductsTable">
+      <thead>
+        <tr><th>#</th><th>Product</th><th>Brand</th><th>Category</th><th class="text-right">Net Revenue</th><th class="text-right">Units</th><th class="text-right">Gross Profit</th><th class="text-right">GM%</th></tr>
+      </thead>
+      <tbody id="topProductsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 4: BRAND FRANCHISE TABLE (LW / MTD / YTD equiv)      -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-teal"></span> Brand Scorecard — Last Week vs. Prior Week vs. Last Year</div>
+  <div class="section-body">
+    <table class="data-table" id="brandTable">
+      <thead>
+        <tr>
+          <th rowspan="2">#</th><th rowspan="2">Brand</th>
+          <th colspan="3" class="text-center" style="border-bottom:1px solid #334155;">This Week (W52 2025)</th>
+          <th colspan="2" class="text-center" style="border-bottom:1px solid #334155;">vs. Prior Week</th>
+          <th colspan="2" class="text-center" style="border-bottom:1px solid #334155;">vs. Last Year</th>
+          <th class="text-center">In-Stock</th>
+        </tr>
+        <tr>
+          <th class="text-right">Revenue</th><th class="text-right">Units</th><th class="text-right">GP</th>
+          <th class="text-right">Rev %</th><th class="text-right">Rev $</th>
+          <th class="text-right">YoY %</th><th class="text-right">YoY $</th>
+          <th class="text-center">Rate</th>
+        </tr>
+      </thead>
+      <tbody id="brandScoreBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 5: CHANNEL SNAPSHOT                                   -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-amber"></span> Channel Snapshot — Retail &bull; eCommerce &bull; Foodservice</div>
+  <div class="section-body">
+    <table class="data-table">
+      <thead>
+        <tr><th>Channel</th><th class="text-right">W52 Revenue</th><th class="text-right">W52 Units</th><th class="text-right">W52 GP</th><th class="text-right">GM%</th><th class="text-right">vs LY Rev</th><th class="text-right">vs LY %</th><th class="text-right">Share</th></tr>
+      </thead>
+      <tbody id="channelTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 6: GEOGRAPHIC PERFORMANCE                             -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-blue"></span> Geographic Performance — US &amp; Canada</div>
+  <div class="section-body">
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Country — TY vs LY</div>
+        <canvas id="geoCountryChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">US Regional Revenue — W52 2025 vs 2024</div>
+        <canvas id="geoRegionChart"></canvas>
+      </div>
+    </div>
+    <table class="data-table" style="margin-top:12px;">
+      <thead>
+        <tr><th>Region / Country</th><th class="text-right">W52 2025</th><th class="text-right">W52 2024</th><th class="text-right">YoY %</th><th class="text-right">YoY $</th></tr>
+      </thead>
+      <tbody id="geoTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 7: SUPPLY CHAIN SNAPSHOT                              -->
+  <!-- ============================================================ -->
+  <div class="section-header"><span class="dot dot-red"></span> Supply Chain &amp; Inventory — Shipments, Fill Rate, In-Stock</div>
+  <div class="section-body">
+    <div class="tile-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom:16px;" id="scTiles"></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Shipment Volume &amp; Fill Rate — Last 4 Weeks</div>
+        <canvas id="shipChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">In-Stock Rate — Last 4 Weeks</div>
+        <canvas id="instockChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-title" style="margin-top:16px;margin-bottom:8px;">Inventory Health by Brand — W52 2025</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Brand</th><th class="text-center">OOS %</th><th class="text-center">In-Stock %</th><th class="text-center">Avg WOS</th><th class="text-center">Status</th></tr>
+      </thead>
+      <tbody id="invBrandBody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer-note">
+    Generated by xFalcon AnalyticsPro &nbsp;|&nbsp; Modeled after WBR_Week13_2026_v5.7 &nbsp;|&nbsp; Data as of Dec 28, 2025
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   DATA — All values from IDA queries, embedded as JS objects
+   Build rules: var only, function(){} only, string concat with +
+   ================================================================ */
+
+// Overall weekly totals: {year, week, rev, gp, units, gm, promoRev, regRev, promoMix}
+var weeklyTotals = [
+  {y:2024,w:49,rev:464794.69,gp:260242.08,u:98513,gm:56.0,pr:75137.54,rr:389657.15,pm:16.2},
+  {y:2024,w:50,rev:462908.33,gp:259118.53,u:98470,gm:56.0,pr:66823.76,rr:396084.57,pm:14.4},
+  {y:2024,w:51,rev:465295.08,gp:260532.77,u:98663,gm:56.0,pr:109755.60,rr:355539.48,pm:23.6},
+  {y:2024,w:52,rev:463039.78,gp:259200.39,u:98460,gm:56.0,pr:75403.72,rr:387636.06,pm:16.3},
+  {y:2025,w:49,rev:871600.05,gp:489693.56,u:131224,gm:56.2,pr:110180.62,rr:761419.43,pm:12.6},
+  {y:2025,w:50,rev:869919.38,gp:488562.07,u:131092,gm:56.2,pr:99762.15,rr:770157.23,pm:11.5},
+  {y:2025,w:51,rev:876123.91,gp:492350.72,u:131401,gm:56.2,pr:160091.22,rr:716032.69,pm:18.3},
+  {y:2025,w:52,rev:869350.76,gp:488237.71,u:131007,gm:56.2,pr:108007.55,rr:761343.21,pm:12.4}
+];
+
+// Channel breakdown by week: {y, w, cg (group), cn (name), rev, gp, u}
+var channelWeekly = [
+  {y:2024,w:52,cg:'Digital',cn:'eCommerce',rev:34571.52,gp:19631.97,u:10188},
+  {y:2024,w:52,cg:'Foodservice',cn:'Foodservice',rev:38644.81,gp:21752.63,u:2929},
+  {y:2024,w:52,cg:'Retail',cn:'Club',rev:33322.33,gp:18557.98,u:11393},
+  {y:2024,w:52,cg:'Retail',cn:'Convenience',rev:47438.41,gp:26882.42,u:7332},
+  {y:2024,w:52,cg:'Retail',cn:'Dollar',rev:19400.25,gp:10269.52,u:4323},
+  {y:2024,w:52,cg:'Retail',cn:'Drug',rev:35768.30,gp:20339.49,u:3849},
+  {y:2024,w:52,cg:'Retail',cn:'Grocery',rev:208159.23,gp:116986.88,u:48431},
+  {y:2024,w:52,cg:'Retail',cn:'Mass',rev:45734.93,gp:24779.50,u:10015},
+  {y:2025,w:52,cg:'Digital',cn:'eCommerce',rev:89049.18,gp:50633.39,u:13245},
+  {y:2025,w:52,cg:'Foodservice',cn:'Foodservice',rev:20970.61,gp:11802.87,u:3461},
+  {y:2025,w:52,cg:'Retail',cn:'Club',rev:90330.42,gp:50546.87,u:13425},
+  {y:2025,w:52,cg:'Retail',cn:'Convenience',rev:68649.92,gp:39076.72,u:9850},
+  {y:2025,w:52,cg:'Retail',cn:'Dollar',rev:31392.95,gp:16762.90,u:5160},
+  {y:2025,w:52,cg:'Retail',cn:'Drug',rev:29317.05,gp:16650.34,u:4438},
+  {y:2025,w:52,cg:'Retail',cn:'Grocery',rev:462485.57,gp:260886.20,u:69651},
+  {y:2025,w:52,cg:'Retail',cn:'Mass',rev:77155.06,gp:41878.42,u:11777},
+  // W51 2025
+  {y:2025,w:51,cg:'Digital',cn:'eCommerce',rev:93350.92,gp:53179.37,u:13549},
+  {y:2025,w:51,cg:'Foodservice',cn:'Foodservice',rev:20603.28,gp:11583.25,u:3438},
+  {y:2025,w:51,cg:'Retail',cn:'Club',rev:88444.74,gp:49411.71,u:13416},
+  {y:2025,w:51,cg:'Retail',cn:'Convenience',rev:67870.69,gp:38608.31,u:9834},
+  {y:2025,w:51,cg:'Retail',cn:'Dollar',rev:28776.10,gp:15288.63,u:5049},
+  {y:2025,w:51,cg:'Retail',cn:'Drug',rev:31579.89,gp:18008.96,u:4509},
+  {y:2025,w:51,cg:'Retail',cn:'Grocery',rev:469289.14,gp:264908.30,u:69997},
+  {y:2025,w:51,cg:'Retail',cn:'Mass',rev:76209.15,gp:41362.19,u:11609},
+  // W50 2025
+  {y:2025,w:50,cg:'Digital',cn:'eCommerce',rev:89414.39,gp:50850.08,u:13224},
+  {y:2025,w:50,cg:'Foodservice',cn:'Foodservice',rev:20819.86,gp:11713.45,u:3470},
+  {y:2025,w:50,cg:'Retail',cn:'Club',rev:90667.73,gp:50740.56,u:13479},
+  {y:2025,w:50,cg:'Retail',cn:'Convenience',rev:68663.57,gp:39080.51,u:9872},
+  {y:2025,w:50,cg:'Retail',cn:'Dollar',rev:31144.85,gp:16623.74,u:5184},
+  {y:2025,w:50,cg:'Retail',cn:'Drug',rev:29489.20,gp:16751.44,u:4433},
+  {y:2025,w:50,cg:'Retail',cn:'Grocery',rev:462919.96,gp:261133.39,u:69636},
+  {y:2025,w:50,cg:'Retail',cn:'Mass',rev:76799.82,gp:41668.90,u:11794},
+  // W49 2025
+  {y:2025,w:49,cg:'Digital',cn:'eCommerce',rev:91932.47,gp:52353.55,u:13480},
+  {y:2025,w:49,cg:'Foodservice',cn:'Foodservice',rev:20509.86,gp:11529.90,u:3428},
+  {y:2025,w:49,cg:'Retail',cn:'Club',rev:87755.98,gp:49023.15,u:13352},
+  {y:2025,w:49,cg:'Retail',cn:'Convenience',rev:67979.99,gp:38671.50,u:9847},
+  {y:2025,w:49,cg:'Retail',cn:'Dollar',rev:28993.03,gp:15408.38,u:5049},
+  {y:2025,w:49,cg:'Retail',cn:'Drug',rev:31262.01,gp:17819.32,u:4502},
+  {y:2025,w:49,cg:'Retail',cn:'Grocery',rev:466206.04,gp:263114.19,u:69862},
+  {y:2025,w:49,cg:'Retail',cn:'Mass',rev:76960.67,gp:41773.57,u:11704},
+  // LY weeks
+  {y:2024,w:51,cg:'Digital',cn:'eCommerce',rev:34952.68,gp:19835.95,u:10156},
+  {y:2024,w:51,cg:'Retail',cn:'Grocery',rev:209849.38,gp:117975.30,u:48455},
+  {y:2024,w:50,cg:'Digital',cn:'eCommerce',rev:34731.76,gp:19722.67,u:10176},
+  {y:2024,w:50,cg:'Retail',cn:'Grocery',rev:208314.09,gp:117073.67,u:48427},
+  {y:2024,w:49,cg:'Digital',cn:'eCommerce',rev:34653.12,gp:19665.67,u:10097},
+  {y:2024,w:49,cg:'Retail',cn:'Grocery',rev:209342.91,gp:117692.57,u:48347}
+];
+
+// Brand weekly: {y, w, brand, rev, gp, u}
+var brandWeekly = [
+  {y:2024,w:52,b:'Crestfield Confections',rev:90608.44,gp:52259.19,u:22076},
+  {y:2024,w:52,b:'Crestview Biscuits',rev:160052.33,gp:89075.84,u:46718},
+  {y:2024,w:52,b:'Morning Ridge Cereals',rev:79567.69,gp:43425.16,u:13127},
+  {y:2024,w:52,b:'Prairie Pantry Meals',rev:32086.85,gp:17521.11,u:7289},
+  {y:2024,w:52,b:'Sunrise Bars',rev:100724.47,gp:56919.09,u:9250},
+  {y:2025,w:52,b:'Crestfield Confections',rev:228042.81,gp:131432.02,u:28560},
+  {y:2025,w:52,b:'Crestview Biscuits',rev:365740.66,gp:203855.88,u:61730},
+  {y:2025,w:52,b:'Morning Ridge Cereals',rev:104112.14,gp:56824.54,u:18142},
+  {y:2025,w:52,b:'Prairie Pantry Meals',rev:39124.82,gp:21395.80,u:9323},
+  {y:2025,w:52,b:'Sunrise Bars',rev:132330.33,gp:74729.47,u:13252},
+  {y:2025,w:51,b:'Crestfield Confections',rev:233863.45,gp:135003.22,u:28839},
+  {y:2025,w:51,b:'Crestview Biscuits',rev:368157.75,gp:205278.89,u:61858},
+  {y:2025,w:51,b:'Morning Ridge Cereals',rev:104066.15,gp:56787.99,u:18142},
+  {y:2025,w:51,b:'Prairie Pantry Meals',rev:39513.51,gp:21610.09,u:9397},
+  {y:2025,w:51,b:'Sunrise Bars',rev:130523.05,gp:73670.53,u:13165},
+  {y:2025,w:50,b:'Crestfield Confections',rev:226417.50,gp:130514.39,u:28486},
+  {y:2025,w:50,b:'Crestview Biscuits',rev:368253.92,gp:205306.61,u:61834},
+  {y:2025,w:50,b:'Morning Ridge Cereals',rev:104454.24,gp:56999.75,u:18229},
+  {y:2025,w:50,b:'Prairie Pantry Meals',rev:39135.08,gp:21397.05,u:9328},
+  {y:2025,w:50,b:'Sunrise Bars',rev:131658.64,gp:74344.27,u:13215},
+  {y:2025,w:49,b:'Crestfield Confections',rev:227249.84,gp:131103.81,u:28579},
+  {y:2025,w:49,b:'Crestview Biscuits',rev:369435.89,gp:206075.66,u:61809},
+  {y:2025,w:49,b:'Morning Ridge Cereals',rev:104741.23,gp:57159.03,u:18281},
+  {y:2025,w:49,b:'Prairie Pantry Meals',rev:39232.34,gp:21449.26,u:9344},
+  {y:2025,w:49,b:'Sunrise Bars',rev:130940.75,gp:73905.80,u:13211},
+  {y:2024,w:51,b:'Crestfield Confections',rev:91239.51,gp:52585.76,u:22140},
+  {y:2024,w:51,b:'Crestview Biscuits',rev:161536.99,gp:89957.27,u:46873},
+  {y:2024,w:51,b:'Morning Ridge Cereals',rev:79764.29,gp:43541.06,u:13124},
+  {y:2024,w:51,b:'Prairie Pantry Meals',rev:32156.41,gp:17562.56,u:7271},
+  {y:2024,w:51,b:'Sunrise Bars',rev:100597.88,gp:56886.12,u:9255},
+  {y:2024,w:50,b:'Crestfield Confections',rev:89478.49,gp:51615.33,u:21971},
+  {y:2024,w:50,b:'Crestview Biscuits',rev:161188.33,gp:89731.87,u:46845},
+  {y:2024,w:50,b:'Morning Ridge Cereals',rev:79934.07,gp:43622.05,u:13182},
+  {y:2024,w:50,b:'Prairie Pantry Meals',rev:32046.02,gp:17496.09,u:7270},
+  {y:2024,w:50,b:'Sunrise Bars',rev:100261.42,gp:56653.19,u:9202},
+  {y:2024,w:49,b:'Crestfield Confections',rev:90159.51,gp:51959.33,u:22012},
+  {y:2024,w:49,b:'Crestview Biscuits',rev:162110.63,gp:90305.69,u:46821},
+  {y:2024,w:49,b:'Morning Ridge Cereals',rev:79808.87,gp:43558.76,u:13166},
+  {y:2024,w:49,b:'Prairie Pantry Meals',rev:32057.18,gp:17500.11,u:7243},
+  {y:2024,w:49,b:'Sunrise Bars',rev:100658.50,gp:56918.19,u:9271}
+];
+
+// Category weekly for W52
+var catWeekly = [
+  {y:2024,w:52,cat:'Biscuits & Cookies',rev:160052.33,gp:89075.84,u:46718},
+  {y:2024,w:52,cat:'Cereal',rev:79567.69,gp:43425.16,u:13127},
+  {y:2024,w:52,cat:'Condiments & Sauces',rev:12972.54,gp:6969.79,u:3143},
+  {y:2024,w:52,cat:'Confectionery',rev:90608.44,gp:52259.19,u:22076},
+  {y:2024,w:52,cat:'Frozen Meals',rev:19114.31,gp:10551.32,u:4146},
+  {y:2024,w:52,cat:'Snack Bars',rev:100724.47,gp:56919.09,u:9250},
+  {y:2025,w:52,cat:'Biscuits & Cookies',rev:365740.66,gp:203855.88,u:61730},
+  {y:2025,w:52,cat:'Cereal',rev:104112.14,gp:56824.54,u:18142},
+  {y:2025,w:52,cat:'Condiments & Sauces',rev:14957.60,gp:8024.48,u:3856},
+  {y:2025,w:52,cat:'Confectionery',rev:228042.81,gp:131432.02,u:28560},
+  {y:2025,w:52,cat:'Frozen Meals',rev:24167.22,gp:13371.32,u:5467},
+  {y:2025,w:52,cat:'Snack Bars',rev:132330.33,gp:74729.47,u:13252}
+];
+
+// Top products W52 2025
+var topProducts = [
+  {name:'Crestfield Holiday Chocolate Gift Box 12oz',brand:'Crestfield Confections',cat:'Confectionery',rev:50559.03,u:1797,gp:29934.14},
+  {name:'Crestview Holiday Assortment Box 16oz',brand:'Crestview Biscuits',cat:'Biscuits & Cookies',rev:45277.62,u:2373,gp:26259.93},
+  {name:'Crestfield Assorted Miniatures 10oz',brand:'Crestfield Confections',cat:'Confectionery',rev:41417.09,u:2073,gp:23883.21},
+  {name:'Crestview Holiday Tin Premium 24oz',brand:'Crestview Biscuits',cat:'Biscuits & Cookies',rev:31819.57,u:2435,gp:18683.70},
+  {name:'Crestfield Holiday Chocolate Gift Box (2nd)',brand:'Crestfield Confections',cat:'Confectionery',rev:29500.88,u:1971,gp:17227.23},
+  {name:'Crestview Golden Cream Club Pack 36ct',brand:'Crestview Biscuits',cat:'Biscuits & Cookies',rev:27012.12,u:2706,gp:15868.52},
+  {name:'Sunrise Protein Bar Club Pack 24ct',brand:'Sunrise Bars',cat:'Snack Bars',rev:22784.40,u:687,gp:13092.13},
+  {name:'Sunrise Plant Protein Variety 12ct',brand:'Sunrise Bars',cat:'Snack Bars',rev:21269.59,u:705,gp:12145.08},
+  {name:'Crestfield Advent Calendar 7oz',brand:'Crestfield Confections',cat:'Confectionery',rev:20858.18,u:1732,gp:12283.75},
+  {name:'Sunrise Protein Bar Variety 12ct',brand:'Sunrise Bars',cat:'Snack Bars',rev:18781.47,u:746,gp:10732.78}
+];
+
+// Geography W52
+var geoData = [
+  {y:2024,r:'Southeast',c:'United States',rev:142406.76,u:32218},
+  {y:2024,r:'Midwest',c:'United States',rev:100883.38,u:18827},
+  {y:2024,r:'Northeast',c:'United States',rev:83503.95,u:27597},
+  {y:2024,r:'Southwest',c:'United States',rev:74246.70,u:8659},
+  {y:2024,r:'West',c:'United States',rev:40302.27,u:4611},
+  {y:2024,r:'Canada',c:'Canada',rev:21696.72,u:6548},
+  {y:2025,r:'Southeast',c:'United States',rev:259805.21,u:36402},
+  {y:2025,r:'Northeast',c:'United States',rev:184155.70,u:33995},
+  {y:2025,r:'Midwest',c:'United States',rev:158479.94,u:20273},
+  {y:2025,r:'Southwest',c:'United States',rev:87632.43,u:10053},
+  {y:2025,r:'West',c:'United States',rev:35957.29,u:8454},
+  {y:2025,r:'Canada',c:'Canada',rev:143320.19,u:21830}
+];
+
+// Country weekly
+var countryWeekly = [
+  {y:2024,w:49,c:'Canada',rev:21415.69},{y:2024,w:49,c:'United States',rev:443379.00},
+  {y:2024,w:50,c:'Canada',rev:21421.25},{y:2024,w:50,c:'United States',rev:441487.08},
+  {y:2024,w:51,c:'Canada',rev:21363.95},{y:2024,w:51,c:'United States',rev:443931.13},
+  {y:2024,w:52,c:'Canada',rev:21696.72},{y:2024,w:52,c:'United States',rev:441343.06},
+  {y:2025,w:49,c:'Canada',rev:148262.38},{y:2025,w:49,c:'United States',rev:723337.67},
+  {y:2025,w:50,c:'Canada',rev:143348.47},{y:2025,w:50,c:'United States',rev:726570.91},
+  {y:2025,w:51,c:'Canada',rev:148981.76},{y:2025,w:51,c:'United States',rev:727142.15},
+  {y:2025,w:52,c:'Canada',rev:143320.19},{y:2025,w:52,c:'United States',rev:726030.57}
+];
+
+// Shipments weekly
+var shipData = [
+  {y:2024,w:49,cases:60869.8,units:689063,inv:4010315.74,fr:95.2,ot:97.2},
+  {y:2024,w:50,cases:63218.9,units:712586,inv:4232828.69,fr:94.9,ot:100.0},
+  {y:2024,w:51,cases:60813.0,units:688567,inv:3989648.33,fr:95.2,ot:97.2},
+  {y:2024,w:52,cases:63643.5,units:716062,inv:4207451.06,fr:94.9,ot:100.0},
+  {y:2025,w:49,cases:65253.9,units:737924,inv:4447560.85,fr:95.6,ot:91.8},
+  {y:2025,w:50,cases:62922.7,units:711015,inv:4201007.08,fr:95.8,ot:97.2},
+  {y:2025,w:51,cases:65757.8,units:739842,inv:4417524.91,fr:96.5,ot:97.4},
+  {y:2025,w:52,cases:62477.5,units:708683,inv:4224221.25,fr:95.8,ot:100.0}
+];
+
+// Inventory weekly
+var invData = [
+  {w:49,oos:0,tot:312,is:100.0,wos:1.4,oh:98989},
+  {w:50,oos:32,tot:314,is:89.8,wos:1.5,oh:101772},
+  {w:51,oos:44,tot:312,is:85.9,wos:1.5,oh:100112},
+  {w:52,oos:12,tot:304,is:96.1,wos:1.5,oh:97796}
+];
+
+// Inventory by brand W52
+var invBrand = [
+  {b:'Crestfield Confections',oos:17.6,wos:1.5},
+  {b:'Crestview Biscuits',oos:0.0,wos:1.5},
+  {b:'Morning Ridge Cereals',oos:0.0,wos:1.3},
+  {b:'Prairie Pantry Meals',oos:0.0,wos:1.3},
+  {b:'Sunrise Bars',oos:0.0,wos:1.7}
+];
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function fmt(v) {
+  if (Math.abs(v) >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
+  if (Math.abs(v) >= 1000) return '$' + (v/1000).toFixed(1) + 'K';
+  return '$' + v.toFixed(0);
+}
+function fmtN(v) {
+  if (Math.abs(v) >= 1000000) return (v/1000000).toFixed(1) + 'M';
+  if (Math.abs(v) >= 1000) return (v/1000).toFixed(1) + 'K';
+  return v.toFixed(0);
+}
+function pct(a, b) { return b === 0 ? 0 : ((a - b) / Math.abs(b) * 100); }
+function pctStr(a, b) {
+  var v = pct(a, b);
+  var s = (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  return s;
+}
+function cls(a, b) { return a >= b ? 'g' : 'r'; }
+function clsFull(a, b) { return a >= b ? 'positive' : 'negative'; }
+function getW(arr, y, w) {
+  for (var i = 0; i < arr.length; i++) { if (arr[i].y === y && arr[i].w === w) return arr[i]; }
+  return null;
+}
+
+// Chart.js instances for destroy/rebuild
+var charts = {};
+function mk(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), cfg);
+}
+
+/* ================================================================
+   RENDER FUNCTIONS
+   ================================================================ */
+var currentWeek = 52;
+
+function applyWeekFilter() {
+  currentWeek = parseInt(document.getElementById('weekFilter').value);
+  document.getElementById('weekBadge').textContent = 'W' + currentWeek;
+  document.getElementById('weekLabel').textContent = 'Week ' + currentWeek;
+  renderAll();
+}
+
+function renderAll() {
+  renderOverall();
+  renderCharts();
+  renderTopProducts();
+  renderBrandScorecard();
+  renderChannelTable();
+  renderGeo();
+  renderSupplyChain();
+}
+
+function renderOverall() {
+  var w = currentWeek;
+  var ty = getW(weeklyTotals, 2025, w);
+  var ly = getW(weeklyTotals, 2024, w);
+  var pw = getW(weeklyTotals, 2025, w > 49 ? w - 1 : w);
+
+  // Exec summary
+  var yoyPct = pct(ty.rev, ly.rev);
+  var wowPct = pct(ty.rev, pw.rev);
+  var summ = 'Total net revenue of <strong>' + fmt(ty.rev) + '</strong> came in <strong style="color:#059669">' + pctStr(ty.rev, ly.rev) + ' vs LY</strong>';
+  if (w > 49) summ += ' and <strong style="color:' + (wowPct >= 0 ? '#059669' : '#D32F2F') + '">' + pctStr(ty.rev, pw.rev) + ' WoW</strong>';
+  summ += ', driven by Grocery (+' + fmt(getChanRev(2025, w, 'Grocery') - getChanRev(2024, w, 'Grocery')) + ') and Club (+' + fmt(getChanRev(2025, w, 'Club') - getChanRev(2024, w, 'Club')) + ') channel strength. Gross margin steady at ' + ty.gm.toFixed(1) + '%.';
+  document.getElementById('execSummary').innerHTML = summ;
+
+  // Headline KPI
+  var html = '<div><div class="big-label">Total Business</div><div class="big-number">' + fmt(ty.rev) + '</div></div>';
+  html += '<div class="vs-row">';
+  html += '<div class="vs-pill ' + (yoyPct >= 0 ? 'green' : 'red') + '"><span class="vs-label">vs. LY</span> ' + pctStr(ty.rev, ly.rev) + ' (' + fmt(ty.rev - ly.rev) + ')</div>';
+  if (w > 49) html += '<div class="vs-pill ' + (wowPct >= 0 ? 'green' : 'red') + '"><span class="vs-label">vs. PW</span> ' + pctStr(ty.rev, pw.rev) + '</div>';
+  html += '<div class="vs-pill"><span class="vs-label">GM%</span> ' + ty.gm.toFixed(1) + '%</div>';
+  html += '<div class="vs-pill"><span class="vs-label">Units</span> ' + fmtN(ty.u) + ' (' + pctStr(ty.u, ly.u) + ' YoY)</div>';
+  html += '</div>';
+  document.getElementById('headlineKpi').innerHTML = html;
+
+  // Channel tiles
+  var channels = ['Grocery','eCommerce','Club','Mass','Convenience','Dollar','Drug','Foodservice'];
+  var chtml = '';
+  for (var i = 0; i < channels.length; i++) {
+    var cn = channels[i];
+    var tyR = getChanRev(2025, w, cn);
+    var lyR = getChanRev(2024, w, cn);
+    var share = (tyR / ty.rev * 100).toFixed(0);
+    chtml += '<div class="tile tile-accent">';
+    chtml += '<div class="tile-header">' + cn + '</div>';
+    chtml += '<div class="tile-value">' + fmt(tyR) + '</div>';
+    chtml += '<div class="tile-pct">' + share + '%</div>';
+    chtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val ' + cls(tyR, lyR) + '">' + pctStr(tyR, lyR) + '</span><span class="val ' + cls(tyR, lyR) + '">' + fmt(tyR - lyR) + '</span></div>';
+    chtml += '</div>';
+  }
+  document.getElementById('channelTiles').innerHTML = chtml;
+
+  // Brand tiles
+  var brands = ['Crestview Biscuits','Crestfield Confections','Sunrise Bars','Morning Ridge Cereals','Prairie Pantry Meals'];
+  var bhtml = '';
+  for (var i = 0; i < brands.length; i++) {
+    var bn = brands[i];
+    var tyB = getBrandRev(2025, w, bn);
+    var lyB = getBrandRev(2024, w, bn);
+    var pwB = w > 49 ? getBrandRev(2025, w - 1, bn) : tyB;
+    var share = (tyB / ty.rev * 100).toFixed(0);
+    bhtml += '<div class="tile tile-accent-teal">';
+    bhtml += '<div class="tile-header">' + bn + '</div>';
+    bhtml += '<div class="tile-value">' + fmt(tyB) + '</div>';
+    bhtml += '<div class="tile-pct">' + share + '%</div>';
+    bhtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val ' + cls(tyB, lyB) + '">' + pctStr(tyB, lyB) + '</span><span class="val ' + cls(tyB, lyB) + '">' + fmt(tyB - lyB) + '</span></div>';
+    if (w > 49) bhtml += '<div class="tile-vs"><span class="lbl">vs. PW</span><span class="val ' + cls(tyB, pwB) + '">' + pctStr(tyB, pwB) + '</span></div>';
+    bhtml += '</div>';
+  }
+  document.getElementById('brandTiles').innerHTML = bhtml;
+
+  // Price tiles
+  var phtml = '';
+  phtml += '<div class="tile tile-accent-amber"><div class="tile-header">Regular Price</div><div class="tile-value">' + fmt(ty.rr) + '</div><div class="tile-pct">' + (ty.rr / ty.rev * 100).toFixed(0) + '%</div>';
+  phtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val g">' + pctStr(ty.rr, ly.rr) + '</span></div></div>';
+  phtml += '<div class="tile tile-accent-amber"><div class="tile-header">Promotional</div><div class="tile-value">' + fmt(ty.pr) + '</div><div class="tile-pct">' + ty.pm.toFixed(1) + '%</div>';
+  phtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val ' + cls(ty.pr, ly.pr) + '">' + pctStr(ty.pr, ly.pr) + '</span></div>';
+  phtml += '<div class="tile-vs"><span class="lbl">Mix</span><span class="val">' + ty.pm.toFixed(1) + '% (LY: ' + ly.pm.toFixed(1) + '%)</span></div></div>';
+  document.getElementById('priceTiles').innerHTML = phtml;
+}
+
+function getChanRev(y, w, cn) {
+  for (var i = 0; i < channelWeekly.length; i++) {
+    if (channelWeekly[i].y === y && channelWeekly[i].w === w && channelWeekly[i].cn === cn) return channelWeekly[i].rev;
+  }
+  return 0;
+}
+function getChanObj(y, w, cn) {
+  for (var i = 0; i < channelWeekly.length; i++) {
+    if (channelWeekly[i].y === y && channelWeekly[i].w === w && channelWeekly[i].cn === cn) return channelWeekly[i];
+  }
+  return {rev:0,gp:0,u:0};
+}
+function getBrandRev(y, w, bn) {
+  for (var i = 0; i < brandWeekly.length; i++) {
+    if (brandWeekly[i].y === y && brandWeekly[i].w === w && brandWeekly[i].b === bn) return brandWeekly[i].rev;
+  }
+  return 0;
+}
+function getBrandObj(y, w, bn) {
+  for (var i = 0; i < brandWeekly.length; i++) {
+    if (brandWeekly[i].y === y && brandWeekly[i].w === w && brandWeekly[i].b === bn) return brandWeekly[i];
+  }
+  return {rev:0,gp:0,u:0};
+}
+
+function renderCharts() {
+  var w = currentWeek;
+  // Category chart - grouped bar TY vs LY
+  var cats = ['Biscuits & Cookies','Confectionery','Snack Bars','Cereal','Frozen Meals','Condiments & Sauces'];
+  var tyVals = []; var lyVals = [];
+  for (var i = 0; i < cats.length; i++) {
+    var tyC = 0; var lyC = 0;
+    for (var j = 0; j < catWeekly.length; j++) {
+      if (catWeekly[j].cat === cats[i] && catWeekly[j].y === 2025 && catWeekly[j].w === w) tyC = catWeekly[j].rev;
+      if (catWeekly[j].cat === cats[i] && catWeekly[j].y === 2024 && catWeekly[j].w === w) lyC = catWeekly[j].rev;
+    }
+    tyVals.push(tyC); lyVals.push(lyC);
+  }
+  mk('catChart', {
+    type: 'bar',
+    data: { labels: cats, datasets: [
+      { label: '2025', data: tyVals, backgroundColor: '#006AFF' },
+      { label: '2024', data: lyVals, backgroundColor: '#94A3B8' }
+    ]},
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { x: { ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } } } } }
+  });
+
+  // Channel chart
+  var chans = ['Grocery','eCommerce','Club','Mass','Convenience','Drug','Dollar','Foodservice'];
+  var tyC2 = []; var lyC2 = [];
+  for (var i = 0; i < chans.length; i++) {
+    tyC2.push(getChanRev(2025, w, chans[i]));
+    lyC2.push(getChanRev(2024, w, chans[i]));
+  }
+  mk('chanChart', {
+    type: 'bar',
+    data: { labels: chans, datasets: [
+      { label: '2025', data: tyC2, backgroundColor: '#006AFF' },
+      { label: '2024', data: lyC2, backgroundColor: '#94A3B8' }
+    ]},
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { x: { ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } } } } }
+  });
+
+  // Trend chart - 4 weeks
+  var weeks = [49, 50, 51, 52];
+  var tyTrend = []; var lyTrend = [];
+  for (var i = 0; i < weeks.length; i++) {
+    var t = getW(weeklyTotals, 2025, weeks[i]);
+    var l = getW(weeklyTotals, 2024, weeks[i]);
+    tyTrend.push(t ? t.rev : 0);
+    lyTrend.push(l ? l.rev : 0);
+  }
+  mk('trendChart', {
+    type: 'line',
+    data: { labels: ['W49','W50','W51','W52'], datasets: [
+      { label: '2025', data: tyTrend, borderColor: '#006AFF', backgroundColor: 'rgba(0,106,255,0.08)', fill: true, tension: 0.3, pointRadius: 4 },
+      { label: '2024', data: lyTrend, borderColor: '#94A3B8', backgroundColor: 'rgba(148,163,184,0.08)', fill: true, tension: 0.3, borderDash: [5,3], pointRadius: 4 }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { y: { ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } } } } }
+  });
+
+  // Brand mix bar
+  var brands = ['Crestview Biscuits','Crestfield Confections','Sunrise Bars','Morning Ridge Cereals','Prairie Pantry Meals'];
+  var bVals = [];
+  for (var i = 0; i < brands.length; i++) { bVals.push(getBrandRev(2025, w, brands[i])); }
+  mk('brandMixChart', {
+    type: 'bar',
+    data: { labels: brands.map(function(b) { return b.replace(' Confections','').replace(' Biscuits','').replace(' Cereals','').replace(' Meals','').replace(' Bars',''); }), datasets: [
+      { data: bVals, backgroundColor: ['#006AFF','#1A7F64','#F59E0B','#6366F1','#94A3B8'] }
+    ]},
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } } } } }
+  });
+}
+
+function renderTopProducts() {
+  var html = '';
+  for (var i = 0; i < topProducts.length; i++) {
+    var p = topProducts[i];
+    var gmPct = (p.gp / p.rev * 100).toFixed(1);
+    html += '<tr>';
+    html += '<td>' + (i + 1) + '</td>';
+    html += '<td>' + p.name + '</td>';
+    html += '<td>' + p.brand + '</td>';
+    html += '<td>' + p.cat + '</td>';
+    html += '<td class="text-right">' + fmt(p.rev) + '</td>';
+    html += '<td class="text-right">' + fmtN(p.u) + '</td>';
+    html += '<td class="text-right">' + fmt(p.gp) + '</td>';
+    html += '<td class="text-right">' + gmPct + '%</td>';
+    html += '</tr>';
+  }
+  document.getElementById('topProductsBody').innerHTML = html;
+}
+
+function renderBrandScorecard() {
+  var w = currentWeek;
+  var brands = ['Crestview Biscuits','Crestfield Confections','Sunrise Bars','Morning Ridge Cereals','Prairie Pantry Meals'];
+  var html = '';
+  for (var i = 0; i < brands.length; i++) {
+    var bn = brands[i];
+    var ty = getBrandObj(2025, w, bn);
+    var ly = getBrandObj(2024, w, bn);
+    var pw = w > 49 ? getBrandObj(2025, w - 1, bn) : ty;
+    var yoyP = pct(ty.rev, ly.rev);
+    var wowP = pct(ty.rev, pw.rev);
+    var ib = null;
+    for (var j = 0; j < invBrand.length; j++) { if (invBrand[j].b === bn) ib = invBrand[j]; }
+    var isRate = ib ? (100 - ib.oos).toFixed(1) + '%' : 'n/a';
+    var isBadge = ib ? (ib.oos > 10 ? 'badge-amber' : 'badge-green') : '';
+    html += '<tr>';
+    html += '<td>' + (i + 1) + '</td>';
+    html += '<td><strong>' + bn + '</strong></td>';
+    html += '<td class="text-right">' + fmt(ty.rev) + '</td>';
+    html += '<td class="text-right">' + fmtN(ty.u) + '</td>';
+    html += '<td class="text-right">' + fmt(ty.gp) + '</td>';
+    html += '<td class="text-right ' + clsFull(ty.rev, pw.rev) + '">' + (w > 49 ? pctStr(ty.rev, pw.rev) : 'n/a') + '</td>';
+    html += '<td class="text-right ' + clsFull(ty.rev, pw.rev) + '">' + (w > 49 ? fmt(ty.rev - pw.rev) : '') + '</td>';
+    html += '<td class="text-right ' + clsFull(ty.rev, ly.rev) + '">' + pctStr(ty.rev, ly.rev) + '</td>';
+    html += '<td class="text-right ' + clsFull(ty.rev, ly.rev) + '">' + fmt(ty.rev - ly.rev) + '</td>';
+    html += '<td class="text-center"><span class="badge ' + isBadge + '">' + isRate + '</span></td>';
+    html += '</tr>';
+  }
+  document.getElementById('brandScoreBody').innerHTML = html;
+}
+
+function renderChannelTable() {
+  var w = currentWeek;
+  var channels = ['Grocery','eCommerce','Club','Mass','Convenience','Drug','Dollar','Foodservice'];
+  var ty = getW(weeklyTotals, 2025, w);
+  var html = '';
+  for (var i = 0; i < channels.length; i++) {
+    var cn = channels[i];
+    var tyC = getChanObj(2025, w, cn);
+    var lyC = getChanObj(2024, w, cn);
+    var gmP = tyC.rev > 0 ? (tyC.gp / tyC.rev * 100).toFixed(1) : '0.0';
+    var share = (tyC.rev / ty.rev * 100).toFixed(1);
+    html += '<tr>';
+    html += '<td><strong>' + cn + '</strong></td>';
+    html += '<td class="text-right">' + fmt(tyC.rev) + '</td>';
+    html += '<td class="text-right">' + fmtN(tyC.u) + '</td>';
+    html += '<td class="text-right">' + fmt(tyC.gp) + '</td>';
+    html += '<td class="text-right">' + gmP + '%</td>';
+    html += '<td class="text-right ' + clsFull(tyC.rev, lyC.rev) + '">' + fmt(tyC.rev - lyC.rev) + '</td>';
+    html += '<td class="text-right ' + clsFull(tyC.rev, lyC.rev) + '">' + pctStr(tyC.rev, lyC.rev) + '</td>';
+    html += '<td class="text-right">' + share + '%</td>';
+    html += '</tr>';
+  }
+  document.getElementById('channelTableBody').innerHTML = html;
+}
+
+function renderGeo() {
+  var w = currentWeek;
+  // Country bar chart
+  var usT = 0, usL = 0, caT = 0, caL = 0;
+  for (var i = 0; i < countryWeekly.length; i++) {
+    var r = countryWeekly[i];
+    if (r.w === w && r.y === 2025 && r.c === 'United States') usT = r.rev;
+    if (r.w === w && r.y === 2024 && r.c === 'United States') usL = r.rev;
+    if (r.w === w && r.y === 2025 && r.c === 'Canada') caT = r.rev;
+    if (r.w === w && r.y === 2024 && r.c === 'Canada') caL = r.rev;
+  }
+  mk('geoCountryChart', {
+    type: 'bar',
+    data: { labels: ['United States', 'Canada'], datasets: [
+      { label: '2025', data: [usT, caT], backgroundColor: '#006AFF' },
+      { label: '2024', data: [usL, caL], backgroundColor: '#94A3B8' }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { y: { ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } } } } }
+  });
+
+  // Region chart (US only + Canada rolled up)
+  var regions = ['Southeast','Northeast','Midwest','Southwest','West','Canada'];
+  var tyR = []; var lyR = [];
+  for (var i = 0; i < regions.length; i++) {
+    var tVal = 0, lVal = 0;
+    for (var j = 0; j < geoData.length; j++) {
+      if (geoData[j].r === regions[i] && geoData[j].y === 2025) tVal = geoData[j].rev;
+      if (geoData[j].r === regions[i] && geoData[j].y === 2024) lVal = geoData[j].rev;
+    }
+    tyR.push(tVal); lyR.push(lVal);
+  }
+  mk('geoRegionChart', {
+    type: 'bar',
+    data: { labels: regions, datasets: [
+      { label: '2025', data: tyR, backgroundColor: '#006AFF' },
+      { label: '2024', data: lyR, backgroundColor: '#94A3B8' }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { y: { ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } } } } }
+  });
+
+  // Geo table
+  var html = '';
+  for (var i = 0; i < regions.length; i++) {
+    var tVal = tyR[i]; var lVal = lyR[i];
+    html += '<tr>';
+    html += '<td><strong>' + regions[i] + '</strong></td>';
+    html += '<td class="text-right">' + fmt(tVal) + '</td>';
+    html += '<td class="text-right">' + fmt(lVal) + '</td>';
+    html += '<td class="text-right ' + clsFull(tVal, lVal) + '">' + pctStr(tVal, lVal) + '</td>';
+    html += '<td class="text-right ' + clsFull(tVal, lVal) + '">' + fmt(tVal - lVal) + '</td>';
+    html += '</tr>';
+  }
+  document.getElementById('geoTableBody').innerHTML = html;
+}
+
+function renderSupplyChain() {
+  var w = currentWeek;
+  // KPI tiles
+  var sd = null; var sdLy = null; var inv = null;
+  for (var i = 0; i < shipData.length; i++) {
+    if (shipData[i].y === 2025 && shipData[i].w === w) sd = shipData[i];
+    if (shipData[i].y === 2024 && shipData[i].w === w) sdLy = shipData[i];
+  }
+  for (var i = 0; i < invData.length; i++) {
+    if (invData[i].w === w) inv = invData[i];
+  }
+  if (!sd || !sdLy || !inv) return;
+  var thtml = '';
+  thtml += '<div class="tile tile-accent"><div class="tile-header">Cases Shipped</div><div class="tile-value">' + fmtN(sd.cases) + '</div>';
+  thtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val ' + cls(sd.cases, sdLy.cases) + '">' + pctStr(sd.cases, sdLy.cases) + '</span></div></div>';
+  thtml += '<div class="tile tile-accent"><div class="tile-header">Fill Rate</div><div class="tile-value">' + sd.fr.toFixed(1) + '%</div>';
+  thtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val ' + cls(sd.fr, sdLy.fr) + '">' + (sd.fr - sdLy.fr > 0 ? '+' : '') + (sd.fr - sdLy.fr).toFixed(1) + ' pts</span></div></div>';
+  thtml += '<div class="tile tile-accent"><div class="tile-header">On-Time %</div><div class="tile-value">' + sd.ot.toFixed(1) + '%</div>';
+  thtml += '<div class="tile-vs"><span class="lbl">vs. LY</span><span class="val ' + cls(sd.ot, sdLy.ot) + '">' + (sd.ot - sdLy.ot > 0 ? '+' : '') + (sd.ot - sdLy.ot).toFixed(1) + ' pts</span></div></div>';
+  thtml += '<div class="tile tile-accent"><div class="tile-header">In-Stock Rate</div><div class="tile-value">' + inv.is.toFixed(1) + '%</div>';
+  thtml += '<div class="tile-vs"><span class="lbl">OOS</span><span class="val">' + inv.oos + ' / ' + inv.tot + '</span></div></div>';
+  thtml += '<div class="tile tile-accent"><div class="tile-header">Weeks of Supply</div><div class="tile-value">' + inv.wos.toFixed(1) + '</div>';
+  thtml += '<div class="tile-vs"><span class="lbl">On Hand</span><span class="val">' + fmtN(inv.oh) + ' cases</span></div></div>';
+  document.getElementById('scTiles').innerHTML = thtml;
+
+  // Shipment chart - dual axis: bars for cases, line for fill rate
+  var weeks = [49, 50, 51, 52];
+  var casesT = []; var casesL = []; var frT = [];
+  for (var i = 0; i < weeks.length; i++) {
+    var t = null; var l = null;
+    for (var j = 0; j < shipData.length; j++) {
+      if (shipData[j].w === weeks[i] && shipData[j].y === 2025) t = shipData[j];
+      if (shipData[j].w === weeks[i] && shipData[j].y === 2024) l = shipData[j];
+    }
+    casesT.push(t ? t.cases : 0);
+    casesL.push(l ? l.cases : 0);
+    frT.push(t ? t.fr : 0);
+  }
+  mk('shipChart', {
+    type: 'bar',
+    data: { labels: ['W49','W50','W51','W52'], datasets: [
+      { label: '2025 Cases', data: casesT, backgroundColor: '#006AFF', order: 2 },
+      { label: '2024 Cases', data: casesL, backgroundColor: '#94A3B8', order: 3 },
+      { type: 'line', label: 'Fill Rate %', data: frT, borderColor: '#1A7F64', backgroundColor: '#1A7F64', yAxisID: 'y1', tension: 0.3, pointRadius: 4, order: 1 }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+      scales: {
+        y: { ticks: { callback: function(v) { return fmtN(v); } }, title: { display: true, text: 'Cases' } },
+        y1: { position: 'right', min: 90, max: 100, ticks: { callback: function(v) { return v + '%'; } }, grid: { drawOnChartArea: false }, title: { display: true, text: 'Fill Rate %' } }
+      }
+    }
+  });
+
+  // In-stock chart
+  var isVals = []; var oosVals = [];
+  for (var i = 0; i < weeks.length; i++) {
+    for (var j = 0; j < invData.length; j++) {
+      if (invData[j].w === weeks[i]) {
+        isVals.push(invData[j].is);
+        oosVals.push(invData[j].oos);
+      }
+    }
+  }
+  mk('instockChart', {
+    type: 'bar',
+    data: { labels: ['W49','W50','W51','W52'], datasets: [
+      { label: 'In-Stock %', data: isVals, backgroundColor: '#1A7F64' },
+      { label: 'OOS Count', data: oosVals, backgroundColor: '#D32F2F', yAxisID: 'y1' }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+      scales: {
+        y: { min: 80, max: 100, ticks: { callback: function(v) { return v + '%'; } }, title: { display: true, text: 'In-Stock %' } },
+        y1: { position: 'right', min: 0, ticks: { callback: function(v) { return v.toFixed(0); } }, grid: { drawOnChartArea: false }, title: { display: true, text: 'OOS Count' } }
+      }
+    }
+  });
+
+  // Inventory by brand table
+  var ibhtml = '';
+  for (var i = 0; i < invBrand.length; i++) {
+    var ib = invBrand[i];
+    var isP = (100 - ib.oos).toFixed(1);
+    var badgeCls = ib.oos > 10 ? 'badge-amber' : (ib.oos > 0 ? 'badge-amber' : 'badge-green');
+    var status = ib.oos > 10 ? 'At Risk' : (ib.oos > 0 ? 'Watch' : 'Healthy');
+    ibhtml += '<tr>';
+    ibhtml += '<td><strong>' + ib.b + '</strong></td>';
+    ibhtml += '<td class="text-center">' + ib.oos.toFixed(1) + '%</td>';
+    ibhtml += '<td class="text-center">' + isP + '%</td>';
+    ibhtml += '<td class="text-center">' + ib.wos.toFixed(1) + '</td>';
+    ibhtml += '<td class="text-center"><span class="badge ' + badgeCls + '">' + status + '</span></td>';
+    ibhtml += '</tr>';
+  }
+  document.getElementById('invBrandBody').innerHTML = ibhtml;
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+renderAll();
+</script>
+</body>
+</html>

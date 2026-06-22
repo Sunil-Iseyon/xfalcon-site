@@ -1,0 +1,577 @@
+-- ============================================================================
+-- FIFA WORLD CUP 360 ANALYTICS - QUERY TEMPLATES FOR 10 DASHBOARDS
+-- ============================================================================
+-- All queries pre-aggregate to <200 rows for dashboard performance
+-- Use with ida_query() - no schema prefix needed
+-- Updated: 2026-04-14
+-- ============================================================================
+
+
+-- ============================================================================
+-- DASHBOARD 1: TOURNAMENT OVERVIEW
+-- Summary stats across all tournaments
+-- ============================================================================
+
+-- Query 1.1: Tournament Summary Metrics
+-- Core KPIs: Total attendance, goals, teams, and winner by tournament year
+SELECT
+    t.YEAR_NUM,
+    t.TOURNAMENT_KEY,
+    t.HOST_COUNTRY,
+    t.WINNER,
+    t.QUALIFIED_TEAMS,
+    SUM(t.TOTAL_GOALS) AS TOTAL_GOALS_SCORED,
+    SUM(t.TOTAL_ATTENDANCE) AS TOTAL_ATTENDANCE,
+    COUNT(DISTINCT fm.MATCH_KEY) AS TOTAL_MATCHES
+FROM DIM_TOURNAMENT t
+LEFT JOIN FACT_MATCH fm ON t.TOURNAMENT_KEY = fm.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM, t.TOURNAMENT_KEY, t.HOST_COUNTRY, t.WINNER, t.QUALIFIED_TEAMS
+ORDER BY t.YEAR_NUM DESC;
+
+-- Query 1.2: Tournament Growth Trend
+-- Revenue evolution across tournaments (ticket + merchandise + broadcast rights)
+SELECT
+    t.YEAR_NUM,
+    t.TOURNAMENT_KEY,
+    COALESCE(SUM(fts.REVENUE_USD), 0) AS TICKET_REVENUE,
+    COALESCE(SUM(fms.REVENUE_USD), 0) AS MERCHANDISE_REVENUE,
+    COALESCE(SUM(fbr.RIGHTS_FEE_USD + fbr.AD_REVENUE_USD + fbr.SUB_LICENSING_REVENUE_USD), 0) AS BROADCAST_REVENUE,
+    COALESCE(SUM(fs.CONTRACT_VALUE_USD), 0) AS SPONSORSHIP_REVENUE
+FROM DIM_TOURNAMENT t
+LEFT JOIN FACT_TICKET_SALES fts ON t.TOURNAMENT_KEY = fts.TOURNAMENT_KEY
+LEFT JOIN FACT_MERCHANDISE_SALES fms ON t.TOURNAMENT_KEY = fms.TOURNAMENT_KEY
+LEFT JOIN FACT_BROADCAST_RIGHTS fbr ON t.TOURNAMENT_KEY = fbr.TOURNAMENT_KEY
+LEFT JOIN FACT_SPONSORSHIP fs ON t.TOURNAMENT_KEY = fs.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM, t.TOURNAMENT_KEY
+ORDER BY t.YEAR_NUM DESC;
+
+-- Query 1.3: Average Tournament Stats (Benchmarking)
+-- Benchmark metrics: Avg goals per match, avg attendance per match, teams by era
+SELECT
+    CASE
+        WHEN YEAR_NUM < 1990 THEN 'Pre-1990'
+        WHEN YEAR_NUM < 2000 THEN '1990-1999'
+        WHEN YEAR_NUM < 2010 THEN '2000-2009'
+        WHEN YEAR_NUM < 2020 THEN '2010-2019'
+        ELSE '2020+'
+    END AS ERA,
+    COUNT(DISTINCT TOURNAMENT_KEY) AS TOURNAMENTS,
+    AVG(QUALIFIED_TEAMS) AS AVG_TEAMS,
+    AVG(TOTAL_GOALS) AS AVG_GOALS_PER_TOURNAMENT,
+    AVG(TOTAL_ATTENDANCE) AS AVG_ATTENDANCE_PER_TOURNAMENT
+FROM DIM_TOURNAMENT
+GROUP BY ERA
+ORDER BY ERA;
+
+
+-- ============================================================================
+-- DASHBOARD 2: MATCH ANALYTICS
+-- Goals by stage, match results distribution, attendance by stage
+-- ============================================================================
+
+-- Query 2.1: Goals by Stage Analysis
+-- Total and average goals per match in each tournament stage
+SELECT
+    ds.STAGE_NAME,
+    ds.STAGE_ORDER,
+    COUNT(DISTINCT fm.MATCH_KEY) AS MATCHES,
+    SUM(fm.TOTAL_GOALS) AS TOTAL_GOALS,
+    ROUND(AVG(fm.TOTAL_GOALS), 2) AS AVG_GOALS_PER_MATCH,
+    SUM(fm.HOME_GOALS_FT) AS HOME_GOALS,
+    SUM(fm.AWAY_GOALS_FT) AS AWAY_GOALS
+FROM FACT_MATCH fm
+JOIN DIM_STAGE ds ON fm.STAGE_KEY = ds.STAGE_KEY
+GROUP BY ds.STAGE_NAME, ds.STAGE_ORDER
+ORDER BY ds.STAGE_ORDER;
+
+-- Query 2.2: Match Results Distribution
+-- Home win, draw, away win frequency across all tournaments
+SELECT
+    fm.MATCH_RESULT,
+    COUNT(*) AS MATCH_COUNT,
+    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS RESULT_PERCENTAGE,
+    AVG(fm.TOTAL_GOALS) AS AVG_GOALS,
+    AVG(fm.ATTENDANCE) AS AVG_ATTENDANCE
+FROM FACT_MATCH fm
+WHERE fm.MATCH_RESULT IS NOT NULL
+GROUP BY fm.MATCH_RESULT
+ORDER BY MATCH_COUNT DESC;
+
+-- Query 2.3: Attendance by Stage and Tournament
+-- Venue utilization and crowd patterns by stage
+SELECT
+    t.YEAR_NUM,
+    ds.STAGE_NAME,
+    COUNT(DISTINCT fm.MATCH_KEY) AS MATCHES,
+    SUM(fm.ATTENDANCE) AS TOTAL_ATTENDANCE,
+    ROUND(AVG(fm.ATTENDANCE), 0) AS AVG_ATTENDANCE,
+    MAX(fm.ATTENDANCE) AS MAX_ATTENDANCE,
+    MIN(fm.ATTENDANCE) AS MIN_ATTENDANCE
+FROM FACT_MATCH fm
+JOIN DIM_TOURNAMENT t ON fm.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+JOIN DIM_STAGE ds ON fm.STAGE_KEY = ds.STAGE_KEY
+GROUP BY t.YEAR_NUM, ds.STAGE_NAME
+ORDER BY t.YEAR_NUM DESC, ds.STAGE_ORDER;
+
+
+-- ============================================================================
+-- DASHBOARD 3: PLAYER PERFORMANCE
+-- Top scorers, goals per appearance, discipline stats
+-- ============================================================================
+
+-- Query 3.1: Top Scorers All-Time
+-- Leading goal scorers across all World Cup tournaments
+SELECT
+    dp.PLAYER_NAME,
+    dp.POSITION,
+    dp.NATIONALITY,
+    COUNT(DISTINCT fpm.MATCH_KEY) AS MATCHES_PLAYED,
+    SUM(fpm.GOALS_SCORED) AS GOALS,
+    SUM(fpm.PENALTIES_SCORED) AS PENALTY_GOALS,
+    ROUND(100.0 * SUM(fpm.PENALTIES_SCORED) / SUM(fpm.GOALS_SCORED), 1) AS PENALTY_PCT,
+    SUM(fpm.MINUTES_PLAYED) AS TOTAL_MINUTES,
+    ROUND(SUM(fpm.GOALS_SCORED) * 90.0 / NULLIF(SUM(fpm.MINUTES_PLAYED), 0), 2) AS GOALS_PER_90MIN
+FROM FACT_PLAYER_MATCH fpm
+JOIN DIM_PLAYER dp ON fpm.PLAYER_KEY = dp.PLAYER_KEY
+WHERE fpm.GOALS_SCORED > 0
+GROUP BY dp.PLAYER_NAME, dp.POSITION, dp.NATIONALITY
+HAVING SUM(fpm.GOALS_SCORED) >= 3
+ORDER BY SUM(fpm.GOALS_SCORED) DESC
+LIMIT 50;
+
+-- Query 3.2: Discipline Statistics by Position
+-- Yellow and red card frequency by player position
+SELECT
+    dp.POSITION,
+    COUNT(DISTINCT fpm.PLAYER_KEY) AS UNIQUE_PLAYERS,
+    COUNT(DISTINCT fpm.MATCH_KEY) AS TOTAL_APPEARANCES,
+    SUM(fpm.YELLOW_CARDS) AS TOTAL_YELLOW_CARDS,
+    SUM(fpm.RED_CARDS) AS TOTAL_RED_CARDS,
+    ROUND(AVG(fpm.YELLOW_CARDS), 2) AS AVG_YELLOW_PER_MATCH,
+    ROUND(AVG(fpm.RED_CARDS), 2) AS AVG_RED_PER_MATCH,
+    SUM(fpm.GOALS_SCORED) AS TOTAL_GOALS
+FROM FACT_PLAYER_MATCH fpm
+JOIN DIM_PLAYER dp ON fpm.PLAYER_KEY = dp.PLAYER_KEY
+GROUP BY dp.POSITION
+ORDER BY SUM(fpm.YELLOW_CARDS) DESC;
+
+-- Query 3.3: Goals Per Appearance Trend
+-- High-efficiency strikers: goals per match appearance ratio
+SELECT
+    dp.PLAYER_NAME,
+    dp.POSITION,
+    dp.NATIONALITY,
+    SUM(fpm.GOALS_SCORED) AS GOALS,
+    COUNT(DISTINCT fpm.MATCH_KEY) AS APPEARANCES,
+    ROUND(1.0 * SUM(fpm.GOALS_SCORED) / NULLIF(COUNT(DISTINCT fpm.MATCH_KEY), 0), 3) AS GOALS_PER_APPEARANCE,
+    SUM(CASE WHEN fpm.LINEUP_STATUS = 'STARTER' THEN 1 ELSE 0 END) AS STARTS,
+    SUM(CASE WHEN fpm.LINEUP_STATUS = 'SUBSTITUTE' THEN 1 ELSE 0 END) AS SUBSTITUTE_APPS
+FROM FACT_PLAYER_MATCH fpm
+JOIN DIM_PLAYER dp ON fpm.PLAYER_KEY = dp.PLAYER_KEY
+WHERE fpm.GOALS_SCORED > 0
+GROUP BY dp.PLAYER_NAME, dp.POSITION, dp.NATIONALITY
+HAVING COUNT(DISTINCT fpm.MATCH_KEY) >= 5
+ORDER BY GOALS_PER_APPEARANCE DESC
+LIMIT 40;
+
+
+-- ============================================================================
+-- DASHBOARD 4: TEAM RANKINGS
+-- Win/loss records, goals scored/conceded, confederation analysis
+-- ============================================================================
+
+-- Query 4.1: All-Time Win/Loss Records by Team
+-- Cumulative team performance across all tournaments
+SELECT
+    dt.TEAM_NAME,
+    dt.CONFEDERATION,
+    SUM(CASE WHEN fm.MATCH_RESULT = 'Home Win' AND fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN 1
+             WHEN fm.MATCH_RESULT = 'Away Win' AND fm.AWAY_TEAM_KEY = dt.TEAM_KEY THEN 1 ELSE 0 END) AS WINS,
+    SUM(CASE WHEN fm.MATCH_RESULT = 'Draw' THEN 1 ELSE 0 END) AS DRAWS,
+    SUM(CASE WHEN fm.MATCH_RESULT = 'Home Win' AND fm.AWAY_TEAM_KEY = dt.TEAM_KEY THEN 1
+             WHEN fm.MATCH_RESULT = 'Away Win' AND fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN 1 ELSE 0 END) AS LOSSES,
+    SUM(CASE WHEN fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN fm.HOME_GOALS_FT ELSE fm.AWAY_GOALS_FT END) AS GOALS_FOR,
+    SUM(CASE WHEN fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN fm.AWAY_GOALS_FT ELSE fm.HOME_GOALS_FT END) AS GOALS_AGAINST
+FROM FACT_MATCH fm
+RIGHT JOIN DIM_TEAM dt ON fm.HOME_TEAM_KEY = dt.TEAM_KEY OR fm.AWAY_TEAM_KEY = dt.TEAM_KEY
+GROUP BY dt.TEAM_NAME, dt.CONFEDERATION
+HAVING SUM(CASE WHEN fm.MATCH_RESULT = 'Home Win' AND fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN 1
+                 WHEN fm.MATCH_RESULT = 'Away Win' AND fm.AWAY_TEAM_KEY = dt.TEAM_KEY THEN 1 ELSE 0 END) > 0
+ORDER BY WINS DESC, GOALS_FOR DESC
+LIMIT 100;
+
+-- Query 4.2: Goals Scored vs Conceded (Goal Differential)
+-- Offensive and defensive efficiency by confederation
+SELECT
+    dt.CONFEDERATION,
+    COUNT(DISTINCT dt.TEAM_KEY) AS NUM_TEAMS,
+    SUM(CASE WHEN fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN fm.HOME_GOALS_FT ELSE fm.AWAY_GOALS_FT END) AS GOALS_FOR,
+    SUM(CASE WHEN fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN fm.AWAY_GOALS_FT ELSE fm.HOME_GOALS_FT END) AS GOALS_AGAINST,
+    ROUND(AVG(CASE WHEN fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN fm.HOME_GOALS_FT ELSE fm.AWAY_GOALS_FT END), 2) AS AVG_GOALS_FOR,
+    ROUND(AVG(CASE WHEN fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN fm.AWAY_GOALS_FT ELSE fm.HOME_GOALS_FT END), 2) AS AVG_GOALS_AGAINST
+FROM FACT_MATCH fm
+RIGHT JOIN DIM_TEAM dt ON fm.HOME_TEAM_KEY = dt.TEAM_KEY OR fm.AWAY_TEAM_KEY = dt.TEAM_KEY
+GROUP BY dt.CONFEDERATION
+ORDER BY GOALS_FOR DESC;
+
+-- Query 4.3: Confederation Win Rates
+-- Tournament success by continental confederation
+SELECT
+    dt.CONFEDERATION,
+    COUNT(DISTINCT fm.MATCH_KEY) AS MATCHES,
+    SUM(CASE WHEN fm.MATCH_RESULT = 'Home Win' AND fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN 1
+             WHEN fm.MATCH_RESULT = 'Away Win' AND fm.AWAY_TEAM_KEY = dt.TEAM_KEY THEN 1 ELSE 0 END) AS WINS,
+    ROUND(100.0 * SUM(CASE WHEN fm.MATCH_RESULT = 'Home Win' AND fm.HOME_TEAM_KEY = dt.TEAM_KEY THEN 1
+                            WHEN fm.MATCH_RESULT = 'Away Win' AND fm.AWAY_TEAM_KEY = dt.TEAM_KEY THEN 1 ELSE 0 END) /
+          NULLIF(COUNT(DISTINCT fm.MATCH_KEY), 0), 1) AS WIN_PCT
+FROM FACT_MATCH fm
+RIGHT JOIN DIM_TEAM dt ON fm.HOME_TEAM_KEY = dt.TEAM_KEY OR fm.AWAY_TEAM_KEY = dt.TEAM_KEY
+GROUP BY dt.CONFEDERATION
+ORDER BY WIN_PCT DESC;
+
+
+-- ============================================================================
+-- DASHBOARD 5: TICKET REVENUE
+-- Revenue by tier, by year, avg price trends
+-- ============================================================================
+
+-- Query 5.1: Ticket Revenue by Price Tier
+-- Total revenue and volume by ticket tier category
+SELECT
+    fts.PRICE_TIER,
+    COUNT(DISTINCT fts.MATCH_KEY) AS MATCHES,
+    SUM(fts.TICKETS_SOLD) AS TOTAL_TICKETS,
+    ROUND(AVG(fts.TICKET_PRICE_USD), 2) AS AVG_PRICE,
+    SUM(fts.REVENUE_USD) AS TOTAL_REVENUE,
+    ROUND(AVG(fts.RESALE_PCT), 2) AS AVG_RESALE_PCT,
+    ROUND(AVG(fts.DEMAND_INDEX), 2) AS AVG_DEMAND_INDEX
+FROM FACT_TICKET_SALES fts
+GROUP BY fts.PRICE_TIER
+ORDER BY SUM(fts.REVENUE_USD) DESC;
+
+-- Query 5.2: Ticket Revenue by Tournament Year
+-- Year-over-year revenue trends and pricing strategies
+SELECT
+    t.YEAR_NUM,
+    SUM(fts.TICKETS_SOLD) AS TOTAL_TICKETS,
+    SUM(fts.REVENUE_USD) AS TOTAL_REVENUE,
+    ROUND(AVG(fts.TICKET_PRICE_USD), 2) AS AVG_TICKET_PRICE,
+    ROUND(MIN(fts.TICKET_PRICE_USD), 2) AS MIN_PRICE,
+    ROUND(MAX(fts.TICKET_PRICE_USD), 2) AS MAX_PRICE,
+    ROUND(AVG(fts.DEMAND_INDEX), 2) AS AVG_DEMAND_INDEX
+FROM FACT_TICKET_SALES fts
+JOIN DIM_TOURNAMENT t ON fts.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM
+ORDER BY t.YEAR_NUM DESC;
+
+-- Query 5.3: Resale Market Activity
+-- Secondary market penetration and premium pricing
+SELECT
+    CASE WHEN fts.RESALE_PCT > 0 THEN 'High Resale' ELSE 'Primary Only' END AS MARKET_TYPE,
+    COUNT(*) AS TRANSACTION_COUNT,
+    SUM(fts.REVENUE_USD) AS REVENUE,
+    ROUND(AVG(fts.RESALE_PCT), 2) AS AVG_RESALE_PCT,
+    ROUND(AVG(fts.TICKET_PRICE_USD), 2) AS AVG_PRICE,
+    ROUND(AVG(fts.DEMAND_INDEX), 2) AS AVG_DEMAND
+FROM FACT_TICKET_SALES fts
+GROUP BY MARKET_TYPE
+ORDER BY REVENUE DESC;
+
+
+-- ============================================================================
+-- DASHBOARD 6: MERCHANDISE SALES
+-- Revenue by category, channel, margin analysis
+-- ============================================================================
+
+-- Query 6.1: Merchandise Revenue by Category
+-- Top-selling product categories and margin performance
+SELECT
+    dmp.CATEGORY,
+    SUM(fms.UNITS_SOLD) AS TOTAL_UNITS,
+    SUM(fms.REVENUE_USD) AS TOTAL_REVENUE,
+    SUM(fms.COGS_USD) AS TOTAL_COGS,
+    SUM(fms.GROSS_MARGIN_USD) AS GROSS_MARGIN_USD,
+    ROUND(100.0 * SUM(fms.GROSS_MARGIN_USD) / NULLIF(SUM(fms.REVENUE_USD), 0), 1) AS GROSS_MARGIN_PCT,
+    ROUND(AVG(fms.DISCOUNT_PCT), 2) AS AVG_DISCOUNT_PCT
+FROM FACT_MERCHANDISE_SALES fms
+JOIN DIM_MERCHANDISE_PRODUCT dmp ON fms.PRODUCT_KEY = dmp.PRODUCT_KEY
+GROUP BY dmp.CATEGORY
+ORDER BY SUM(fms.REVENUE_USD) DESC;
+
+-- Query 6.2: Sales by Distribution Channel
+-- Revenue by retail channel (online, stadium, retail, etc.)
+SELECT
+    dc.CHANNEL_NAME,
+    COUNT(DISTINCT fms.PRODUCT_KEY) AS PRODUCTS,
+    SUM(fms.UNITS_SOLD) AS UNITS_SOLD,
+    SUM(fms.REVENUE_USD) AS REVENUE,
+    ROUND(AVG(fms.DISCOUNT_PCT), 2) AS AVG_DISCOUNT_PCT,
+    SUM(CASE WHEN fms.PROMO_FLAG = 1 THEN 1 ELSE 0 END) AS PROMOTIONAL_SALES
+FROM FACT_MERCHANDISE_SALES fms
+JOIN DIM_CHANNEL dc ON fms.CHANNEL_KEY = dc.CHANNEL_KEY
+GROUP BY dc.CHANNEL_NAME
+ORDER BY SUM(fms.REVENUE_USD) DESC;
+
+-- Query 6.3: Margin Analysis by Tournament
+-- Profitability trends across tournaments
+SELECT
+    t.YEAR_NUM,
+    SUM(fms.REVENUE_USD) AS REVENUE,
+    SUM(fms.COGS_USD) AS COGS,
+    SUM(fms.GROSS_MARGIN_USD) AS GROSS_MARGIN,
+    ROUND(100.0 * SUM(fms.GROSS_MARGIN_USD) / NULLIF(SUM(fms.REVENUE_USD), 0), 1) AS GROSS_MARGIN_PCT,
+    SUM(fms.UNITS_SOLD) AS UNITS_SOLD,
+    ROUND(SUM(fms.REVENUE_USD) / NULLIF(SUM(fms.UNITS_SOLD), 0), 2) AS AVG_PRICE_PER_UNIT
+FROM FACT_MERCHANDISE_SALES fms
+JOIN DIM_TOURNAMENT t ON fms.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM
+ORDER BY t.YEAR_NUM DESC;
+
+
+-- ============================================================================
+-- DASHBOARD 7: BROADCAST & MEDIA
+-- Rights fees by broadcaster, ad revenue growth, viewership
+-- ============================================================================
+
+-- Query 7.1: Broadcast Rights Fees by Broadcaster
+-- Total rights fees and licensing revenue by broadcaster
+SELECT
+    db.BROADCASTER_NAME,
+    db.MARKET,
+    db.REGION,
+    db.PLATFORM_TYPE,
+    COUNT(DISTINCT fbr.TOURNAMENT_KEY) AS TOURNAMENTS_COVERED,
+    SUM(fbr.RIGHTS_FEE_USD) AS RIGHTS_FEES,
+    SUM(fbr.AD_REVENUE_USD) AS AD_REVENUE,
+    SUM(fbr.SUB_LICENSING_REVENUE_USD) AS SUB_LICENSE_REVENUE,
+    SUM(fbr.RIGHTS_FEE_USD + fbr.AD_REVENUE_USD + fbr.SUB_LICENSING_REVENUE_USD) AS TOTAL_REVENUE
+FROM FACT_BROADCAST_RIGHTS fbr
+JOIN DIM_BROADCASTER db ON fbr.BROADCASTER_KEY = db.BROADCASTER_KEY
+GROUP BY db.BROADCASTER_NAME, db.MARKET, db.REGION, db.PLATFORM_TYPE
+ORDER BY SUM(fbr.RIGHTS_FEE_USD) DESC
+LIMIT 50;
+
+-- Query 7.2: Viewership Trends by Tournament
+-- Peak and average viewership metrics over time
+SELECT
+    t.YEAR_NUM,
+    COUNT(DISTINCT fbr.BROADCASTER_KEY) AS NUM_BROADCASTERS,
+    SUM(fbr.PEAK_VIEWERS_MILLIONS) AS TOTAL_PEAK_VIEWERS,
+    AVG(fbr.PEAK_VIEWERS_MILLIONS) AS AVG_PEAK_VIEWERS,
+    SUM(fbr.AVG_VIEWERS_MILLIONS) AS TOTAL_AVG_VIEWERS,
+    AVG(fbr.AVG_VIEWERS_MILLIONS) AS AVG_VIEWERS,
+    SUM(fbr.TOTAL_BROADCAST_HOURS) AS TOTAL_HOURS
+FROM FACT_BROADCAST_RIGHTS fbr
+JOIN DIM_TOURNAMENT t ON fbr.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM
+ORDER BY t.YEAR_NUM DESC;
+
+-- Query 7.3: Ad Revenue Growth
+-- Year-over-year advertising revenue trends by region
+SELECT
+    t.YEAR_NUM,
+    db.REGION,
+    COUNT(DISTINCT fbr.BROADCASTER_KEY) AS NUM_BROADCASTERS,
+    SUM(fbr.RIGHTS_FEE_USD) AS RIGHTS_FEES,
+    SUM(fbr.AD_REVENUE_USD) AS AD_REVENUE,
+    ROUND(100.0 * SUM(fbr.AD_REVENUE_USD) / NULLIF(SUM(fbr.RIGHTS_FEE_USD), 0), 1) AS AD_TO_RIGHTS_RATIO,
+    ROUND(SUM(fbr.AD_REVENUE_USD + fbr.RIGHTS_FEE_USD) / NULLIF(SUM(fbr.TOTAL_BROADCAST_HOURS), 0), 2) AS REVENUE_PER_HOUR
+FROM FACT_BROADCAST_RIGHTS fbr
+JOIN DIM_TOURNAMENT t ON fbr.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+JOIN DIM_BROADCASTER db ON fbr.BROADCASTER_KEY = db.BROADCASTER_KEY
+GROUP BY t.YEAR_NUM, db.REGION
+ORDER BY t.YEAR_NUM DESC, AD_REVENUE DESC;
+
+
+-- ============================================================================
+-- DASHBOARD 8: SPONSORSHIP ROI
+-- Contract values, media value ROI, tier analysis
+-- ============================================================================
+
+-- Query 8.1: Sponsorship Value by Tier
+-- Contract and media value by sponsor tier level
+SELECT
+    ds.TIER,
+    COUNT(DISTINCT fs.SPONSOR_KEY) AS NUM_SPONSORS,
+    SUM(fs.CONTRACT_VALUE_USD) AS TOTAL_CONTRACT_VALUE,
+    SUM(fs.ACTIVATION_SPEND_USD) AS TOTAL_ACTIVATION_SPEND,
+    SUM(fs.MEDIA_VALUE_USD) AS TOTAL_MEDIA_VALUE,
+    ROUND(SUM(fs.MEDIA_VALUE_USD) / NULLIF(SUM(fs.CONTRACT_VALUE_USD), 0), 2) AS MEDIA_VALUE_ROI,
+    ROUND(AVG(fs.ESTIMATED_REACH_MILLIONS), 2) AS AVG_REACH_MILLIONS
+FROM FACT_SPONSORSHIP fs
+JOIN DIM_SPONSOR ds ON fs.SPONSOR_KEY = ds.SPONSOR_KEY
+GROUP BY ds.TIER
+ORDER BY SUM(fs.CONTRACT_VALUE_USD) DESC;
+
+-- Query 8.2: Sponsorship ROI by Industry
+-- Media value return by sponsor industry vertical
+SELECT
+    ds.INDUSTRY,
+    COUNT(DISTINCT fs.SPONSOR_KEY) AS NUM_SPONSORS,
+    SUM(fs.CONTRACT_VALUE_USD) AS CONTRACT_VALUE,
+    SUM(fs.MEDIA_VALUE_USD) AS MEDIA_VALUE,
+    ROUND(SUM(fs.MEDIA_VALUE_USD) / NULLIF(SUM(fs.CONTRACT_VALUE_USD), 0), 2) AS MEDIA_VALUE_ROI,
+    SUM(fs.ACTIVATION_SPEND_USD) AS ACTIVATION_SPEND,
+    ROUND(AVG(fs.BRAND_EXPOSURE_HOURS), 0) AS AVG_EXPOSURE_HOURS,
+    SUM(CASE WHEN fs.RENEWAL_FLAG = 1 THEN 1 ELSE 0 END) AS RENEWALS
+FROM FACT_SPONSORSHIP fs
+JOIN DIM_SPONSOR ds ON fs.SPONSOR_KEY = ds.SPONSOR_KEY
+GROUP BY ds.INDUSTRY
+ORDER BY SUM(fs.MEDIA_VALUE_USD) DESC;
+
+-- Query 8.3: Contract Terms and Renewals
+-- Deal type distribution and renewal success rate
+SELECT
+    fs.DEAL_TYPE,
+    COUNT(*) AS CONTRACTS,
+    SUM(fs.CONTRACT_VALUE_USD) AS TOTAL_VALUE,
+    ROUND(AVG(fs.CONTRACT_VALUE_USD), 0) AS AVG_CONTRACT_VALUE,
+    SUM(CASE WHEN fs.RENEWAL_FLAG = 1 THEN 1 ELSE 0 END) AS RENEWALS,
+    ROUND(100.0 * SUM(CASE WHEN fs.RENEWAL_FLAG = 1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS RENEWAL_RATE_PCT,
+    SUM(fs.MEDIA_VALUE_USD) AS TOTAL_MEDIA_VALUE
+FROM FACT_SPONSORSHIP fs
+WHERE fs.DEAL_TYPE IS NOT NULL
+GROUP BY fs.DEAL_TYPE
+ORDER BY SUM(fs.CONTRACT_VALUE_USD) DESC;
+
+
+-- ============================================================================
+-- DASHBOARD 9: VENUE & ATTENDANCE
+-- Top venues by attendance, utilization rates
+-- ============================================================================
+
+-- Query 9.1: Top Venues by Total Attendance
+-- Leading stadiums across all tournaments
+SELECT
+    dv.STADIUM_NAME,
+    dv.CITY,
+    dv.COUNTRY,
+    dv.CONTINENT,
+    dv.CAPACITY,
+    COUNT(DISTINCT fm.MATCH_KEY) AS MATCHES_HOSTED,
+    SUM(fm.ATTENDANCE) AS TOTAL_ATTENDANCE,
+    ROUND(AVG(fm.ATTENDANCE), 0) AS AVG_ATTENDANCE,
+    MAX(fm.ATTENDANCE) AS MAX_ATTENDANCE,
+    CASE
+        WHEN dv.CAPACITY IS NOT NULL
+        THEN ROUND(100.0 * AVG(fm.ATTENDANCE) / NULLIF(dv.CAPACITY, 0), 1)
+        ELSE NULL
+    END AS AVG_UTILIZATION_PCT
+FROM FACT_MATCH fm
+JOIN DIM_VENUE dv ON fm.VENUE_KEY = dv.VENUE_KEY
+GROUP BY dv.STADIUM_NAME, dv.CITY, dv.COUNTRY, dv.CONTINENT, dv.CAPACITY
+HAVING COUNT(DISTINCT fm.MATCH_KEY) > 0
+ORDER BY SUM(fm.ATTENDANCE) DESC
+LIMIT 50;
+
+-- Query 9.2: Venue Utilization by Tournament
+-- Attendance fill rate for each tournament's venues
+SELECT
+    t.YEAR_NUM,
+    dv.STADIUM_NAME,
+    dv.CAPACITY,
+    COUNT(DISTINCT fm.MATCH_KEY) AS MATCHES,
+    SUM(fm.ATTENDANCE) AS TOTAL_ATTENDANCE,
+    ROUND(AVG(fm.ATTENDANCE), 0) AS AVG_ATTENDANCE,
+    CASE
+        WHEN dv.CAPACITY IS NOT NULL
+        THEN ROUND(100.0 * AVG(fm.ATTENDANCE) / NULLIF(dv.CAPACITY, 0), 1)
+        ELSE NULL
+    END AS UTILIZATION_PCT
+FROM FACT_MATCH fm
+JOIN DIM_VENUE dv ON fm.VENUE_KEY = dv.VENUE_KEY
+JOIN DIM_TOURNAMENT t ON fm.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM, dv.STADIUM_NAME, dv.CAPACITY
+ORDER BY t.YEAR_NUM DESC, SUM(fm.ATTENDANCE) DESC;
+
+-- Query 9.3: Venue Capacity Efficiency
+-- Stadium capacity vs actual attendance performance
+SELECT
+    CASE
+        WHEN dv.CAPACITY IS NULL THEN 'Unknown'
+        WHEN dv.CAPACITY < 30000 THEN 'Small (<30K)'
+        WHEN dv.CAPACITY < 60000 THEN 'Medium (30-60K)'
+        WHEN dv.CAPACITY < 80000 THEN 'Large (60-80K)'
+        ELSE 'Mega (80K+)'
+    END AS CAPACITY_CLASS,
+    COUNT(DISTINCT dv.VENUE_KEY) AS NUM_VENUES,
+    COUNT(DISTINCT fm.MATCH_KEY) AS MATCHES,
+    SUM(fm.ATTENDANCE) AS TOTAL_ATTENDANCE,
+    ROUND(AVG(fm.ATTENDANCE), 0) AS AVG_ATTENDANCE,
+    ROUND(AVG(fm.TOTAL_GOALS), 2) AS AVG_GOALS_PER_MATCH
+FROM FACT_MATCH fm
+JOIN DIM_VENUE dv ON fm.VENUE_KEY = dv.VENUE_KEY
+GROUP BY CAPACITY_CLASS
+ORDER BY SUM(fm.ATTENDANCE) DESC;
+
+
+-- ============================================================================
+-- DASHBOARD 10: HISTORICAL TRENDS
+-- Revenue evolution, goal trends, tournament growth over time
+-- ============================================================================
+
+-- Query 10.1: Revenue Evolution Across Tournaments
+-- Combined revenue streams over time (ticket, merchandise, broadcast, sponsorship)
+SELECT
+    t.YEAR_NUM,
+    t.TOURNAMENT_KEY,
+    COALESCE(SUM(CASE WHEN fts.REVENUE_USD IS NOT NULL THEN fts.REVENUE_USD ELSE 0 END), 0) AS TICKET_REVENUE,
+    COALESCE(SUM(CASE WHEN fms.REVENUE_USD IS NOT NULL THEN fms.REVENUE_USD ELSE 0 END), 0) AS MERCHANDISE_REVENUE,
+    COALESCE(SUM(fbr.RIGHTS_FEE_USD), 0) + COALESCE(SUM(fbr.AD_REVENUE_USD), 0) + COALESCE(SUM(fbr.SUB_LICENSING_REVENUE_USD), 0) AS BROADCAST_REVENUE,
+    COALESCE(SUM(fs.CONTRACT_VALUE_USD), 0) AS SPONSORSHIP_REVENUE,
+    COALESCE(SUM(CASE WHEN fts.REVENUE_USD IS NOT NULL THEN fts.REVENUE_USD ELSE 0 END), 0) +
+    COALESCE(SUM(CASE WHEN fms.REVENUE_USD IS NOT NULL THEN fms.REVENUE_USD ELSE 0 END), 0) +
+    COALESCE(SUM(fbr.RIGHTS_FEE_USD), 0) + COALESCE(SUM(fbr.AD_REVENUE_USD), 0) + COALESCE(SUM(fbr.SUB_LICENSING_REVENUE_USD), 0) +
+    COALESCE(SUM(fs.CONTRACT_VALUE_USD), 0) AS TOTAL_REVENUE
+FROM DIM_TOURNAMENT t
+LEFT JOIN FACT_TICKET_SALES fts ON t.TOURNAMENT_KEY = fts.TOURNAMENT_KEY
+LEFT JOIN FACT_MERCHANDISE_SALES fms ON t.TOURNAMENT_KEY = fms.TOURNAMENT_KEY
+LEFT JOIN FACT_BROADCAST_RIGHTS fbr ON t.TOURNAMENT_KEY = fbr.TOURNAMENT_KEY
+LEFT JOIN FACT_SPONSORSHIP fs ON t.TOURNAMENT_KEY = fs.TOURNAMENT_KEY
+GROUP BY t.YEAR_NUM, t.TOURNAMENT_KEY
+ORDER BY t.YEAR_NUM DESC;
+
+-- Query 10.2: Goal Scoring Trends
+-- Evolution of goal-scoring patterns across tournament eras
+SELECT
+    CASE
+        WHEN t.YEAR_NUM < 1990 THEN 'Pre-1990'
+        WHEN t.YEAR_NUM < 2000 THEN '1990-1999'
+        WHEN t.YEAR_NUM < 2010 THEN '2000-2009'
+        WHEN t.YEAR_NUM < 2020 THEN '2010-2019'
+        ELSE '2020+'
+    END AS ERA,
+    COUNT(DISTINCT fm.MATCH_KEY) AS TOTAL_MATCHES,
+    SUM(fm.TOTAL_GOALS) AS TOTAL_GOALS,
+    ROUND(AVG(fm.TOTAL_GOALS), 2) AS AVG_GOALS_PER_MATCH,
+    SUM(CASE WHEN fm.TOTAL_GOALS > 3 THEN 1 ELSE 0 END) AS HIGH_SCORING_MATCHES,
+    SUM(CASE WHEN fm.TOTAL_GOALS <= 1 THEN 1 ELSE 0 END) AS LOW_SCORING_MATCHES
+FROM FACT_MATCH fm
+JOIN DIM_TOURNAMENT t ON fm.TOURNAMENT_KEY = t.TOURNAMENT_KEY
+GROUP BY ERA
+ORDER BY ERA;
+
+-- Query 10.3: Tournament Growth Metrics
+-- Key indicators of tournament scale and reach evolution
+SELECT
+    t.YEAR_NUM,
+    t.QUALIFIED_TEAMS,
+    COUNT(DISTINCT fm.MATCH_KEY) AS TOTAL_MATCHES,
+    SUM(t.TOTAL_ATTENDANCE) AS TOURNAMENT_ATTENDANCE,
+    ROUND(SUM(t.TOTAL_ATTENDANCE) / NULLIF(COUNT(DISTINCT fm.MATCH_KEY), 0), 0) AS AVG_ATTENDANCE_PER_MATCH,
+    t.TOTAL_GOALS,
+    COUNT(DISTINCT fpm.PLAYER_KEY) AS UNIQUE_PLAYERS,
+    COUNT(DISTINCT dt.TEAM_KEY) AS TEAMS_PARTICIPATED
+FROM DIM_TOURNAMENT t
+LEFT JOIN FACT_MATCH fm ON t.TOURNAMENT_KEY = fm.TOURNAMENT_KEY
+LEFT JOIN FACT_PLAYER_MATCH fpm ON t.TOURNAMENT_KEY = fpm.TOURNAMENT_KEY
+LEFT JOIN DIM_TEAM dt ON fpm.TEAM_KEY = dt.TEAM_KEY
+GROUP BY t.YEAR_NUM, t.QUALIFIED_TEAMS, t.TOTAL_ATTENDANCE, t.TOTAL_GOALS
+ORDER BY t.YEAR_NUM DESC;
+
+-- ============================================================================
+-- END OF QUERY TEMPLATES
+-- Total: 28 queries across 10 dashboards
+-- All results pre-aggregate to <200 rows
+-- Ready to paste into ida_query() function
+-- ============================================================================

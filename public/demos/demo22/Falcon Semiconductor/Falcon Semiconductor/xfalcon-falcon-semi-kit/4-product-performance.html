@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 4. Product Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700;letter-spacing:-.5px}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.5px}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-size:13px;color:var(--tx);min-width:140px;cursor:pointer}
+.fg select:focus{outline:none;border-color:var(--p)}.fg select[disabled]{background:#F1F5F9;color:var(--txm)}
+.tg{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+.sw{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+.tg.on .sw{background:var(--p)}.tg.on .sw::after{transform:translateX(16px)}
+.tgl{font-size:12px;font-weight:500}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer}.rst:hover{background:#237373}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:24px 0 10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.7}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--txm);letter-spacing:.5px;margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--p);line-height:1.1}.kpi-d{font-size:12px;font-weight:500;margin-top:3px}
+.kpi-d.positive{color:var(--pos)}.kpi-d.negative{color:var(--neg)}.kpi-d.neutral{color:var(--t)}.kpi-d.warn{color:var(--wrn)}
+.kpi-stk .kpi-val{font-size:16px;line-height:1.35;font-weight:500}.kpi-stk .kpi-val span{display:block}
+.kpi-stk .kpi-val .fy23{color:var(--t)}.kpi-stk .kpi-val .fy24{color:var(--sd)}.kpi-stk .kpi-val .fy25{color:var(--p);font-weight:700}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+.ct{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px}
+.cw{position:relative;height:260px}.cw.tall{height:320px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tbl-h{padding:14px 18px 10px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:14px;font-weight:700;color:var(--p)}
+.tbl-w{max-height:440px;overflow-y:auto}table{width:100%;border-collapse:collapse}
+thead th{background:var(--tb);color:var(--txd);padding:10px 12px;text-align:left;font-size:12px;font-weight:600;position:sticky;top:0}
+th.num,td.num{text-align:right}td{padding:10px 12px;font-size:13px;border-top:1px solid var(--bd)}tr:hover td{background:#F8FAFB}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}.chip.p{background:rgba(45,139,139,.12);color:var(--p)}.chip.w{background:rgba(217,119,6,.12);color:var(--wrn)}.chip.g{background:#F1F5F9;color:var(--txm)}.chip.po{background:rgba(5,150,105,.12);color:var(--pos)}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.row.two,.row.three{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 4. Product Performance</div>
+<div class="topbar-subtitle" id="rp">Reporting Period: FY2025</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Fiscal Year</label><select id="fy" onchange="apply()"></select></div>
+<div class="fg"><label>&nbsp;</label><div class="tg" id="cmp" onclick="tog()"><div class="sw"></div><div class="tgl">Compare FY23/24/25</div></div></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>Data governance:</strong> 284 SKUs across 10 categories. Top 20% of SKUs (≈57 products) generate ~88% of revenue (Pareto pattern). Automotive-qualified = AEC-Q100 certified. Lifecycle: Active (167), EOL (43), NRND (41), Mature (33).</div>
+
+<div class="sec">FY<span class="fyl">25</span> Product KPIs</div>
+<div class="kpi-grid" id="kg"></div>
+
+<div class="row two">
+<div class="ch"><div class="ct">Revenue by Category — FY25</div><div class="cw tall"><canvas id="c1"></canvas></div>
+<div class="csub">MCU dominates at $3.06B (82%). PWR/RF are secondary growth pillars.</div></div>
+<div class="ch"><div class="ct">Lifecycle Stage Revenue Mix</div><div class="cw tall"><canvas id="c2"></canvas></div>
+<div class="csub">Active products generate 78% of revenue. EOL still contributes 4% — pipeline replacement needed.</div></div>
+</div>
+
+<div class="row three">
+<div class="ch"><div class="ct">GM% by Category</div><div class="cw"><canvas id="c3"></canvas></div>
+<div class="csub">PWR/RF/FPGA earn 55%. SEN/OPT/MEM/INT/DIS at 45%.</div></div>
+<div class="ch"><div class="ct">ASP by Lifecycle Stage</div><div class="cw"><canvas id="c4"></canvas></div>
+<div class="csub">NRND SKUs carry highest ASP ($8.47) due to end-of-life pricing.</div></div>
+<div class="ch"><div class="ct">Auto-Qualified Revenue Share</div><div class="cw"><canvas id="c5"></canvas></div>
+<div class="csub">88 of 284 SKUs (31%) are AEC-Q100. Captures automotive end-market dominance.</div></div>
+</div>
+
+<div class="row two">
+<div class="ch"><div class="ct">Top 15 Products — FY25 Revenue</div><div class="cw tall"><canvas id="c6"></canvas></div>
+<div class="csub">Horizontal bars show top-15 revenue concentration. Top product (MCU-8-B0001) = $721M / 19.4% of total.</div></div>
+<div class="ch"><div class="ct">Pareto: Revenue Concentration</div><div class="cw tall"><canvas id="c7"></canvas></div>
+<div class="csub">Cumulative revenue share by SKU rank. Top 20% of SKUs ≈ 88% of revenue.</div></div>
+</div>
+
+<div class="tbl"><div class="tbl-h"><div class="tbl-t">Top 15 Products — FY25</div></div><div class="tbl-w">
+<table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>Lifecycle</th><th>Auto</th><th class="num">Revenue ($M)</th><th class="num">Units (M)</th><th class="num">Share %</th></tr></thead>
+<tbody id="tb"></tbody></table></div></div>
+
+<div class="ft">Product Performance · xFalcon AnalyticsPro</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',pos:'#059669',wrn:'#D97706',gr:'#D8E2DD'};
+var CAT=[{c:'MCU',rev:3055.4,gmPct:50.01},{c:'PWR',rev:212.5,gmPct:55.11},{c:'RF',rev:139.5,gmPct:55.07},{c:'MEM',rev:80.2,gmPct:44.57},{c:'ANA',rev:70.0,gmPct:49.91},{c:'FPGA',rev:58.1,gmPct:54.79},{c:'SEN',rev:35.6,gmPct:44.93},{c:'INT',rev:34.9,gmPct:45.48},{c:'OPT',rev:13.7,gmPct:45.00},{c:'DIS',rev:8.8,gmPct:45.18}];
+var LC=[{s:'Active',n:167,rev:2906.6,asp:4.15,aq:29198},{s:'Mature',n:33,rev:338.2,asp:5.11,aq:1936},{s:'NRND',n:41,rev:318.9,asp:8.47,aq:2446},{s:'EOL',n:43,rev:145.0,asp:4.72,aq:4165}];
+var TOP=[
+ {id:'MCU-8-B0001',n:'8-bit MCU QFN-144 65nm',c:'MCU',lc:'Active',aq:false,rev:720.68,u:248.17},
+ {id:'MCU-8-B0002',n:'8-bit MCU QFP-48 28nm',c:'MCU',lc:'Active',aq:false,rev:237.88,u:101.43},
+ {id:'MCU-16-0004',n:'16-bit MCU QFP-14 22nm',c:'MCU',lc:'Mature',aq:false,rev:204.05,u:42.99},
+ {id:'MCU-8-B0003',n:'8-bit MCU SOT-23-32 40nm',c:'MCU',lc:'Active',aq:false,rev:195.06,u:62.08},
+ {id:'MCU-16-0006',n:'16-bit MCU WLCSP-8 40nm',c:'MCU',lc:'Active',aq:false,rev:179.13,u:24.33},
+ {id:'MCU-16-0005',n:'16-bit MCU QFP-128 22nm',c:'MCU',lc:'Active',aq:true,rev:137.35,u:31.16},
+ {id:'MCU-16-0007',n:'16-bit MCU QFP-44 65nm',c:'MCU',lc:'Active',aq:false,rev:115.57,u:19.25},
+ {id:'MCU-16-0008',n:'16-bit MCU TO-220-20 65nm',c:'MCU',lc:'Active',aq:false,rev:94.25,u:17.59},
+ {id:'MCU-32-0020',n:'32-bit MPU TO-220-24 14nm',c:'MCU',lc:'NRND',aq:false,rev:79.45,u:5.36},
+ {id:'MCU-16-0011',n:'16-bit MCU DIP-44 180nm',c:'MCU',lc:'Active',aq:false,rev:78.03,u:12.05},
+ {id:'MCU-32-0012',n:'32-bit MCU SOT-23-14 40nm',c:'MCU',lc:'Active',aq:false,rev:76.17,u:9.39},
+ {id:'MCU-16-0009',n:'16-bit MCU QFP-80 90nm',c:'MCU',lc:'Active',aq:false,rev:74.09,u:12.90},
+ {id:'MCU-32-0018',n:'32-bit MPU WLCSP-14 180nm',c:'MCU',lc:'Active',aq:true,rev:69.61,u:6.82},
+ {id:'MCU-32-0019',n:'32-bit MPU TO-220-24 7nm',c:'MCU',lc:'Active',aq:true,rev:68.60,u:5.90},
+ {id:'MCU-32-0013',n:'32-bit MCU TSSOP-8 130nm',c:'MCU',lc:'Active',aq:true,rev:61.53,u:8.96}];
+var st={fy:'FY25',cmp:false};var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function init(){var y=document.getElementById('fy');y.innerHTML='';['FY21','FY22','FY23','FY24','FY25'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v==='FY25')o.selected=true;y.appendChild(o)})}
+function tog(){st.cmp=!st.cmp;document.getElementById('cmp').classList.toggle('on');document.getElementById('fy').disabled=st.cmp;apply()}
+function rst(){document.getElementById('fy').value='FY25';st.cmp=false;document.getElementById('cmp').classList.remove('on');document.getElementById('fy').disabled=false;apply()}
+function apply(){st.fy=document.getElementById('fy').value;
+ document.getElementById('rp').textContent='Reporting Period: '+(st.cmp?'FY23 / FY24 / FY25':st.fy);
+ var fls=document.querySelectorAll('.fyl');for(var i=0;i<fls.length;i++)fls[i].textContent=st.cmp?'23/24/25':st.fy.replace('FY','');
+ kpi();c1();c2();c3();c4();c5();c6();c7();tbl()}
+function kpi(){var el=document.getElementById('kg');el.innerHTML='';
+ if(st.cmp){
+  var cks=[
+   {l:'Active SKUs',v23:'158',v24:'162',v25:'167',su:'Net +9 active SKUs FY23→FY25'},
+   {l:'Total Revenue',v23:'$2.99B',v24:'$3.18B',v25:'$3.71B',su:'2yr CAGR +11.3%'},
+   {l:'Top SKU Revenue',v23:'$545M',v24:'$612M',v25:'$721M',su:'MCU-8-B0001 concentration rising'},
+   {l:'MCU Category Share',v23:'80.8%',v24:'81.6%',v25:'82.4%',su:'Concentration trending up'},
+   {l:'Auto-Qual SKU Count',v23:'72',v24:'80',v25:'88',su:'+16 AEC-Q100 SKUs over 2yrs'},
+   {l:'Highest GM Category',v23:'PWR 54.9%',v24:'PWR 55.0%',v25:'PWR 55.1%',su:'Power Management leads every year'},
+   {l:'EOL Revenue',v23:'$98M',v24:'$121M',v25:'$145M',su:'Phase-out workload growing'},
+   {l:'NRND Avg ASP',v23:'$8.02',v24:'$8.21',v25:'$8.47',su:'Uplift as inventory thins'}];
+  cks.forEach(function(k){var d=document.createElement('div');d.className='kpi kpi-stk';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val"><span class="fy23">FY23 '+k.v23+'</span><span class="fy24">FY24 '+k.v24+'</span><span class="fy25">FY25 '+k.v25+'</span></div><div class="kpi-d neutral">'+k.su+'</div>';el.appendChild(d)});
+  return;
+ }
+ var tot=CAT.reduce(function(s,r){return s+r.rev},0);
+ var ks=[
+  {l:'Active SKUs '+st.fy,v:'167',d:'of 284 catalog (58.8%)',c:'neutral'},
+  {l:'Total Revenue '+st.fy,v:'$3.71B',d:'+16.6% vs FY24',c:'positive'},
+  {l:'Top SKU Revenue',v:'$721M',d:'MCU-8-B0001 · 19.4% of total',c:'warn'},
+  {l:'MCU Category Share',v:'82.4%',d:'Heavy category concentration',c:'warn'},
+  {l:'Auto-Qual SKU Count',v:'88',d:'of 284 (31%) AEC-Q100',c:'neutral'},
+  {l:'Highest GM Category',v:'PWR 55.1%',d:'Power Management leads',c:'positive'},
+  {l:'EOL Revenue '+st.fy,v:'$145M',d:'3.9% · replacement needed',c:'warn'},
+  {l:'NRND Avg ASP',v:'$8.47',d:'2× Active avg — phase-out uplift',c:'neutral'}];
+ ks.forEach(function(k){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-d '+k.c+'">'+k.d+'</div>';el.appendChild(d)})}
+function c1(){mk('c1',{type:'bar',data:{labels:CAT.map(function(r){return r.c}),datasets:[
+ {label:'Revenue ($M)',data:CAT.map(function(r){return r.rev}),backgroundColor:CAT.map(function(r,i){return i===0?C.p:i<3?C.sd:C.s}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{type:'logarithmic',ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c2(){mk('c2',{type:'bar',data:{labels:LC.map(function(r){return r.s+' ('+r.n+' SKUs)'}),datasets:[
+ {label:'Revenue ($M)',data:LC.map(function(r){return r.rev}),backgroundColor:[C.p,C.sd,C.s,C.wrn],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c3(){mk('c3',{type:'bar',data:{labels:CAT.map(function(r){return r.c}),datasets:[
+ {label:'GM %',data:CAT.map(function(r){return r.gmPct}),backgroundColor:CAT.map(function(r){return r.gmPct>53?C.p:r.gmPct>48?C.sd:C.t}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:40,max:60,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c4(){mk('c4',{type:'bar',data:{labels:LC.map(function(r){return r.s}),datasets:[
+ {label:'ASP ($)',data:LC.map(function(r){return r.asp}),backgroundColor:[C.p,C.sd,C.wrn,C.t],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return '$'+v.toFixed(2)}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c5(){mk('c5',{type:'bar',data:{labels:['Auto-Qualified','Non-Auto'],datasets:[
+ {label:'SKU Count',data:[88,196],backgroundColor:[C.wrn,C.s],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c6(){mk('c6',{type:'bar',data:{labels:TOP.map(function(r){return r.id}),datasets:[
+ {label:'Revenue ($M)',data:TOP.map(function(r){return r.rev}),backgroundColor:TOP.map(function(r){return r.aq?C.wrn:C.p}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){var r=TOP[ctx.dataIndex];return '$'+r.rev.toFixed(1)+'M · '+r.u.toFixed(1)+'M units · '+r.lc+(r.aq?' · AUTO-QUAL':'')}}}},scales:{x:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},y:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c7(){var sum=0;var cum=TOP.map(function(r){sum+=r.rev;return sum});var tot=3708.7;var cumPct=cum.map(function(v){return +(v/tot*100).toFixed(1)});mk('c7',{type:'line',data:{labels:TOP.map(function(r,i){return '#'+(i+1)}),datasets:[
+ {label:'Cumulative Revenue %',data:cumPct,borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function tbl(){var b=document.getElementById('tb');b.innerHTML='';var tot=3708.7;
+ TOP.forEach(function(r,i){b.innerHTML+='<tr><td>'+String(i+1)+'</td><td><strong>'+r.id+'</strong><br><span style="font-size:11px;color:var(--txm)">'+r.n+'</span></td><td><span class="chip p">'+r.c.trim()+'</span></td><td><span class="chip '+(r.lc==='Active'?'po':r.lc==='EOL'?'w':'g')+'">'+r.lc+'</span></td><td>'+(r.aq?'<span class="chip w">Yes</span>':'<span class="chip g">—</span>')+'</td><td class="num">$'+r.rev.toFixed(2)+'</td><td class="num">'+r.u.toFixed(2)+'</td><td class="num">'+(r.rev/tot*100).toFixed(2)+'%</td></tr>'})}
+init();apply();
+</script></body></html>

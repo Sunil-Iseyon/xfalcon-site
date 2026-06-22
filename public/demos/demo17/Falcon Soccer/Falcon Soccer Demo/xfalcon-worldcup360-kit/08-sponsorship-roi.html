@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Falcon World Cup 360 - Sponsorship ROI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #F3F4F6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1F2937;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo-x {
+            color: #66BB6A;
+        }
+
+        .logo-f {
+            color: #FFD600;
+        }
+
+        .topbar-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #F1FAE5;
+            line-height: 1.2;
+        }
+
+        .topbar-subtitle {
+            font-size: 12px;
+            color: #FFD600;
+            margin-top: 4px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            color: #FFD600;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 1px solid #FFD600;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background-color: #FFD600;
+            color: #1B5E20;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            border-top: 3px solid #FFD600;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            border-top: 3px solid #FFD600;
+            padding: 24px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 16px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .table-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            border-top: 3px solid #FFD600;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 16px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: #2E7D32;
+            color: #FFFFFF;
+            z-index: 10;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .number {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .delta-positive {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .delta-negative {
+            color: #D32F2F;
+            font-weight: 600;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tier-partner {
+            background: #DCF5E3;
+            color: #1B5E20;
+        }
+
+        .tier-sponsor {
+            background: #FFF4E6;
+            color: #92400E;
+        }
+
+        .tier-regional {
+            background: #E0E7FF;
+            color: #312E81;
+        }
+
+        .tier-national {
+            background: #F3E8FF;
+            color: #6B21A8;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="topbar-text">
+                <div class="topbar-title">Falcon World Cup 360</div>
+                <div class="topbar-subtitle">8. Sponsorship ROI</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">← Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">$13.46B</div>
+                <div class="kpi-label">Total Contracts</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$38.45B</div>
+                <div class="kpi-label">Total Media Value</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2.86x</div>
+                <div class="kpi-label">Avg ROI</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$1.68B</div>
+                <div class="kpi-label">Top Sponsor (Adidas)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">3.6x</div>
+                <div class="kpi-label">Best ROI (Yingli Solar)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">67%</div>
+                <div class="kpi-label">Renewal Rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">20</div>
+                <div class="kpi-label">Total Sponsors</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$3.56B</div>
+                <div class="kpi-label">Activation Spend</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Chart 1: Contract Value by Sponsor (Top 10) -->
+            <div class="chart-card">
+                <div class="chart-title">Contract Value by Sponsor (Top 10)</div>
+                <div class="chart-container">
+                    <canvas id="contractTopChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: ROI by Sponsor -->
+            <div class="chart-card">
+                <div class="chart-title">ROI by Sponsor</div>
+                <div class="chart-container">
+                    <canvas id="roiChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Sponsorship Growth -->
+            <div class="chart-card">
+                <div class="chart-title">Sponsorship Growth Over Time</div>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Contract Value by Tier -->
+            <div class="chart-card">
+                <div class="chart-title">Contract Value by Tier</div>
+                <div class="chart-container">
+                    <canvas id="tierChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 5: Media Value vs Contract -->
+            <div class="chart-card">
+                <div class="chart-title">Media Value vs Contract</div>
+                <div class="chart-container">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 6: Industry Mix -->
+            <div class="chart-card">
+                <div class="chart-title">Contract Value by Industry</div>
+                <div class="chart-container">
+                    <canvas id="industryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-card">
+            <div class="table-title">Sponsorship Details</div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Industry</th>
+                            <th>Tier</th>
+                            <th>Contract</th>
+                            <th>Activation</th>
+                            <th>Media Value</th>
+                            <th>ROI</th>
+                            <th>Tournaments</th>
+                            <th>Renewals</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sponsorTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var SPONSORS = [
+            {name:'Adidas', industry:'Sportswear', tier:'FIFA_Partner', contract:1675089732, activation:332009969, mediaVal:5039066752, roi:3.0, exposure:2004, tournaments:20, renewals:10},
+            {name:'Visa', industry:'Financial', tier:'FIFA_Partner', contract:1589968972, activation:506120387, mediaVal:4264427024, roi:2.7, exposure:2288, tournaments:20, renewals:13},
+            {name:'Coca-Cola', industry:'Beverages', tier:'FIFA_Partner', contract:1465641665, activation:400240077, mediaVal:4205560919, roi:2.9, exposure:2070, tournaments:20, renewals:16},
+            {name:'Hyundai/Kia', industry:'Automotive', tier:'FIFA_Partner', contract:1259405444, activation:322319461, mediaVal:3738796534, roi:3.0, exposure:394, tournaments:5, renewals:4},
+            {name:'Qatar Airways', industry:'Aviation', tier:'FIFA_Partner', contract:1049616857, activation:258404886, mediaVal:3522114040, roi:3.4, exposure:224, tournaments:3, renewals:1},
+            {name:'Wanda Group', industry:'Real Estate', tier:'FIFA_Partner', contract:981817107, activation:254851043, mediaVal:2657266496, roi:2.7, exposure:428, tournaments:3, renewals:2},
+            {name:'Hublot', industry:'Luxury', tier:'FIFA_Sponsor', contract:750990057, activation:214380489, mediaVal:1770765706, roi:2.4, exposure:2201, tournaments:20, renewals:12},
+            {name:'McDonald\'s', industry:'QSR', tier:'FIFA_Sponsor', contract:739178451, activation:204870148, mediaVal:1990690910, roi:2.7, exposure:2312, tournaments:20, renewals:12},
+            {name:'Powerade', industry:'Beverages', tier:'FIFA_Sponsor', contract:645300340, activation:189958940, mediaVal:1750718554, roi:2.7, exposure:2379, tournaments:20, renewals:11},
+            {name:'Budweiser', industry:'Beverages', tier:'FIFA_Sponsor', contract:638035622, activation:172269110, mediaVal:2090374376, roi:3.3, exposure:2036, tournaments:20, renewals:12},
+            {name:'Vivo', industry:'Electronics', tier:'FIFA_Sponsor', contract:582626918, activation:150593853, mediaVal:1562677625, roi:2.7, exposure:511, tournaments:5, renewals:4},
+            {name:'Mengniu', industry:'Dairy', tier:'FIFA_Sponsor', contract:578069006, activation:155950968, mediaVal:1577096152, roi:2.7, exposure:665, tournaments:5, renewals:4},
+            {name:'Castrol', industry:'Lubricants', tier:'Regional', contract:257676707, activation:70281051, mediaVal:741423252, roi:2.9, exposure:1106, tournaments:9, renewals:6},
+            {name:'Emirates', industry:'Aviation', tier:'Regional', contract:255058714, activation:67636083, mediaVal:628865853, roi:2.5, exposure:931, tournaments:9, renewals:5},
+            {name:'Gazprom', industry:'Energy', tier:'Regional', contract:239067554, activation:68155112, mediaVal:731472754, roi:3.1, exposure:1062, tournaments:9, renewals:5},
+            {name:'Yingli Solar', industry:'Energy', tier:'Regional', contract:217367704, activation:59896007, mediaVal:773268916, roi:3.6, exposure:801, tournaments:5, renewals:4},
+            {name:'J&J', industry:'Healthcare', tier:'National', contract:140695322, activation:35273654, mediaVal:427264801, roi:3.0, exposure:882, tournaments:9, renewals:6},
+            {name:'Seara', industry:'Food', tier:'National', contract:136644275, activation:30593364, mediaVal:305162477, roi:2.2, exposure:734, tournaments:9, renewals:6},
+            {name:'Continental', industry:'Automotive', tier:'National', contract:134140192, activation:34264735, mediaVal:407510289, roi:3.0, exposure:922, tournaments:9, renewals:5},
+            {name:'Telkom', industry:'Telecom', tier:'National', contract:124824685, activation:33930015, mediaVal:265466360, roi:2.1, exposure:892, tournaments:9, renewals:6}
+        ];
+
+        var YEARLY = [
+            {year:1930, contract:8640275, mediaVal:20764141},
+            {year:1934, contract:7476305, mediaVal:16870645},
+            {year:1938, contract:8671827, mediaVal:26543687},
+            {year:1950, contract:8991573, mediaVal:20484448},
+            {year:1954, contract:8832077, mediaVal:17827700},
+            {year:1958, contract:9163277, mediaVal:24712534},
+            {year:1962, contract:8655884, mediaVal:25310787},
+            {year:1966, contract:8010070, mediaVal:20850083},
+            {year:1970, contract:30921510, mediaVal:78155475},
+            {year:1974, contract:33398974, mediaVal:97305635},
+            {year:1978, contract:34329626, mediaVal:78058721},
+            {year:1982, contract:163050848, mediaVal:438435616},
+            {year:1986, contract:174508312, mediaVal:399929663},
+            {year:1990, contract:287603326, mediaVal:912382009},
+            {year:1994, contract:507860177, mediaVal:1286392663},
+            {year:1998, contract:1099898146, mediaVal:3227693456},
+            {year:2002, contract:1561989218, mediaVal:4228649157},
+            {year:2006, contract:2429687988, mediaVal:7189930855},
+            {year:2010, contract:2994601540, mediaVal:7888523281},
+            {year:2014, contract:4074924372, mediaVal:12451169234}
+        ];
+
+        function mk(value) {
+            if (value === undefined || value === null) return '0';
+            if (value >= 1e9) return (value / 1e9).toFixed(2) + 'B';
+            if (value >= 1e6) return (value / 1e6).toFixed(2) + 'M';
+            if (value >= 1e3) return (value / 1e3).toFixed(2) + 'K';
+            return value.toString();
+        }
+
+        function fitKpiText() {
+            var cards = document.querySelectorAll('.kpi-card');
+            cards.forEach(function(card) {
+                var value = card.querySelector('.kpi-value');
+                var parent = card;
+                while (value.scrollWidth > parent.clientWidth - 20 && parseInt(window.getComputedStyle(value).fontSize) > 18) {
+                    var current = parseInt(window.getComputedStyle(value).fontSize);
+                    value.style.fontSize = (current - 2) + 'px';
+                }
+            });
+        }
+
+        // Initialize table
+        function initTable() {
+            var tbody = document.getElementById('sponsorTableBody');
+            tbody.innerHTML = '';
+            SPONSORS.forEach(function(sponsor) {
+                var row = document.createElement('tr');
+                var tierClass = 'tier-' + sponsor.tier.toLowerCase().replace('_', '-');
+                var tierDisplay = sponsor.tier.replace(/_/g, ' ');
+                row.innerHTML = '<td>' + sponsor.name + '</td>' +
+                    '<td>' + sponsor.industry + '</td>' +
+                    '<td><span class="tier-badge ' + tierClass + '">' + tierDisplay + '</span></td>' +
+                    '<td class="number">$' + mk(sponsor.contract) + '</td>' +
+                    '<td class="number">$' + mk(sponsor.activation) + '</td>' +
+                    '<td class="number">$' + mk(sponsor.mediaVal) + '</td>' +
+                    '<td class="number delta-positive">' + sponsor.roi.toFixed(2) + 'x</td>' +
+                    '<td class="number">' + sponsor.tournaments + '</td>' +
+                    '<td class="number">' + sponsor.renewals + '</td>';
+                tbody.appendChild(row);
+            });
+        }
+
+        // Chart 1: Contract Value by Sponsor (Top 10)
+        function initContractTopChart() {
+            var ctx = document.getElementById('contractTopChart').getContext('2d');
+            var sorted = SPONSORS.slice().sort(function(a, b) { return b.contract - a.contract; }).slice(0, 10);
+            var labels = sorted.map(function(s) { return s.name; });
+            var data = sorted.map(function(s) { return s.contract; });
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Contract Value',
+                        data: data,
+                        backgroundColor: '#2E7D32',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { callback: function(v) { return '$' + mk(v); } } }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: ROI by Sponsor
+        function initRoiChart() {
+            var ctx = document.getElementById('roiChart').getContext('2d');
+            var sorted = SPONSORS.slice().sort(function(a, b) { return b.roi - a.roi; });
+            var labels = sorted.map(function(s) { return s.name; });
+            var data = sorted.map(function(s) { return s.roi; });
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ROI (x)',
+                        data: data,
+                        backgroundColor: '#C8A415',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { callback: function(v) { return v.toFixed(2) + 'x'; } } }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: Sponsorship Growth
+        function initGrowthChart() {
+            var ctx = document.getElementById('growthChart').getContext('2d');
+            var labels = YEARLY.map(function(y) { return y.year; });
+            var contractData = YEARLY.map(function(y) { return y.contract; });
+            var mediaData = YEARLY.map(function(y) { return y.mediaVal; });
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Contract Value',
+                            data: contractData,
+                            borderColor: '#2E7D32',
+                            backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Media Value',
+                            data: mediaData,
+                            borderColor: '#C8A415',
+                            backgroundColor: 'rgba(200, 164, 21, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        y: { ticks: { callback: function(v) { return '$' + mk(v); } } }
+                    }
+                }
+            });
+        }
+
+        // Chart 4: Contract Value by Tier
+        function initTierChart() {
+            var ctx = document.getElementById('tierChart').getContext('2d');
+            var tiers = {};
+            SPONSORS.forEach(function(s) {
+                if (!tiers[s.tier]) tiers[s.tier] = 0;
+                tiers[s.tier] += s.contract;
+            });
+            var tierOrder = ['FIFA_Partner', 'FIFA_Sponsor', 'Regional', 'National'];
+            var labels = tierOrder.filter(function(t) { return tiers[t]; }).map(function(t) { return t.replace(/_/g, ' '); });
+            var data = tierOrder.filter(function(t) { return tiers[t]; }).map(function(t) { return tiers[t]; });
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Contract Value',
+                        data: data,
+                        backgroundColor: ['#2E7D32', '#C8A415', '#94A3B8', '#94A3B8'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { callback: function(v) { return '$' + mk(v); } } }
+                    }
+                }
+            });
+        }
+
+        // Chart 5: Media Value vs Contract (Scatter)
+        function initScatterChart() {
+            var ctx = document.getElementById('scatterChart').getContext('2d');
+            var scatterData = SPONSORS.map(function(s) {
+                return { x: s.contract, y: s.mediaVal };
+            });
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Sponsors',
+                        data: scatterData,
+                        backgroundColor: '#2E7D32',
+                        borderColor: '#2E7D32',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'Contract Value' }, ticks: { callback: function(v) { return '$' + mk(v); } } },
+                        y: { title: { display: true, text: 'Media Value' }, ticks: { callback: function(v) { return '$' + mk(v); } } }
+                    }
+                }
+            });
+        }
+
+        // Chart 6: Industry Mix
+        function initIndustryChart() {
+            var ctx = document.getElementById('industryChart').getContext('2d');
+            var industries = {};
+            SPONSORS.forEach(function(s) {
+                if (!industries[s.industry]) industries[s.industry] = 0;
+                industries[s.industry] += s.contract;
+            });
+            var sortedIndustries = Object.keys(industries).sort(function(a, b) {
+                return industries[b] - industries[a];
+            });
+            var labels = sortedIndustries;
+            var data = sortedIndustries.map(function(ind) { return industries[ind]; });
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Contract Value',
+                        data: data,
+                        backgroundColor: '#C8A415',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { callback: function(v) { return '$' + mk(v); } } }
+                    }
+                }
+            });
+        }
+
+        // Initialize all on page load
+        window.addEventListener('load', function() {
+            initContractTopChart();
+            initRoiChart();
+            initGrowthChart();
+            initTierChart();
+            initScatterChart();
+            initIndustryChart();
+            initTable();
+            fitKpiText();
+        });
+
+        window.addEventListener('resize', fitKpiText);
+    </script>
+</body>
+</html>

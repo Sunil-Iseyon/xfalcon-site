@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xFalcon IPL Analytics Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --color-dark: #1A1A1A;
+  --color-dark2: #252525;
+  --color-base: #F5F6F8;
+  --color-card: #FFFFFF;
+  --color-card-hover: #F0F4F8;
+  --color-accent: #4ECDC4;
+  --color-accent2: #F7946B;
+  --color-gray: #94A3B8;
+  --color-green: #4CAF50;
+  --color-red: #FF4757;
+  --color-text: #1A1A1A;
+  --color-text-sec: #64748B;
+  --color-text-tri: #94A3B8;
+  --radius: 12px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+body { background: var(--color-base); color: var(--color-text); font-family: var(--font); min-height: 100vh; }
+
+/* Topbar — DARK */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: linear-gradient(135deg, #141414 0%, #1A1A1A 100%); border-bottom: 3px solid #4ECDC4; }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.logo-x { color: #4ECDC4; }
+.logo-f { color: #F7946B; }
+.topbar-title { font-size: 16px; font-weight: 600; color: #FFFFFF; }
+.topbar-sub { font-size: 13px; color: #8B95A5; font-weight: 400; margin-top: 2px; }
+
+/* Hero — DARK */
+.hero { padding: 40px 32px 24px; text-align: center; background: #1A1A1A; }
+.hero h1 { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #4ECDC4, #F7946B); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero p { color: #8B95A5; font-size: 15px; margin-top: 8px; }
+
+/* Container — LIGHT */
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 32px 40px; }
+
+/* KPI Grid */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.kpi-card { background: var(--color-card); border-radius: var(--radius); padding: 20px; border-left: 4px solid #4ECDC4; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.kpi-label { font-size: 12px; font-weight: 600; color: var(--color-text-sec); text-transform: uppercase; margin-bottom: 6px; }
+.kpi-value { font-size: 28px; font-weight: 700; color: #1A1A1A; }
+.kpi-delta { font-size: 13px; margin-top: 4px; }
+.kpi-delta.positive { color: #4CAF50; }
+.kpi-delta.negative { color: #FF4757; }
+.kpi-delta.neutral { color: #94A3B8; }
+
+/* Section Titles — DARK HEADER BAR */
+.section-title { font-size: 16px; font-weight: 700; color: #FFFFFF; margin: 32px 0 16px; padding: 12px 20px; background: #1A1A1A; border-radius: 8px; border-left: 4px solid #4ECDC4; }
+
+/* Charts — WHITE CARDS */
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.chart-card { background: var(--color-card); border-radius: var(--radius); padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.chart-title { font-size: 15px; font-weight: 700; color: #1A1A1A; margin-bottom: 12px; }
+.chart-wrap { position: relative; height: 300px; }
+
+/* Dashboard Directory */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+.dash-card { display: block; background: var(--color-card); border-radius: var(--radius); padding: 20px; border-left: 4px solid #4ECDC4; text-decoration: none; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.dash-card:hover { background: var(--color-card-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+.dash-num { font-size: 24px; font-weight: 800; color: #4ECDC4; margin-bottom: 4px; }
+.dash-name { font-size: 15px; font-weight: 600; color: #1A1A1A; margin-bottom: 6px; }
+.dash-desc { font-size: 13px; color: var(--color-text-sec); line-height: 1.5; }
+.status-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: rgba(78,205,196,0.15); color: #2AA89E; margin-left: 6px; vertical-align: middle; }
+
+/* Franchise Table — WHITE with DARK header */
+.detail-table { width: 100%; border-collapse: collapse; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.detail-table th { background: #1A1A1A; color: #FFFFFF; padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; }
+.detail-table td { padding: 10px 16px; font-size: 13px; color: #1A1A1A; border-bottom: 1px solid #E8ECF0; background: #FFFFFF; }
+.detail-table tr:hover td { background: #F0F9F8; }
+.team-color { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+
+/* Footer — DARK */
+.footer { text-align: center; padding: 24px; color: #8B95A5; font-size: 12px; background: #1A1A1A; margin-top: 20px; }
+
+@media (max-width: 768px) {
+  .chart-row, .dash-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- DARK TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+    <div>
+      <div class="topbar-title">xFalcon IPL Analytics Hub</div>
+      <div class="topbar-sub">Indian Premier League | 2008 - 2025 | 18 Seasons</div>
+    </div>
+  </div>
+</div>
+
+<!-- DARK HERO -->
+<div class="hero">
+  <h1>IPL Analytics Hub</h1>
+  <p>Comprehensive analytics across 18 seasons, 1,171 matches, 15 franchises &amp; 301 players</p>
+</div>
+
+<!-- LIGHT CONTENT AREA -->
+<div class="container">
+
+  <!-- KPI Cards — White cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Matches</div>
+      <div class="kpi-value">1,171</div>
+      <div class="kpi-delta neutral">Across 18 seasons</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">2025 Revenue</div>
+      <div class="kpi-value">&#8377;376.3 Cr</div>
+      <div class="kpi-delta positive">&#9650; 17.1% vs 2024 ($45.2M)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">2025 Attendance</div>
+      <div class="kpi-value">26.5 Lakh</div>
+      <div class="kpi-delta positive">&#9650; 9.4% vs 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">2025 Champion</div>
+      <div class="kpi-value" style="font-size:22px;">RCB</div>
+      <div class="kpi-delta neutral">Royal Challengers Bangalore</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Prize Pool 2025</div>
+      <div class="kpi-value">&#8377;60 Cr</div>
+      <div class="kpi-delta positive">&#9650; 20% vs 2024 ($7.2M)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Title Sponsor Value</div>
+      <div class="kpi-value">&#8377;400 Cr</div>
+      <div class="kpi-delta positive">&#9650; 17.6% vs 2024 ($48M)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Sixes/Match (2025)</div>
+      <div class="kpi-value">10.9</div>
+      <div class="kpi-delta positive">&#9650; 7.1% vs 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Franchises</div>
+      <div class="kpi-value">10</div>
+      <div class="kpi-delta neutral">Since 2022 expansion</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Seasons</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-delta neutral">2008-2025</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Players</div>
+      <div class="kpi-value">301</div>
+      <div class="kpi-delta neutral">Across all franchises</div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="section-title">League Trends</div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Season Revenue &amp; Attendance Trend (2008-2025)</div>
+      <div class="chart-wrap"><canvas id="chartRevenue"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Franchise Win % — Active Teams (All Time)</div>
+      <div class="chart-wrap"><canvas id="chartWinPct"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Average Sixes Per Match by Season</div>
+      <div class="chart-wrap"><canvas id="chartSixes"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Title Sponsorship &amp; Prize Pool Growth</div>
+      <div class="chart-wrap"><canvas id="chartSponsor"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Directory -->
+  <div class="section-title">Dashboard Directory</div>
+  <div class="dash-grid">
+    <a class="dash-card" href="01-team-performance.html">
+      <div class="dash-num">1</div>
+      <div class="dash-name">Team Performance <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Win/loss records, run rates, powerplay stats, home vs away splits, and head-to-head across all 18 seasons.</div>
+    </a>
+    <a class="dash-card" href="02-player-analytics.html">
+      <div class="dash-num">2</div>
+      <div class="dash-name">Player Analytics <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Batting &amp; bowling leaderboards, Orange/Purple Cap races, strike rates, career trajectories, and MVP rankings.</div>
+    </a>
+    <a class="dash-card" href="03-auction-economics.html">
+      <div class="dash-num">3</div>
+      <div class="dash-name">Auction Economics <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Player valuations, franchise spending, retention vs fresh buys, ROI analysis, and price inflation trends.</div>
+    </a>
+    <a class="dash-card" href="04-financial-performance.html">
+      <div class="dash-num">4</div>
+      <div class="dash-name">Financial Performance <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Revenue streams, operating profit, salary caps, sponsorship values, and franchise commercial health.</div>
+    </a>
+    <a class="dash-card" href="05-broadcast-viewership.html">
+      <div class="dash-num">5</div>
+      <div class="dash-name">Broadcast &amp; Viewership <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">TV ratings, digital reach, regional viewership, ad revenue, peak concurrent viewers, and time-slot analysis.</div>
+    </a>
+    <a class="dash-card" href="06-fan-engagement.html">
+      <div class="dash-num">6</div>
+      <div class="dash-name">Fan Engagement <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Social media sentiment, merchandise sales, fantasy cricket trends, app engagement, and ticket search demand.</div>
+    </a>
+    <a class="dash-card" href="07-venue-analytics.html">
+      <div class="dash-num">7</div>
+      <div class="dash-name">Venue Analytics <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Stadium capacity utilisation, match hosting history, pitch conditions, scoring patterns, and revenue per venue.</div>
+    </a>
+    <a class="dash-card" href="08-head-to-head.html">
+      <div class="dash-num">8</div>
+      <div class="dash-name">Head-to-Head <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Franchise rivalry matrix, historical matchup records, toss impact, venue-specific results, and recent form.</div>
+    </a>
+    <a class="dash-card" href="09-season-deep-dive.html">
+      <div class="dash-num">9</div>
+      <div class="dash-name">Season Deep-Dive <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Single-season drill-down: points table, match results, top performers, key moments, and season storylines.</div>
+    </a>
+    <a class="dash-card" href="10-prediction-market.html" style="border-left-color: #F7946B;">
+      <div class="dash-num" style="color: #F7946B;">10</div>
+      <div class="dash-name">Prediction Market <span class="status-badge">Ready</span></div>
+      <div class="dash-desc">Match prediction accuracy, betting odds trends, market-implied win probabilities, and over-by-over streaming viewership.</div>
+    </a>
+  </div>
+
+  <!-- Franchise Summary Table -->
+  <div class="section-title">Franchise Summary — Active Teams (All Time)</div>
+  <div style="overflow-x:auto;">
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>City</th>
+        <th>Titles</th>
+        <th>Wins</th>
+        <th>Losses</th>
+        <th>Win %</th>
+      </tr>
+    </thead>
+    <tbody id="franchiseTable"></tbody>
+  </table>
+  </div>
+
+</div>
+
+<!-- DARK FOOTER -->
+<div class="footer">
+  xFalcon IPL Analytics Hub &bull; Powered by xFalcon AnalyticsPro &bull; Data: 2008-2025
+</div>
+
+<script>
+var chartInstances = {};
+function mk(id, cfg) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  var ctx = document.getElementById(id).getContext('2d');
+  chartInstances[id] = new Chart(ctx, cfg);
+  return chartInstances[id];
+}
+
+/* Data */
+var seasons = [2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+var totalMatches = [58,57,60,74,74,76,60,60,60,59,60,60,60,60,74,74,74,74];
+var sponsorVal = [40,40,40,40,40,80,80,80,220,220,220,220,222,440,340,340,340,340];
+var prizePool = [4.8,5,5,7,7,8,9,10,11,12,15,20,20,20,48,50,50,50];
+var financialTrend = [358.53,361.48,397.69,457.89,408.10,461.27,466.05,390.35,433.17,523.63,521.72,589.83,730.01,622.83,649.17,829.00,983.20];
+var revenue = [231.0,261.2,247.8,309.7,308.5,312.7,256.4,241.5,247.6,241.4,259.8,251.1,265.5,257.9,316.9,307.1,321.2,376.3];
+var attendance = [18.4,20.3,19.1,23.9,23.5,23.8,19.8,18.9,19.2,19.4,19.7,20.0,20.8,19.5,24.5,23.3,24.2,26.5];
+var avgSixes = [10.5,9.4,10.2,10.8,10.6,11.0,9.6,10.8,10.3,8.9,10.3,11.0,10.8,10.7,10.4,10.2,10.2,10.9];
+
+var teams = [
+  {code:'GT',name:'Gujarat Titans',city:'Ahmedabad',titles:1,wins:37,losses:23,pct:61.7,color:'#0B2149'},
+  {code:'CSK',name:'Chennai Super Kings',city:'Chennai',titles:5,wins:142,losses:108,pct:56.8,color:'#FFCC00'},
+  {code:'MI',name:'Mumbai Indians',city:'Mumbai',titles:5,wins:151,losses:122,pct:55.3,color:'#004BA0'},
+  {code:'LSG',name:'Lucknow Super Giants',city:'Lucknow',titles:0,wins:30,losses:26,pct:53.6,color:'#A72056'},
+  {code:'KKR',name:'Kolkata Knight Riders',city:'Kolkata',titles:3,wins:135,losses:124,pct:52.1,color:'#2D0D5C'},
+  {code:'RCB',name:'Royal Challengers Bangalore',city:'Bangalore',titles:1,wins:132,losses:132,pct:50.0,color:'#EC1C24'},
+  {code:'RR',name:'Rajasthan Royals',city:'Jaipur',titles:1,wins:114,losses:115,pct:49.8,color:'#254AA5'},
+  {code:'SRH',name:'Sunrisers Hyderabad',city:'Hyderabad',titles:1,wins:93,losses:98,pct:48.7,color:'#F26522'},
+  {code:'PBKS',name:'Punjab Kings',city:'Mohali',titles:0,wins:119,losses:140,pct:45.9,color:'#ED1B24'},
+  {code:'DC',name:'Delhi Capitals',city:'Delhi',titles:0,wins:118,losses:140,pct:45.7,color:'#0078BC'}
+];
+
+/* Light theme chart colors */
+var cTurq = '#4ECDC4';
+var cCoral = '#F7946B';
+var cGray = '#94A3B8';
+var cText = '#64748B';
+var cGrid = 'rgba(0,0,0,0.06)';
+
+/* Chart 1: Revenue & Attendance */
+mk('chartRevenue', {
+  type: 'bar',
+  data: {
+    labels: seasons.map(function(s) { return String(s); }),
+    datasets: [
+      {
+        label: 'Revenue (Cr)',
+        data: revenue,
+        backgroundColor: cTurq,
+        borderColor: cTurq,
+        borderWidth: 0,
+        borderRadius: 4,
+        yAxisID: 'y',
+        order: 2
+      },
+      {
+        label: 'Attendance (Lakh)',
+        data: attendance,
+        type: 'line',
+        borderColor: cGray,
+        backgroundColor: 'rgba(148,163,184,0.08)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: cGray,
+        fill: true,
+        yAxisID: 'y1',
+        order: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: cText, font: { family: 'Inter', size: 12 } } }
+    },
+    scales: {
+      x: { ticks: { color: cText, font: { size: 11 } }, grid: { color: cGrid } },
+      y: { position: 'left', title: { display: true, text: 'Revenue (Cr)', color: cText }, ticks: { color: cText }, grid: { color: cGrid } },
+      y1: { position: 'right', title: { display: true, text: 'Attendance (Lakh)', color: cText }, ticks: { color: cText }, grid: { drawOnChartArea: false } }
+    }
+  }
+});
+
+/* Chart 2: Franchise Win % */
+mk('chartWinPct', {
+  type: 'bar',
+  data: {
+    labels: teams.map(function(t) { return t.code; }),
+    datasets: [{
+      label: 'Win %',
+      data: teams.map(function(t) { return t.pct; }),
+      backgroundColor: cTurq,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      x: { min: 40, max: 65, ticks: { color: cText, callback: function(v) { return v + '%'; } }, grid: { color: cGrid } },
+      y: { ticks: { color: '#1A1A1A', font: { size: 12, weight: 600 } }, grid: { display: false } }
+    }
+  }
+});
+
+/* Chart 3: Avg Sixes per Match */
+mk('chartSixes', {
+  type: 'line',
+  data: {
+    labels: seasons.map(function(s) { return String(s); }),
+    datasets: [{
+      label: 'Avg Sixes/Match',
+      data: avgSixes,
+      borderColor: cCoral,
+      backgroundColor: 'rgba(247,148,107,0.08)',
+      borderWidth: 2,
+      pointRadius: 4,
+      pointBackgroundColor: cCoral,
+      fill: true,
+      tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      x: { ticks: { color: cText, font: { size: 11 } }, grid: { color: cGrid } },
+      y: { min: 8, max: 12, ticks: { color: cText }, grid: { color: cGrid } }
+    }
+  }
+});
+
+/* Chart 4: Sponsorship & Prize Pool */
+mk('chartSponsor', {
+  type: 'line',
+  data: {
+    labels: seasons.map(function(s) { return String(s); }),
+    datasets: [
+      {
+        label: 'Title Sponsor (Cr)',
+        data: sponsorVal,
+        borderColor: cTurq,
+        backgroundColor: 'rgba(78,205,196,0.06)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: cTurq,
+        fill: true
+      },
+      {
+        label: 'Prize Pool (Cr)',
+        data: prizePool,
+        borderColor: cGray,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: cGray,
+        borderDash: [5,5],
+        fill: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: cText, font: { family: 'Inter', size: 12 } } }
+    },
+    scales: {
+      x: { ticks: { color: cText, font: { size: 11 } }, grid: { color: cGrid } },
+      y: { ticks: { color: cText }, grid: { color: cGrid } }
+    }
+  }
+});
+
+/* Franchise Table */
+var tbody = document.getElementById('franchiseTable');
+teams.forEach(function(t) {
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td><span class="team-color" style="background:' + t.color + '"></span>' + t.code + ' - ' + t.name + '</td>' +
+    '<td>' + t.city + '</td>' +
+    '<td style="font-weight:700;color:#F7946B;">' + String(t.titles) + '</td>' +
+    '<td>' + String(t.wins) + '</td>' +
+    '<td>' + String(t.losses) + '</td>' +
+    '<td style="font-weight:600;color:#2AA89E;">' + String(t.pct) + '%</td>';
+  tbody.appendChild(tr);
+});
+
+function fitKpiText() {
+  var els = document.querySelectorAll('.kpi-value');
+  for (var i = 0; i < els.length; i++) {
+    var len = els[i].textContent.length;
+    if (len > 12) els[i].style.fontSize = '18px';
+    else if (len > 8) els[i].style.fontSize = '22px';
+    else els[i].style.fontSize = '28px';
+  }
+}
+fitKpiText();
+</script>
+</body>
+</html>

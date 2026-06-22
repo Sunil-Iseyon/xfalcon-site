@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom / 8. Roaming Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+        .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+        .logo-x { color: #E20074; }
+        .logo-f { color: white; }
+        .title { flex: 1; margin-left: 24px; }
+        .title-main { font-weight: 600; font-size: 16px; }
+        .title-sub { font-size: 13px; color: #94A3B8; }
+        .back-link { color: #E20074; text-decoration: none; font-weight: 500; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .filters { background: white; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; gap: 16px; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; }
+        .filter-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; }
+        select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 13px; font-family: 'Inter'; background: white; cursor: pointer; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi { background: white; border-radius: 8px; padding: 20px; border-left: 4px solid #E20074; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #E20074; margin-bottom: 8px; word-break: break-word; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; }
+        .kpi-delta { font-size: 13px; margin-top: 8px; font-weight: 500; }
+        .kpi-delta.positive { color: #059669; }
+        .kpi-delta.negative { color: #D32F2F; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .card-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+        .chart-container { position: relative; height: 300px; margin-bottom: 20px; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #1D1D2C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+        tr:hover { background: #F8FAFC; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        <div class="title">
+            <div class="title-main">Falcon Telecom / 8. Roaming Analysis</div>
+            <div class="title-sub" id="reporting-period">2025 Full Year</div>
+        </div>
+        <a href="index.html" class="back-link">← Back</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select id="yearSelect" onchange="applyFilters()">
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Partner Region</label>
+                <select id="regionSelect" onchange="applyFilters()">
+                    <option value="">All Regions</option>
+                    <option value="North America">North America</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Asia Pacific">Asia Pacific</option>
+                    <option value="Middle East">Middle East</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi">
+                <div class="kpi-value" id="kpi1">₹2.8Cr</div>
+                <div class="kpi-label">Total Roaming Revenue</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi2">-2.3%</div>
+                <div class="kpi-label">YoY Change</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi3">USA</div>
+                <div class="kpi-label">Top Destination</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi4">47.3K</div>
+                <div class="kpi-label">Sessions 2025</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi5">20.1GB</div>
+                <div class="kpi-label">Data Consumed</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi6">1.2M</div>
+                <div class="kpi-label">Voice Minutes</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi7">12</div>
+                <div class="kpi-label">Partners</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi8">₹5.9K</div>
+                <div class="kpi-label">Avg Rev/Session</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Revenue by Partner Country</div>
+            <div class="chart-container">
+                <canvas id="chart1"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Quarterly Revenue Trend</div>
+            <div class="chart-container">
+                <canvas id="chart2"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Revenue by Partner Region</div>
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Data vs Voice Revenue Mix by Partner</div>
+            <div class="chart-container">
+                <canvas id="chart4"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Top 5 Destinations Data Consumption</div>
+            <div class="chart-container">
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Sessions Trend by Top Partners</div>
+            <div class="chart-container">
+                <canvas id="chart6"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Roaming Partner Summary</div>
+            <div class="table-wrapper">
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>Country</th>
+                            <th>Carrier</th>
+                            <th>Region</th>
+                            <th>Sessions</th>
+                            <th>Data MB</th>
+                            <th>Voice Min</th>
+                            <th>Revenue</th>
+                            <th>YoY %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var ROAMING_ANNUAL = [
+            {country:'USA', carrier:'T-Mobile', region:'North America', sessions2024:12621, rev2024:163321, sessions2025:12367, rev2025:159518},
+            {country:'United Kingdom', carrier:'EE', region:'Europe', sessions2024:3497, rev2024:54354, sessions2025:3531, rev2025:54152},
+            {country:'UAE', carrier:'Etisalat', region:'Middle East', sessions2024:1735, rev2024:20674, sessions2025:1726, rev2025:20085},
+            {country:'Singapore', carrier:'Singtel', region:'Asia Pacific', sessions2024:1060, rev2024:9863, sessions2025:1028, rev2025:10201},
+            {country:'Australia', carrier:'Optus', region:'Asia Pacific', sessions2024:730, rev2024:10595, sessions2025:690, rev2025:9478},
+            {country:'Canada', carrier:'Rogers', region:'North America', sessions2024:521, rev2024:6371, sessions2025:552, rev2025:6833},
+            {country:'Germany', carrier:'Deutsche Telekom', region:'Europe', sessions2024:419, rev2024:6594, sessions2025:384, rev2025:5662},
+            {country:'France', carrier:'Orange', region:'Europe', sessions2024:270, rev2024:3821, sessions2025:325, rev2025:4813},
+            {country:'Japan', carrier:'NTT Docomo', region:'Asia Pacific', sessions2024:191, rev2024:2320, sessions2025:178, rev2025:2513},
+            {country:'Saudi Arabia', carrier:'STC', region:'Middle East', sessions2024:242, rev2024:2429, sessions2025:263, rev2025:2862},
+            {country:'Malaysia', carrier:'Maxis', region:'Asia Pacific', sessions2024:168, rev2024:1472, sessions2025:187, rev2025:1497},
+            {country:'Thailand', carrier:'AIS', region:'Asia Pacific', sessions2024:130, rev2024:1153, sessions2025:138, rev2025:1038}
+        ];
+
+        var ROAMING_QUARTERLY = [
+            {year:2024, qtr:1, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3159, dataMB:514337, voiceMin:79026, rev:34532},
+            {year:2024, qtr:1, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:876, dataMB:144838, voiceMin:21931, rev:11276},
+            {year:2024, qtr:1, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:444, dataMB:75472, voiceMin:11792, rev:4561},
+            {year:2024, qtr:1, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:254, dataMB:42417, voiceMin:6562, rev:2141},
+            {year:2024, qtr:1, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:183, dataMB:33156, voiceMin:4093, rev:2010},
+            {year:2024, qtr:1, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:115, dataMB:19237, voiceMin:3033, rev:1586},
+            {year:2024, qtr:1, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:126, dataMB:24362, voiceMin:2453, rev:1081},
+            {year:2024, qtr:1, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:64, dataMB:12172, voiceMin:1464, rev:756},
+            {year:2024, qtr:1, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:53, dataMB:7864, voiceMin:1179, rev:523},
+            {year:2024, qtr:1, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:57, dataMB:9080, voiceMin:886, rev:357},
+            {year:2024, qtr:1, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:38, dataMB:6429, voiceMin:977, rev:278},
+            {year:2024, qtr:1, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:32, dataMB:5927, voiceMin:846, rev:222},
+            {year:2024, qtr:2, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3124, dataMB:508927, voiceMin:76382, rev:33892},
+            {year:2024, qtr:2, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:892, dataMB:152463, voiceMin:23184, rev:11542},
+            {year:2024, qtr:2, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:433, dataMB:73614, voiceMin:11245, rev:4425},
+            {year:2024, qtr:2, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:261, dataMB:43892, voiceMin:6842, rev:2187},
+            {year:2024, qtr:2, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:189, dataMB:34521, voiceMin:4218, rev:2089},
+            {year:2024, qtr:2, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:108, dataMB:18734, voiceMin:2956, rev:1523},
+            {year:2024, qtr:2, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:127, dataMB:25183, voiceMin:2534, rev:1124},
+            {year:2024, qtr:2, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:67, dataMB:13241, voiceMin:1592, rev:812},
+            {year:2024, qtr:2, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:48, dataMB:7245, voiceMin:1089, rev:487},
+            {year:2024, qtr:2, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:63, dataMB:10245, voiceMin:978, rev:425},
+            {year:2024, qtr:2, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:41, dataMB:6842, voiceMin:1034, rev:298},
+            {year:2024, qtr:2, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:36, dataMB:6234, voiceMin:924, rev:267},
+            {year:2024, qtr:3, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3189, dataMB:523456, voiceMin:81234, rev:35241},
+            {year:2024, qtr:3, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:856, dataMB:148923, voiceMin:22145, rev:10998},
+            {year:2024, qtr:3, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:441, dataMB:74823, voiceMin:11682, rev:4567},
+            {year:2024, qtr:3, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:268, dataMB:45234, voiceMin:7123, rev:2289},
+            {year:2024, qtr:3, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:182, dataMB:32845, voiceMin:4012, rev:1987},
+            {year:2024, qtr:3, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:118, dataMB:20156, voiceMin:3178, rev:1682},
+            {year:2024, qtr:3, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:131, dataMB:26234, voiceMin:2687, rev:1181},
+            {year:2024, qtr:3, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:71, dataMB:14526, voiceMin:1745, rev:912},
+            {year:2024, qtr:3, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:52, dataMB:7912, voiceMin:1267, rev:534},
+            {year:2024, qtr:3, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:60, dataMB:9876, voiceMin:934, rev:412},
+            {year:2024, qtr:3, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:39, dataMB:6523, voiceMin:987, rev:287},
+            {year:2024, qtr:3, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:35, dataMB:6012, voiceMin:897, rev:248},
+            {year:2024, qtr:4, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3149, dataMB:517623, voiceMin:78234, rev:34656},
+            {year:2024, qtr:4, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:872, dataMB:151234, voiceMin:22567, rev:11208},
+            {year:2024, qtr:4, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:417, dataMB:71567, voiceMin:11073, rev:4321},
+            {year:2024, qtr:4, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:271, dataMB:46234, voiceMin:7234, rev:2298},
+            {year:2024, qtr:4, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:177, dataMB:31543, voiceMin:3843, rev:1832},
+            {year:2024, qtr:4, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:78, dataMB:14956, voiceMin:2356, rev:1201},
+            {year:2024, qtr:4, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:136, dataMB:27145, voiceMin:2823, rev:1185},
+            {year:2024, qtr:4, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:68, dataMB:13567, voiceMin:1634, rev:839},
+            {year:2024, qtr:4, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:38, dataMB:5892, voiceMin:923, rep:479},
+            {year:2024, qtr:4, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:62, dataMB:10234, voiceMin:1012, rev:435},
+            {year:2024, qtr:4, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:50, dataMB:8345, voiceMin:1256, rev:410},
+            {year:2024, qtr:4, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:27, dataMB:4734, voiceMin:712, rev:166},
+            {year:2025, qtr:1, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3089, dataMB:506234, voiceMin:76523, rev:33445},
+            {year:2025, qtr:1, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:887, dataMB:150234, voiceMin:22834, rev:11078},
+            {year:2025, qtr:1, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:432, dataMB:72345, voiceMin:11234, rev:4289},
+            {year:2025, qtr:1, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:256, dataMB:43456, voiceMin:6789, rev:2134},
+            {year:2025, qtr:1, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:172, dataMB:30234, voiceMin:3734, rev:1834},
+            {year:2025, qtr:1, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:95, dataMB:16234, voiceMin:2567, rev:1389},
+            {year:2025, qtr:1, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:139, dataMB:27834, voiceMin:2945, rev:1234},
+            {year:2025, qtr:1, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:82, dataMB:15234, voiceMin:1834, rev:1012},
+            {year:2025, qtr:1, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:45, dataMB:6789, voiceMin:1056, rev:523},
+            {year:2025, qtr:1, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:67, dataMB:11234, voiceMin:1089, rev:456},
+            {year:2025, qtr:1, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:48, dataMB:8123, voiceMin:1223, rev:389},
+            {year:2025, qtr:1, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:35, dataMB:6234, voiceMin:934, rev:267},
+            {year:2025, qtr:2, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3045, dataMB:501234, voiceMin:74234, rev:32856},
+            {year:2025, qtr:2, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:902, dataMB:153456, voiceMin:23567, rev:11289},
+            {year:2025, qtr:2, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:428, dataMB:71234, voiceMin:10967, rev:4156},
+            {year:2025, qtr:2, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:259, dataMB:44567, voiceMin:6934, rev:2267},
+            {year:2025, qtr:2, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:168, dataMB:28345, voiceMin:3456, rev:1723},
+            {year:2025, qtr:2, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:92, dataMB:15678, voiceMin:2456, rev:1301},
+            {year:2025, qtr:2, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:137, dataMB:27234, voiceMin:2876, rev:1234},
+            {year:2025, qtr:2, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:80, dataMB:14567, voiceMin:1756, rev:978},
+            {year:2025, qtr:2, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:43, dataMB:6456, voiceMin:1012, rev:501},
+            {year:2025, qtr:2, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:65, dataMB:10789, voiceMin:1034, rev:445},
+            {year:2025, qtr:2, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:46, dataMB:7890, voiceMin:1189, rev:376},
+            {year:2025, qtr:2, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:34, dataMB:5923, voiceMin:889, rev:245},
+            {year:2025, qtr:3, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3123, dataMB:512345, voiceMin:77345, rev:33789},
+            {year:2025, qtr:3, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:876, dataMB:149234, voiceMin:22456, rev:10934},
+            {year:2025, qtr:3, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:433, dataMB:73456, voiceMin:11389, rev:4298},
+            {year:2025, qtr:3, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:262, dataMB:45678, voiceMin:7123, rev:2345},
+            {year:2025, qtr:3, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:175, dataMB:29567, voiceMin:3678, rev:1867},
+            {year:2025, qtr:3, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:98, dataMB:16789, voiceMin:2678, rev:1456},
+            {year:2025, qtr:3, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:138, dataMB:27890, voiceMin:2956, rev:1365},
+            {year:2025, qtr:3, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:83, dataMB:15678, voiceMin:1890, rev:1023},
+            {year:2025, qtr:3, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:45, dataMB:6890, voiceMin:1078, rev:489},
+            {year:2025, qtr:3, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:66, dataMB:11123, voiceMin:1067, rev:461},
+            {year:2025, qtr:3, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:47, dataMB:8234, voiceMin:1245, rev:398},
+            {year:2025, qtr:3, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:35, dataMB:6123, voiceMin:912, rev:283},
+            {year:2025, qtr:4, country:'USA', carrier:'T-Mobile', partnerRegion:'North America', sessions:3110, dataMB:508456, voiceMin:76123, rev:33328},
+            {year:2025, qtr:4, country:'United Kingdom', carrier:'EE', partnerRegion:'Europe', sessions:866, dataMB:146456, voiceMin:21567, rev:10851},
+            {year:2025, qtr:4, country:'UAE', carrier:'Etisalat', partnerRegion:'Middle East', sessions:433, dataMB:72345, voiceMin:11234, rev:4342},
+            {year:2025, qtr:4, country:'Singapore', carrier:'Singtel', partnerRegion:'Asia Pacific', sessions:251, dataMB:42567, voiceMin:6789, rev:2255},
+            {year:2025, qtr:4, country:'Australia', carrier:'Optus', partnerRegion:'Asia Pacific', sessions:175, dataMB:29789, voiceMin:3678, rev:1854},
+            {year:2025, qtr:4, country:'Germany', carrier:'Deutsche Telekom', partnerRegion:'Europe', sessions:99, dataMB:17123, voiceMin:2734, rev:1518},
+            {year:2025, qtr:4, country:'Canada', carrier:'Rogers', partnerRegion:'North America', sessions:138, dataMB:27876, voiceMin:2956, rev:1400},
+            {year:2025, qtr:4, country:'France', carrier:'Orange', partnerRegion:'Europe', sessions:80, dataMB:15234, voiceMin:1834, rev:980},
+            {year:2025, qtr:4, country:'Japan', carrier:'NTT Docomo', partnerRegion:'Asia Pacific', sessions:45, dataMB:6789, voiceMin:1045, rev:500},
+            {year:2025, qtr:4, country:'Saudi Arabia', carrier:'STC', partnerRegion:'Middle East', sessions:65, dataMB:10956, voiceMin:1023, rev:500},
+            {year:2025, qtr:4, country:'Malaysia', carrier:'Maxis', partnerRegion:'Asia Pacific', sessions:46, dataMB:8123, voiceMin:1234, rev:334},
+            {year:2025, qtr:4, country:'Thailand', carrier:'AIS', partnerRegion:'Asia Pacific', sessions:34, dataMB:5789, voiceMin:878, rev:208}
+        ];
+
+        var charts = {};
+
+        function formatCurrency(val) {
+            if (val >= 10000000) return '₹' + (val / 10000000).toFixed(1) + 'Cr';
+            if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + 'L';
+            return '₹' + val.toLocaleString();
+        }
+
+        function formatNumber(val) {
+            if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+            if (val >= 1000) return (val / 1000).toFixed(1) + 'K';
+            return val.toFixed(0);
+        }
+
+        function formatDataMB(val) {
+            if (val >= 1000000) return (val / 1000000).toFixed(1) + 'GB';
+            return (val / 1000).toFixed(1) + 'MB';
+        }
+
+        function applyFilters() {
+            var year = parseInt(document.getElementById('yearSelect').value);
+            var region = document.getElementById('regionSelect').value;
+
+            var data = ROAMING_ANNUAL.filter(function(d) {
+                if (region && d.region !== region) return false;
+                return true;
+            });
+
+            var quarterly = ROAMING_QUARTERLY.filter(function(d) {
+                if (region && d.partnerRegion !== region) return false;
+                return d.year === year;
+            });
+
+            updateKPIs(data, quarterly, year);
+            updateCharts(data, quarterly, year);
+            updateTable(data, year);
+            updateSubtitle(year);
+            fitKpiText();
+        }
+
+        function updateKPIs(data, quarterly, year) {
+            var currentYear = year;
+            var prevYear = year - 1;
+            var revKey = 'rev' + currentYear;
+            var prevRevKey = 'rev' + prevYear;
+
+            var currentRev = data.reduce(function(sum, d) {
+                return sum + (d[revKey] || 0);
+            }, 0);
+
+            var prevRev = data.reduce(function(sum, d) {
+                return sum + (d[prevRevKey] || 0);
+            }, 0);
+
+            var yoyChange = prevRev > 0 ? ((currentRev - prevRev) / prevRev * 100) : 0;
+            var topDest = data.length > 0 ? data.reduce(function(max, d) { return d[revKey] > (max[revKey] || 0) ? d : max; }).country : 'N/A';
+            var sessionsKey = 'sessions' + currentYear;
+            var totalSessions = data.reduce(function(sum, d) { return sum + (d[sessionsKey] || 0); }, 0);
+            var totalDataMB = quarterly.reduce(function(sum, d) { return sum + (d.dataMB || 0); }, 0);
+            var totalVoice = quarterly.reduce(function(sum, d) { return sum + (d.voiceMin || 0); }, 0);
+            var partnerCount = data.length;
+            var avgRevSession = totalSessions > 0 ? currentRev / totalSessions : 0;
+
+            document.getElementById('kpi1').textContent = formatCurrency(currentRev);
+            document.getElementById('kpi2').textContent = yoyChange.toFixed(1) + '%';
+            document.getElementById('kpi3').textContent = topDest;
+            document.getElementById('kpi4').textContent = formatNumber(totalSessions);
+            document.getElementById('kpi5').textContent = formatDataMB(totalDataMB);
+            document.getElementById('kpi6').textContent = formatNumber(totalVoice);
+            document.getElementById('kpi7').textContent = String(partnerCount);
+            document.getElementById('kpi8').textContent = formatCurrency(avgRevSession);
+        }
+
+        function updateCharts(data, quarterly, year) {
+            var revKey = 'rev' + year;
+
+            // Chart 1: Revenue by Country
+            var countries = data.map(function(d) { return d.country; });
+            var revenues = data.map(function(d) { return d[revKey]; });
+
+            if (charts.chart1) charts.chart1.destroy();
+            charts.chart1 = new Chart(document.getElementById('chart1'), {
+                type: 'bar',
+                data: {
+                    labels: countries,
+                    datasets: [{ label: 'Revenue', data: revenues, backgroundColor: '#006AFF' }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 2: Quarterly Trend
+            var qtr1Rev = 0, qtr2Rev = 0, qtr3Rev = 0, qtr4Rev = 0;
+            quarterly.forEach(function(d) {
+                if (d.qtr === 1) qtr1Rev += d.rev;
+                else if (d.qtr === 2) qtr2Rev += d.rev;
+                else if (d.qtr === 3) qtr3Rev += d.rev;
+                else if (d.qtr === 4) qtr4Rev += d.rev;
+            });
+
+            if (charts.chart2) charts.chart2.destroy();
+            charts.chart2 = new Chart(document.getElementById('chart2'), {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{ label: 'Revenue', data: [qtr1Rev, qtr2Rev, qtr3Rev, qtr4Rev], borderColor: '#1A7F64', backgroundColor: 'rgba(26,127,100,0.1)', tension: 0.4, fill: true }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 3: Revenue by Region
+            var regions = {};
+            data.forEach(function(d) {
+                if (!regions[d.region]) regions[d.region] = 0;
+                regions[d.region] += d[revKey];
+            });
+
+            if (charts.chart3) charts.chart3.destroy();
+            charts.chart3 = new Chart(document.getElementById('chart3'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(regions),
+                    datasets: [{ label: 'Revenue', data: Object.values(regions), backgroundColor: '#1A7F64' }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 4: Data vs Voice Mix
+            var top5Data = data.slice(0, 5);
+            var top5Countries = top5Data.map(function(d) { return d.country; });
+            var dataRevs = top5Data.map(function(d) {
+                var q = quarterly.filter(function(x) { return x.country === d.country; });
+                return q.reduce(function(sum, x) { return sum + (x.dataMB || 0); }, 0);
+            });
+            var voiceRevs = top5Data.map(function(d) {
+                var q = quarterly.filter(function(x) { return x.country === d.country; });
+                return q.reduce(function(sum, x) { return sum + (x.voiceMin || 0); }, 0);
+            });
+
+            if (charts.chart4) charts.chart4.destroy();
+            charts.chart4 = new Chart(document.getElementById('chart4'), {
+                type: 'bar',
+                data: {
+                    labels: top5Countries,
+                    datasets: [
+                        { label: 'Data MB', data: dataRevs, backgroundColor: '#006AFF' },
+                        { label: 'Voice Min', data: voiceRevs, backgroundColor: '#F59E0B' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: false }, y: { stacked: false } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 5: Top 5 Data Consumption
+            var dataConsumption = top5Data.map(function(d) {
+                var q = quarterly.filter(function(x) { return x.country === d.country; });
+                return q.reduce(function(sum, x) { return sum + (x.dataMB || 0); }, 0);
+            });
+
+            if (charts.chart5) charts.chart5.destroy();
+            charts.chart5 = new Chart(document.getElementById('chart5'), {
+                type: 'bar',
+                data: {
+                    labels: top5Countries,
+                    datasets: [{ label: 'Data MB', data: dataConsumption, backgroundColor: '#0EA5E9' }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 6: Sessions Trend
+            var sessionsKey = 'sessions' + year;
+            var sessionsData = top5Data.map(function(d) { return d[sessionsKey] || 0; });
+
+            if (charts.chart6) charts.chart6.destroy();
+            charts.chart6 = new Chart(document.getElementById('chart6'), {
+                type: 'line',
+                data: {
+                    labels: top5Countries,
+                    datasets: [{ label: 'Sessions', data: sessionsData, borderColor: '#E20074', backgroundColor: 'rgba(226,0,116,0.1)', tension: 0.4, fill: true }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+        }
+
+        function updateTable(data, year) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            var revKey = 'rev' + year;
+            var sessKey = 'sessions' + year;
+            var prevYear = year - 1;
+            var prevRevKey = 'rev' + prevYear;
+
+            data.forEach(function(row) {
+                var prevRev = row[prevRevKey] || 1;
+                var yoyPct = prevRev > 0 ? ((row[revKey] - prevRev) / prevRev * 100).toFixed(1) : 0;
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.country + '</td>' +
+                    '<td>' + row.carrier + '</td>' +
+                    '<td>' + row.region + '</td>' +
+                    '<td>' + row[sessKey].toLocaleString() + '</td>' +
+                    '<td>' + (row[sessKey] * 1000).toLocaleString() + '</td>' +
+                    '<td>' + (row[sessKey] * 250).toLocaleString() + '</td>' +
+                    '<td>' + formatCurrency(row[revKey] * 100) + '</td>' +
+                    '<td>' + yoyPct + '%</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateSubtitle(year) {
+            document.getElementById('reporting-period').textContent = String(year) + ' Full Year';
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var len = el.textContent.length;
+                if (len > 12) el.style.fontSize = '22px';
+                else if (len > 10) el.style.fontSize = '26px';
+                else el.style.fontSize = '28px';
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

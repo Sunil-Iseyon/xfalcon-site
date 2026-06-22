@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 10. Subscriber 360</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#003057;--color-bg:#F4F6F9;--color-card:#FFFFFF;--color-border:#E2E8F0;--color-primary:#0099D8;--color-secondary:#003057;--color-tertiary:#77787B;--color-text:#0F172A;--color-text-muted:#64748B;--color-text-on-dark:#FFFFFF;--color-positive:#059669;--color-negative:#D32F2F;--color-neutral:#94A3B8;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5;}
+.topbar{background:var(--color-topbar);color:#FFF;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--color-primary);}
+.topbar-left{display:flex;align-items:center;gap:14px;}.logo{font-weight:800;font-size:22px;line-height:1;letter-spacing:-0.5px;}
+.logo .logo-x{color:var(--color-primary);}.logo .logo-f{color:var(--color-secondary);background:#FFF;padding:2px 6px;border-radius:3px;}
+.topbar-title{font-size:16px;font-weight:600;color:#FFF;}.topbar-subtitle{font-size:12px;font-weight:400;color:#A8C5DC;margin-top:2px;}
+.back-link{color:var(--color-primary);text-decoration:none;font-size:14px;font-weight:500;}.back-link:hover{text-decoration:underline;}
+.filter-bar{background:#FFF;border-bottom:1px solid var(--color-border);padding:14px 24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.5px;}
+.filter-group select{border:1px solid var(--color-border);background:#FFF;color:var(--color-text);padding:7px 10px;border-radius:4px;font-family:inherit;font-size:13px;min-width:130px;}
+.container{padding:24px;max-width:1400px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:700;color:var(--color-secondary);margin:32px 0 14px 0;display:flex;align-items:center;gap:10px;}
+.section-title:first-of-type{margin-top:8px;}.section-title::before{content:'';width:4px;height:18px;background:var(--color-primary);border-radius:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.4px;margin-bottom:6px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);line-height:1.1;letter-spacing:-0.5px;}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px;}
+.kpi-delta.positive{color:var(--color-positive);}.kpi-delta.negative{color:var(--color-negative);}.kpi-delta.neutral{color:var(--color-neutral);}
+.charts-row{display:grid;gap:16px;margin-top:8px;}.charts-row.two{grid-template-columns:1fr 1fr;}.charts-row.split{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.charts-row.two,.charts-row.split{grid-template-columns:1fr;}}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin:0 0 14px 0;}.chart-wrap{position:relative;height:300px;}
+.detail-table{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;width:100%;border-collapse:collapse;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+.detail-table th{background:var(--color-secondary);color:var(--color-text-on-dark);text-align:left;padding:12px 14px;font-size:13px;font-weight:600;}
+.detail-table td{padding:10px 14px;font-size:13px;border-top:1px solid var(--color-border);}
+.detail-table tr:hover td{background:#F8FAFC;}.detail-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.disclaimer{margin-top:32px;padding:14px 18px;background:#FFF;border:1px dashed var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);line-height:1.5;}.disclaimer strong{color:var(--color-secondary);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Telecom &amp; Media / 10. Subscriber 360 (Cross-Domain)</div><div class="topbar-subtitle">Single-subscriber view: Billing × Streaming × Tickets · Active subs only</div></div></div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+<div class="filter-bar">
+  <div class="filter-group"><label for="segSel">Segment</label><select id="segSel" onchange="applyFilters()"><option value="All" selected>All segments</option><option value="Consumer">Consumer</option><option value="Family">Family</option><option value="Business Small">Business Small</option><option value="Business Mid">Business Mid</option><option value="Prepaid">Prepaid</option></select></div>
+</div>
+<div class="container">
+  <div class="section-title">Cross-Domain KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Engagement by Segment</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title">Cross-Domain Activity by Segment</div><div class="chart-wrap"><canvas id="segChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Revenue per Segment ($M lifetime)</div><div class="chart-wrap"><canvas id="revChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Engagement Index &amp; Demographics</div>
+  <div class="charts-row two">
+    <div class="chart-card"><div class="chart-title">Engagement Index (Sessions + Tickets per Sub)</div><div class="chart-wrap"><canvas id="engChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Active vs Inactive by Segment</div><div class="chart-wrap"><canvas id="activeChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Segment-Level Cross-Domain Detail</div>
+  <table class="detail-table">
+    <thead><tr><th>Segment</th><th class="num">Active Subs</th><th class="num">Billed Rev</th><th class="num">View Sessions</th><th class="num">Ticket Txns</th><th class="num">ARPU</th><th class="num">Sessions/Sub</th><th class="num">Tickets/Sub</th></tr></thead>
+    <tbody id="segTable"></tbody>
+  </table>
+
+  <div class="disclaimer"><strong>Data:</strong> Cross-domain join via SUBSCRIBER_KEY across FACT_BILLING + FACT_VIEWERSHIP + FACT_TICKET_SALES · Active subscribers only · <strong>Notes:</strong> Consumer segment (35K subs, 40% of base) drives 42% of billing revenue, 41% of sessions, 39% of tickets · Family over-indexes on streaming · Business Small under-indexes on tickets · Prepaid lowest cross-domain engagement</div>
+</div>
+
+<script>
+// Segments [name, active_subs, billed_M, view_sessions, ticket_txns]
+var SEGMENTS = [
+  ['Consumer',       35253, 32.48, 518874, 140050],
+  ['Family',         24733, 22.82, 366074,  98756],
+  ['Business Small', 13113, 12.05, 193319,  51891],
+  ['Prepaid',         8876,  8.16, 130992,  35107],
+  ['Business Mid',    6087,  5.57,  90741,  24196]
+];
+// Segment × age active counts (top cells)
+var ACTIVE_DEMO = [
+  ['Consumer',8891,8849,7029,4247,3577,2660,1209],
+  ['Family',6184,6096,4935,3039,2478,2001,0],
+  ['Business Small',3337,3316,2581,1481,1298,1100,0],
+  ['Prepaid',2258,2240,1725,1051,900,702,0],
+  ['Business Mid',1542,1510,1174,781,586,494,0]
+];
+
+var state={segment:'All'};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();var ctx=document.getElementById(id).getContext('2d');chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+function fmt(n,d){d=(d===undefined)?1:d;return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtInt(n){return Math.round(n).toLocaleString('en-US');}
+function getPalette(){var t=document.documentElement.getAttribute('data-theme')||'spectrum';if(t==='tech')return{primary:'#00D4FF',secondary:'#7C3AED',tertiary:'#94A3B8',ext1:'#7CFF01',ext2:'#FF00C8',grid:'rgba(255,255,255,0.06)',text:'#F1F5F9',textMuted:'#94A3B8'};return{primary:'#0099D8',secondary:'#003057',tertiary:'#77787B',ext1:'#0EA5E9',ext2:'#F59E0B',grid:'rgba(15,23,42,0.05)',text:'#0F172A',textMuted:'#64748B'};}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var l=els[i].textContent.length;els[i].style.fontSize=l>12?'18px':(l>8?'22px':'28px');}}
+
+function getFilteredSegs(){return state.segment==='All'?SEGMENTS:SEGMENTS.filter(function(s){return s[0]===state.segment;});}
+
+function renderKpis(){
+  var arr=getFilteredSegs();
+  var totalSubs=arr.reduce(function(s,r){return s+r[1];},0);
+  var totalBill=arr.reduce(function(s,r){return s+r[2];},0);
+  var totalSessions=arr.reduce(function(s,r){return s+r[3];},0);
+  var totalTxns=arr.reduce(function(s,r){return s+r[4];},0);
+  var arpu=totalBill*1e6/totalSubs;
+  var sessPerSub=totalSessions/totalSubs;
+  var txnPerSub=totalTxns/totalSubs;
+  var topSeg=arr.reduce(function(t,r){return r[2]>t[2]?r:t;},arr[0]);
+  var grid=document.getElementById('kpiGrid');
+  grid.innerHTML =
+    kpi('Active Subs (Filtered)',fmtInt(totalSubs),state.segment==='All'?'all 5 segments':state.segment) +
+    kpi('Billed Revenue (Lifetime)','$'+fmt(totalBill,2)+'M','active base only') +
+    kpi('Streaming Sessions',fmtInt(totalSessions),'cross-domain join') +
+    kpi('Ticket Transactions',fmtInt(totalTxns),'cross-domain join') +
+    kpi('ARPU (Lifetime)','$'+fmt(arpu,2),'per active sub') +
+    kpi('Sessions per Sub',fmt(sessPerSub,1),'streaming engagement') +
+    kpi('Tickets per Sub',fmt(txnPerSub,2),'live event engagement') +
+    kpi('Top Segment',topSeg[0],'$'+fmt(topSeg[2],2)+'M billed');
+  fitKpiText();
+}
+function kpi(l,v,sub){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-delta neutral">'+sub+'</div></div>';}
+
+function renderSeg(){
+  var p=getPalette();var arr=SEGMENTS;
+  // Normalize each metric to its max for cross-domain comparison
+  var maxBill=Math.max.apply(null,arr.map(function(r){return r[2];}));
+  var maxSess=Math.max.apply(null,arr.map(function(r){return r[3];}));
+  var maxTxn=Math.max.apply(null,arr.map(function(r){return r[4];}));
+  mk('segChart',{type:'bar',
+    data:{labels:arr.map(function(r){return r[0];}),datasets:[
+      {label:'Billed Rev (% of max)',data:arr.map(function(r){return r[2]/maxBill*100;}),backgroundColor:p.primary,borderWidth:1},
+      {label:'Sessions (% of max)',data:arr.map(function(r){return r[3]/maxSess*100;}),backgroundColor:p.secondary,borderWidth:1},
+      {label:'Tickets (% of max)',data:arr.map(function(r){return r[4]/maxTxn*100;}),backgroundColor:p.tertiary,borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmt(c.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text,font:{size:11}}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return v+'%';}}}}}
+  });
+}
+
+function renderRev(){
+  var p=getPalette();
+  mk('revChart',{type:'bar',
+    data:{labels:SEGMENTS.map(function(r){return r[0];}),datasets:[{label:'Billed Rev ($M)',data:SEGMENTS.map(function(r){return r[2];}),backgroundColor:p.primary,borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+fmt(c.parsed.x,2)+'M';}}}},
+      scales:{x:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return '$'+v+'M';}}},y:{grid:{display:false},ticks:{color:p.text,font:{size:11}}}}}
+  });
+}
+
+function renderEng(){
+  var p=getPalette();
+  var data=SEGMENTS.map(function(r){return (r[3]+r[4])/r[1];});
+  mk('engChart',{type:'bar',
+    data:{labels:SEGMENTS.map(function(r){return r[0];}),datasets:[{label:'(Sessions + Tickets) per Active Sub',data:data,backgroundColor:p.secondary,borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt(c.parsed.y,1)+' interactions/sub';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text,font:{size:11}}},y:{grid:{color:p.grid},ticks:{color:p.textMuted}}}}
+  });
+}
+
+function renderActive(){
+  var p=getPalette();
+  // Total subs per segment (active + inactive) [Consumer 39955, Family 28153, BS 14869, BM 6954, Prepaid 10069]
+  var TOTAL = [39955, 28153, 14869, 6954, 10069];
+  var labels=SEGMENTS.map(function(s){return s[0];});
+  var active=SEGMENTS.map(function(s){return s[1];});
+  var inactive=SEGMENTS.map(function(s,i){return TOTAL[i]-s[1];});
+  mk('activeChart',{type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Active',data:active,backgroundColor:p.primary,borderWidth:1,stack:'a'},
+      {label:'Inactive',data:inactive,backgroundColor:p.tertiary,borderWidth:1,stack:'a'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:p.text,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      scales:{x:{grid:{display:false},ticks:{color:p.text,font:{size:11}}},y:{grid:{color:p.grid},ticks:{color:p.textMuted,callback:function(v){return (v/1000).toFixed(0)+'K';}}}}}
+  });
+}
+
+function renderTable(){
+  var arr=getFilteredSegs();
+  var tbody=document.getElementById('segTable');tbody.innerHTML='';
+  for(var i=0;i<arr.length;i++){
+    var s=arr[i];var tr=document.createElement('tr');
+    var arpu=s[2]*1e6/s[1];
+    var cells=[s[0],fmtInt(s[1]),'$'+fmt(s[2],2)+'M',fmtInt(s[3]),fmtInt(s[4]),'$'+fmt(arpu,2),fmt(s[3]/s[1],1),fmt(s[4]/s[1],2)];
+    var cls=['','num','num','num','num','num','num','num'];
+    for(var j=0;j<cells.length;j++){var td=document.createElement('td');td.textContent=cells[j];if(cls[j])td.className=cls[j];tr.appendChild(td);}
+    tbody.appendChild(tr);
+  }
+}
+
+function applyFilters(){state.segment=document.getElementById('segSel').value;renderKpis();renderSeg();renderRev();renderEng();renderActive();renderTable();}
+document.addEventListener('DOMContentLoaded',applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

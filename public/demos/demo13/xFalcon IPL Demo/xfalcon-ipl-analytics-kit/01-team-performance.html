@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xFalcon IPL Analytics Hub / 1. Team Performance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F5F6F8;
+            color: #1A1A1A;
+        }
+        .topbar {
+            background: #1A1A1A;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .back-link {
+            color: #4ECDC4;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            font-weight: 600;
+            color: #1A1A1A;
+            font-size: 14px;
+        }
+        select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #4ECDC4;
+        }
+        .kpi-label {
+            font-size: 13px;
+            color: #64748B;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .kpi-positive {
+            color: #4CAF50;
+        }
+        .kpi-negative {
+            color: #FF4757;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 32px;
+        }
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: #1A1A1A;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #E2E8F0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #1A1A1A;
+        }
+        tr:hover {
+            background: #F9FAFB;
+        }
+        .footer {
+            background: #1A1A1A;
+            color: white;
+            padding: 20px 32px;
+            text-align: center;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .topbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            .filter-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span style="color:#4ECDC4">x</span><span style="color:#F7946B">F</span></div>
+            <div class="title">xFalcon IPL Analytics Hub / 1. Team Performance</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Season Year:</span>
+                <select id="seasonFilter" onchange="updateDashboard()">
+                    <option value="2025">2025 Season</option>
+                    <option value="2024">2024 Season</option>
+                    <option value="2023">2023 Season</option>
+                    <option value="alltime">All-Time</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label" id="kpiMatchesLabel">Total Matches</div>
+                <div class="kpi-value" id="kpiMatchesVal">74</div>
+                <div class="kpi-sub" id="kpiMatchesSub">2025 Season</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label" id="kpiChampLabel">2025 Champion</div>
+                <div class="kpi-value" id="kpiChampVal">RCB</div>
+                <div class="kpi-sub" id="kpiChampSub">11W - 4L</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label" id="kpiWinPctLabel">Highest Win %</div>
+                <div class="kpi-value kpi-positive" id="kpiWinPctVal">RCB 73.3%</div>
+                <div class="kpi-sub" id="kpiWinPctSub">Season leader</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label" id="kpiTitlesLabel">Most Titles</div>
+                <div class="kpi-value" id="kpiTitlesVal">CSK & MI</div>
+                <div class="kpi-sub" id="kpiTitlesSub">5 titles each</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label" id="kpiScoreLabel">Avg Score/Match</div>
+                <div class="kpi-value" id="kpiScoreVal">~357</div>
+                <div class="kpi-sub" id="kpiScoreSub">Runs per match</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label" id="kpiTeamsLabel">Teams</div>
+                <div class="kpi-value" id="kpiTeamsVal">10</div>
+                <div class="kpi-sub" id="kpiTeamsSub">Competing franchises</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Season-wise Win Comparison (2023-2025)</div>
+                <div class="chart-container">
+                    <canvas id="seasonWinChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">All-Time Win % by Team</div>
+                <div class="chart-container">
+                    <canvas id="allTimeWinChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Home vs Away Win Rates (2025)</div>
+                <div class="chart-container">
+                    <canvas id="homeAwayChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">IPL Titles Won</div>
+                <div class="chart-container">
+                    <canvas id="titlesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Average Match Score Trend</div>
+                <div class="chart-container">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">2025 Win-Loss Distribution</div>
+                <div class="chart-container">
+                    <canvas id="wlChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-title">2025 Season Team Statistics</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Win %</th>
+                        <th>Matches Played</th>
+                        <th>Avg Score</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RCB</td>
+                        <td>11</td>
+                        <td>3</td>
+                        <td><span class="kpi-positive">78.6%</span></td>
+                        <td>14</td>
+                        <td>372</td>
+                        <td>Champion</td>
+                    </tr>
+                    <tr>
+                        <td>PBKS</td>
+                        <td>10</td>
+                        <td>4</td>
+                        <td><span class="kpi-positive">71.4%</span></td>
+                        <td>14</td>
+                        <td>358</td>
+                        <td>Runner-up</td>
+                    </tr>
+                    <tr>
+                        <td>GT</td>
+                        <td>9</td>
+                        <td>5</td>
+                        <td><span class="kpi-positive">64.3%</span></td>
+                        <td>14</td>
+                        <td>351</td>
+                        <td>Playoffs</td>
+                    </tr>
+                    <tr>
+                        <td>MI</td>
+                        <td>9</td>
+                        <td>5</td>
+                        <td><span class="kpi-positive">64.3%</span></td>
+                        <td>14</td>
+                        <td>361</td>
+                        <td>Playoffs</td>
+                    </tr>
+                    <tr>
+                        <td>SRH</td>
+                        <td>6</td>
+                        <td>8</td>
+                        <td>42.9%</td>
+                        <td>14</td>
+                        <td>338</td>
+                        <td>Middle</td>
+                    </tr>
+                    <tr>
+                        <td>LSG</td>
+                        <td>6</td>
+                        <td>8</td>
+                        <td>42.9%</td>
+                        <td>14</td>
+                        <td>335</td>
+                        <td>Middle</td>
+                    </tr>
+                    <tr>
+                        <td>DC</td>
+                        <td>6</td>
+                        <td>8</td>
+                        <td>42.9%</td>
+                        <td>14</td>
+                        <td>327</td>
+                        <td>Middle</td>
+                    </tr>
+                    <tr>
+                        <td>KKR</td>
+                        <td>5</td>
+                        <td>9</td>
+                        <td>35.7%</td>
+                        <td>14</td>
+                        <td>321</td>
+                        <td>Lower</td>
+                    </tr>
+                    <tr>
+                        <td>RR</td>
+                        <td>4</td>
+                        <td>10</td>
+                        <td>28.6%</td>
+                        <td>14</td>
+                        <td>339</td>
+                        <td>Lower</td>
+                    </tr>
+                    <tr>
+                        <td>CSK</td>
+                        <td>4</td>
+                        <td>10</td>
+                        <td><span class="kpi-negative">28.6%</span></td>
+                        <td>14</td>
+                        <td>343</td>
+                        <td>Lower</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        xFalcon IPL Analytics Kit &copy; 2025 | Team Performance Dashboard
+    </div>
+
+    <script>
+        var charts = {};
+
+        function mk(canvasId, type, data, options) {
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options
+            });
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var width = el.offsetWidth;
+                var textWidth = el.scrollWidth;
+                if (textWidth > width) {
+                    el.style.fontSize = '22px';
+                } else {
+                    el.style.fontSize = '28px';
+                }
+            });
+        }
+
+        function createSeasonWinChart() {
+            var data = {
+                labels: ['GT', 'CSK', 'MI', 'LSG', 'RCB', 'RR', 'PBKS', 'KKR', 'DC', 'SRH'],
+                datasets: [
+                    {
+                        label: '2023 Wins',
+                        data: [11, 10, 9, 8, 7, 7, 6, 6, 5, 4],
+                        backgroundColor: '#4ECDC4'
+                    },
+                    {
+                        label: '2024 Wins',
+                        data: [5, 7, 4, 7, 7, 9, 5, 11, 7, 9],
+                        backgroundColor: '#F7946B'
+                    },
+                    {
+                        label: '2025 Wins',
+                        data: [9, 4, 9, 6, 11, 4, 10, 5, 6, 6],
+                        backgroundColor: '#94A3B8'
+                    }
+                ]
+            };
+            var options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 13 },
+                            color: '#1A1A1A',
+                            padding: 15,
+                            boxWidth: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    }
+                }
+            };
+            mk('seasonWinChart', 'bar', data, options);
+        }
+
+        function createAllTimeWinChart() {
+            var data = {
+                labels: ['GT', 'CSK', 'MI', 'LSG', 'KKR', 'RCB', 'RR', 'SRH', 'PBKS', 'DC'],
+                datasets: [{
+                    label: 'Win %',
+                    data: [61.7, 56.8, 55.3, 53.6, 52.1, 50.0, 49.8, 48.7, 45.9, 45.7],
+                    backgroundColor: '#4ECDC4'
+                }]
+            };
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true,
+                        max: 100
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('allTimeWinChart', 'bar', data, options);
+        }
+
+        function createHomeAwayChart() {
+            var data = {
+                labels: ['CSK', 'MI', 'RCB', 'KKR', 'DC', 'PBKS', 'RR', 'SRH', 'LSG', 'GT'],
+                datasets: [
+                    {
+                        label: 'Home Wins',
+                        data: [76, 74, 73, 67, 60, 59, 57, 46, 20, 15],
+                        backgroundColor: '#4ECDC4'
+                    },
+                    {
+                        label: 'Away Wins',
+                        data: [66, 77, 59, 68, 58, 60, 57, 47, 10, 22],
+                        backgroundColor: '#F7946B'
+                    }
+                ]
+            };
+            var options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 13 },
+                            color: '#1A1A1A',
+                            padding: 15,
+                            boxWidth: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    }
+                }
+            };
+            mk('homeAwayChart', 'bar', data, options);
+        }
+
+        function createTitlesChart() {
+            var data = {
+                labels: ['MI', 'CSK', 'KKR', 'RCB', 'GT', 'RR', 'SRH', 'PBKS', 'DC', 'LSG'],
+                datasets: [{
+                    label: 'Titles Won',
+                    data: [5, 5, 3, 1, 1, 1, 1, 0, 0, 0],
+                    backgroundColor: '#4ECDC4'
+                }]
+            };
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } }
+                    }
+                }
+            };
+            mk('titlesChart', 'bar', data, options);
+        }
+
+        function createScoreChart() {
+            var data = {
+                labels: ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+                datasets: [{
+                    label: 'Avg Match Score',
+                    data: [328, 335, 342, 338, 345, 352, 355, 356, 358],
+                    borderColor: '#4ECDC4',
+                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#4ECDC4',
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2
+                }]
+            };
+            var options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 13 },
+                            color: '#1A1A1A',
+                            padding: 15,
+                            boxWidth: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y: {
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: false,
+                        min: 320
+                    }
+                }
+            };
+            mk('scoreChart', 'line', data, options);
+        }
+
+        function createWLChart() {
+            var data = {
+                labels: ['RCB', 'PBKS', 'GT', 'MI', 'SRH', 'LSG', 'DC', 'KKR', 'RR', 'CSK'],
+                datasets: [
+                    {
+                        label: 'Wins',
+                        data: [11, 10, 9, 9, 6, 6, 6, 5, 4, 4],
+                        backgroundColor: '#4CAF50'
+                    },
+                    {
+                        label: 'Losses',
+                        data: [3, 4, 5, 5, 8, 8, 8, 9, 10, 10],
+                        backgroundColor: '#FF4757'
+                    }
+                ]
+            };
+            var options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 13 },
+                            color: '#1A1A1A',
+                            padding: 15,
+                            boxWidth: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: { color: '#1A1A1A', font: { family: "'Inter', sans-serif", size: 12 } },
+                        grid: { color: '#E2E8F0' },
+                        beginAtZero: true
+                    }
+                }
+            };
+            mk('wlChart', 'bar', data, options);
+        }
+
+        var kpiData = {
+            '2025': {
+                matches: '74', matchesSub: '2025 Season',
+                champLabel: '2025 Champion', champVal: 'RCB', champSub: '11W - 4L',
+                winPctLabel: 'Highest Win %', winPctVal: 'RCB 73.3%', winPctSub: 'Season leader',
+                score: '~357', scoreSub: 'Runs per match',
+                teams: '10', teamsSub: 'Competing franchises'
+            },
+            '2024': {
+                matches: '71', matchesSub: '2024 Season',
+                champLabel: '2024 Champion', champVal: 'KKR', champSub: '11W - 3L',
+                winPctLabel: 'Highest Win %', winPctVal: 'KKR 78.6%', winPctSub: 'Season leader',
+                score: '~366', scoreSub: 'Runs per match',
+                teams: '10', teamsSub: 'Competing franchises'
+            },
+            '2023': {
+                matches: '74', matchesSub: '2023 Season',
+                champLabel: '2023 Champion', champVal: 'CSK', champSub: '10W - 5L',
+                winPctLabel: 'Highest Win %', winPctVal: 'CSK 66.7%', winPctSub: 'Season leader',
+                score: '~347', scoreSub: 'Runs per match',
+                teams: '10', teamsSub: 'Competing franchises'
+            },
+            'alltime': {
+                matches: '1,169', matchesSub: 'All seasons (2008-2025)',
+                champLabel: 'Defending Champion', champVal: 'RCB', champSub: '2025 Winners',
+                winPctLabel: 'Highest Win %', winPctVal: 'GT 61.7%', winPctSub: 'All-time leader',
+                score: '~320', scoreSub: 'Career avg runs/match',
+                teams: '10', teamsSub: 'Active franchises'
+            }
+        };
+
+        function updateKpis(season) {
+            var d = kpiData[season];
+            if (!d) return;
+            document.getElementById('kpiMatchesVal').textContent = d.matches;
+            document.getElementById('kpiMatchesSub').textContent = d.matchesSub;
+            document.getElementById('kpiChampLabel').textContent = d.champLabel;
+            document.getElementById('kpiChampVal').textContent = d.champVal;
+            document.getElementById('kpiChampSub').textContent = d.champSub;
+            document.getElementById('kpiWinPctVal').textContent = d.winPctVal;
+            document.getElementById('kpiWinPctSub').textContent = d.winPctSub;
+            document.getElementById('kpiScoreVal').textContent = d.score;
+            document.getElementById('kpiScoreSub').textContent = d.scoreSub;
+            document.getElementById('kpiTeamsVal').textContent = d.teams;
+            document.getElementById('kpiTeamsSub').textContent = d.teamsSub;
+        }
+
+        function updateDashboard() {
+            var season = document.getElementById('seasonFilter').value;
+            updateKpis(season);
+            createSeasonWinChart();
+            createAllTimeWinChart();
+            createHomeAwayChart();
+            createTitlesChart();
+            createScoreChart();
+            createWLChart();
+            fitKpiText();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            window.addEventListener('resize', fitKpiText);
+        });
+    </script>
+</body>
+</html>

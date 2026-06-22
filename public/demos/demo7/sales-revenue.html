@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales & Revenue Performance - Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+        }
+
+        .header {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .header-link {
+            display: inline-block;
+            color: #E02B20;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 12px;
+            border: 1px solid #E02B20;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .header-link:hover {
+            background-color: #E02B20;
+            color: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .filters {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            font-size: 13px;
+            color: #1A1A1A;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #666666;
+            background-color: #FFFFFF;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: #E02B20;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E02B20;
+            box-shadow: 0 0 0 3px rgba(224, 43, 32, 0.1);
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #999999;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+
+        .kpi-description {
+            font-size: 12px;
+            color: #999999;
+            line-height: 1.5;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #F4F6F9;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container.full-width .chart-wrapper {
+            height: 400px;
+        }
+
+        .chart-analysis {
+            border-left: 3px solid #E02B20;
+            padding: 15px;
+            background-color: #fafafa;
+            font-size: 13px;
+            color: #555555;
+            line-height: 1.6;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .footer {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container.full-width {
+                grid-column: 1;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>01 | Sales & Revenue Performance</h1>
+            <p>Falcon Auto B2B - Comprehensive Sales Analytics</p>
+            <a href="index.html" class="header-link">← Back to Home</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year:</label>
+                <select id="yearFilter">
+                    <option value="all">All Time</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="brandFilter">Brand:</label>
+                <select id="brandFilter">
+                    <option value="all">All Brands</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-cards">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value" id="kpiRevenue">$0</div>
+                <div class="kpi-description" id="kpiRevenueDesc">Cumulative sales revenue</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Orders</div>
+                <div class="kpi-value" id="kpiOrders">0</div>
+                <div class="kpi-description" id="kpiOrdersDesc">Number of orders placed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Order Value</div>
+                <div class="kpi-value" id="kpiAOV">$0</div>
+                <div class="kpi-description" id="kpiAOVDesc">Average revenue per order</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Savings</div>
+                <div class="kpi-value" id="kpiSavings">$0</div>
+                <div class="kpi-description" id="kpiSavingsDesc">Customer savings through purchases</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container full-width">
+                <div class="chart-title">Monthly Revenue Trend</div>
+                <div class="chart-wrapper">
+                    <canvas id="trendChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="trendAnalysis"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Revenue by Brand</div>
+                <div class="chart-wrapper">
+                    <canvas id="brandChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="brandAnalysis"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Order Status Distribution</div>
+                <div class="chart-wrapper">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="statusAnalysis"></div>
+            </div>
+
+            <div class="chart-container full-width">
+                <div class="chart-title">Top 10 Customers by Revenue</div>
+                <div class="chart-wrapper">
+                    <canvas id="customersChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="customersAnalysis"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated on March 13, 2026 | Falcon Auto B2B Sales Dashboard</p>
+    </div>
+
+    <script>
+        // Embedded Data
+        const trendData = [{"year":2023,"month":"January","monthNum":1,"revenue":229.37,"orders":4,"savings":58.53},{"year":2023,"month":"February","monthNum":2,"revenue":205.22,"orders":2,"savings":35.77},{"year":2023,"month":"March","monthNum":3,"revenue":3526.65,"orders":14,"savings":639.22},{"year":2023,"month":"April","monthNum":4,"revenue":11632.94,"orders":33,"savings":3271.14},{"year":2023,"month":"May","monthNum":5,"revenue":7441.50,"orders":50,"savings":1675.55},{"year":2023,"month":"June","monthNum":6,"revenue":19664.31,"orders":80,"savings":5209.57},{"year":2023,"month":"July","monthNum":7,"revenue":16071.69,"orders":100,"savings":4060.15},{"year":2023,"month":"August","monthNum":8,"revenue":36837.94,"orders":112,"savings":8308.48},{"year":2023,"month":"September","monthNum":9,"revenue":35606.59,"orders":122,"savings":8636.74},{"year":2023,"month":"October","monthNum":10,"revenue":64933.96,"orders":171,"savings":12952.18},{"year":2023,"month":"November","monthNum":11,"revenue":62134.11,"orders":186,"savings":16302.68},{"year":2023,"month":"December","monthNum":12,"revenue":78066.09,"orders":210,"savings":19227.75},{"year":2024,"month":"January","monthNum":1,"revenue":70693.43,"orders":260,"savings":17348.76},{"year":2024,"month":"February","monthNum":2,"revenue":54103.43,"orders":202,"savings":14041.32},{"year":2024,"month":"March","monthNum":3,"revenue":33625.02,"orders":180,"savings":8774.31},{"year":2024,"month":"April","monthNum":4,"revenue":76263.69,"orders":254,"savings":17918.79},{"year":2024,"month":"May","monthNum":5,"revenue":70833.39,"orders":214,"savings":14123.17},{"year":2024,"month":"June","monthNum":6,"revenue":77757.25,"orders":207,"savings":17062.61},{"year":2024,"month":"July","monthNum":7,"revenue":104263.29,"orders":262,"savings":24491.20},{"year":2024,"month":"August","monthNum":8,"revenue":62209.66,"orders":286,"savings":14104.41},{"year":2024,"month":"September","monthNum":9,"revenue":85422.11,"orders":235,"savings":18762.65},{"year":2024,"month":"October","monthNum":10,"revenue":52259.67,"orders":257,"savings":11808.29},{"year":2024,"month":"November","monthNum":11,"revenue":70116.62,"orders":272,"savings":14173.20},{"year":2024,"month":"December","monthNum":12,"revenue":79766.06,"orders":277,"savings":17918.80},{"year":2025,"month":"January","monthNum":1,"revenue":57868.90,"orders":229,"savings":12806.04},{"year":2025,"month":"February","monthNum":2,"revenue":60214.21,"orders":183,"savings":13680.82},{"year":2025,"month":"March","monthNum":3,"revenue":61003.90,"orders":246,"savings":14008.38},{"year":2025,"month":"April","monthNum":4,"revenue":98755.52,"orders":260,"savings":22612.02},{"year":2025,"month":"May","monthNum":5,"revenue":104154.66,"orders":246,"savings":19814.85},{"year":2025,"month":"June","monthNum":6,"revenue":88460.02,"orders":254,"savings":19280.30},{"year":2025,"month":"July","monthNum":7,"revenue":81605.03,"orders":212,"savings":14442.54},{"year":2025,"month":"August","monthNum":8,"revenue":48158.68,"orders":238,"savings":10948.31},{"year":2025,"month":"September","monthNum":9,"revenue":104971.87,"orders":318,"savings":23487.43},{"year":2025,"month":"October","monthNum":10,"revenue":61471.14,"orders":215,"savings":13923.56},{"year":2025,"month":"November","monthNum":11,"revenue":120935.93,"orders":291,"savings":25359.14},{"year":2025,"month":"December","monthNum":12,"revenue":51624.58,"orders":244,"savings":10849.26}];
+
+        const brandByYear = [{"year":2023,"brand":"TorqMaster","orders":54,"revenue":211842.31},{"year":2023,"brand":"ProShield","orders":194,"revenue":49037.26},{"year":2023,"brand":"UltraCoat","orders":176,"revenue":18296.12},{"year":2023,"brand":"SprayMaster","orders":56,"revenue":16008.59},{"year":2023,"brand":"BodRight","orders":88,"revenue":14108.68},{"year":2023,"brand":"LubriMax","orders":65,"revenue":8586.33},{"year":2023,"brand":"ApexGrit","orders":164,"revenue":6321.40},{"year":2023,"brand":"SafeGuard Pro","orders":147,"revenue":5240.19},{"year":2023,"brand":"CleanRun","orders":83,"revenue":4083.29},{"year":2023,"brand":"ClearView","orders":57,"revenue":2826.20},{"year":2024,"brand":"TorqMaster","orders":149,"revenue":514775.43},{"year":2024,"brand":"ProShield","orders":513,"revenue":122100.41},{"year":2024,"brand":"SprayMaster","orders":148,"revenue":46840.59},{"year":2024,"brand":"BodRight","orders":225,"revenue":41702.71},{"year":2024,"brand":"UltraCoat","orders":398,"revenue":40984.08},{"year":2024,"brand":"ApexGrit","orders":463,"revenue":18739.52},{"year":2024,"brand":"LubriMax","orders":161,"revenue":18016.53},{"year":2024,"brand":"SafeGuard Pro","orders":482,"revenue":16830.66},{"year":2024,"brand":"CleanRun","orders":212,"revenue":9918.99},{"year":2024,"brand":"ClearView","orders":155,"revenue":7404.70},{"year":2025,"brand":"TorqMaster","orders":167,"revenue":604005.39},{"year":2025,"brand":"ProShield","orders":504,"revenue":122002.70},{"year":2025,"brand":"SprayMaster","orders":166,"revenue":50307.38},{"year":2025,"brand":"BodRight","orders":262,"revenue":49602.49},{"year":2025,"brand":"UltraCoat","orders":391,"revenue":42006.16},{"year":2025,"brand":"ApexGrit","orders":484,"revenue":20619.16},{"year":2025,"brand":"LubriMax","orders":144,"revenue":16959.84},{"year":2025,"brand":"SafeGuard Pro","orders":443,"revenue":15870.69},{"year":2025,"brand":"CleanRun","orders":229,"revenue":10351.08},{"year":2025,"brand":"ClearView","orders":146,"revenue":7499.55}];
+
+        const statusByYear = [{"year":2023,"status":"delivered","orders":343,"revenue":110543.11},{"year":2023,"status":"processing","orders":338,"revenue":104267.89},{"year":2023,"status":"shipped","orders":182,"revenue":56019.03},{"year":2023,"status":"pending","orders":159,"revenue":42455.60},{"year":2023,"status":"cancelled","orders":62,"revenue":23064.74},{"year":2024,"status":"delivered","orders":901,"revenue":303447.48},{"year":2024,"status":"processing","orders":735,"revenue":245367.73},{"year":2024,"status":"shipped","orders":525,"revenue":147547.95},{"year":2024,"status":"pending","orders":431,"revenue":94917.65},{"year":2024,"status":"cancelled","orders":314,"revenue":45032.81},{"year":2025,"status":"delivered","orders":830,"revenue":281826.62},{"year":2025,"status":"processing","orders":729,"revenue":259373.99},{"year":2025,"status":"shipped","orders":563,"revenue":169267.34},{"year":2025,"status":"pending","orders":525,"revenue":155099.79},{"year":2025,"status":"cancelled","orders":289,"revenue":73656.70}];
+
+        const topCustomersByYear = [{"year":2025,"name":"Lake Samuel Automotive Group","revenue":30529.87,"orders":65},{"year":2023,"name":"Lake Gina Body Shop","revenue":26996.47,"orders":42},{"year":2024,"name":"Acostabury Body & Paint","revenue":26951.39,"orders":61},{"year":2024,"name":"Lowehaven Auto Body","revenue":26929.88,"orders":55},{"year":2024,"name":"Lopez Auto Group","revenue":26873.53,"orders":70},{"year":2024,"name":"Bell Collision","revenue":25736.69,"orders":50},{"year":2024,"name":"Kerrport Motors","revenue":24618.24,"orders":41},{"year":2025,"name":"South Joshua Car Dealership","revenue":24487.78,"orders":54},{"year":2025,"name":"CA Collision Trades Academy","revenue":23948.65,"orders":52},{"year":2024,"name":"North Biancafort Auto Care","revenue":23116.07,"orders":60},{"year":2025,"name":"Douglasville Car Dealership","revenue":22834.84,"orders":57},{"year":2024,"name":"Sparksmouth Body & Paint","revenue":22500.67,"orders":30},{"year":2025,"name":"Lowehaven Auto Body","revenue":21505.81,"orders":44},{"year":2025,"name":"Kerr Auto Group","revenue":21237.37,"orders":56},{"year":2025,"name":"Odom Auto Repair","revenue":20352.05,"orders":32},{"year":2025,"name":"QuickLube Port Gary","revenue":20139.13,"orders":32},{"year":2025,"name":"Galvan Auto Group","revenue":19694.35,"orders":15},{"year":2025,"name":"Bell Collision","revenue":19627.16,"orders":63},{"year":2023,"name":"North Biancafort Auto Care","revenue":18567.53,"orders":14},{"year":2024,"name":"Thompsonburgh Car Dealership","revenue":18370.10,"orders":26},{"year":2023,"name":"QuickLube Port Gary","revenue":18247.54,"orders":19},{"year":2025,"name":"Port Julie Car Dealership","revenue":17384.93,"orders":25},{"year":2024,"name":"West Jade Collision Works","revenue":16512.40,"orders":35},{"year":2025,"name":"Davis Auto Repair","revenue":16131.44,"orders":48},{"year":2025,"name":"Port Roy Auto Group","revenue":16031.69,"orders":38},{"year":2025,"name":"QuickLube Woodardstad","revenue":15926.45,"orders":38},{"year":2024,"name":"Rossberg Car Dealership","revenue":15694.12,"orders":48},{"year":2025,"name":"Guzman Auto Body","revenue":15605.61,"orders":48},{"year":2024,"name":"FL Collision Trades Academy","revenue":15539.02,"orders":27},{"year":2024,"name":"Edwards Auto Body","revenue":15403.16,"orders":28}];
+
+        // Chart color palette
+        const chartColors = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        // Chart instances
+        let trendChartInstance = null;
+        let brandChartInstance = null;
+        let statusChartInstance = null;
+        let customersChartInstance = null;
+
+        // Get all unique brands
+        const allBrands = [...new Set(brandByYear.map(d => d.brand))].sort();
+        const brandFilterSelect = document.getElementById('brandFilter');
+        allBrands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandFilterSelect.appendChild(option);
+        });
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        // Filter data based on year and brand
+        function getFilteredData(year, brand) {
+            let trends = trendData;
+            let brands = brandByYear;
+            let statuses = statusByYear;
+            let customers = topCustomersByYear;
+
+            if (year !== 'all') {
+                const yearNum = parseInt(year);
+                trends = trends.filter(d => d.year === yearNum);
+                brands = brands.filter(d => d.year === yearNum);
+                statuses = statuses.filter(d => d.year === yearNum);
+                customers = customers.filter(d => d.year === yearNum);
+            }
+
+            if (brand !== 'all') {
+                brands = brands.filter(d => d.brand === brand);
+                customers = customers.filter(d => {
+                    return true;
+                });
+            }
+
+            return { trends, brands, statuses, customers };
+        }
+
+        // Update KPIs
+        function updateKPIs(year, brand) {
+            const { trends, brands, statuses, customers } = getFilteredData(year, brand);
+
+            let totalRevenue = 0;
+            let totalOrders = 0;
+            let totalSavings = 0;
+
+            if (brand === 'all') {
+                trends.forEach(d => {
+                    totalRevenue += d.revenue;
+                    totalOrders += d.orders;
+                    totalSavings += d.savings;
+                });
+            } else {
+                brands.forEach(d => {
+                    totalRevenue += d.revenue;
+                    totalOrders += d.orders;
+                });
+                trends.forEach(d => {
+                    totalSavings += d.savings;
+                });
+            }
+
+            const aov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+            document.getElementById('kpiRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('kpiOrders').textContent = totalOrders.toLocaleString();
+            document.getElementById('kpiAOV').textContent = formatCurrency(aov);
+            document.getElementById('kpiSavings').textContent = formatCurrency(totalSavings);
+
+            const yearLabel = year === 'all' ? 'All Time' : year;
+            const brandLabel = brand === 'all' ? 'all brands' : brand;
+
+            document.getElementById('kpiRevenueDesc').textContent = `Total revenue for ${yearLabel} (${brandLabel})`;
+            document.getElementById('kpiOrdersDesc').textContent = `Orders placed in ${yearLabel}`;
+            document.getElementById('kpiAOVDesc').textContent = `Average value per order in ${yearLabel}`;
+            document.getElementById('kpiSavingsDesc').textContent = `Savings generated in ${yearLabel}`;
+        }
+
+        // Update Trend Chart
+        function updateTrendChart(year, brand) {
+            const { trends } = getFilteredData(year, brand);
+
+            const labels = trends.map(d => d.month);
+            const data = trends.map(d => d.revenue);
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            if (trendChartInstance) {
+                trendChartInstance.destroy();
+            }
+
+            trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Monthly Revenue',
+                        data: data,
+                        borderColor: '#E02B20',
+                        backgroundColor: 'rgba(224, 43, 32, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#E02B20',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Generate analysis
+            const minRevenue = Math.min(...data);
+            const maxRevenue = Math.max(...data);
+            const avgRevenue = data.reduce((a, b) => a + b, 0) / data.length;
+            const maxMonth = labels[data.indexOf(maxRevenue)];
+
+            let analysis = `Monthly revenue ranges from ${formatCurrency(minRevenue)} to ${formatCurrency(maxRevenue)}, with an average of ${formatCurrency(avgRevenue)}. `;
+            analysis += `Peak performance occurred in ${maxMonth} at ${formatCurrency(maxRevenue)}. `;
+
+            if (year === 'all') {
+                const revenue2023 = trendData.filter(d => d.year === 2023).reduce((a, b) => a + b.revenue, 0);
+                const revenue2025 = trendData.filter(d => d.year === 2025).reduce((a, b) => a + b.revenue, 0);
+                const growth = revenue2023 > 0 ? ((revenue2025 - revenue2023) / revenue2023 * 100).toFixed(1) : 0;
+                analysis += `Revenue shows strong growth from ${formatCurrency(revenue2023)} in 2023 to ${formatCurrency(revenue2025)} in 2025, a ${growth}% increase. Q4 consistently delivers the strongest performance across all years.`;
+            } else {
+                analysis += `This period shows consistent demand with notable seasonal variations.`;
+            }
+
+            document.getElementById('trendAnalysis').textContent = analysis;
+        }
+
+        // Update Brand Chart
+        function updateBrandChart(year, brand) {
+            const { brands } = getFilteredData(year, brand);
+
+            const sortedBrands = brands.sort((a, b) => b.revenue - a.revenue);
+            const labels = sortedBrands.map(d => d.brand);
+            const data = sortedBrands.map(d => d.revenue);
+
+            const ctx = document.getElementById('brandChart').getContext('2d');
+
+            if (brandChartInstance) {
+                brandChartInstance.destroy();
+            }
+
+            const colors = labels.map((_, i) => chartColors[i % chartColors.length]);
+
+            brandChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Generate analysis
+            const topBrand = sortedBrands[0];
+            const totalBrandRevenue = sortedBrands.reduce((a, b) => a + b.revenue, 0);
+            const topBrandShare = (topBrand.revenue / totalBrandRevenue * 100).toFixed(1);
+
+            let analysis = `${topBrand.brand} leads with ${formatCurrency(topBrand.revenue)} in revenue, representing ${topBrandShare}% of total revenue. `;
+            analysis += `Top 3 brands account for ${formatCurrency(sortedBrands.slice(0, 3).reduce((a, b) => a + b.revenue, 0))} in combined revenue. `;
+            analysis += `The brand portfolio shows diverse performance with ${labels.length} active brands generating ${formatCurrency(totalBrandRevenue)} in total.`;
+
+            document.getElementById('brandAnalysis').textContent = analysis;
+        }
+
+        // Update Status Chart
+        function updateStatusChart(year, brand) {
+            const { statuses } = getFilteredData(year, brand);
+
+            const labels = statuses.map(d => d.status.charAt(0).toUpperCase() + d.status.slice(1));
+            const data = statuses.map(d => d.orders);
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+
+            if (statusChartInstance) {
+                statusChartInstance.destroy();
+            }
+
+            const colors = [chartColors[0], chartColors[1], chartColors[2], chartColors[3], chartColors[4]];
+
+            statusChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 12
+                                },
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Generate analysis
+            const totalOrders = statuses.reduce((a, b) => a + b.orders, 0);
+            const deliveredOrders = statuses.find(d => d.status === 'delivered')?.orders || 0;
+            const deliveryRate = (deliveredOrders / totalOrders * 100).toFixed(1);
+            const topStatus = statuses.reduce((a, b) => a.orders > b.orders ? a : b);
+
+            let analysis = `${topStatus.status.charAt(0).toUpperCase() + topStatus.status.slice(1)} orders dominate with ${topStatus.orders} orders (${(topStatus.orders / totalOrders * 100).toFixed(1)}% of total). `;
+            analysis += `Delivery rate stands at ${deliveryRate}% with ${deliveredOrders} completed orders out of ${totalOrders} total. `;
+            analysis += `Processing and shipped statuses represent the majority of active orders, indicating strong fulfillment momentum.`;
+
+            document.getElementById('statusAnalysis').textContent = analysis;
+        }
+
+        // Update Customers Chart
+        function updateCustomersChart(year, brand) {
+            const { customers } = getFilteredData(year, brand);
+
+            const customersByName = {};
+            customers.forEach(c => {
+                if (!customersByName[c.name]) {
+                    customersByName[c.name] = { revenue: 0, orders: 0 };
+                }
+                customersByName[c.name].revenue += c.revenue;
+                customersByName[c.name].orders += c.orders;
+            });
+
+            const top10 = Object.entries(customersByName)
+                .map(([name, data]) => ({ name, ...data }))
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 10);
+
+            const labels = top10.map(c => c.name);
+            const data = top10.map(c => c.revenue);
+
+            const ctx = document.getElementById('customersChart').getContext('2d');
+
+            if (customersChartInstance) {
+                customersChartInstance.destroy();
+            }
+
+            const colors = labels.map((_, i) => chartColors[i % chartColors.length]);
+
+            customersChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Generate analysis
+            const topCustomer = top10[0];
+            const top10Revenue = top10.reduce((a, b) => a + b.revenue, 0);
+            const avgCustomerRevenue = top10Revenue / 10;
+
+            let analysis = `${topCustomer.name} is the top customer with ${formatCurrency(topCustomer.revenue)} in revenue from ${topCustomer.orders} orders. `;
+            analysis += `The top 10 customers generate ${formatCurrency(top10Revenue)} combined, averaging ${formatCurrency(avgCustomerRevenue)} per customer. `;
+            analysis += `This concentration indicates strong relationships with key accounts and significant revenue dependency on top-tier customers.`;
+
+            document.getElementById('customersAnalysis').textContent = analysis;
+        }
+
+        // Update all visualizations
+        function updateDashboard() {
+            const year = document.getElementById('yearFilter').value;
+            const brand = document.getElementById('brandFilter').value;
+
+            updateKPIs(year, brand);
+            updateTrendChart(year, brand);
+            updateBrandChart(year, brand);
+            updateStatusChart(year, brand);
+            updateCustomersChart(year, brand);
+        }
+
+        // Event listeners
+        document.getElementById('yearFilter').addEventListener('change', updateDashboard);
+        document.getElementById('brandFilter').addEventListener('change', updateDashboard);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>

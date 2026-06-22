@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media / 1. Executive Overview</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root {
+  --color-topbar: #003057; --color-bg: #F4F6F9; --color-card: #FFFFFF; --color-border: #E2E8F0;
+  --color-primary: #0099D8; --color-secondary: #003057; --color-tertiary: #77787B;
+  --color-text: #0F172A; --color-text-muted: #64748B; --color-text-on-dark: #FFFFFF;
+  --color-positive: #059669; --color-negative: #D32F2F; --color-neutral: #94A3B8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--color-bg); color: var(--color-text); font-size: 14px; line-height: 1.5; }
+.topbar { background: var(--color-topbar); color: #FFFFFF; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--color-primary); }
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo { font-weight: 800; font-size: 22px; line-height: 1; letter-spacing: -0.5px; }
+.logo .logo-x { color: var(--color-primary); }
+.logo .logo-f { color: var(--color-secondary); background: #FFFFFF; padding: 2px 6px; border-radius: 3px; }
+.topbar-title { font-size: 16px; font-weight: 600; color: #FFFFFF; }
+.topbar-subtitle { font-size: 12px; font-weight: 400; color: #A8C5DC; margin-top: 2px; }
+.back-link { color: var(--color-primary); text-decoration: none; font-size: 14px; font-weight: 500; }
+.back-link:hover { text-decoration: underline; }
+.filter-bar { background: #FFFFFF; border-bottom: 1px solid var(--color-border); padding: 14px 24px; display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
+.filter-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 0.5px; }
+.filter-group select { border: 1px solid var(--color-border); background: #FFFFFF; color: var(--color-text); padding: 7px 10px; border-radius: 4px; font-family: inherit; font-size: 13px; min-width: 130px; }
+.toggle-group { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; padding: 7px 10px; border: 1px solid var(--color-border); border-radius: 4px; background: #FFFFFF; }
+.toggle-switch { width: 32px; height: 18px; border-radius: 10px; background: #CBD5E1; position: relative; transition: background 0.18s ease; }
+.toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF; transition: left 0.18s ease; }
+.toggle-switch.active { background: var(--color-primary); }
+.toggle-switch.active::after { left: 16px; }
+.toggle-label { font-size: 13px; font-weight: 500; }
+.container { padding: 24px; max-width: 1400px; margin: 0 auto; }
+.section-title { font-size: 18px; font-weight: 700; color: var(--color-secondary); margin: 32px 0 14px 0; display: flex; align-items: center; gap: 10px; }
+.section-title:first-of-type { margin-top: 8px; }
+.section-title::before { content: ''; width: 4px; height: 18px; background: var(--color-primary); border-radius: 2px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 8px; }
+.kpi-card { background: var(--color-card); border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); border-radius: 6px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 0.4px; margin-bottom: 6px; }
+.kpi-value { font-size: 28px; font-weight: 700; color: var(--color-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.kpi-delta { font-size: 13px; font-weight: 500; margin-top: 4px; }
+.kpi-delta.positive { color: var(--color-positive); }
+.kpi-delta.negative { color: var(--color-negative); }
+.kpi-delta.neutral { color: var(--color-neutral); }
+.kpi-stack-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; color: var(--color-text-muted); }
+.kpi-stack-row .v { color: var(--color-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.charts-row { display: grid; gap: 16px; margin-top: 8px; }
+.charts-row.two { grid-template-columns: 1fr 1fr; }
+.charts-row.split { grid-template-columns: 2fr 1fr; }
+@media (max-width: 900px) { .charts-row.two, .charts-row.split { grid-template-columns: 1fr; } }
+.chart-card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 6px; padding: 18px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+.chart-title { font-size: 16px; font-weight: 700; color: var(--color-primary); margin: 0 0 14px 0; }
+.chart-wrap { position: relative; height: 280px; }
+.detail-table { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 6px; width: 100%; border-collapse: collapse; overflow: hidden; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+.detail-table th { background: var(--color-secondary); color: var(--color-text-on-dark); text-align: left; padding: 12px 14px; font-size: 13px; font-weight: 600; }
+.detail-table td { padding: 10px 14px; font-size: 13px; border-top: 1px solid var(--color-border); }
+.detail-table tr:hover td { background: #F8FAFC; }
+.detail-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.disclaimer { margin-top: 32px; padding: 14px 18px; background: #FFFFFF; border: 1px dashed var(--color-border); border-radius: 6px; font-size: 12px; color: var(--color-text-muted); line-height: 1.5; }
+.disclaimer strong { color: var(--color-secondary); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div>
+      <div class="topbar-title">Falcon Telecom &amp; Media / 1. Executive Overview</div>
+      <div class="topbar-subtitle" id="subtitle">Reporting Period: FY 2025</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <label for="yearSel">Year</label>
+    <select id="yearSel" onchange="applyFilters()">
+      <option value="2025" selected>2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+      <option value="2021">2021</option>
+      <option value="2020">2020</option>
+      <option value="2019">2019</option>
+      <option value="2018">2018</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>&nbsp;</label>
+    <div class="toggle-group" onclick="toggleCompare()">
+      <div class="toggle-switch" id="cmpSwitch"></div>
+      <div class="toggle-label">Compare Years</div>
+    </div>
+  </div>
+  <div class="filter-group">
+    <label for="carrierSel">Carriers</label>
+    <select id="carrierSel" onchange="applyFilters()">
+      <option value="prospect" selected>Prospects only (5)</option>
+      <option value="all">All carriers (8)</option>
+    </select>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-title">Cross-Domain KPIs</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">Multi-Year Trend</div>
+  <div class="charts-row split">
+    <div class="chart-card"><div class="chart-title" id="trendTitle">Revenue by Domain — 2018–2025</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Net Adds &amp; Churn 2025</div><div class="chart-wrap"><canvas id="netAddsChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Sales &amp; Engagement</div>
+  <div class="charts-row two">
+    <div class="chart-card"><div class="chart-title">Top 5 Prospect Carriers — Lifetime Billing</div><div class="chart-wrap"><canvas id="carriersChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Streaming Sessions by Year</div><div class="chart-wrap"><canvas id="sessionsChart"></canvas></div></div>
+  </div>
+
+  <div class="section-title">Annual Performance Snapshot — 2018 to 2025</div>
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th class="num">Telecom Billing</th>
+        <th class="num">Ad Gross</th>
+        <th class="num">Ticket Rev</th>
+        <th class="num">Sessions</th>
+        <th class="num">License Fees</th>
+        <th class="num">Net Adds</th>
+        <th class="num">Churn</th>
+      </tr>
+    </thead>
+    <tbody id="annualTable"></tbody>
+  </table>
+
+  <div class="disclaimer">
+    <strong>Data:</strong> Falcon Telecom &amp; Media synthetic warehouse · 4.7M fact rows across 6 fact tables ·
+    <strong>Filters:</strong> Active subscribers only on current-base KPIs · Prospect carriers shown by default ·
+    <strong>Notes:</strong> Disputed bills included · 2026 shown as YTD · Calendar fiscal year ·
+    <strong>Generated:</strong> 2026-04-24
+  </div>
+
+</div>
+
+<script>
+// ============================================================================
+// Embedded data (pre-aggregated from IDA)
+// ============================================================================
+// [year, telecom_billing_M, ad_gross_M, ticket_rev_M, sessions, license_fee_M, acq, churn_cnt]
+var ANNUAL = [
+  [2018,  9.04, 1167.72, 40.22, 125054, 50331.95,  61654, 26938],
+  [2019,  9.53, 1231.65, 44.84, 131418, 50603.75,  65555, 29037],
+  [2020,  9.01, 1109.57, 19.53, 154393, 49150.78,  61462, 27256],
+  [2021, 10.57, 1364.00, 49.85, 145024, 49479.24,  72838, 32222],
+  [2022, 11.36, 1456.63, 58.81, 156882, 50667.53,  78269, 34421],
+  [2023, 12.04, 1549.77, 65.25, 166615, 48909.83,  82813, 36584],
+  [2024, 12.86, 1647.32, 74.27, 176382, 49267.53,  87453, 38772],
+  [2025, 13.57, 1722.59, 80.04, 186274, 49075.87,  92821, 41375]
+];
+
+// Top 5 prospect carriers (lifetime billing $M)
+var TOP_CARRIERS = [
+  { name: 'Charter Communications', rev: 17.58 },
+  { name: 'Verizon',                rev: 15.49 },
+  { name: 'Comcast',                rev: 15.22 },
+  { name: 'T-Mobile US',            rev: 15.14 },
+  { name: 'AT&T',                   rev: 14.89 }
+];
+
+var state = { year: 2025, compare: false, carrier: 'prospect' };
+
+// ============================================================================
+// Helpers
+// ============================================================================
+var chartInstances = {};
+function mk(id, cfg) { if (chartInstances[id]) chartInstances[id].destroy(); var ctx = document.getElementById(id).getContext('2d'); chartInstances[id] = new Chart(ctx, cfg); return chartInstances[id]; }
+function fmt(n, d) { d = (d === undefined) ? 1 : d; return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+function fmtInt(n) { return Math.round(n).toLocaleString('en-US'); }
+function fmtMoney(n) { if (n >= 1e9) return '$' + fmt(n / 1e9, 2) + 'B'; if (n >= 1e6) return '$' + fmt(n / 1e6, 2) + 'M'; if (n >= 1e3) return '$' + fmt(n / 1e3, 1) + 'K'; return '$' + fmt(n, 0); }
+
+function getPalette() {
+  var t = document.documentElement.getAttribute('data-theme') || 'spectrum';
+  if (t === 'tech') return { primary: '#00D4FF', secondary: '#7C3AED', tertiary: '#94A3B8', ext1: '#7CFF01', ext2: '#FF00C8', grid: 'rgba(255,255,255,0.06)', text: '#F1F5F9', textMuted: '#94A3B8' };
+  return { primary: '#0099D8', secondary: '#003057', tertiary: '#77787B', ext1: '#0EA5E9', ext2: '#F59E0B', grid: 'rgba(15,23,42,0.05)', text: '#0F172A', textMuted: '#64748B' };
+}
+
+function fitKpiText() {
+  var els = document.querySelectorAll('.kpi-value');
+  for (var i = 0; i < els.length; i++) {
+    var len = els[i].textContent.length;
+    if (len > 12) els[i].style.fontSize = '18px';
+    else if (len > 8) els[i].style.fontSize = '22px';
+    else els[i].style.fontSize = '28px';
+  }
+}
+
+function deltaPct(cur, prev) { if (!prev) return null; return (cur - prev) / prev * 100; }
+function deltaText(d) {
+  if (d === null || isNaN(d)) return '<div class="kpi-delta neutral">—</div>';
+  var cls = d > 0 ? 'positive' : (d < 0 ? 'negative' : 'neutral');
+  var arrow = d > 0 ? '↑ ' : (d < 0 ? '↓ ' : '');
+  return '<div class="kpi-delta ' + cls + '">' + arrow + fmt(Math.abs(d), 1) + '% vs LY</div>';
+}
+
+// ============================================================================
+// Aggregators
+// ============================================================================
+function rowFor(yr) {
+  for (var i = 0; i < ANNUAL.length; i++) if (ANNUAL[i][0] === yr) return ANNUAL[i];
+  return null;
+}
+
+function getKpi(yr) {
+  var r = rowFor(yr); if (!r) return null;
+  var p = rowFor(yr - 1);
+  return {
+    yr: yr,
+    billing: { cur: r[1], delta: p ? deltaPct(r[1], p[1]) : null },
+    adGross: { cur: r[2], delta: p ? deltaPct(r[2], p[2]) : null },
+    ticket:  { cur: r[3], delta: p ? deltaPct(r[3], p[3]) : null },
+    sessions:{ cur: r[4], delta: p ? deltaPct(r[4], p[4]) : null },
+    license: { cur: r[5], delta: p ? deltaPct(r[5], p[5]) : null },
+    acq:     { cur: r[6], delta: p ? deltaPct(r[6], p[6]) : null },
+    churn:   { cur: r[7], delta: p ? deltaPct(r[7], p[7]) : null },
+    netAdd:  { cur: r[6] - r[7], delta: p ? deltaPct(r[6] - r[7], p[6] - p[7]) : null }
+  };
+}
+
+// ============================================================================
+// Render KPIs
+// ============================================================================
+function renderKpis() {
+  var grid = document.getElementById('kpiGrid');
+  if (state.compare) {
+    var rows = ANNUAL.filter(function(r) { return r[0] >= 2023; });
+    grid.innerHTML =
+      kpiCompareCard('Telecom Billing', rows, 1, function(v){return fmtMoney(v*1e6);}, '$M') +
+      kpiCompareCard('Ad Gross Revenue', rows, 2, function(v){return fmtMoney(v*1e6);}, '$M') +
+      kpiCompareCard('Ticket Revenue', rows, 3, function(v){return fmtMoney(v*1e6);}, '$M') +
+      kpiCompareCard('Streaming Sessions', rows, 4, function(v){return fmtInt(v);}, 'sessions') +
+      kpiCompareCard('License Fees', rows, 5, function(v){return '$' + fmt(v/1000, 1) + 'B';}, '$B') +
+      kpiCompareCard('Net Adds', rows, null, function(v){return fmtInt(v);}, 'subs', function(r){return r[6]-r[7];}) +
+      kpiCompareCard('New Acquisitions', rows, 6, function(v){return fmtInt(v);}, 'subs') +
+      kpiCompareCard('Gross Churn', rows, 7, function(v){return fmtInt(v);}, 'subs');
+  } else {
+    var k = getKpi(state.year); if (!k) { grid.innerHTML = ''; return; }
+    grid.innerHTML =
+      kpiSingleCard('Telecom Billing ' + state.year, fmtMoney(k.billing.cur * 1e6), k.billing.delta) +
+      kpiSingleCard('Ad Gross ' + state.year, fmtMoney(k.adGross.cur * 1e6), k.adGross.delta) +
+      kpiSingleCard('Ticket Revenue ' + state.year, fmtMoney(k.ticket.cur * 1e6), k.ticket.delta) +
+      kpiSingleCard('Streaming Sessions ' + state.year, fmtInt(k.sessions.cur), k.sessions.delta) +
+      kpiSingleCard('License Fees ' + state.year, '$' + fmt(k.license.cur / 1000, 1) + 'B', k.license.delta) +
+      kpiSingleCard('Net Adds ' + state.year, fmtInt(k.netAdd.cur), k.netAdd.delta) +
+      kpiSingleCard('New Acquisitions ' + state.year, fmtInt(k.acq.cur), k.acq.delta) +
+      kpiSingleCard('Gross Churn ' + state.year, fmtInt(k.churn.cur), k.churn.delta);
+  }
+  fitKpiText();
+}
+
+function kpiSingleCard(label, value, delta) {
+  return '<div class="kpi-card">'
+    + '<div class="kpi-label">' + label + '</div>'
+    + '<div class="kpi-value">' + value + '</div>'
+    + deltaText(delta)
+    + '</div>';
+}
+function kpiCompareCard(label, rows, idx, fmtFn, unit, deriveFn) {
+  var html = '<div class="kpi-card"><div class="kpi-label">' + label + '</div>';
+  var first = null, last = null;
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i]; var v = deriveFn ? deriveFn(r) : r[idx];
+    if (first === null) first = v; last = v;
+    html += '<div class="kpi-stack-row"><span>' + r[0] + '</span><span class="v">' + fmtFn(v) + '</span></div>';
+  }
+  var n = rows.length - 1;
+  if (n > 0 && first > 0) {
+    var cagr = (Math.pow(last / first, 1 / n) - 1) * 100;
+    var cls = cagr > 0 ? 'positive' : (cagr < 0 ? 'negative' : 'neutral');
+    html += '<div class="kpi-delta ' + cls + '" style="margin-top:8px;">CAGR: ' + (cagr > 0 ? '+' : '') + fmt(cagr, 1) + '%</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+// ============================================================================
+// Render Charts
+// ============================================================================
+function renderTrend() {
+  var p = getPalette();
+  var labels = ANNUAL.map(function(r){return String(r[0]);});
+  document.getElementById('trendTitle').textContent = state.compare ? 'Revenue by Domain — All Years' : 'Revenue by Domain — 2018–2025';
+  mk('trendChart', {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Telecom ($M)', data: ANNUAL.map(function(r){return r[1];}),
+          borderColor: p.primary, backgroundColor: p.primary, borderWidth: 2.5, tension: 0.3, fill: false, yAxisID: 'y' },
+        { label: 'Tickets ($M)', data: ANNUAL.map(function(r){return r[3];}),
+          borderColor: p.secondary, backgroundColor: p.secondary, borderWidth: 2, tension: 0.3, fill: false, yAxisID: 'y' },
+        { label: 'Ad Gross ($M)', data: ANNUAL.map(function(r){return r[2];}),
+          borderColor: p.tertiary, backgroundColor: p.tertiary, borderWidth: 2, tension: 0.3, fill: false, yAxisID: 'y1', borderDash: [6,4] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: p.text, font: { size: 11, family: 'Inter' }, boxWidth: 14 } }, tooltip: { mode: 'index', intersect: false } },
+      scales: {
+        x: { grid: { color: p.grid }, ticks: { color: p.textMuted } },
+        y:  { position: 'left',  title: { display: true, text: 'Telecom + Tickets ($M)', color: p.textMuted, font: { family: 'Inter', size: 11 } }, grid: { color: p.grid }, ticks: { color: p.textMuted } },
+        y1: { position: 'right', title: { display: true, text: 'Ad Gross ($M)',          color: p.textMuted, font: { family: 'Inter', size: 11 } }, grid: { drawOnChartArea: false }, ticks: { color: p.textMuted } }
+      }
+    }
+  });
+}
+
+function renderNetAdds() {
+  var p = getPalette();
+  var labels, acq, churn;
+  if (state.compare) {
+    var rows = ANNUAL.filter(function(r){return r[0] >= 2023;});
+    labels = rows.map(function(r){return String(r[0]);});
+    acq = rows.map(function(r){return r[6];});
+    churn = rows.map(function(r){return -r[7];});
+  } else {
+    var rows2 = ANNUAL.filter(function(r){return r[0] === state.year || r[0] === state.year - 1;});
+    labels = rows2.map(function(r){return String(r[0]);});
+    acq = rows2.map(function(r){return r[6];});
+    churn = rows2.map(function(r){return -r[7];});
+  }
+  mk('netAddsChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [
+      { label: 'Acquisitions', data: acq, backgroundColor: p.primary, borderColor: p.primary, borderWidth: 1, stack: 's' },
+      { label: 'Churn',        data: churn, backgroundColor: p.tertiary, borderColor: p.tertiary, borderWidth: 1, stack: 's' }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: p.text, font: { size: 11, family: 'Inter' }, boxWidth: 14 } }, tooltip: { callbacks: { label: function(ctx){ return ctx.dataset.label + ': ' + fmtInt(Math.abs(ctx.parsed.y)); } } } },
+      scales: { x: { grid: { color: p.grid }, ticks: { color: p.textMuted } }, y: { grid: { color: p.grid }, ticks: { color: p.textMuted } } }
+    }
+  });
+}
+
+function renderCarriers() {
+  var p = getPalette();
+  mk('carriersChart', {
+    type: 'bar',
+    data: { labels: TOP_CARRIERS.map(function(c){return c.name;}),
+            datasets: [{ label: 'Lifetime Billing ($M)', data: TOP_CARRIERS.map(function(c){return c.rev;}), backgroundColor: p.primary, borderColor: p.primary, borderWidth: 1 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return '$' + fmt(ctx.parsed.x) + 'M'; } } } },
+      scales: { x: { grid: { color: p.grid }, ticks: { color: p.textMuted, callback: function(v){return '$'+v+'M';} } }, y: { grid: { display: false }, ticks: { color: p.text, font: { family: 'Inter', size: 11 } } } }
+    }
+  });
+}
+
+function renderSessions() {
+  var p = getPalette();
+  var labels = ANNUAL.map(function(r){return String(r[0]);});
+  var data = ANNUAL.map(function(r){return r[4];});
+  mk('sessionsChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ label: 'Streaming Sessions', data: data, backgroundColor: p.secondary, borderColor: p.secondary, borderWidth: 1 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return fmtInt(ctx.parsed.y) + ' sessions'; } } } },
+      scales: { x: { grid: { color: p.grid }, ticks: { color: p.textMuted } }, y: { grid: { color: p.grid }, ticks: { color: p.textMuted, callback: function(v){return (v/1000).toFixed(0)+'K';} } } }
+    }
+  });
+}
+
+// ============================================================================
+// Render Table
+// ============================================================================
+function renderTable() {
+  var tbody = document.getElementById('annualTable');
+  tbody.innerHTML = '';
+  for (var i = 0; i < ANNUAL.length; i++) {
+    var r = ANNUAL[i];
+    var tr = document.createElement('tr');
+    var cells = [String(r[0]), '$' + fmt(r[1], 2) + 'M', '$' + fmt(r[2], 0) + 'M', '$' + fmt(r[3], 1) + 'M', fmtInt(r[4]), '$' + fmt(r[5] / 1000, 1) + 'B', fmtInt(r[6] - r[7]), fmtInt(r[7])];
+    var classes = ['', 'num', 'num', 'num', 'num', 'num', 'num', 'num'];
+    for (var j = 0; j < cells.length; j++) {
+      var td = document.createElement('td');
+      td.textContent = cells[j];
+      if (classes[j]) td.className = classes[j];
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+// ============================================================================
+// Filters & init
+// ============================================================================
+function applyFilters() {
+  state.year = parseInt(document.getElementById('yearSel').value, 10);
+  state.carrier = document.getElementById('carrierSel').value;
+  document.getElementById('subtitle').textContent = state.compare ? 'Reporting Period: All Years (Compare)' : 'Reporting Period: FY ' + state.year;
+  renderKpis();
+  renderTrend();
+  renderNetAdds();
+  renderCarriers();
+  renderSessions();
+  renderTable();
+}
+
+function toggleCompare() {
+  state.compare = !state.compare;
+  var sw = document.getElementById('cmpSwitch');
+  if (state.compare) sw.classList.add('active'); else sw.classList.remove('active');
+  document.getElementById('yearSel').disabled = state.compare;
+  applyFilters();
+}
+
+document.addEventListener('DOMContentLoaded', applyFilters);
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Food & Snacks - Shipments & Fill Rate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #1F2937; }
+        .topbar { background-color: #0F172A; color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-x { color: #006AFF; }
+        .logo-f { color: #1A7F64; }
+        .topbar-title { font-size: 14px; font-weight: 500; flex: 1; margin-left: 24px; }
+        .topbar-right { display: flex; gap: 20px; align-items: center; }
+        .back-link { color: #006AFF; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .container { padding: 24px; max-width: 1600px; margin: 0 auto; }
+        .filters { background-color: #FFFFFF; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; gap: 16px; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; gap: 8px; align-items: center; }
+        .filter-group label { font-size: 13px; font-weight: 500; }
+        .filter-group select { padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 13px; background-color: #FFFFFF; cursor: pointer; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background-color: #FFFFFF; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .kpi-label { font-size: 12px; font-weight: 500; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
+        .kpi-delta { font-size: 12px; font-weight: 500; }
+        .delta-positive { color: #059669; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-container { background-color: #FFFFFF; border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chart-title { font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 16px; }
+        canvas { max-height: 300px; }
+        .table-container { background-color: #FFFFFF; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-top: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { background-color: #0F172A; color: white; }
+        th { padding: 12px 16px; text-align: left; font-weight: 600; }
+        td { padding: 12px 16px; border-bottom: 1px solid #E5E7EB; }
+        tbody tr:hover { background-color: #F9FAFB; }
+        .text-right { text-align: right; }
+        .metric-positive { color: #059669; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="topbar-title">Falcon Food & Snacks / 7. Shipments & Fill Rate</div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="back-link">Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year:</label>
+                <select id="yearFilter" onchange="applyFilters()">
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Total Shipments</div>
+                <div class="kpi-value" id="kpi1">24,100</div>
+                <div class="kpi-delta">Orders Fulfilled</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Units Shipped</div>
+                <div class="kpi-value" id="kpi2">43.5M</div>
+                <div class="kpi-delta">2025 Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Invoice Value</div>
+                <div class="kpi-value" id="kpi3">$281.3M</div>
+                <div class="kpi-delta">2025 Total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Fill Rate</div>
+                <div class="kpi-value" id="kpi4">96.0%</div>
+                <div class="kpi-delta delta-positive">+0.6% vs 2024</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">On-Time %</div>
+                <div class="kpi-value" id="kpi5">95.9%</div>
+                <div class="kpi-delta">2025 Avg</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Suppliers</div>
+                <div class="kpi-value" id="kpi6">16</div>
+                <div class="kpi-delta">Active</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Quarterly Units Shipped (2024 vs 2025)</div>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Fill Rate Quarterly Trend</div>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">On-Time % Quarterly Trend</div>
+                <canvas id="chart3"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Supplier Fill Rate (2025)</div>
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-container" style="grid-column: 1 / -1;">
+                <div class="chart-title">Invoice Value by Quarter</div>
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>Material</th>
+                        <th>Origin</th>
+                        <th>Risk</th>
+                        <th class="text-right">2025 Units</th>
+                        <th class="text-right">Fill Rate %</th>
+                        <th class="text-right">On-Time %</th>
+                    </tr>
+                </thead>
+                <tbody id="supplierTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var size = 28;
+                while (el.scrollWidth > el.parentElement.offsetWidth - 40 && size > 16) {
+                    size -= 2;
+                    el.style.fontSize = size + 'px';
+                }
+            });
+        }
+
+        var supplierData = [
+            {name: 'ADM Milling', material: 'Wheat', origin: 'US', risk: 'Low', units2025: 6.1, fill: 95.8, ontime: 94.0},
+            {name: 'Roquette Freres', material: 'Pea Protein', origin: 'FR', risk: 'Med', units2025: 4.7, fill: 96.1, ontime: 98.3},
+            {name: 'IFF', material: 'Flavors', origin: 'US', risk: 'Low', units2025: 4.9, fill: 95.8, ontime: 93.2},
+            {name: 'Ingredion', material: 'Starches', origin: 'US', risk: 'Low', units2025: 5.4, fill: 96.2, ontime: 94.8},
+            {name: 'Cargill', material: 'Grain', origin: 'US', risk: 'Low', units2025: 5.4, fill: 96.1, ontime: 95.7},
+            {name: 'Beneo', material: 'Fiber', origin: 'DE', risk: 'Low', units2025: 5.5, fill: 95.8, ontime: 97.0},
+            {name: 'AAK AB', material: 'Oils', origin: 'SE', risk: 'Low', units2025: 5.6, fill: 95.8, ontime: 97.0},
+            {name: 'Barry Callebaut', material: 'Cocoa', origin: 'CH', risk: 'Med', units2025: 5.9, fill: 96.3, ontime: 97.4}
+        ];
+
+        var quarterlyData2025 = [9.9, 9.4, 11.9, 12.4];
+        var quarterlyData2024 = [9.7, 9.1, 12.2, 11.9];
+        var fillRateQ = [96.1, 95.9, 95.8, 96.0];
+        var ontimeQ = [94.6, 97.8, 96.0, 95.1];
+        var invoiceQ = [64.0, 60.9, 76.8, 79.5];
+
+        function applyFilters() {
+            var year = document.getElementById('yearFilter').value;
+            updateCharts(year);
+            updateTable(year);
+            fitKpiText();
+        }
+
+        function updateCharts(year) {
+            mk('chart1', {
+                type: 'bar',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [
+                        { label: '2025', data: quarterlyData2025, backgroundColor: '#006AFF', borderRadius: 4 },
+                        { label: '2024', data: quarterlyData2024, backgroundColor: '#94A3B8', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return v.toFixed(1) + 'M'; } } } }
+                }
+            });
+
+            mk('chart2', {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        label: 'Fill Rate %',
+                        data: fillRateQ,
+                        borderColor: '#006AFF',
+                        backgroundColor: 'rgba(0,106,255,0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#006AFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 94, max: 97, ticks: { callback: function(v) { return v.toFixed(1) + '%'; } } } }
+                }
+            });
+
+            mk('chart3', {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        label: 'On-Time %',
+                        data: ontimeQ,
+                        borderColor: '#1A7F64',
+                        backgroundColor: 'rgba(26,127,100,0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#1A7F64'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 93, max: 99, ticks: { callback: function(v) { return v.toFixed(1) + '%'; } } } }
+                }
+            });
+
+            var labels = supplierData.map(function(s) { return s.name; });
+            var fills = supplierData.map(function(s) { return s.fill; });
+
+            mk('chart4', {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Fill Rate %',
+                        data: fills,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { min: 94, max: 97, ticks: { callback: function(v) { return v.toFixed(1) + '%'; } } } }
+                }
+            });
+
+            mk('chart5', {
+                type: 'bar',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        label: 'Invoice Value ($M)',
+                        data: invoiceQ,
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v.toFixed(1) + 'M'; } } } }
+                }
+            });
+        }
+
+        function updateTable(year) {
+            var tbody = document.getElementById('supplierTable');
+            tbody.innerHTML = '';
+
+            supplierData.forEach(function(row) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.name + '</td><td>' + row.material + '</td><td>' + row.origin + '</td><td>' + row.risk + '</td>' +
+                    '<td class="text-right">' + row.units2025.toFixed(1) + 'M</td>' +
+                    '<td class="text-right"><span class="metric-positive">' + row.fill.toFixed(1) + '%</span></td>' +
+                    '<td class="text-right">' + row.ontime.toFixed(1) + '%</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Read URL params to set filters from training guide generator
+        function getUrlParam(name) {
+            var match = window.location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        var urlYear = getUrlParam('year');
+        if (urlYear) {
+            var yearSelect = document.getElementById('yearFilter');
+            for (var i = 0; i < yearSelect.options.length; i++) {
+                if (yearSelect.options[i].value === urlYear) {
+                    yearSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

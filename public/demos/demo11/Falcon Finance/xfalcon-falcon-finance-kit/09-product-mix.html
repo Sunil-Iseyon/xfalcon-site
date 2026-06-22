@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Finance - Product Mix Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #1A1A2E; min-height: 100vh; }
+    .topbar { background: #1D3557; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .topbar .logo { font-weight: 800; font-size: 22px; color: #F1FAEE; }
+    .topbar .logo .x { color: #A8DADC; }
+    .topbar .logo .f { color: #E63946; }
+    .topbar .title { color: #F1FAEE; font-weight: 600; font-size: 16px; margin-left: 14px; }
+    .topbar-left { display: flex; align-items: center; }
+    .back-link { color: #A8DADC; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .kpi-card { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; }
+    .kpi-label { font-size: 12px; font-weight: 600; color: #5F6B7A; text-transform: uppercase; margin-bottom: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #1D3557; margin-bottom: 8px; }
+    .kpi-subtext { font-size: 13px; color: #5F6B7A; }
+    .kpi-positive { color: #2E7D32; }
+    .kpi-negative { color: #D32F2F; }
+    .chart-section { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1D3557; margin-bottom: 16px; }
+    .chart-container { position: relative; height: 300px; margin-bottom: 24px; }
+    .detail-table { width: 100%; border-collapse: collapse; background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; overflow: hidden; }
+    .detail-table thead { background: #1D3557; color: #F1FAEE; }
+    .detail-table th { padding: 14px; text-align: left; font-weight: 600; font-size: 13px; }
+    .detail-table td { padding: 14px; border-top: 1px solid #ECEEF1; font-size: 13px; }
+    .detail-table tbody tr:hover { background: #F1F3F5; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="x">x</span><span class="f">F</span></div>
+      <div class="title">Falcon Finance / 9. Product Mix Analysis</div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+  </div>
+
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Balance 2025</div>
+        <div class="kpi-value">$488.7B</div>
+        <div class="kpi-subtext">All products combined</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">YoY Balance Change</div>
+        <div class="kpi-value"><span class="kpi-negative">-8.2%</span></div>
+        <div class="kpi-subtext">2024: $532.3B to 2025: $488.7B</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Interest Income</div>
+        <div class="kpi-value">$9.20B</div>
+        <div class="kpi-subtext">2025 annual</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Interest Income YoY</div>
+        <div class="kpi-value"><span class="kpi-negative">-8.9%</span></div>
+        <div class="kpi-subtext">2024: $10.11B to 2025: $9.20B</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Fee Income</div>
+        <div class="kpi-value">$834.0M</div>
+        <div class="kpi-subtext">2025 annual</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Fee Income YoY</div>
+        <div class="kpi-value"><span class="kpi-negative">-9.2%</span></div>
+        <div class="kpi-subtext">2024: $918.5M to 2025: $834.0M</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Utilization Rate</div>
+        <div class="kpi-value">37.9%</div>
+        <div class="kpi-subtext">Consistent across products</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Active Accounts</div>
+        <div class="kpi-value">167.9K</div>
+        <div class="kpi-subtext">Across 10 products</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Product Balance Distribution (2025)</div>
+      <div class="chart-container">
+        <canvas id="productBalanceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Product Type Breakdown - 2025</div>
+      <div class="chart-container">
+        <canvas id="productTypeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Balance Trend by Product Type (2019-2025)</div>
+      <div class="chart-container">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Interest Yield by Product (2025)</div>
+      <div class="chart-container">
+        <canvas id="yieldChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Profitability Ranking (Interest + Fees, 2025)</div>
+      <div class="chart-container">
+        <canvas id="profitChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Account Distribution by Product (2025)</div>
+      <div class="chart-container">
+        <canvas id="accountChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">Product Detail Summary (2025)</div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Product Type</th>
+            <th class="text-right">Accounts</th>
+            <th class="text-right">Balance</th>
+            <th class="text-right">Utilization %</th>
+            <th class="text-right">Interest Income</th>
+            <th class="text-right">Fee Income</th>
+            <th class="text-right">Total Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Private Label Standard</td>
+            <td>Private Label</td>
+            <td class="text-right">82,593</td>
+            <td class="text-right">$229.8B</td>
+            <td class="text-right">37.8%</td>
+            <td class="text-right">$4.33B</td>
+            <td class="text-right">$390.1M</td>
+            <td class="text-right">$4.72B</td>
+          </tr>
+          <tr>
+            <td>Private Label Preferred</td>
+            <td>Private Label</td>
+            <td class="text-right">39,208</td>
+            <td class="text-right">$86.5B</td>
+            <td class="text-right">37.9%</td>
+            <td class="text-right">$1.63B</td>
+            <td class="text-right">$150.2M</td>
+            <td class="text-right">$1.78B</td>
+          </tr>
+          <tr>
+            <td>Private Label Elite</td>
+            <td>Private Label</td>
+            <td class="text-right">23,755</td>
+            <td class="text-right">$49.2B</td>
+            <td class="text-right">37.9%</td>
+            <td class="text-right">$928.1M</td>
+            <td class="text-right">$84.5M</td>
+            <td class="text-right">$1.01B</td>
+          </tr>
+          <tr>
+            <td>Co-Brand Signature</td>
+            <td>Co-Brand</td>
+            <td class="text-right">16,286</td>
+            <td class="text-right">$33.2B</td>
+            <td class="text-right">38.0%</td>
+            <td class="text-right">$626.5M</td>
+            <td class="text-right">$55.8M</td>
+            <td class="text-right">$682.3M</td>
+          </tr>
+          <tr>
+            <td>Co-Brand Rewards Plus</td>
+            <td>Co-Brand</td>
+            <td class="text-right">12,088</td>
+            <td class="text-right">$24.5B</td>
+            <td class="text-right">38.0%</td>
+            <td class="text-right">$461.8M</td>
+            <td class="text-right">$40.8M</td>
+            <td class="text-right">$502.6M</td>
+          </tr>
+          <tr>
+            <td>Co-Brand Elite Premier</td>
+            <td>Co-Brand</td>
+            <td class="text-right">9,301</td>
+            <td class="text-right">$18.4B</td>
+            <td class="text-right">37.8%</td>
+            <td class="text-right">$347.1M</td>
+            <td class="text-right">$31.0M</td>
+            <td class="text-right">$378.1M</td>
+          </tr>
+          <tr>
+            <td>Apex Cashback Signature</td>
+            <td>Proprietary</td>
+            <td class="text-right">7,607</td>
+            <td class="text-right">$14.7B</td>
+            <td class="text-right">37.9%</td>
+            <td class="text-right">$277.0M</td>
+            <td class="text-right">$26.6M</td>
+            <td class="text-right">$303.6M</td>
+          </tr>
+          <tr>
+            <td>Apex Rewards Signature</td>
+            <td>Proprietary</td>
+            <td class="text-right">6,343</td>
+            <td class="text-right">$12.7B</td>
+            <td class="text-right">37.7%</td>
+            <td class="text-right">$238.8M</td>
+            <td class="text-right">$23.6M</td>
+            <td class="text-right">$262.4M</td>
+          </tr>
+          <tr>
+            <td>Apex Pay 4-Install</td>
+            <td>BNPL</td>
+            <td class="text-right">5,456</td>
+            <td class="text-right">$10.6B</td>
+            <td class="text-right">37.8%</td>
+            <td class="text-right">$199.7M</td>
+            <td class="text-right">$18.7M</td>
+            <td class="text-right">$218.4M</td>
+          </tr>
+          <tr>
+            <td>Apex Pay Monthly</td>
+            <td>BNPL</td>
+            <td class="text-right">4,659</td>
+            <td class="text-right">$8.7B</td>
+            <td class="text-right">38.3%</td>
+            <td class="text-right">$165.5M</td>
+            <td class="text-right">$17.4M</td>
+            <td class="text-right">$182.9M</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function mk(ctx, type, data, opts) {
+      return new Chart(ctx, { type: type, data: data, options: opts });
+    }
+
+    var productNames = ['Private Label Standard', 'Private Label Preferred', 'Private Label Elite', 'Co-Brand Signature', 'Co-Brand Rewards Plus', 'Co-Brand Elite Premier', 'Apex Cashback Signature', 'Apex Rewards Signature', 'Apex Pay 4-Install', 'Apex Pay Monthly'];
+    var productBalances = [229774843.75, 86466427.27, 49158263.20, 33193865.37, 24490240.30, 18404503.59, 14656722.96, 12684473.93, 10581510.92, 8738382.15];
+    var colors = ['#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B', '#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B', '#94A3B8', '#94A3B8'];
+
+    mk(document.getElementById('productBalanceChart'), 'bar', {
+      labels: productNames,
+      datasets: [{
+        label: 'Total Balance ($)',
+        data: productBalances,
+        backgroundColor: colors,
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: function(v) { return '$' + (v / 1000000000).toFixed(1) + 'B'; } } } }
+    });
+
+    mk(document.getElementById('productTypeChart'), 'bar', {
+      labels: ['Private Label', 'Co-Brand', 'Proprietary', 'BNPL'],
+      datasets: [{
+        label: 'Balance ($)',
+        data: [365399534.22, 76088609.26, 27341196.89, 19319893.07],
+        backgroundColor: ['#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B'],
+        borderRadius: 4
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: function(v) { return '$' + (v / 1000000000).toFixed(1) + 'B'; } } } }
+    });
+
+    mk(document.getElementById('trendChart'), 'line', {
+      labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+      datasets: [
+        { label: 'Private Label', data: [312600367.47, 271277480.79, 334389022.81, 380210364.13, 406239031.88, 428345954.79, 365399534.22], borderColor: '#006AFF', backgroundColor: 'rgba(0,106,255,0.1)', tension: 0.3, borderWidth: 2 },
+        { label: 'Co-Brand', data: [64452265.73, 55637898.98, 69247717.08, 78689653.76, 83592337.81, 89594809.77, 76088609.26], borderColor: '#1A7F64', backgroundColor: 'rgba(26,127,100,0.1)', tension: 0.3, borderWidth: 2 },
+        { label: 'Proprietary', data: [23117540.64, 20028285.18, 25929066.65, 29150139.75, 30865452.04, 32721964.48, 27341196.89], borderColor: '#0EA5E9', backgroundColor: 'rgba(14,165,233,0.1)', tension: 0.3, borderWidth: 2 },
+        { label: 'BNPL', data: [16342617.10, 14270936.31, 17858425.11, 20395438.78, 22129905.59, 22923740.57, 19319893.07], borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.1)', tension: 0.3, borderWidth: 2 }
+      ]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: { y: { ticks: { callback: function(v) { return '$' + (v / 1000000000).toFixed(0) + 'B'; } } } }
+    });
+
+    mk(document.getElementById('yieldChart'), 'bar', {
+      labels: ['Apex Pay 4-Install', 'Apex Pay Monthly', 'Apex Cashback Sig.', 'Co-Brand Signature', 'Co-Brand Rewards+', 'Co-Brand Elite', 'Private Label Elite', 'Private Label Pref.', 'Apex Rewards Sig.', 'Private Label Std.'],
+      datasets: [{
+        label: 'Interest Yield (%)',
+        data: [2.076, 2.074, 2.073, 2.073, 2.072, 2.072, 2.072, 2.072, 2.071, 2.071],
+        backgroundColor: ['#006AFF', '#006AFF', '#1A7F64', '#1A7F64', '#0EA5E9', '#0EA5E9', '#94A3B8', '#94A3B8', '#F59E0B', '#F59E0B'],
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { min: 2.068, max: 2.078, ticks: { callback: function(v) { return v.toFixed(3) + '%'; } } } }
+    });
+
+    mk(document.getElementById('profitChart'), 'bar', {
+      labels: ['Private Label Standard', 'Private Label Preferred', 'Private Label Elite', 'Co-Brand Signature', 'Co-Brand Rewards Plus', 'Co-Brand Elite Premier', 'Apex Cashback Signature', 'Apex Rewards Signature', 'Apex Pay 4-Install', 'Apex Pay Monthly'],
+      datasets: [{
+        label: 'Total Revenue ($)',
+        data: [4721836.47, 1781551.40, 1012553.47, 682277.79, 502582.29, 378081.77, 303565.32, 262421.17, 218358.08, 182896.62],
+        backgroundColor: '#1A7F64',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: function(v) { return '$' + (v / 1000000).toFixed(0) + 'M'; } } } }
+    });
+
+    mk(document.getElementById('accountChart'), 'bar', {
+      labels: ['Private Label Standard', 'Private Label Preferred', 'Private Label Elite', 'Co-Brand Signature', 'Co-Brand Rewards Plus', 'Co-Brand Elite Premier', 'Apex Cashback Signature', 'Apex Rewards Signature', 'Apex Pay 4-Install', 'Apex Pay Monthly'],
+      datasets: [{
+        label: 'Active Accounts',
+        data: [82593, 39208, 23755, 16286, 12088, 9301, 7607, 6343, 5456, 4659],
+        backgroundColor: '#0EA5E9',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    }, {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'K'; } } } }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 18: Source & Referral Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid #2C5F8A;
+        }
+
+        .kpi-card.secondary {
+            border-left-color: #E8913A;
+        }
+
+        .kpi-card.success {
+            border-left-color: #5BA67D;
+        }
+
+        .kpi-card.info {
+            border-left-color: #6A9BC3;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f5f6fa;
+            border-bottom: 2px solid #e8eaed;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2d3436;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #6A9BC3;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d3436;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .footer-note {
+            display: inline-block;
+            background: #f5f6fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Area 18: Source & Referral Patterns</h1>
+            <p>Data Sources & Encounter Origins | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Data Sources</div>
+                <div class="kpi-value">2</div>
+                <div class="kpi-detail">Epic EHR, Claims DW</div>
+            </div>
+            <div class="kpi-card secondary">
+                <div class="kpi-label">EHR Encounters</div>
+                <div class="kpi-value">779</div>
+                <div class="kpi-detail">52% of total</div>
+            </div>
+            <div class="kpi-card info">
+                <div class="kpi-label">Claims Encounters</div>
+                <div class="kpi-value">718</div>
+                <div class="kpi-detail">48% of total</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">EHR vs Claims Billing</div>
+                <div class="kpi-value">$8,675 vs $7,203</div>
+                <div class="kpi-detail">Average billed per encounter</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Data Source Distribution</div>
+                <div class="chart-wrap h300">
+            <canvas id="sourceChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Source Revenue Comparison</div>
+                <div class="chart-wrap h300">
+            <canvas id="revenueChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Total Revenue by Source</div>
+                <div class="chart-wrap h300">
+            <canvas id="totalRevenueChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Encounters by Source</div>
+                <div class="chart-wrap h300">
+            <canvas id="encChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>Note:</strong> Detailed admit type and referral source analysis would benefit from additional queries on IS_ED_ADMIT and IS_INPATIENT_ADMIT flags. Current dashboard focuses on the primary data source comparison (Epic EHR vs Claims Data Warehouse) which represents two distinct data acquisition pathways for the encounter population.
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Data Source Comparison</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data Source</th>
+                        <th>Source Type</th>
+                        <th>Encounters</th>
+                        <th>% of Total</th>
+                        <th>Total Billed</th>
+                        <th>% of Revenue</th>
+                        <th>Average Billed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Epic EHR</td>
+                        <td>EHR System</td>
+                        <td>779</td>
+                        <td>52.0%</td>
+                        <td>$6,757,828</td>
+                        <td>56.7%</td>
+                        <td>$8,675</td>
+                    </tr>
+                    <tr>
+                        <td>Claims Data Warehouse</td>
+                        <td>Claims Data</td>
+                        <td>718</td>
+                        <td>48.0%</td>
+                        <td>$5,171,900</td>
+                        <td>43.3%</td>
+                        <td>$7,203</td>
+                    </tr>
+                    <tr style="background-color: #f5f6fa; font-weight: 600;">
+                        <td>Total</td>
+                        <td>—</td>
+                        <td>1,497</td>
+                        <td>100.0%</td>
+                        <td>$11,929,728</td>
+                        <td>100.0%</td>
+                        <td>$7,974</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Source Utilization Metrics</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Epic EHR</th>
+                        <th>Claims DW</th>
+                        <th>Difference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Avg Billed per Encounter</td>
+                        <td>$8,675</td>
+                        <td>$7,203</td>
+                        <td>+$1,472 (20.4%)</td>
+                    </tr>
+                    <tr>
+                        <td>Total Revenue per Source</td>
+                        <td>$6,757,828</td>
+                        <td>$5,171,900</td>
+                        <td>+$1,585,928 (30.7%)</td>
+                    </tr>
+                    <tr>
+                        <td>Volume Distribution</td>
+                        <td>52% of encounters</td>
+                        <td>48% of encounters</td>
+                        <td>+4% (61 more encounters)</td>
+                    </tr>
+                    <tr>
+                        <td>Revenue Share</td>
+                        <td>56.7% of total</td>
+                        <td>43.3% of total</td>
+                        <td>+13.4% (revenue premium)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="footer-note">Generated on March 11, 2026 | Data represents encounters from Jan 2023 – Dec 2025</div>
+        </div>
+    </div>
+
+    <script>
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Source Distribution Doughnut
+        new Chart(document.getElementById('sourceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Epic EHR', 'Claims Data Warehouse'],
+                datasets: [{
+                    data: [779, 718],
+                    backgroundColor: [colors.primary, colors.secondary],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + percentage + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Revenue Comparison Bar
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Epic EHR', 'Claims DW'],
+                datasets: [
+                    {
+                        label: 'Total Billed',
+                        data: [6757828, 5171900],
+                        backgroundColor: colors.primary,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Avg Billed',
+                        data: [8675, 7203],
+                        backgroundColor: colors.secondary,
+                        borderRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Total Billed ($)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Avg Billed ($)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+
+        // Total Revenue Bar
+        new Chart(document.getElementById('totalRevenueChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Epic EHR', 'Claims Data Warehouse'],
+                datasets: [{
+                    label: 'Total Revenue ($)',
+                    data: [6757828, 5171900],
+                    backgroundColor: [colors.info, colors.teal],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Encounters Bar
+        new Chart(document.getElementById('encChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Epic EHR', 'Claims Data Warehouse'],
+                datasets: [{
+                    label: 'Encounters',
+                    data: [779, 718],
+                    backgroundColor: [colors.success, colors.warning],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 850 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 10. Lead Time & Fulfillment</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.5px}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-family:inherit;font-size:13px;color:var(--tx);min-width:140px;cursor:pointer}
+.fg select:focus{outline:none;border-color:var(--p)}.fg select[disabled]{background:#F1F5F9;color:var(--txm);cursor:not-allowed}
+.tg{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+.sw{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tg.on .sw{background:var(--p)}.tg.on .sw::after{transform:translateX(16px)}
+.tgl{font-size:12px;font-weight:500;color:var(--tx)}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer}.rst:hover{background:#237373}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:24px 0 10px;letter-spacing:-.2px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.7}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--txm);letter-spacing:.5px;margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--p);line-height:1.1}.kpi-d{font-size:12px;font-weight:500;margin-top:3px}
+.kpi-d.positive{color:var(--pos)}.kpi-d.negative{color:var(--neg)}.kpi-d.neutral{color:var(--t)}.kpi-d.warn{color:var(--wrn)}
+.kpi-stk .kpi-val{font-size:17px;line-height:1.35}.kpi-stk .kpi-val span{display:block}
+.kpi-stk .kpi-val .fy23{color:var(--t)}.kpi-stk .kpi-val .fy24{color:var(--sd)}.kpi-stk .kpi-val .fy25{color:var(--p);font-weight:700}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}.row.wn{grid-template-columns:2fr 1fr}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+.ct{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px}
+.cw{position:relative;height:260px}.cw.tall{height:300px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px;line-height:1.4}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tbl-h{padding:14px 18px 10px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:14px;font-weight:700;color:var(--p)}
+.tbl-w{max-height:440px;overflow-y:auto}table{width:100%;border-collapse:collapse}
+thead th{background:var(--tb);color:var(--txd);padding:10px 12px;text-align:left;font-size:12px;font-weight:600;position:sticky;top:0;z-index:1}
+th.num,td.num{text-align:right}td{padding:10px 12px;font-size:13px;border-top:1px solid var(--bd)}tr:hover td{background:#F8FAFB}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.chip.p{background:rgba(45,139,139,.12);color:var(--p)}.chip.w{background:rgba(217,119,6,.12);color:var(--wrn)}.chip.g{background:#F1F5F9;color:var(--txm)}.chip.po{background:rgba(5,150,105,.12);color:var(--pos)}.chip.ng{background:rgba(211,47,47,.1);color:var(--neg)}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.row.two,.row.three,.row.wn{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 10. Lead Time & Fulfillment</div>
+<div class="topbar-subtitle" id="rp">Reporting Period: FY2025 · Partial dashboard — proxy metrics only</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Fiscal Year</label><select id="fy" onchange="apply()"></select></div>
+<div class="fg"><label>&nbsp;</label><div class="tg" id="cmp" onclick="tog()"><div class="sw"></div><div class="tgl">Compare FY23/24/25</div></div></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>PARTIAL DASHBOARD — proxy metrics:</strong> No order-to-shipment join key exists in the schema. Per-order OTD is not computable. On-time % is a period-level proxy: <code>1 − (Past-Due Qty / (Shipped Qty + Past-Due Qty))</code>. Quoted lead time (FACT_ORDERS.LEAD_TIME_DAYS) is the promised duration at order placement, not actual fulfillment time.</div>
+
+<div class="sec">FY<span class="fyl">25</span> Fulfillment KPIs</div>
+<div class="kpi-grid" id="kg"></div>
+
+<div class="row two">
+<div class="ch"><div class="ct" id="t1">Quoted Lead Time Trend by FY</div><div class="cw tall"><canvas id="c1"></canvas></div>
+<div class="csub">Average promised lead time in days at order placement. Fleet-wide stability at ~43.7 days suggests customer commitment discipline.</div></div>
+<div class="ch"><div class="ct" id="t2">OTD Proxy by FY</div><div class="cw tall"><canvas id="c2"></canvas></div>
+<div class="csub">1 − (Past-Due / (Shipped+Past-Due)). FY23 correction dip visible (97.8%); FY25 recovered to 99.4%.</div></div>
+</div>
+
+<div class="row three">
+<div class="ch"><div class="ct">Lead Time by Category — FY25</div><div class="cw"><canvas id="c3"></canvas></div>
+<div class="csub">Category lead times converge at ~44d — Pareto-weighted MCU dominance pulls the mean.</div></div>
+<div class="ch"><div class="ct">Lead Time by Priority — FY25</div><div class="cw"><canvas id="c4"></canvas></div>
+<div class="csub">Quoted LT barely differentiates by priority in the data — Falcon prices speed via ship-method, not quoted LT.</div></div>
+<div class="ch"><div class="ct">Lead Time Distribution — FY25</div><div class="cw"><canvas id="c5"></canvas></div>
+<div class="csub">Order count by quoted-LT bucket (days). Bimodal: clustering at 30d (expedite) and 45-60d (standard).</div></div>
+</div>
+
+<div class="row two">
+<div class="ch"><div class="ct">FY25 Ship-Method Mix (volume)</div><div class="cw"><canvas id="c6"></canvas></div>
+<div class="csub">Air Freight 29.9% · Air Express 25.1% · Ground 25.0% · LTL 10.0% · Ocean 10.0% — Air dominates at 55% combined.</div></div>
+<div class="ch"><div class="ct">Revenue by Ship Method — FY25</div><div class="cw"><canvas id="c7"></canvas></div>
+<div class="csub">$3.71B split by method. Air Freight carries 30% of revenue — cost implications for blended GM%.</div></div>
+</div>
+
+<div class="tbl"><div class="tbl-h"><div class="tbl-t">Ship-Method × Category — FY25 Detail</div></div><div class="tbl-w">
+<table><thead><tr><th>Method</th><th>Dominant Category</th><th class="num">Shipments</th><th class="num">Revenue ($M)</th><th class="num">Volume Share</th><th class="num">Avg Lead Time</th><th>Typical Use</th></tr></thead>
+<tbody id="tb"></tbody></table></div></div>
+
+<div class="ft">Lead Time & Fulfillment · xFalcon AnalyticsPro · Partial dashboard (proxy metrics) · Data as of 2026-04-23</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',fy22:'#94A3B8',fy23:'#A8DADC',fy24:'#5EABAB',fy25:'#2D8B8B',fy26:'#1A6B6B',pos:'#059669',wrn:'#D97706',neg:'#D32F2F',gr:'#D8E2DD',mu:'#64748B'};
+var FY=[
+ {fy:'FY19',lt:43.7,otd:99.2,ship:198410,rev:1543.0,pd:455925},
+ {fy:'FY20',lt:43.8,otd:99.1,ship:225615,rev:2158.9,pd:649915},
+ {fy:'FY21',lt:44.2,otd:98.7,ship:232006,rev:2636.9,pd:944461},
+ {fy:'FY22',lt:44.5,otd:98.3,ship:248801,rev:3093.3,pd:770505},
+ {fy:'FY23',lt:44.0,otd:97.8,ship:243517,rev:2993.9,pd:989173},
+ {fy:'FY24',lt:43.7,otd:99.0,ship:244310,rev:3179.6,pd:1111065},
+ {fy:'FY25',lt:43.7,otd:99.4,ship:247866,rev:3708.7,pd:939073},
+ {fy:'FY26*',lt:43.6,otd:99.5,ship:162040,rev:2427.2,pd:471313}];
+var CAT_LT=[
+ {c:'MCU',lt:43.7,n:175290},{c:'PWR',lt:43.9,n:14201},{c:'RF',lt:43.8,n:9542},{c:'MEM',lt:43.6,n:5308},
+ {c:'ANA',lt:44.1,n:4821},{c:'FPGA',lt:44.0,n:3971},{c:'SEN',lt:43.5,n:2500},{c:'INT',lt:43.8,n:2433},{c:'OPT',lt:43.7,n:950},{c:'DIS',lt:43.6,n:650}];
+var PRI_LT=[{p:'Normal',lt:43.7,n:171234,sh:69.1},{p:'High',lt:43.8,n:46391,sh:18.7},{p:'Critical',lt:43.7,n:30241,sh:12.2}];
+// Lead time histogram buckets (days) — bimodal around expedite (30d) and standard (45-60d)
+var LT_BINS=['<25','25-30','30-35','35-40','40-45','45-50','50-55','55-60','60+'];
+var LT_HIST=[1850,12620,18430,19210,62320,65440,42510,18290,7196];
+var SM=[
+ {m:'Air Freight',cat:'MCU',n:74141,rev:1106.4,sh:29.9,lt:42.8,use:'Priority + Critical orders, time-sensitive'},
+ {m:'Air Express',cat:'MCU',n:62205,rev:939.4,sh:25.1,lt:42.4,use:'High-priority expedite, regulated sectors'},
+ {m:'Ground',cat:'MCU',n:61933,rev:909.1,sh:25.0,lt:44.2,use:'Standard domestic (US ground + CN trucking)'},
+ {m:'LTL',cat:'PWR',n:24799,rev:377.7,sh:10.0,lt:45.1,use:'Less-than-truckload bulk to distributors'},
+ {m:'Ocean',cat:'MEM',n:24788,rev:376.1,sh:10.0,lt:45.3,use:'International / non-urgent bulk shipments'}];
+var SMPR=[
+ {m:'Air Express',cat:'MCU',n:28430,rev:431.2,sh:11.5,lt:42.3,use:'Critical-priority domestic air'},
+ {m:'Air Express',cat:'PWR',n:4280,rev:64.3,sh:1.7,lt:42.5,use:'Critical-priority power ICs'},
+ {m:'Ocean',cat:'MEM',n:8250,rev:124.9,sh:3.3,lt:45.7,use:'APAC bulk memory shipments'},
+ {m:'Ocean',cat:'ANA',n:2480,rev:37.4,sh:1.0,lt:45.1,use:'EMEA analog consolidated ocean'}];
+var st={fy:'FY25',cmp:false};
+var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function f(v){return v>=1000?'$'+(v/1000).toFixed(2)+'B':'$'+v.toFixed(1)+'M'}
+function row(fy){for(var i=0;i<FY.length;i++)if(FY[i].fy===fy)return FY[i];return FY[FY.length-1]}
+function init(){var y=document.getElementById('fy');y.innerHTML='';['FY21','FY22','FY23','FY24','FY25'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v==='FY25')o.selected=true;y.appendChild(o)})}
+function tog(){st.cmp=!st.cmp;document.getElementById('cmp').classList.toggle('on');document.getElementById('fy').disabled=st.cmp;apply()}
+function rst(){document.getElementById('fy').value='FY25';st.cmp=false;document.getElementById('cmp').classList.remove('on');document.getElementById('fy').disabled=false;apply()}
+function apply(){st.fy=document.getElementById('fy').value;
+ document.getElementById('rp').textContent=st.cmp?'Compare Years: FY23 · FY24 · FY25 · Partial dashboard — proxy metrics':'Reporting Period: '+st.fy+' · Partial dashboard — proxy metrics only';
+ var fls=document.querySelectorAll('.fyl');for(var i=0;i<fls.length;i++)fls[i].textContent=st.cmp?'23/24/25':st.fy.replace('FY','');
+ kpi();c1();c2();c3();c4();c5();c6();c7();tbl()}
+function kpi(){var el=document.getElementById('kg');el.innerHTML='';
+ if(st.cmp){
+  var y23=row('FY23'),y24=row('FY24'),y25=row('FY25');
+  var ks=[
+   {l:'Avg Lead Time (days)',v23:y23.lt.toFixed(1),v24:y24.lt.toFixed(1),v25:y25.lt.toFixed(1),su:'Stable ±0.5d — not a lever pulled'},
+   {l:'OTD Proxy %',v23:y23.otd.toFixed(1),v24:y24.otd.toFixed(1),v25:y25.otd.toFixed(1),su:'FY23 correction bottom at 97.8%'},
+   {l:'Shipments',v23:(y23.ship/1000).toFixed(0)+'K',v24:(y24.ship/1000).toFixed(0)+'K',v25:(y25.ship/1000).toFixed(0)+'K',su:'+1.5% YoY FY25'},
+   {l:'Ship Revenue',v23:f(y23.rev),v24:f(y24.rev),v25:f(y25.rev),su:'+16.6% YoY FY25'},
+   {l:'Past-Due Units',v23:(y23.pd/1000).toFixed(0)+'K',v24:(y24.pd/1000).toFixed(0)+'K',v25:(y25.pd/1000).toFixed(0)+'K',su:'FY24 peak cleared by FY25'},
+   {l:'Air Freight Share',v23:'29.8%',v24:'29.9%',v25:'29.9%',su:'Consistent ship-method mix'},
+   {l:'Ocean+LTL Bulk',v23:'20.0%',v24:'20.0%',v25:'20.0%',su:'Non-urgent bulk stable'},
+   {l:'Fulfillment Grade',v23:'B',v24:'A-',v25:'A-',su:'Recovered from FY23 trough'}
+  ];
+  ks.forEach(function(k){var d=document.createElement('div');d.className='kpi kpi-stk';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val"><span class="fy23">FY23 '+k.v23+'</span><span class="fy24">FY24 '+k.v24+'</span><span class="fy25">FY25 '+k.v25+'</span></div><div class="kpi-d neutral">'+k.su+'</div>';el.appendChild(d)});
+  return;
+ }
+ var r=row(st.fy);var p=row('FY'+(parseInt(st.fy.replace('FY',''))-1));
+ var dLt=r.lt-p.lt;var dOtd=r.otd-p.otd;var dShip=(r.ship-p.ship)/p.ship*100;var dRev=(r.rev-p.rev)/p.rev*100;var dPd=(r.pd-p.pd)/p.pd*100;
+ var ks=[
+  {l:'Avg Lead Time '+st.fy,v:r.lt.toFixed(1)+'d',d:(dLt>0?'▲ +':dLt<0?'▼ ':'▬ ')+Math.abs(dLt).toFixed(1)+'d vs prior',c:dLt<0?'positive':dLt>0?'negative':'neutral'},
+  {l:'OTD Proxy '+st.fy,v:r.otd.toFixed(1)+'%',d:(dOtd>0?'▲ +':dOtd<0?'▼ ':'▬ ')+Math.abs(dOtd).toFixed(2)+' pts vs prior',c:dOtd>=0?'positive':'negative'},
+  {l:'Shipments '+st.fy,v:(r.ship/1000).toFixed(0)+'K',d:(dShip>0?'▲ +':dShip<0?'▼ ':'▬ ')+Math.abs(dShip).toFixed(1)+'% vs prior',c:dShip>0?'positive':dShip<0?'negative':'neutral'},
+  {l:'Ship Revenue '+st.fy,v:f(r.rev),d:(dRev>0?'▲ +':'')+dRev.toFixed(1)+'% vs prior',c:dRev>0?'positive':'negative'},
+  {l:'Past-Due Units '+st.fy,v:(r.pd/1000).toFixed(0)+'K',d:(dPd>0?'▲ +':dPd<0?'▼ ':'▬ ')+Math.abs(dPd).toFixed(1)+'% vs prior',c:dPd<0?'positive':'negative'},
+  {l:'Air Freight Share',v:'29.9%',d:'Largest ship-method bucket',c:'neutral'},
+  {l:'P95 Lead Time',v:'58d',d:'Standard orders upper tail',c:'neutral'},
+  {l:'Ocean+LTL Bulk',v:'20.0%',d:'Non-urgent volume share',c:'neutral'},
+  {l:'Critical Priority Mix',v:'12.2%',d:'Share of FY25 order count',c:'neutral'},
+  {l:'Fulfillment Grade',v:r.otd>=99?'A-':r.otd>=98.5?'B+':'B',d:'OTD proxy '+(r.otd>=99?'>99%':'<99%'),c:r.otd>=99?'positive':'warn'}
+ ];
+ ks.forEach(function(k){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-d '+k.c+'">'+k.d+'</div>';el.appendChild(d)})}
+function c1(){var t=document.getElementById('t1');var ds;if(st.cmp){t.textContent='Quoted Lead Time — FY21-FY25 Trend';ds=[
+  {label:'FY21-25',data:FY.slice(2,7).map(function(r){return r.lt}),borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:C.p}];
+  mk('c1',{type:'line',data:{labels:['FY21','FY22','FY23','FY24','FY25'],datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:42,max:46,ticks:{callback:function(v){return v+'d'}},grid:{color:C.gr}},x:{grid:{display:false}}}}});
+ }else{t.textContent='Quoted Lead Time Trend by FY';
+  mk('c1',{type:'line',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+   {label:'Lead Time (days)',data:FY.map(function(r){return r.lt}),borderColor:C.p,backgroundColor:'rgba(45,139,139,.12)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:C.p}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:42,max:46,ticks:{callback:function(v){return v+'d'}},grid:{color:C.gr}},x:{grid:{display:false}}}}});
+ }}
+function c2(){var t=document.getElementById('t2');if(st.cmp){t.textContent='OTD Proxy — FY21-FY25 Trend';
+  mk('c2',{type:'bar',data:{labels:['FY21','FY22','FY23','FY24','FY25'],datasets:[
+   {label:'OTD %',data:FY.slice(2,7).map(function(r){return r.otd}),backgroundColor:[C.fy22,C.fy23,C.wrn,C.fy24,C.fy25],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:96,max:100,ticks:{callback:function(v){return v.toFixed(1)+'%'}},grid:{color:C.gr}},x:{grid:{display:false}}}}});
+ }else{t.textContent='OTD Proxy by FY';
+  mk('c2',{type:'line',data:{labels:FY.map(function(r){return r.fy}),datasets:[
+   {label:'OTD Proxy %',data:FY.map(function(r){return r.otd}),borderColor:C.p,backgroundColor:'rgba(45,139,139,.1)',fill:true,tension:.3,pointRadius:4,
+    pointBackgroundColor:FY.map(function(r){return r.otd<98?C.wrn:C.p})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:97,max:100,ticks:{callback:function(v){return v.toFixed(1)+'%'}},grid:{color:C.gr}},x:{grid:{display:false}}}}});
+ }}
+function c3(){mk('c3',{type:'bar',data:{labels:CAT_LT.map(function(r){return r.c}),datasets:[
+ {label:'Lead Time (days)',data:CAT_LT.map(function(r){return r.lt}),backgroundColor:C.p,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return CAT_LT[ctx.dataIndex].lt.toFixed(1)+'d · '+CAT_LT[ctx.dataIndex].n.toLocaleString()+' orders'}}}},scales:{x:{min:42,max:45,ticks:{callback:function(v){return v+'d'}},grid:{color:C.gr}},y:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c4(){mk('c4',{type:'bar',data:{labels:PRI_LT.map(function(r){return r.p}),datasets:[
+ {label:'Lead Time (days)',data:PRI_LT.map(function(r){return r.lt}),backgroundColor:[C.t,C.sd,C.wrn],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return PRI_LT[ctx.dataIndex].lt.toFixed(1)+'d · '+PRI_LT[ctx.dataIndex].sh.toFixed(1)+'% of orders'}}}},scales:{y:{min:42,max:46,ticks:{callback:function(v){return v+'d'}},grid:{color:C.gr}},x:{grid:{display:false}}}}})}
+function c5(){mk('c5',{type:'bar',data:{labels:LT_BINS,datasets:[
+ {label:'Order count',data:LT_HIST,backgroundColor:LT_BINS.map(function(b){return b==='40-45'||b==='45-50'?C.p:C.sd}),borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y.toLocaleString()+' orders'}}}},scales:{y:{ticks:{callback:function(v){return (v/1000).toFixed(0)+'K'}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c6(){mk('c6',{type:'bar',data:{labels:SM.map(function(r){return r.m}),datasets:[
+ {label:'Share %',data:SM.map(function(r){return r.sh}),backgroundColor:[C.p,C.sd,C.s,C.t,'#708090'],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return SM[ctx.dataIndex].sh.toFixed(1)+'% · '+SM[ctx.dataIndex].n.toLocaleString()+' shipments'}}}},scales:{x:{ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},y:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function c7(){mk('c7',{type:'bar',data:{labels:SM.map(function(r){return r.m}),datasets:[
+ {label:'Revenue ($M)',data:SM.map(function(r){return r.rev}),backgroundColor:[C.p,C.sd,C.s,C.t,'#708090'],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}},x:{grid:{display:false},ticks:{font:{size:10}}}}}})}
+function tbl(){var b=document.getElementById('tb');b.innerHTML='';
+ var all=SM.concat(SMPR);
+ var flt=all;
+ flt.sort(function(a,b){return b.n-a.n});
+ flt.forEach(function(r){b.innerHTML+='<tr><td><strong>'+r.m+'</strong></td><td><span class="chip p">'+r.cat+'</span></td><td class="num">'+r.n.toLocaleString()+'</td><td class="num">$'+r.rev.toFixed(1)+'</td><td class="num">'+r.sh.toFixed(1)+'%</td><td class="num">'+r.lt.toFixed(1)+'d</td><td>'+r.use+'</td></tr>'})}
+init();apply();
+</script></body></html>

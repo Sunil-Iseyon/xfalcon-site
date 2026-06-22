@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapEx Project Tracker - Falcon Real Estate</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: #006AFF;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 16px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .back-link {
+            margin-left: auto;
+            color: #006AFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #006AFF;
+            margin-bottom: 4px;
+        }
+
+        .kpi-metric {
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #0f172a;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .negative {
+            color: #D32F2F;
+        }
+
+        .positive {
+            color: #1A7F64;
+        }
+
+        .underperformer {
+            background: #fee2e2;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #94a3b8;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 48px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">xF</div>
+        <div class="header-title">Falcon Real Estate / CapEx Project Tracker</div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Projects</div>
+                <div class="kpi-value">133</div>
+                <div class="kpi-metric">Active Portfolio</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Budget</div>
+                <div class="kpi-value">$73.2M</div>
+                <div class="kpi-metric">Planned Investment</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Spent</div>
+                <div class="kpi-value">$75.1M</div>
+                <div class="kpi-metric">Deployed Capital</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Budget Variance %</div>
+                <div class="kpi-value">+2.0%</div>
+                <div class="kpi-metric">Avg Overspend</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Projected ROI</div>
+                <div class="kpi-value">6.3%</div>
+                <div class="kpi-metric">Expected Return</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Actual ROI</div>
+                <div class="kpi-value">6.0%</div>
+                <div class="kpi-metric">Realized Return</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">ROI Attainment</div>
+                <div class="kpi-value">95.1%</div>
+                <div class="kpi-metric">vs Projection</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">NOI Uplift Attainment</div>
+                <div class="kpi-value">98.1%</div>
+                <div class="kpi-metric">Actual vs Projected</div>
+            </div>
+        </div>
+
+        <!-- Budget vs Spent by Category -->
+        <div class="chart-container">
+            <div class="section-title">Budget vs Spent by Category</div>
+            <div class="chart-wrapper">
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Projects by Phase & ROI Comparison -->
+        <div class="grid-2">
+            <div class="chart-container">
+                <div class="section-title">Projects by Phase</div>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="phaseChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="section-title">ROI: Projected vs Actual by Category</div>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="roiChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOI Uplift & Budget Variance -->
+        <div class="grid-2">
+            <div class="chart-container">
+                <div class="section-title">NOI Uplift: Projected vs Actual</div>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="noiChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="section-title">Budget Variance by Category</div>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="varianceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Underperformers Table -->
+        <div class="table-container">
+            <div class="section-title">ROI Underperformers - Critical Analysis</div>
+            <table id="underperformersTable">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Property</th>
+                        <th>Category</th>
+                        <th>Phase</th>
+                        <th class="text-right">Budget</th>
+                        <th class="text-right">Spent</th>
+                        <th class="text-right">Proj Uplift</th>
+                        <th class="text-right">Actual Uplift</th>
+                        <th class="text-right">Proj ROI %</th>
+                        <th class="text-right">Actual ROI %</th>
+                        <th class="text-right">Attainment %</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated by xFalcon RetailEdge | Data as of 2025-12-31
+    </div>
+
+    <script>
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: { family: "'Inter', sans-serif", size: 12 },
+                        color: '#475569',
+                        usePointStyle: true,
+                        padding: 16
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#64748b' } },
+                y: { ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#64748b' } }
+            }
+        };
+
+        function mk(tag, attrs = {}, children = []) {
+            const el = document.createElement(tag);
+            Object.assign(el, attrs);
+            if (typeof children === 'string') el.textContent = children;
+            else children.forEach(child => child && el.appendChild(child));
+            return el;
+        }
+
+        function fmt(n) {
+            return '$' + (n / 1e6).toFixed(1) + 'M';
+        }
+
+        function fmtNum(n) {
+            return n >= 1e6 ? '$' + (n / 1e6).toFixed(1) + 'M' : '$' + (n / 1e3).toFixed(0) + 'K';
+        }
+
+        // Q1 Data: CapEx Summary by Category
+        const q1Data = [
+            { category: 'Generator & UPS Replacement', type: 'Maintenance Capex', count: 3, budget: 9637109.36, spent: 10680262.78, avgVar: 8.69, projROI: 2.0, actualROI: 1.76, projUplift: 192742.19, actualUplift: 191198.78 },
+            { category: 'Roof Replacement', type: 'Maintenance Capex', count: 20, budget: 9754047.34, spent: 10027343.51, avgVar: 1.92, projROI: 1.5, actualROI: 1.43, projUplift: 146310.70, actualUplift: 140198.98 },
+            { category: 'Elevator Modernisation', type: 'Value-Add', count: 8, budget: 7713063.15, spent: 7846954.95, avgVar: 1.67, projROI: 4.5, actualROI: 4.46, projUplift: 347087.83, actualUplift: 343738.31 },
+            { category: 'Office Full Fit-Out', type: 'Value-Add', count: 6, budget: 7973532.80, spent: 7772409.46, avgVar: -2.49, projROI: 12.0, actualROI: 12.63, projUplift: 956823.93, actualUplift: 947394.84 },
+            { category: 'Building Facade Renovation', type: 'Value-Add', count: 7, budget: 6535106.61, spent: 6727689.11, avgVar: 3.62, projROI: 7.0, actualROI: 6.07, projUplift: 457457.47, actualUplift: 398451.77 },
+            { category: 'HVAC System Upgrade', type: 'Value-Add', count: 14, budget: 4808473.53, spent: 4925375.43, avgVar: 3.87, projROI: 6.0, actualROI: 5.35, projUplift: 288508.42, actualUplift: 265599.95 },
+            { category: 'HVAC Full Replacement', type: 'Maintenance Capex', count: 9, budget: 4721621.75, spent: 4906307.53, avgVar: 1.85, projROI: 2.0, actualROI: 1.55, projUplift: 94432.44, actualUplift: 76352.85 },
+            { category: 'Data Hall Power Upgrade', type: 'Development', count: 2, budget: 4714967.82, spent: 4779583.20, avgVar: 4.6, projROI: 14.0, actualROI: 14.55, projUplift: 660095.50, actualUplift: 758501.47 }
+        ];
+
+        // Q5 Data: Budget vs Spent
+        const q5Data = [
+            { category: 'Roof Replacement', budget: 9754047.34, spent: 10027343.51, variance: 273296.17 },
+            { category: 'Generator & UPS Replacement', budget: 9637109.36, spent: 10680262.78, variance: 1043153.42 },
+            { category: 'Office Full Fit-Out', budget: 7973532.80, spent: 7772409.46, variance: -201123.34 },
+            { category: 'Elevator Modernisation', budget: 7713063.15, spent: 7846954.95, variance: 133891.80 },
+            { category: 'Building Facade Renovation', budget: 6535106.61, spent: 6727689.11, variance: 192582.50 },
+            { category: 'HVAC System Upgrade', budget: 4808473.53, spent: 4925375.43, variance: 116901.90 },
+            { category: 'HVAC Full Replacement', budget: 4721621.75, spent: 4906307.53, variance: 184685.78 },
+            { category: 'Data Hall Power Upgrade', budget: 4714967.82, spent: 4779583.20, variance: 64615.38 }
+        ];
+
+        // Q2 Data: ROI Underperformers
+        const q2Data = [
+            { project: 'HVAC Full Replacement 2022', property: 'Apex Midtown Residences', category: 'HVAC Full Replacement', phase: 'Completed', budget: 651555.36, spent: 640737.48, projUplift: 13031.11, actualUplift: 0.00, projROI: 2.00, actualROI: 0.00, attainment: 0.0 },
+            { project: 'Lobby & Amenity Renovation 202', property: 'Hudson Yards Apartments', category: 'Lobby & Common Area Renovation', phase: 'Completed', budget: 117677.10, spent: 122407.51, projUplift: 10002.55, actualUplift: 0.00, projROI: 8.50, actualROI: 0.00, attainment: 0.0 },
+            { project: 'Rooftop Solar Installation 202', property: 'Apex Midtown Residences', category: 'Solar Panel Installation', phase: 'Completed', budget: 351499.29, spent: 339784.17, projUplift: 17574.96, actualUplift: 0.00, projROI: 5.00, actualROI: 0.00, attainment: 0.0 },
+            { project: 'Parking Lot Resurfacing 2023', property: 'Capitol View Apartments', category: 'Parking Lot Resurfacing', phase: 'Completed', budget: 320973.01, spent: 319057.30, projUplift: 1604.87, actualUplift: 564.80, projROI: 0.50, actualROI: 0.18, attainment: 35.2 },
+            { project: 'Rooftop Solar Installation 202', property: 'Hudson Yards Apartments', category: 'Solar Panel Installation', phase: 'Completed', budget: 185348.24, spent: 176219.30, projUplift: 9267.41, actualUplift: 3367.06, projROI: 5.00, actualROI: 1.91, attainment: 36.3 },
+            { project: 'HVAC Full Replacement 2024', property: 'Biscayne Bay Residences', category: 'HVAC Full Replacement', phase: 'Completed', budget: 283280.85, spent: 276731.92, projUplift: 5665.62, actualUplift: 2229.13, projROI: 2.00, actualROI: 0.81, attainment: 39.3 },
+            { project: 'ADA Compliance Upgrade 2023', property: 'Hudson Yards Apartments', category: 'ADA Compliance Upgrade', phase: 'Completed', budget: 272205.10, spent: 264003.04, projUplift: 1361.03, actualUplift: 555.26, projROI: 0.50, actualROI: 0.21, attainment: 40.8 },
+            { project: 'Roof Replacement 2022', property: 'Capitol View Apartments', category: 'Roof Replacement', phase: 'Completed', budget: 753808.77, spent: 750377.54, projUplift: 11307.13, actualUplift: 5339.81, projROI: 1.50, actualROI: 0.71, attainment: 47.2 },
+            { project: 'HVAC System Upgrade 2023', property: 'Beacon Hill Commons', category: 'HVAC System Upgrade', phase: 'Completed', budget: 608985.82, spent: 607325.20, projUplift: 36539.15, actualUplift: 18014.86, projROI: 6.00, actualROI: 2.97, attainment: 49.3 },
+            { project: 'HVAC System Upgrade 2023', property: 'Apex South Lake Union', category: 'HVAC System Upgrade', phase: 'Completed', budget: 105814.69, spent: 121639.27, projUplift: 6348.88, actualUplift: 3374.13, projROI: 6.00, actualROI: 2.77, attainment: 53.1 },
+            { project: 'ADA Compliance Upgrade 2024', property: 'Beacon Hill Commons', category: 'ADA Compliance Upgrade', phase: 'Completed', budget: 303403.85, spent: 292433.06, projUplift: 1517.02, actualUplift: 806.66, projROI: 0.50, actualROI: 0.28, attainment: 53.2 },
+            { project: 'Rooftop Solar Installation 202', property: 'Capitol View Apartments', category: 'Solar Panel Installation', phase: 'Completed', budget: 301920.47, spent: 364295.28, projUplift: 15096.02, actualUplift: 8096.88, projROI: 5.00, actualROI: 2.22, attainment: 53.6 },
+            { project: 'Building Facade Renovation 202', property: 'Midtown St. Louis Office', category: 'Building Facade Renovation', phase: 'Completed', budget: 1344293.96, spent: 1299001.14, projUplift: 94100.58, actualUplift: 75850.71, projROI: 7.00, actualROI: 5.84, attainment: 80.6 },
+            { project: 'ADA Compliance Upgrade 2021', property: 'Desert Ridge Marketplace', category: 'ADA Compliance Upgrade', phase: 'Completed', budget: 393210.18, spent: 390871.01, projUplift: 1966.05, actualUplift: 1587.55, projROI: 0.50, actualROI: 0.41, attainment: 80.7 },
+            { project: 'HVAC System Upgrade 2024', property: 'Fifth Avenue Retail Center', category: 'HVAC System Upgrade', phase: 'Completed', budget: 149656.56, spent: 148036.07, projUplift: 8979.39, actualUplift: 7283.88, projROI: 6.00, actualROI: 4.92, attainment: 81.1 },
+            { project: 'Tower Equipment Platform 2024', property: 'Chicago Tower Cluster CHI-01', category: 'Tower Equipment Platform Add', phase: 'Completed', budget: 347826.01, spent: 337540.47, projUplift: 62608.68, actualUplift: 50830.91, projROI: 18.00, actualROI: 15.06, attainment: 81.2 },
+            { project: 'Full Office Fit-Out 2023', property: 'Midtown St. Louis Office', category: 'Office Full Fit-Out', phase: 'Completed', budget: 1931966.78, spent: 1866130.00, projUplift: 231836.01, actualUplift: 188776.70, projROI: 12.00, actualROI: 10.12, attainment: 81.4 },
+            { project: 'Generator & UPS Replacement 20', property: 'DFW Data Center Park', category: 'Generator & UPS Replacement', phase: 'Completed', budget: 3439514.91, spent: 3651298.45, projUplift: 68790.30, actualUplift: 56038.76, projROI: 2.00, actualROI: 1.53, attainment: 81.5 },
+            { project: 'Building Facade Renovation 202', property: 'Northpark Retail Strip', category: 'Building Facade Renovation', phase: 'Completed', budget: 1017629.37, spent: 1220504.43, projUplift: 71234.06, actualUplift: 58760.46, projROI: 7.00, actualROI: 4.81, attainment: 82.5 },
+            { project: 'Unit Interior Upgrade 2021', property: 'Apex Midtown Residences', category: 'Unit Interior Renovation', phase: 'Completed', budget: 393475.84, spent: 375594.80, projUplift: 47217.10, actualUplift: 38986.77, projROI: 12.00, actualROI: 10.38, attainment: 82.6 }
+        ];
+
+        // Chart 1: Budget vs Spent by Category
+        const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        new Chart(budgetCtx, {
+            type: 'bar',
+            data: {
+                labels: q5Data.map(d => d.category),
+                datasets: [
+                    { label: 'Budget', data: q5Data.map(d => d.budget), backgroundColor: '#1A7F64' },
+                    { label: 'Spent', data: q5Data.map(d => d.spent), backgroundColor: '#006AFF' }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                indexAxis: 'y',
+                scales: {
+                    x: { ...chartDefaults.scales.x, beginAtZero: true },
+                    y: { ...chartDefaults.scales.y }
+                },
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.x)
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Projects by Phase
+        const phaseCtx = document.getElementById('phaseChart').getContext('2d');
+        new Chart(phaseCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Completed'],
+                datasets: [{
+                    label: 'Project Count',
+                    data: [133],
+                    backgroundColor: '#006AFF'
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                indexAxis: 'y',
+                scales: { x: { ...chartDefaults.scales.x, beginAtZero: true }, y: { ...chartDefaults.scales.y } },
+                plugins: {
+                    ...chartDefaults.plugins,
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Chart 3: ROI Comparison
+        const roiCtx = document.getElementById('roiChart').getContext('2d');
+        new Chart(roiCtx, {
+            type: 'bar',
+            data: {
+                labels: q1Data.map(d => d.category),
+                datasets: [
+                    { label: 'Projected ROI %', data: q1Data.map(d => d.projROI), backgroundColor: '#1A7F64' },
+                    { label: 'Actual ROI %', data: q1Data.map(d => d.actualROI), backgroundColor: '#006AFF' }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                indexAxis: 'y',
+                scales: { x: { ...chartDefaults.scales.x, beginAtZero: true }, y: { ...chartDefaults.scales.y } }
+            }
+        });
+
+        // Chart 4: NOI Uplift
+        const noiCtx = document.getElementById('noiChart').getContext('2d');
+        new Chart(noiCtx, {
+            type: 'bar',
+            data: {
+                labels: q1Data.map(d => d.category),
+                datasets: [
+                    { label: 'Projected', data: q1Data.map(d => d.projUplift), backgroundColor: '#1A7F64' },
+                    { label: 'Actual', data: q1Data.map(d => d.actualUplift), backgroundColor: '#006AFF' }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                indexAxis: 'y',
+                scales: { x: { ...chartDefaults.scales.x, beginAtZero: true }, y: { ...chartDefaults.scales.y } },
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.dataset.label + ': ' + fmtNum(ctx.parsed.x)
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 5: Budget Variance
+        const varianceCtx = document.getElementById('varianceChart').getContext('2d');
+        const varianceColors = q5Data.map(d => d.variance < 0 ? '#006AFF' : '#F59E0B');
+        new Chart(varianceCtx, {
+            type: 'bar',
+            data: {
+                labels: q5Data.map(d => d.category),
+                datasets: [{
+                    label: 'Variance ($)',
+                    data: q5Data.map(d => d.variance),
+                    backgroundColor: varianceColors
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                indexAxis: 'y',
+                scales: { x: { ...chartDefaults.scales.x }, y: { ...chartDefaults.scales.y } },
+                plugins: {
+                    ...chartDefaults.plugins,
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => fmtNum(ctx.parsed.x)
+                        }
+                    }
+                }
+            }
+        });
+
+        // Table: ROI Underperformers
+        const tbody = document.querySelector('#underperformersTable tbody');
+        q2Data.forEach(row => {
+            const tr = mk('tr', row.attainment < 50 ? { className: 'underperformer' } : {});
+            tr.appendChild(mk('td', {}, row.project));
+            tr.appendChild(mk('td', {}, row.property));
+            tr.appendChild(mk('td', {}, row.category));
+            tr.appendChild(mk('td', {}, row.phase));
+            tr.appendChild(mk('td', { className: 'text-right' }, fmtNum(row.budget)));
+            tr.appendChild(mk('td', { className: 'text-right' }, fmtNum(row.spent)));
+            tr.appendChild(mk('td', { className: 'text-right' }, fmtNum(row.projUplift)));
+            tr.appendChild(mk('td', { className: 'text-right' }, fmtNum(row.actualUplift)));
+            tr.appendChild(mk('td', { className: 'text-right' }, row.projROI.toFixed(2) + '%'));
+            tr.appendChild(mk('td', { className: 'text-right' }, row.actualROI.toFixed(2) + '%'));
+            const attainmentTd = mk('td', { className: 'text-right' + (row.attainment < 50 ? ' negative' : ' positive') }, row.attainment.toFixed(1) + '%');
+            tr.appendChild(attainmentTd);
+            tbody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>

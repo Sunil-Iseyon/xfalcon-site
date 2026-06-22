@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB-06 Labor & Workforce Dashboard | Falcon Hotels & Restaurants</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F5F7;
+            color: #2D3436;
+            line-height: 1.6;
+        }
+
+        /* Sticky Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #1B2A4A;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        nav a {
+            display: inline-block;
+            color: #FFFFFF;
+            text-decoration: none;
+            margin-right: 2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: rgba(200, 169, 81, 0.2);
+        }
+
+        nav a.active {
+            background-color: #C8A951;
+            color: #1B2A4A;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: #1B2A4A;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        /* Time Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #2D3436;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            background-color: #FFFFFF;
+            padding: 0.25rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: transparent;
+            color: #636E72;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background-color: #1B2A4A;
+            color: #FFFFFF;
+        }
+
+        .filter-btn:hover {
+            background-color: #F0F0F0;
+        }
+
+        .filter-btn.active:hover {
+            background-color: #1B2A4A;
+        }
+
+        /* KPI Cards */
+        .kpi-section {
+            margin-bottom: 2rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .kpi-label {
+            color: #636E72;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-values {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-current {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1B2A4A;
+        }
+
+        .kpi-previous {
+            font-size: 0.9rem;
+            color: #636E72;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .kpi-previous-label {
+            font-size: 0.75rem;
+            color: #B0BEC5;
+            margin-top: 0.25rem;
+        }
+
+        .kpi-change {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            text-align: right;
+        }
+
+        .kpi-change.positive {
+            color: #2E7D32;
+            background-color: rgba(46, 125, 50, 0.1);
+        }
+
+        .kpi-change.negative {
+            color: #C62828;
+            background-color: rgba(198, 40, 40, 0.1);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 2rem;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1B2A4A;
+            margin-bottom: 1rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Data Table */
+        .table-section {
+            margin-top: 2rem;
+        }
+
+        .table-container {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1B2A4A;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background-color: #F4F5F7;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #1B2A4A;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .num {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .positive-text {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .negative-text {
+            color: #C62828;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #636E72;
+            font-size: 0.9rem;
+            border-top: 1px solid #E0E0E0;
+            margin-top: 3rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                padding: 1rem;
+                overflow-x: auto;
+            }
+
+            nav a {
+                margin-right: 1rem;
+                font-size: 0.85rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="db-01-executive-overview.html">DB-01</a>
+        <a href="db-02-revenue-finance.html">DB-02</a>
+        <a href="db-03-hotel-operations.html">DB-03</a>
+        <a href="db-04-restaurant-fb.html">DB-04</a>
+        <a href="db-05-guest-experience.html">DB-05</a>
+        <a href="db-06-labor-workforce.html" class="active">DB-06</a>
+        <a href="db-07-inventory-supply.html">DB-07</a>
+        <a href="db-08-social-marketing.html">DB-08</a>
+        <a href="db-09-whatif-analysis.html">What-If</a>
+        <a href="db-10-metrics-dictionary.html">Metrics</a>
+        <a href="db-11-competitive-analysis.html">Competitive</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Labor & Workforce Dashboard</h1>
+            <p style="color: #636E72; margin-bottom: 1rem;">Comprehensive labor cost, hours, and attendance analytics</p>
+
+            <!-- Time Filter Controls -->
+            <div class="filter-controls">
+                <span class="filter-label">Time Period:</span>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-period="monthly">Monthly</button>
+                    <button class="filter-btn" data-period="quarterly">Quarterly</button>
+                    <button class="filter-btn" data-period="yearly">Yearly</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- KPI Section -->
+        <section class="kpi-section">
+            <div class="kpi-grid">
+                <!-- Total Wage Cost -->
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Wage Cost</div>
+                    <div class="kpi-values">
+                        <div class="kpi-current">$9.72M</div>
+                    </div>
+                    <div class="kpi-change negative">-0.1% vs 2024</div>
+                    <div class="kpi-previous">
+                        <span>2024: $9.73M</span>
+                        <span class="kpi-previous-label">2025 Data</span>
+                    </div>
+                </div>
+
+                <!-- Labor % of Sales -->
+                <div class="kpi-card">
+                    <div class="kpi-label">Labor % of Sales</div>
+                    <div class="kpi-values">
+                        <div class="kpi-current">29.7%</div>
+                    </div>
+                    <div class="kpi-change negative">+3.5% vs 2024</div>
+                    <div class="kpi-previous">
+                        <span>2024: 28.7%</span>
+                        <span class="kpi-previous-label">2025 Data</span>
+                    </div>
+                </div>
+
+                <!-- Actual Hours -->
+                <div class="kpi-card">
+                    <div class="kpi-label">Actual Hours</div>
+                    <div class="kpi-values">
+                        <div class="kpi-current">600.7K</div>
+                    </div>
+                    <div class="kpi-change negative">-0.3% vs 2024</div>
+                    <div class="kpi-previous">
+                        <span>2024: 602.3K</span>
+                        <span class="kpi-previous-label">2025 Data</span>
+                    </div>
+                </div>
+
+                <!-- Overtime Hours -->
+                <div class="kpi-card">
+                    <div class="kpi-label">Overtime Hours</div>
+                    <div class="kpi-values">
+                        <div class="kpi-current">12.5K</div>
+                    </div>
+                    <div class="kpi-change negative">-0.3% vs 2024</div>
+                    <div class="kpi-previous">
+                        <span>2024: 12.6K</span>
+                        <span class="kpi-previous-label">2025 Data</span>
+                    </div>
+                </div>
+
+                <!-- No-Shows -->
+                <div class="kpi-card">
+                    <div class="kpi-label">No-Shows</div>
+                    <div class="kpi-values">
+                        <div class="kpi-current">2,616</div>
+                    </div>
+                    <div class="kpi-change negative">+0.8% vs 2024</div>
+                    <div class="kpi-previous">
+                        <span>2024: 2,595</span>
+                        <span class="kpi-previous-label">2025 Data</span>
+                    </div>
+                </div>
+
+                <!-- Total Covers -->
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Covers</div>
+                    <div class="kpi-values">
+                        <div class="kpi-current">6.33M</div>
+                    </div>
+                    <div class="kpi-change negative">-0.3% vs 2024</div>
+                    <div class="kpi-previous">
+                        <span>2024: 6.35M</span>
+                        <span class="kpi-previous-label">2025 Data</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <!-- Full Width: Wage Cost Trend YoY -->
+            <div class="chart-row full">
+                <div class="chart-container">
+                    <div class="chart-title">Wage Cost Trend - YoY Comparison</div>
+                    <div class="chart-wrapper">
+                        <canvas id="wageCostChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Half Width: Labor % of Sales & Scheduled vs Actual Hours -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">Labor % of Sales - Monthly Trend</div>
+                    <div class="chart-wrapper">
+                        <canvas id="laborPercentChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Scheduled vs Actual Hours (2025)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="scheduledActualChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Half Width: Overtime & Covers per Labor Hour -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">Overtime Trend - YoY Comparison</div>
+                    <div class="chart-wrapper">
+                        <canvas id="overtimeChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Covers per Labor Hour (2025)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="coversPerHourChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Half Width: Attendance Issues -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">Attendance Issues - No-Shows & Call-Outs</div>
+                    <div class="chart-wrapper">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Table -->
+        <section class="table-section">
+            <div class="table-container">
+                <div class="table-title">Monthly Labor Detail - 2025</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th class="num">Wage Cost</th>
+                            <th class="num">Labor %</th>
+                            <th class="num">Scheduled Hrs</th>
+                            <th class="num">Actual Hrs</th>
+                            <th class="num">OT Hrs</th>
+                            <th class="num">Covers</th>
+                            <th class="num">No-Shows</th>
+                            <th class="num">Call-Outs</th>
+                            <th class="num">Covers/Hr</th>
+                            <th class="num">vs PY Wage</th>
+                            <th class="num">% Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>January</td>
+                            <td class="num">$827,540</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">53,152</td>
+                            <td class="num">50,920</td>
+                            <td class="num">1,060</td>
+                            <td class="num">535,567</td>
+                            <td class="num">248</td>
+                            <td class="num">217</td>
+                            <td class="num">10.52</td>
+                            <td class="num">$818,937</td>
+                            <td class="num positive-text">+1.05%</td>
+                        </tr>
+                        <tr>
+                            <td>February</td>
+                            <td class="num">$746,948</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">48,000</td>
+                            <td class="num">46,205</td>
+                            <td class="num">957</td>
+                            <td class="num">486,568</td>
+                            <td class="num">196</td>
+                            <td class="num">204</td>
+                            <td class="num">10.53</td>
+                            <td class="num">$770,526</td>
+                            <td class="num negative-text">-3.06%</td>
+                        </tr>
+                        <tr>
+                            <td>March</td>
+                            <td class="num">$817,024</td>
+                            <td class="num">29.7%</td>
+                            <td class="num">53,136</td>
+                            <td class="num">50,904</td>
+                            <td class="num">1,062</td>
+                            <td class="num">536,347</td>
+                            <td class="num">248</td>
+                            <td class="num">217</td>
+                            <td class="num">10.54</td>
+                            <td class="num">$827,621</td>
+                            <td class="num negative-text">-1.29%</td>
+                        </tr>
+                        <tr>
+                            <td>April</td>
+                            <td class="num">$799,812</td>
+                            <td class="num">29.7%</td>
+                            <td class="num">51,424</td>
+                            <td class="num">49,463</td>
+                            <td class="num">1,040</td>
+                            <td class="num">521,339</td>
+                            <td class="num">217</td>
+                            <td class="num">228</td>
+                            <td class="num">10.54</td>
+                            <td class="num">$804,827</td>
+                            <td class="num negative-text">-0.62%</td>
+                        </tr>
+                        <tr>
+                            <td>May</td>
+                            <td class="num">$829,835</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">53,152</td>
+                            <td class="num">50,981</td>
+                            <td class="num">1,060</td>
+                            <td class="num">537,238</td>
+                            <td class="num">240</td>
+                            <td class="num">217</td>
+                            <td class="num">10.55</td>
+                            <td class="num">$816,944</td>
+                            <td class="num positive-text">+1.58%</td>
+                        </tr>
+                        <tr>
+                            <td>June</td>
+                            <td class="num">$795,585</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">51,424</td>
+                            <td class="num">49,261</td>
+                            <td class="num">1,025</td>
+                            <td class="num">519,449</td>
+                            <td class="num">210</td>
+                            <td class="num">238</td>
+                            <td class="num">10.55</td>
+                            <td class="num">$799,245</td>
+                            <td class="num negative-text">-0.46%</td>
+                        </tr>
+                        <tr>
+                            <td>July</td>
+                            <td class="num">$823,839</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">53,136</td>
+                            <td class="num">51,151</td>
+                            <td class="num">1,061</td>
+                            <td class="num">539,859</td>
+                            <td class="num">186</td>
+                            <td class="num">217</td>
+                            <td class="num">10.56</td>
+                            <td class="num">$829,974</td>
+                            <td class="num negative-text">-0.74%</td>
+                        </tr>
+                        <tr>
+                            <td>August</td>
+                            <td class="num">$827,621</td>
+                            <td class="num">29.7%</td>
+                            <td class="num">53,152</td>
+                            <td class="num">50,924</td>
+                            <td class="num">1,063</td>
+                            <td class="num">535,567</td>
+                            <td class="num">217</td>
+                            <td class="num">240</td>
+                            <td class="num">10.52</td>
+                            <td class="num">$819,065</td>
+                            <td class="num positive-text">+1.05%</td>
+                        </tr>
+                        <tr>
+                            <td>September</td>
+                            <td class="num">$804,827</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">51,432</td>
+                            <td class="num">49,528</td>
+                            <td class="num">1,041</td>
+                            <td class="num">521,239</td>
+                            <td class="num">180</td>
+                            <td class="num">210</td>
+                            <td class="num">10.53</td>
+                            <td class="num">$797,202</td>
+                            <td class="num positive-text">+0.97%</td>
+                        </tr>
+                        <tr>
+                            <td>October</td>
+                            <td class="num">$816,944</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">53,136</td>
+                            <td class="num">50,901</td>
+                            <td class="num">1,059</td>
+                            <td class="num">536,347</td>
+                            <td class="num">217</td>
+                            <td class="num">230</td>
+                            <td class="num">10.54</td>
+                            <td class="num">$827,506</td>
+                            <td class="num negative-text">-1.28%</td>
+                        </tr>
+                        <tr>
+                            <td>November</td>
+                            <td class="num">$799,245</td>
+                            <td class="num">29.8%</td>
+                            <td class="num">51,424</td>
+                            <td class="num">49,435</td>
+                            <td class="num">1,027</td>
+                            <td class="num">521,339</td>
+                            <td class="num">217</td>
+                            <td class="num">210</td>
+                            <td class="num">10.55</td>
+                            <td class="num">$804,288</td>
+                            <td class="num negative-text">-0.63%</td>
+                        </tr>
+                        <tr>
+                            <td>December</td>
+                            <td class="num">$829,974</td>
+                            <td class="num">29.7%</td>
+                            <td class="num">53,152</td>
+                            <td class="num">50,987</td>
+                            <td class="num">1,063</td>
+                            <td class="num">537,238</td>
+                            <td class="num">240</td>
+                            <td class="num">220</td>
+                            <td class="num">10.55</td>
+                            <td class="num">$817,053</td>
+                            <td class="num positive-text">+1.58%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Falcon Hotels & Restaurants | Labor & Workforce | Generated March 2026
+    </footer>
+
+    <script>
+        // Color scheme
+        const colors = {
+            navy: '#1B2A4A',
+            gold: '#C8A951',
+            white: '#FFFFFF',
+            lightBlue: '#3A6B8A',
+            darkGold: '#D4B96A',
+            brightBlue: '#6C8EBF',
+            lightGold: '#E8D5A0',
+            text: '#2D3436',
+            muted: '#636E72',
+            positive: '#2E7D32',
+            negative: '#C62828'
+        };
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: colors.text,
+                        font: { family: "system-ui, -apple-system, sans-serif", size: 12, weight: '500' },
+                        padding: 15,
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { color: colors.muted, font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { color: colors.muted, font: { size: 11 } }
+                }
+            }
+        };
+
+        // Data
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const wageCost2024 = [818937, 770526, 827621, 804827, 816944, 799245, 829974, 819065, 797202, 827506, 804288, 817053];
+        const wageCost2025 = [827540, 746948, 817024, 799812, 829835, 795585, 823839, 827621, 804827, 816944, 799245, 829974];
+
+        const laborPercent2024 = [28.7, 28.7, 28.8, 28.7, 28.7, 28.7, 28.7, 28.7, 28.7, 28.7, 28.8, 28.8];
+        const laborPercent2025 = [29.8, 29.8, 29.7, 29.7, 29.8, 29.8, 29.8, 29.7, 29.8, 29.8, 29.8, 29.7];
+
+        const scheduledHours = [53152, 48000, 53136, 51424, 53152, 51424, 53136, 53152, 51432, 53136, 51424, 53152];
+        const actualHours = [50920, 46205, 50904, 49463, 50981, 49261, 51151, 50924, 49528, 50901, 49435, 50987];
+
+        const overtime2024 = [1059, 993, 1063, 1041, 1059, 1027, 1063, 1061, 1040, 1060, 1029, 1062];
+        const overtime2025 = [1060, 957, 1062, 1040, 1060, 1025, 1061, 1063, 1041, 1059, 1027, 1063];
+
+        const covers = [535567, 486568, 536347, 521339, 537238, 519449, 539859, 535567, 521239, 536347, 521339, 537238];
+        const coversPerHour = covers.map((c, i) => (c / actualHours[i]).toFixed(2));
+
+        const noShow2024 = [217, 174, 217, 180, 217, 217, 240, 248, 210, 248, 210, 217];
+        const noShow2025 = [248, 196, 248, 217, 240, 210, 186, 217, 180, 217, 217, 240];
+        const callOut2024 = [245, 203, 240, 210, 230, 210, 220, 217, 210, 217, 210, 217];
+        const callOut2025 = [217, 204, 217, 228, 217, 238, 217, 240, 210, 230, 210, 220];
+
+        // Chart instances (global references for updates)
+        let wageCostChartInstance;
+        let laborPercentChartInstance;
+        let scheduledActualChartInstance;
+        let overtimeChartInstance;
+        let coversPerHourChartInstance;
+        let attendanceChartInstance;
+
+        // Helper functions for data aggregation
+        function aggregateToQuarterly(data) {
+            return [
+                data.slice(0, 3).reduce((a, b) => a + b, 0),
+                data.slice(3, 6).reduce((a, b) => a + b, 0),
+                data.slice(6, 9).reduce((a, b) => a + b, 0),
+                data.slice(9, 12).reduce((a, b) => a + b, 0)
+            ];
+        }
+
+        function averageToQuarterly(data) {
+            return [
+                data.slice(0, 3).reduce((a, b) => a + b, 0) / 3,
+                data.slice(3, 6).reduce((a, b) => a + b, 0) / 3,
+                data.slice(6, 9).reduce((a, b) => a + b, 0) / 3,
+                data.slice(9, 12).reduce((a, b) => a + b, 0) / 3
+            ];
+        }
+
+        function aggregateToYearly(data) {
+            return [data.reduce((a, b) => a + b, 0)];
+        }
+
+        function averageToYearly(data) {
+            return [data.reduce((a, b) => a + b, 0) / data.length];
+        }
+
+        function getLabels(granularity) {
+            if (granularity === 'quarterly') return ['Q1', 'Q2', 'Q3', 'Q4'];
+            if (granularity === 'yearly') return ['2024', '2025'];
+            return months;
+        }
+
+        function getTableRows(granularity) {
+            const tableBody = document.querySelector('tbody');
+            const allRows = tableBody.querySelectorAll('tr');
+
+            if (granularity === 'quarterly') {
+                allRows.forEach((row, idx) => row.style.display = idx < 4 ? '' : 'none');
+            } else if (granularity === 'yearly') {
+                allRows.forEach((row, idx) => row.style.display = idx === 0 ? '' : 'none');
+            } else {
+                allRows.forEach(row => row.style.display = '');
+            }
+        }
+
+        // 1. Wage Cost Trend YoY
+        function initWageCostChart(granularity = 'monthly') {
+            if (wageCostChartInstance) wageCostChartInstance.destroy();
+
+            let labels, data2024, data2025;
+            if (granularity === 'quarterly') {
+                labels = getLabels('quarterly');
+                data2024 = aggregateToQuarterly(wageCost2024);
+                data2025 = aggregateToQuarterly(wageCost2025);
+            } else if (granularity === 'yearly') {
+                labels = getLabels('yearly');
+                data2024 = aggregateToYearly(wageCost2024);
+                data2025 = aggregateToYearly(wageCost2025);
+            } else {
+                labels = months;
+                data2024 = wageCost2024;
+                data2025 = wageCost2025;
+            }
+
+            wageCostChartInstance = new Chart(document.getElementById('wageCostChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2024',
+                            data: data2024,
+                            backgroundColor: colors.navy,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: '2025',
+                            data: data2025,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        ...chartOptions.scales,
+                        y: {
+                            ...chartOptions.scales.y,
+                            ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Labor % of Sales
+        function initLaborPercentChart(granularity = 'monthly') {
+            if (laborPercentChartInstance) laborPercentChartInstance.destroy();
+
+            let labels, data2024, data2025;
+            if (granularity === 'quarterly') {
+                labels = getLabels('quarterly');
+                data2024 = averageToQuarterly(laborPercent2024);
+                data2025 = averageToQuarterly(laborPercent2025);
+            } else if (granularity === 'yearly') {
+                labels = getLabels('yearly');
+                data2024 = averageToYearly(laborPercent2024);
+                data2025 = averageToYearly(laborPercent2025);
+            } else {
+                labels = months;
+                data2024 = laborPercent2024;
+                data2025 = laborPercent2025;
+            }
+
+            laborPercentChartInstance = new Chart(document.getElementById('laborPercentChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2024',
+                            data: data2024,
+                            borderColor: colors.navy,
+                            backgroundColor: 'rgba(27, 42, 74, 0.05)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        },
+                        {
+                            label: '2025',
+                            data: data2025,
+                            borderColor: colors.gold,
+                            backgroundColor: 'rgba(200, 169, 81, 0.05)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.gold,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        ...chartOptions.scales,
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 28,
+                            max: 30,
+                            ticks: { callback: v => v.toFixed(1) + '%' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Scheduled vs Actual Hours
+        function initScheduledActualChart(granularity = 'monthly') {
+            if (scheduledActualChartInstance) scheduledActualChartInstance.destroy();
+
+            let labels, dataScheduled, dataActual;
+            if (granularity === 'quarterly') {
+                labels = getLabels('quarterly');
+                dataScheduled = aggregateToQuarterly(scheduledHours);
+                dataActual = aggregateToQuarterly(actualHours);
+            } else if (granularity === 'yearly') {
+                labels = getLabels('yearly');
+                dataScheduled = aggregateToYearly(scheduledHours);
+                dataActual = aggregateToYearly(actualHours);
+            } else {
+                labels = months;
+                dataScheduled = scheduledHours;
+                dataActual = actualHours;
+            }
+
+            scheduledActualChartInstance = new Chart(document.getElementById('scheduledActualChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Scheduled',
+                            data: dataScheduled,
+                            backgroundColor: colors.lightBlue,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Actual',
+                            data: dataActual,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        ...chartOptions.scales,
+                        y: {
+                            ...chartOptions.scales.y,
+                            ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Overtime Trend
+        function initOvertimeChart(granularity = 'monthly') {
+            if (overtimeChartInstance) overtimeChartInstance.destroy();
+
+            let labels, data2024, data2025;
+            if (granularity === 'quarterly') {
+                labels = getLabels('quarterly');
+                data2024 = aggregateToQuarterly(overtime2024);
+                data2025 = aggregateToQuarterly(overtime2025);
+            } else if (granularity === 'yearly') {
+                labels = getLabels('yearly');
+                data2024 = aggregateToYearly(overtime2024);
+                data2025 = aggregateToYearly(overtime2025);
+            } else {
+                labels = months;
+                data2024 = overtime2024;
+                data2025 = overtime2025;
+            }
+
+            overtimeChartInstance = new Chart(document.getElementById('overtimeChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2024',
+                            data: data2024,
+                            backgroundColor: colors.navy,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: '2025',
+                            data: data2025,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: chartOptions
+            });
+        }
+
+        // 5. Covers per Labor Hour
+        function initCoversPerHourChart(granularity = 'monthly') {
+            if (coversPerHourChartInstance) coversPerHourChartInstance.destroy();
+
+            let labels, dataCovers;
+            if (granularity === 'quarterly') {
+                labels = getLabels('quarterly');
+                const aggregatedCovers = aggregateToQuarterly(covers);
+                const aggregatedHours = aggregateToQuarterly(actualHours);
+                dataCovers = aggregatedCovers.map((c, i) => (c / aggregatedHours[i]).toFixed(2));
+            } else if (granularity === 'yearly') {
+                labels = getLabels('yearly');
+                const aggregatedCovers = aggregateToYearly(covers);
+                const aggregatedHours = aggregateToYearly(actualHours);
+                dataCovers = aggregatedCovers.map((c, i) => (c / aggregatedHours[i]).toFixed(2));
+            } else {
+                labels = months;
+                dataCovers = coversPerHour;
+            }
+
+            coversPerHourChartInstance = new Chart(document.getElementById('coversPerHourChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Covers/Hour',
+                            data: dataCovers,
+                            borderColor: colors.navy,
+                            backgroundColor: 'rgba(27, 42, 74, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.navy,
+                            pointBorderColor: colors.white,
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        ...chartOptions.scales,
+                        y: {
+                            ...chartOptions.scales.y,
+                            min: 10,
+                            max: 11,
+                            ticks: { callback: v => v.toFixed(2) }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 6. Attendance Issues
+        function initAttendanceChart(granularity = 'monthly') {
+            if (attendanceChartInstance) attendanceChartInstance.destroy();
+
+            let labels, dataNS24, dataNS25, dataCO24, dataCO25;
+            if (granularity === 'quarterly') {
+                labels = getLabels('quarterly');
+                dataNS24 = aggregateToQuarterly(noShow2024);
+                dataNS25 = aggregateToQuarterly(noShow2025);
+                dataCO24 = aggregateToQuarterly(callOut2024);
+                dataCO25 = aggregateToQuarterly(callOut2025);
+            } else if (granularity === 'yearly') {
+                labels = getLabels('yearly');
+                dataNS24 = aggregateToYearly(noShow2024);
+                dataNS25 = aggregateToYearly(noShow2025);
+                dataCO24 = aggregateToYearly(callOut2024);
+                dataCO25 = aggregateToYearly(callOut2025);
+            } else {
+                labels = months;
+                dataNS24 = noShow2024;
+                dataNS25 = noShow2025;
+                dataCO24 = callOut2024;
+                dataCO25 = callOut2025;
+            }
+
+            attendanceChartInstance = new Chart(document.getElementById('attendanceChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'No-Shows 2024',
+                            data: dataNS24,
+                            backgroundColor: 'rgba(27, 42, 74, 0.6)',
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'No-Shows 2025',
+                            data: dataNS25,
+                            backgroundColor: colors.navy,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Call-Outs 2024',
+                            data: dataCO24,
+                            backgroundColor: 'rgba(200, 169, 81, 0.6)',
+                            borderRadius: 4,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Call-Outs 2025',
+                            data: dataCO25,
+                            backgroundColor: colors.gold,
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Initialize all charts on page load
+        initWageCostChart('monthly');
+        initLaborPercentChart('monthly');
+        initScheduledActualChart('monthly');
+        initOvertimeChart('monthly');
+        initCoversPerHourChart('monthly');
+        initAttendanceChart('monthly');
+
+        // Filter button functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const granularity = this.dataset.period;
+
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update all charts
+                initWageCostChart(granularity);
+                initLaborPercentChart(granularity);
+                initScheduledActualChart(granularity);
+                initOvertimeChart(granularity);
+                initCoversPerHourChart(granularity);
+                initAttendanceChart(granularity);
+
+                // Update table display
+                getTableRows(granularity);
+            });
+        });
+    </script>
+</body>
+</html>

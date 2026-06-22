@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Risk & Delinquency - Falcon Finance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #1A1A2E; min-height: 100vh; }
+        .topbar { background: #1D3557; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .topbar-left { display: flex; align-items: center; }
+        .logo { font-weight: 800; font-size: 22px; color: #FFFFFF; margin: 0; }
+        .logo .x { color: #A8DADC; }
+        .logo .f { color: #E63946; }
+        .topbar .title { color: #F1FAEE; font-weight: 600; font-size: 16px; margin-left: 14px; }
+        .back-link { color: #A8DADC; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+        .section-title { font-size: 18px; font-weight: 700; color: #1D3557; margin-top: 28px; margin-bottom: 16px; }
+        .section-title:first-child { margin-top: 0; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 16px; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #5F6B7A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1A1A2E; margin-bottom: 8px; }
+        .kpi-secondary { font-size: 13px; color: #5F6B7A; margin-bottom: 4px; }
+        .kpi-positive { color: #2E7D32; font-weight: 600; }
+        .kpi-negative { color: #D32F2F; font-weight: 600; }
+
+        .chart-container { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .chart-title { font-size: 16px; font-weight: 700; color: #1D3557; margin-bottom: 16px; }
+        .chart-wrapper { position: relative; height: 300px; margin-bottom: 20px; }
+
+        .table-container { background: #FAFBFC; border: 1px solid #ECEEF1; border-radius: 8px; padding: 20px; overflow-x: auto; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #F1FAEE; color: #1D3557; font-weight: 600; text-align: left; padding: 12px; border-bottom: 1px solid #ECEEF1; }
+        td { padding: 12px; border-bottom: 1px solid #ECEEF1; color: #1A1A2E; }
+        tr:hover { background: #FFFFFF; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="x">x</span><span class="f">F</span></div>
+            <div class="title">Falcon Finance / 5. Credit Risk & Delinquency</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <!-- Annual Summary KPIs -->
+        <div class="section-title">Annual Summary (2024-2025)</div>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Delinquency Events</div>
+                <div class="kpi-value">74,353</div>
+                <div class="kpi-secondary">2024: 78,647 <span class="kpi-negative">-5.4%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Total Balance at Risk</div>
+                <div class="kpi-value">$229.8M</div>
+                <div class="kpi-secondary">2024: $242.8M <span class="kpi-negative">-5.3%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Charge-offs</div>
+                <div class="kpi-value">9,629</div>
+                <div class="kpi-secondary">2024: 10,176 <span class="kpi-negative">-5.4%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Chargeoff Amount</div>
+                <div class="kpi-value">$29.1M</div>
+                <div class="kpi-secondary">2024: $30.6M <span class="kpi-negative">-5.1%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">2025 Recovery Amount</div>
+                <div class="kpi-value">$5.8M</div>
+                <div class="kpi-secondary">2024: $6.1M <span class="kpi-negative">-4.6%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Chargeoff Rate 2025</div>
+                <div class="kpi-value">12.95%</div>
+                <div class="kpi-secondary">2024: 12.93% <span class="kpi-positive">+0.02%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Recovery Rate 2025</div>
+                <div class="kpi-value">2.53%</div>
+                <div class="kpi-secondary">2024: 2.51% <span class="kpi-positive">+0.02%</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Days Past Due 2025</div>
+                <div class="kpi-value">66.4</div>
+                <div class="kpi-secondary">2024: 66.5 days <span class="kpi-positive">-0.1</span></div>
+            </div>
+        </div>
+
+        <!-- Delinquency Trends -->
+        <div class="section-title">Delinquency Events: Monthly Comparison 2024 vs 2025</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="monthlyDelinquencyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Charge-offs Trend -->
+        <div class="section-title">Charge-off Events: Monthly Comparison 2024 vs 2025</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="monthlyChargeoffChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Delinquency by Bucket -->
+        <div class="section-title">Delinquency Distribution by Days Past Due (2025)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="bucketChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Credit Tier Analysis -->
+        <div class="section-title">Delinquency by Credit Tier (2024-2025 Combined)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="tierChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Annual Trend -->
+        <div class="section-title">7-Year Delinquency Trend (2019-2025)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="annualTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chargeoff Rate Trend -->
+        <div class="section-title">Annual Chargeoff Rate Trend (2019-2025)</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="chargeoffRateChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="section-title">Monthly Delinquency Metrics Detail (2024-2025)</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Events</th>
+                        <th>Charge-offs</th>
+                        <th>Chargeoff Amount</th>
+                        <th>Chargeoff Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2024</td><td>January</td><td class="text-right">5,956</td><td class="text-right">745</td><td class="text-right">$2,404,250</td><td class="text-right">12.51%</td></tr>
+                    <tr><td>2024</td><td>February</td><td class="text-right">6,313</td><td class="text-right">821</td><td class="text-right">$2,486,813</td><td class="text-right">13.01%</td></tr>
+                    <tr><td>2024</td><td>March</td><td class="text-right">5,815</td><td class="text-right">735</td><td class="text-right">$2,290,591</td><td class="text-right">12.64%</td></tr>
+                    <tr><td>2024</td><td>April</td><td class="text-right">6,509</td><td class="text-right">868</td><td class="text-right">$2,650,077</td><td class="text-right">13.34%</td></tr>
+                    <tr><td>2024</td><td>May</td><td class="text-right">7,418</td><td class="text-right">984</td><td class="text-right">$2,865,003</td><td class="text-right">13.27%</td></tr>
+                    <tr><td>2024</td><td>June</td><td class="text-right">5,667</td><td class="text-right">711</td><td class="text-right">$2,282,543</td><td class="text-right">12.54%</td></tr>
+                    <tr><td>2024</td><td>July</td><td class="text-right">6,291</td><td class="text-right">819</td><td class="text-right">$2,584,334</td><td class="text-right">13.02%</td></tr>
+                    <tr><td>2024</td><td>August</td><td class="text-right">7,474</td><td class="text-right">946</td><td class="text-right">$2,789,208</td><td class="text-right">12.66%</td></tr>
+                    <tr><td>2024</td><td>September</td><td class="text-right">6,720</td><td class="text-right">917</td><td class="text-right">$2,735,636</td><td class="text-right">13.65%</td></tr>
+                    <tr><td>2024</td><td>October</td><td class="text-right">7,030</td><td class="text-right">893</td><td class="text-right">$2,613,711</td><td class="text-right">12.70%</td></tr>
+                    <tr><td>2024</td><td>November</td><td class="text-right">7,322</td><td class="text-right">950</td><td class="text-right">$2,702,777</td><td class="text-right">12.98%</td></tr>
+                    <tr><td>2024</td><td>December</td><td class="text-right">6,132</td><td class="text-right">787</td><td class="text-right">$2,242,105</td><td class="text-right">12.84%</td></tr>
+                    <tr><td>2025</td><td>January</td><td class="text-right">5,842</td><td class="text-right">792</td><td class="text-right">$2,231,552</td><td class="text-right">13.55%</td></tr>
+                    <tr><td>2025</td><td>February</td><td class="text-right">5,531</td><td class="text-right">703</td><td class="text-right">$2,050,186</td><td class="text-right">12.71%</td></tr>
+                    <tr><td>2025</td><td>March</td><td class="text-right">6,071</td><td class="text-right">785</td><td class="text-right">$2,440,790</td><td class="text-right">12.93%</td></tr>
+                    <tr><td>2025</td><td>April</td><td class="text-right">6,369</td><td class="text-right">844</td><td class="text-right">$2,454,710</td><td class="text-right">13.26%</td></tr>
+                    <tr><td>2025</td><td>May</td><td class="text-right">5,980</td><td class="text-right">801</td><td class="text-right">$2,436,310</td><td class="text-right">13.39%</td></tr>
+                    <tr><td>2025</td><td>June</td><td class="text-right">5,467</td><td class="text-right">689</td><td class="text-right">$2,021,444</td><td class="text-right">12.61%</td></tr>
+                    <tr><td>2025</td><td>July</td><td class="text-right">7,018</td><td class="text-right">901</td><td class="text-right">$2,688,855</td><td class="text-right">12.84%</td></tr>
+                    <tr><td>2025</td><td>August</td><td class="text-right">6,914</td><td class="text-right">902</td><td class="text-right">$2,809,423</td><td class="text-right">13.04%</td></tr>
+                    <tr><td>2025</td><td>September</td><td class="text-right">6,237</td><td class="text-right">745</td><td class="text-right">$2,188,535</td><td class="text-right">11.93%</td></tr>
+                    <tr><td>2025</td><td>October</td><td class="text-right">6,054</td><td class="text-right">786</td><td class="text-right">$2,578,332</td><td class="text-right">12.98%</td></tr>
+                    <tr><td>2025</td><td>November</td><td class="text-right">6,341</td><td class="text-right">842</td><td class="text-right">$2,522,618</td><td class="text-right">13.28%</td></tr>
+                    <tr><td>2025</td><td>December</td><td class="text-right">6,529</td><td class="text-right">839</td><td class="text-right">$2,637,969</td><td class="text-right">12.85%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function mk(ctx, cfg) { return new Chart(ctx, cfg); }
+
+        // Monthly Delinquency
+        var m2024_del = [5956,6313,5815,6509,7418,5667,6291,7474,6720,7030,7322,6132];
+        var m2025_del = [5842,5531,6071,6369,5980,5467,7018,6914,6237,6054,6341,6529];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        mk(document.getElementById('monthlyDelinquencyChart'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: '2024',
+                    data: m2024_del,
+                    borderColor: '#006AFF',
+                    backgroundColor: 'rgba(0,106,255,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '2025',
+                    data: m2025_del,
+                    borderColor: '#1A7F64',
+                    backgroundColor: 'rgba(26,127,100,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Monthly Chargeoffs
+        var m2024_co = [745,821,735,868,984,711,819,946,917,893,950,787];
+        var m2025_co = [792,703,785,844,801,689,901,902,745,786,842,839];
+        mk(document.getElementById('monthlyChargeoffChart'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: '2024',
+                    data: m2024_co,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245,158,11,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '2025',
+                    data: m2025_co,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245,158,11,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Delinquency by Bucket
+        var buckets = ['1-29 DPD','30-59 DPD','60-89 DPD','90-119 DPD','120-179 DPD','180+ DPD'];
+        var bucketEvents = [26045,16375,13372,8932,5845,3784];
+        var bucketBalance = [81941058.25,50470321.20,40771341.89,27530395.19,17589150.69,11471573.32];
+        mk(document.getElementById('bucketChart'), {
+            type: 'bar',
+            data: {
+                labels: buckets,
+                datasets: [{
+                    label: 'Events',
+                    data: bucketEvents,
+                    backgroundColor: '#006AFF'
+                }, {
+                    label: 'Balance ($M)',
+                    data: bucketBalance.map(function(v) { return v/1000000; }),
+                    backgroundColor: '#1A7F64'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Credit Tier
+        var tiers = ['Subprime','Near Prime','Deep Subprime','Prime','Super Prime'];
+        var tierEvents = [43144,42608,27513,27448,12287];
+        var tierBalance = [36654436.26,87298912.89,10186516.05,165856186.08,172604903.19];
+        var tierDPD = [66.48,67.18,66.78,66.26,66.08];
+        mk(document.getElementById('tierChart'), {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: tiers,
+                datasets: [{
+                    label: 'Events',
+                    data: tierEvents,
+                    backgroundColor: '#006AFF'
+                }, {
+                    label: 'Balance ($M)',
+                    data: tierBalance.map(function(v) { return v/1000000; }),
+                    backgroundColor: '#0EA5E9'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Annual Trend
+        var years = ['2019','2020','2021','2022','2023','2024','2025'];
+        var annualEvents = [73801,90984,54165,63182,85486,78647,74353];
+        var annualChargeoffs = [9574,11861,7066,8210,11237,10176,9629];
+        mk(document.getElementById('annualTrendChart'), {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Delinquency Events',
+                    data: annualEvents,
+                    borderColor: '#006AFF',
+                    backgroundColor: 'rgba(0,106,255,0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Charge-offs',
+                    data: annualChargeoffs,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245,158,11,0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    y: { type: 'linear', position: 'left' },
+                    y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+
+        // Chargeoff Rate
+        var chargeoffRates = [12.97,13.05,13.06,13.00,13.14,12.93,12.95];
+        mk(document.getElementById('chargeoffRateChart'), {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Chargeoff Rate (%)',
+                    data: chargeoffRates,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245,158,11,0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#F59E0B'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    </script>
+</body>
+</html>

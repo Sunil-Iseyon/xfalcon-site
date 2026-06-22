@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Performance Review - Falcon Retail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #1A1A1A;
+            color: #F5F0E8;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #8B6F3A;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #C9A84C;
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            color: #C9A84C;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #8B6F3A;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: #8B6F3A;
+            color: #F5F0E8;
+        }
+
+        /* Title Section */
+        .title-section {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #C9A84C;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #9A9590;
+            font-size: 14px;
+        }
+
+        /* KPI Bar */
+        .kpi-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            background-color: #333333;
+            border-color: #C9A84C;
+        }
+
+        .kpi-label {
+            color: #9A9590;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #C9A84C;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .kpi-subvalue {
+            font-size: 13px;
+            color: #9A9590;
+        }
+
+        .kpi-positive {
+            color: #4CAF50;
+        }
+
+        .kpi-negative {
+            color: #E74C3C;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            margin-bottom: 32px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #8B6F3A;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background-color: transparent;
+            border: none;
+            color: #9A9590;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: #C9A84C;
+        }
+
+        .tab-btn.active {
+            color: #C9A84C;
+            border-bottom-color: #C9A84C;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Charts */
+        .chart-container {
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #C9A84C;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #8B6F3A;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 24px;
+        }
+
+        .dual-chart {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1000px) {
+            .dual-chart {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: #2D2D2D;
+            border: 1px solid #8B6F3A;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 32px;
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #C9A84C;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #1A1A1A;
+            color: #C9A84C;
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #8B6F3A;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #3D3D3D;
+            color: #F5F0E8;
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background-color: #333333;
+        }
+
+        .numeric {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        .negative {
+            color: #E74C3C;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 32px;
+            margin-top: 48px;
+            border-top: 1px solid #8B6F3A;
+            color: #9A9590;
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kpi-bar {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        /* Utility Classes */
+        .section-divider {
+            height: 1px;
+            background-color: #8B6F3A;
+            margin: 40px 0;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            color: #9A9590;
+            padding: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">FALCON RETAIL</div>
+            <a href="index.html" class="back-link">← Back</a>
+        </div>
+
+        <!-- Title Section -->
+        <div class="title-section">
+            <h1 class="page-title">Monthly Performance Review</h1>
+            <p class="subtitle">March 2026 | Month-to-Date Performance (March 1-16)</p>
+        </div>
+
+        <!-- KPI Bar -->
+        <div class="kpi-bar">
+            <div class="kpi-card">
+                <div class="kpi-label">MTD Sales</div>
+                <div class="kpi-value">$10.88M</div>
+                <div class="kpi-subvalue">March 1-16</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">MTD Units Sold</div>
+                <div class="kpi-value">70,350</div>
+                <div class="kpi-subvalue">Units</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">MTD Margin %</div>
+                <div class="kpi-value">41.9%</div>
+                <div class="kpi-subvalue">Gross Margin</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">vs Plan (MTD)</div>
+                <div class="kpi-value"><span class="kpi-negative">-48.5%</span></div>
+                <div class="kpi-subvalue">Expected: Half month</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">vs LY MTD</div>
+                <div class="kpi-value"><span class="kpi-negative">-1.0%</span></div>
+                <div class="kpi-subvalue">Year-over-year</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">MTD Discount Rate</div>
+                <div class="kpi-value">4.7%</div>
+                <div class="kpi-subvalue">% of Sales</div>
+            </div>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab(event, 'tab1')">Monthly Sales Summary</button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab2')">Category Trends</button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab3')">Period Comparison</button>
+            </div>
+
+            <!-- Tab 1: Monthly Sales Summary -->
+            <div id="tab1" class="tab-content active">
+                <div class="chart-container">
+                    <div class="chart-title">2026 Monthly Sales vs Target</div>
+                    <div class="dual-chart">
+                        <div class="chart-wrapper">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="marginChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">Monthly Performance Detail</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th class="numeric">TY Sales ($M)</th>
+                                <th class="numeric">LY Sales ($M)</th>
+                                <th class="numeric">Var %</th>
+                                <th class="numeric">Margin %</th>
+                                <th class="numeric">Units</th>
+                                <th class="numeric">Disc Rate %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>January</td>
+                                <td class="numeric">—</td>
+                                <td class="numeric">21.2</td>
+                                <td class="numeric negative">N/A</td>
+                                <td class="numeric">—</td>
+                                <td class="numeric">—</td>
+                                <td class="numeric">—</td>
+                            </tr>
+                            <tr>
+                                <td>February</td>
+                                <td class="numeric">19.6</td>
+                                <td class="numeric">18.8</td>
+                                <td class="numeric positive">+4.3%</td>
+                                <td class="numeric">41.8%</td>
+                                <td class="numeric">65,200</td>
+                                <td class="numeric">4.9%</td>
+                            </tr>
+                            <tr>
+                                <td>March (MTD)</td>
+                                <td class="numeric">10.88</td>
+                                <td class="numeric">10.99</td>
+                                <td class="numeric negative">-1.0%</td>
+                                <td class="numeric">41.9%</td>
+                                <td class="numeric">70,350</td>
+                                <td class="numeric">4.7%</td>
+                            </tr>
+                            <tr>
+                                <td>March (Full Est.)</td>
+                                <td class="numeric">21.1</td>
+                                <td class="numeric">21.3</td>
+                                <td class="numeric negative">-0.9%</td>
+                                <td class="numeric">41.8%</td>
+                                <td class="numeric">136,350</td>
+                                <td class="numeric">4.8%</td>
+                            </tr>
+                            <tr>
+                                <td>April</td>
+                                <td class="numeric">20.7</td>
+                                <td class="numeric">20.8</td>
+                                <td class="numeric negative">-0.5%</td>
+                                <td class="numeric">41.6%</td>
+                                <td class="numeric">137,000</td>
+                                <td class="numeric">5.1%</td>
+                            </tr>
+                            <tr>
+                                <td>May</td>
+                                <td class="numeric">21.3</td>
+                                <td class="numeric">21.0</td>
+                                <td class="numeric positive">+1.4%</td>
+                                <td class="numeric">42.1%</td>
+                                <td class="numeric">140,200</td>
+                                <td class="numeric">4.5%</td>
+                            </tr>
+                            <tr>
+                                <td>June</td>
+                                <td class="numeric">20.7</td>
+                                <td class="numeric">20.6</td>
+                                <td class="numeric positive">+0.5%</td>
+                                <td class="numeric">41.9%</td>
+                                <td class="numeric">136,500</td>
+                                <td class="numeric">4.8%</td>
+                            </tr>
+                            <tr>
+                                <td>July</td>
+                                <td class="numeric">21.2</td>
+                                <td class="numeric">21.2</td>
+                                <td class="numeric">0.0%</td>
+                                <td class="numeric">42.2%</td>
+                                <td class="numeric">139,000</td>
+                                <td class="numeric">4.6%</td>
+                            </tr>
+                            <tr>
+                                <td>August</td>
+                                <td class="numeric">21.1</td>
+                                <td class="numeric">21.3</td>
+                                <td class="numeric negative">-0.9%</td>
+                                <td class="numeric">41.7%</td>
+                                <td class="numeric">138,200</td>
+                                <td class="numeric">5.0%</td>
+                            </tr>
+                            <tr>
+                                <td>September</td>
+                                <td class="numeric">20.4</td>
+                                <td class="numeric">20.4</td>
+                                <td class="numeric">0.0%</td>
+                                <td class="numeric">41.5%</td>
+                                <td class="numeric">134,500</td>
+                                <td class="numeric">5.2%</td>
+                            </tr>
+                            <tr>
+                                <td>October</td>
+                                <td class="numeric">21.1</td>
+                                <td class="numeric">21.5</td>
+                                <td class="numeric negative">-1.9%</td>
+                                <td class="numeric">41.9%</td>
+                                <td class="numeric">138,800</td>
+                                <td class="numeric">4.7%</td>
+                            </tr>
+                            <tr>
+                                <td>November</td>
+                                <td class="numeric">20.6</td>
+                                <td class="numeric">20.4</td>
+                                <td class="numeric positive">+1.0%</td>
+                                <td class="numeric">42.0%</td>
+                                <td class="numeric">135,600</td>
+                                <td class="numeric">4.4%</td>
+                            </tr>
+                            <tr>
+                                <td>December</td>
+                                <td class="numeric">20.7</td>
+                                <td class="numeric">21.4</td>
+                                <td class="numeric negative">-3.3%</td>
+                                <td class="numeric">41.8%</td>
+                                <td class="numeric">136,200</td>
+                                <td class="numeric">4.9%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Category Trends -->
+            <div id="tab2" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-title">Category Performance - March 2026 vs LY</div>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">Category Monthly Detail (March)</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="numeric">TY Sales ($M)</th>
+                                <th class="numeric">LY Sales ($M)</th>
+                                <th class="numeric">Var %</th>
+                                <th class="numeric">Margin %</th>
+                                <th class="numeric">Units</th>
+                                <th class="numeric">Avg Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Bottoms</td>
+                                <td class="numeric">2.63</td>
+                                <td class="numeric">2.68</td>
+                                <td class="numeric negative">-1.9%</td>
+                                <td class="numeric">42.3%</td>
+                                <td class="numeric">18,400</td>
+                                <td class="numeric">$142.93</td>
+                            </tr>
+                            <tr>
+                                <td>Outerwear</td>
+                                <td class="numeric">2.58</td>
+                                <td class="numeric">2.61</td>
+                                <td class="numeric negative">-1.1%</td>
+                                <td class="numeric">44.1%</td>
+                                <td class="numeric">9,850</td>
+                                <td class="numeric">$261.84</td>
+                            </tr>
+                            <tr>
+                                <td>Tops</td>
+                                <td class="numeric">2.52</td>
+                                <td class="numeric">2.58</td>
+                                <td class="numeric negative">-2.3%</td>
+                                <td class="numeric">40.8%</td>
+                                <td class="numeric">21,200</td>
+                                <td class="numeric">$118.87</td>
+                            </tr>
+                            <tr>
+                                <td>Footwear</td>
+                                <td class="numeric">2.47</td>
+                                <td class="numeric">2.50</td>
+                                <td class="numeric negative">-1.2%</td>
+                                <td class="numeric">41.6%</td>
+                                <td class="numeric">7,850</td>
+                                <td class="numeric">$314.65</td>
+                            </tr>
+                            <tr>
+                                <td>Accessories</td>
+                                <td class="numeric">2.38</td>
+                                <td class="numeric">2.42</td>
+                                <td class="numeric negative">-1.7%</td>
+                                <td class="numeric">43.2%</td>
+                                <td class="numeric">11,250</td>
+                                <td class="numeric">$211.56</td>
+                            </tr>
+                            <tr>
+                                <td>Denim</td>
+                                <td class="numeric">2.41</td>
+                                <td class="numeric">2.36</td>
+                                <td class="numeric positive">+2.1%</td>
+                                <td class="numeric">40.5%</td>
+                                <td class="numeric">4,200</td>
+                                <td class="numeric">$573.81</td>
+                            </tr>
+                            <tr>
+                                <td>Loungewear</td>
+                                <td class="numeric">2.26</td>
+                                <td class="numeric">2.31</td>
+                                <td class="numeric negative">-2.2%</td>
+                                <td class="numeric">41.9%</td>
+                                <td class="numeric">8,950</td>
+                                <td class="numeric">$252.51</td>
+                            </tr>
+                            <tr>
+                                <td>Activewear</td>
+                                <td class="numeric">2.29</td>
+                                <td class="numeric">2.27</td>
+                                <td class="numeric positive">+0.9%</td>
+                                <td class="numeric">39.8%</td>
+                                <td class="numeric">12,650</td>
+                                <td class="numeric">$181.06</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 3: Period Comparison -->
+            <div id="tab3" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-title">Cumulative YTD Performance</div>
+                    <div class="dual-chart">
+                        <div class="chart-wrapper">
+                            <canvas id="ytdChart"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="waterfall"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">Period Summary - Q1 Performance</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th class="numeric">TY Sales ($M)</th>
+                                <th class="numeric">LY Sales ($M)</th>
+                                <th class="numeric">Var %</th>
+                                <th class="numeric">Margin %</th>
+                                <th class="numeric">Discount %</th>
+                                <th class="numeric">Units</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>February (Full)</td>
+                                <td class="numeric">19.60</td>
+                                <td class="numeric">18.80</td>
+                                <td class="numeric positive">+4.3%</td>
+                                <td class="numeric">41.8%</td>
+                                <td class="numeric">4.9%</td>
+                                <td class="numeric">65,200</td>
+                            </tr>
+                            <tr>
+                                <td>March (Est. Full)</td>
+                                <td class="numeric">21.10</td>
+                                <td class="numeric">21.30</td>
+                                <td class="numeric negative">-0.9%</td>
+                                <td class="numeric">41.8%</td>
+                                <td class="numeric">4.8%</td>
+                                <td class="numeric">136,350</td>
+                            </tr>
+                            <tr style="background-color: #3D3D3D;">
+                                <td><strong>Q1 2026 (Feb-Mar)</strong></td>
+                                <td class="numeric"><strong>40.70</strong></td>
+                                <td class="numeric"><strong>40.10</strong></td>
+                                <td class="numeric positive"><strong>+1.5%</strong></td>
+                                <td class="numeric"><strong>41.8%</strong></td>
+                                <td class="numeric"><strong>4.8%</strong></td>
+                                <td class="numeric"><strong>201,550</strong></td>
+                            </tr>
+                            <tr style="background-color: #1A1A1A;">
+                                <td><strong>Q1 2025 (Feb-Mar)</strong></td>
+                                <td class="numeric"><strong>40.10</strong></td>
+                                <td class="numeric"><strong>—</strong></td>
+                                <td class="numeric">—</td>
+                                <td class="numeric"><strong>41.7%</strong></td>
+                                <td class="numeric"><strong>4.8%</strong></td>
+                                <td class="numeric"><strong>197,350</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-container" style="margin-top: 32px;">
+                    <div class="chart-title">March Sales Progression (Daily Cumulative)</div>
+                    <div class="chart-wrapper">
+                        <canvas id="progressionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Generated March 16, 2026 | Data as of March 16, 2026 | Falcon Retail Dashboard System
+        </div>
+    </div>
+
+    <script>
+        // Chart configuration
+        const chartColors = ['#C9A84C', '#6A9BC3', '#5BA67D', '#E8913A', '#C75B5B', '#8E6BBF', '#4ECDC4', '#D4A843'];
+
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#F5F0E8',
+                        font: { size: 12 },
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#2D2D2D',
+                    titleColor: '#C9A84C',
+                    bodyColor: '#F5F0E8',
+                    borderColor: '#8B6F3A',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#3D3D3D' },
+                    ticks: { color: '#9A9590', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#3D3D3D' },
+                    ticks: { color: '#9A9590', font: { size: 11 } }
+                }
+            }
+        };
+
+        // Chart 1: Monthly Sales vs Target
+        const ctx1 = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: '2026 Sales ($M)',
+                        data: [19.6, 21.1, 20.7, 21.3, 20.7, 21.2, 21.1, 20.4, 21.1, 20.6, 20.7],
+                        backgroundColor: '#C9A84C',
+                        borderColor: '#8B6F3A',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '2025 Sales ($M)',
+                        data: [18.8, 21.3, 20.8, 21.0, 20.6, 21.2, 21.3, 20.4, 21.5, 20.4, 21.4],
+                        backgroundColor: '#6A9BC3',
+                        borderColor: '#4A7FA3',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Target Line',
+                        data: [20.5, 20.5, 20.5, 20.5, 20.5, 20.5, 20.5, 20.5, 20.5, 20.5, 20.5],
+                        type: 'line',
+                        borderColor: '#C9A84C',
+                        borderWidth: 3,
+                        fill: false,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: '#C9A84C',
+                        pointBorderColor: '#8B6F3A',
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    filler: { propagate: true }
+                }
+            }
+        });
+
+        // Chart 2: Margin % Trend
+        const ctx2 = document.getElementById('marginChart').getContext('2d');
+        const marginChart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: '2026 Margin %',
+                        data: [41.8, 41.8, 41.6, 42.1, 41.9, 42.2, 41.7, 41.5, 41.9, 42.0, 41.8],
+                        borderColor: '#5BA67D',
+                        backgroundColor: 'rgba(91, 166, 125, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        pointBackgroundColor: '#5BA67D',
+                        pointBorderColor: '#3A7A5C',
+                        pointRadius: 5,
+                        tension: 0.3
+                    },
+                    {
+                        label: '2025 Margin %',
+                        data: [41.7, 41.9, 41.8, 41.9, 41.8, 41.9, 42.0, 41.7, 41.9, 41.8, 41.9],
+                        borderColor: '#8E6BBF',
+                        backgroundColor: 'rgba(142, 107, 191, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        pointBackgroundColor: '#8E6BBF',
+                        pointBorderColor: '#6E4BA0',
+                        pointRadius: 4,
+                        tension: 0.3,
+                        borderDash: [3, 3]
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                scales: {
+                    ...chartDefaults.scales,
+                    y: {
+                        ...chartDefaults.scales.y,
+                        beginAtZero: false,
+                        min: 40,
+                        max: 43
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Category Performance
+        const ctx3 = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Bottoms', 'Outerwear', 'Tops', 'Footwear', 'Accessories', 'Denim', 'Loungewear', 'Activewear'],
+                datasets: [
+                    {
+                        label: '2026 Sales ($M)',
+                        data: [2.63, 2.58, 2.52, 2.47, 2.38, 2.41, 2.26, 2.29],
+                        backgroundColor: '#C9A84C',
+                        borderColor: '#8B6F3A',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '2025 Sales ($M)',
+                        data: [2.68, 2.61, 2.58, 2.50, 2.42, 2.36, 2.31, 2.27],
+                        backgroundColor: '#6A9BC3',
+                        borderColor: '#4A7FA3',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: chartDefaults
+        });
+
+        // Chart 4: YTD Cumulative
+        const ctx4 = document.getElementById('ytdChart').getContext('2d');
+        const ytdChart = new Chart(ctx4, {
+            type: 'line',
+            data: {
+                labels: ['Feb', 'Mar'],
+                datasets: [
+                    {
+                        label: 'YTD 2026 ($M)',
+                        data: [19.6, 40.7],
+                        borderColor: '#C9A84C',
+                        backgroundColor: 'rgba(201, 168, 76, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        pointBackgroundColor: '#C9A84C',
+                        pointBorderColor: '#8B6F3A',
+                        pointRadius: 6,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'YTD 2025 ($M)',
+                        data: [18.8, 40.1],
+                        borderColor: '#6A9BC3',
+                        backgroundColor: 'rgba(106, 155, 195, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        pointBackgroundColor: '#6A9BC3',
+                        pointBorderColor: '#4A7FA3',
+                        pointRadius: 6,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: chartDefaults
+        });
+
+        // Chart 5: Waterfall (Q1 Variance)
+        const ctx5 = document.getElementById('waterfall').getContext('2d');
+        const waterfallChart = new Chart(ctx5, {
+            type: 'bar',
+            data: {
+                labels: ['LY Q1', 'Feb Var', 'Mar Var', 'TY Q1'],
+                datasets: [
+                    {
+                        label: 'Sales ($M)',
+                        data: [40.1, 0.8, -0.2, 40.7],
+                        backgroundColor: [
+                            '#6A9BC3',
+                            '#4CAF50',
+                            '#E74C3C',
+                            '#C9A84C'
+                        ],
+                        borderColor: ['#4A7FA3', '#3A8F40', '#C73C2C', '#8B6F3A'],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                indexAxis: 'x',
+                plugins: {
+                    ...chartDefaults.plugins,
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Chart 6: March Daily Progression
+        const ctx6 = document.getElementById('progressionChart').getContext('2d');
+        const progressionChart = new Chart(ctx6, {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16'],
+                datasets: [
+                    {
+                        label: '2026 Cumulative ($M)',
+                        data: [1.32, 2.68, 4.05, 5.29, 6.63, 7.92, 9.18, 10.88, 10.88, 10.88, 10.88, 10.88, 10.88, 10.88, 10.88, 10.88],
+                        borderColor: '#C9A84C',
+                        backgroundColor: 'rgba(201, 168, 76, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        pointBackgroundColor: '#C9A84C',
+                        pointBorderColor: '#8B6F3A',
+                        pointRadius: 4,
+                        tension: 0.3
+                    },
+                    {
+                        label: '2025 Cumulative ($M)',
+                        data: [1.35, 2.72, 4.11, 5.47, 6.88, 8.23, 9.62, 10.99, 10.99, 10.99, 10.99, 10.99, 10.99, 10.99, 10.99, 10.99],
+                        borderColor: '#6A9BC3',
+                        backgroundColor: 'rgba(106, 155, 195, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        pointBackgroundColor: '#6A9BC3',
+                        pointBorderColor: '#4A7FA3',
+                        pointRadius: 3,
+                        tension: 0.3,
+                        borderDash: [3, 3]
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                scales: {
+                    ...chartDefaults.scales,
+                    x: {
+                        ...chartDefaults.scales.x,
+                        title: {
+                            display: true,
+                            text: 'Day of March',
+                            color: '#9A9590'
+                        }
+                    },
+                    y: {
+                        ...chartDefaults.scales.y,
+                        title: {
+                            display: true,
+                            text: 'Cumulative Sales ($M)',
+                            color: '#9A9590'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Tab switching function
+        function switchTab(event, tabName) {
+            event.preventDefault();
+
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Trigger chart redraw
+            setTimeout(() => {
+                salesChart.resize();
+                marginChart.resize();
+                categoryChart.resize();
+                ytdChart.resize();
+                waterfallChart.resize();
+                progressionChart.resize();
+            }, 100);
+        }
+
+        // Initialize charts on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                salesChart.resize();
+                marginChart.resize();
+                categoryChart.resize();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

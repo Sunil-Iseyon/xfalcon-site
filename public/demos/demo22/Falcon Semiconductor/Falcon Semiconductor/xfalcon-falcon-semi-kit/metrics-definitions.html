@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / Metrics & KPI Definitions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.55}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:24px 28px 40px}
+.hero{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--p);border-radius:8px;padding:20px 24px;margin-bottom:20px}
+.hero h1{font-size:22px;color:var(--p);margin-bottom:6px}
+.hero p{color:var(--txm);font-size:13px}
+.search-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:20px}
+.search-bar input{width:100%;padding:10px 14px;border:1px solid var(--bd);border-radius:6px;font-family:inherit;font-size:14px}
+.search-bar input:focus{outline:none;border-color:var(--p)}
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cat-chip{padding:6px 12px;background:#F1F5F9;color:var(--tx);border:1px solid var(--bd);border-radius:14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.cat-chip:hover{background:rgba(45,139,139,.08);border-color:var(--p)}
+.cat-chip.active{background:var(--p);color:#fff;border-color:var(--p)}
+.cat-chip .n{opacity:0.7;font-size:11px;margin-left:4px}
+.cat-section{margin-bottom:28px}
+.cat-title{font-size:16px;font-weight:700;color:var(--p);margin-bottom:10px;border-bottom:2px solid var(--p);padding-bottom:4px}
+.metric{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:14px 18px;margin-bottom:10px}
+.metric-name{font-size:15px;font-weight:600;color:var(--tx);margin-bottom:4px}
+.metric-desc{color:var(--txm);font-size:13px;margin-bottom:8px;line-height:1.55}
+.metric-tags{display:flex;gap:8px;flex-wrap:wrap;font-size:11px}
+.tag{padding:3px 8px;border-radius:10px;background:#F1F5F9;color:var(--txm)}
+.tag.unit{background:rgba(45,139,139,.1);color:var(--p);font-weight:500}
+.tag.dir{background:rgba(5,150,105,.1);color:var(--pos)}
+.tag.dir.lower{background:rgba(211,47,47,.08);color:var(--neg)}
+.tag.dash{background:rgba(217,119,6,.08);color:var(--wrn)}
+.metric-formula{font-family:'JetBrains Mono',monospace;font-size:12px;background:#0F172A;color:#A8DADC;padding:8px 12px;border-radius:4px;margin-top:8px;overflow-x:auto}
+.empty{text-align:center;color:var(--txm);padding:40px;font-size:13px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0;border-top:1px solid var(--bd);margin-top:20px}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / Metrics & KPI Definitions</div>
+<div class="topbar-subtitle">Searchable reference · every KPI across all 11 dashboards</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="hero">
+<h1>Metrics & KPI Reference</h1>
+<p>Every KPI used across the Falcon Semiconductor dashboards with its formula, unit, direction, and source tables. Currency = USD. Fiscal year = Oct–Sep. All bookings metrics apply <code>ORDER_TYPE &lt;&gt; 'Sample'</code> as a global filter.</p>
+</div>
+
+<div class="search-bar">
+<input type="text" id="q" placeholder="Search metric name, formula, or source table..." oninput="applyFilter()">
+<div class="cats" id="catChips"></div>
+</div>
+
+<div id="list"></div>
+
+<div class="ft">xFalcon AnalyticsPro · Falcon Semiconductor kit · Generated 2026-04-21</div>
+</div>
+
+<script>
+var METRICS=[
+ // Revenue & Financial
+ {cat:'Revenue & Financial',n:'Net Revenue',d:'Total invoice revenue from shipped goods. Post-discount, pre-returns (no returns table).',u:'$',dir:'higher',f:"SUM(FACT_SHIPMENTS.REVENUE)",src:'FACT_SHIPMENTS',dash:'1,3,5,11'},
+ {cat:'Revenue & Financial',n:'COGS',d:'Cost of goods sold per shipment line = ship_quantity × unit_cost.',u:'$',dir:'lower',f:'SUM(FACT_SHIPMENTS.COGS)',src:'FACT_SHIPMENTS',dash:'3'},
+ {cat:'Revenue & Financial',n:'Gross Margin $',d:'Revenue minus COGS. Pre-computed in FACT_SHIPMENTS.GROSS_MARGIN.',u:'$',dir:'higher',f:'SUM(FACT_SHIPMENTS.GROSS_MARGIN)',src:'FACT_SHIPMENTS',dash:'1,3'},
+ {cat:'Revenue & Financial',n:'Gross Margin % (GM%)',d:'Gross profit margin as percent of revenue. Compute aggregate-first — do NOT average row-level percentages.',u:'%',dir:'higher',f:'100.0 * SUM(GROSS_MARGIN) / NULLIF(SUM(REVENUE), 0)',src:'FACT_SHIPMENTS',dash:'1,3,4'},
+ {cat:'Revenue & Financial',n:'Average Selling Price (ASP)',d:'Average price per unit across all shipments.',u:'$/unit',dir:'higher',f:'SUM(REVENUE) / NULLIF(SUM(SHIP_QUANTITY), 0)',src:'FACT_SHIPMENTS',dash:'3,4'},
+ {cat:'Revenue & Financial',n:'Units Shipped',d:'Total physical units shipped to customers.',u:'units',dir:'higher',f:'SUM(FACT_SHIPMENTS.SHIP_QUANTITY)',src:'FACT_SHIPMENTS',dash:'3,4,11'},
+ // Demand & Pipeline
+ {cat:'Demand & Pipeline',n:'Bookings',d:'Total order value, excluding Sample type. Forward indicator of future revenue.',u:'$',dir:'higher',f:"SUM(FACT_ORDERS.ORDER_VALUE) WHERE ORDER_TYPE <> 'Sample'",src:'FACT_ORDERS',dash:'1,2,11'},
+ {cat:'Demand & Pipeline',n:'Order Count',d:'Number of order lines (excluding Sample).',u:'count',dir:'higher',f:"COUNT(*) FROM FACT_ORDERS WHERE ORDER_TYPE <> 'Sample'",src:'FACT_ORDERS',dash:'2'},
+ {cat:'Demand & Pipeline',n:'Book-to-Bill Ratio (B:B)',d:'AUTHORITATIVE. Use pre-computed column. DO NOT compute as orders/shipments (inflates ~2×).',u:'ratio',dir:'higher',f:'AVG(FACT_BACKLOG.BOOK_TO_BILL_RATIO)',src:'FACT_BACKLOG',dash:'1,2,11'},
+ {cat:'Demand & Pipeline',n:'Backlog Value',d:'Dollar value of open unfulfilled purchase orders at period end.',u:'$',dir:'neutral',f:'SUM(FACT_BACKLOG.BACKLOG_VALUE)',src:'FACT_BACKLOG',dash:'1,2'},
+ {cat:'Demand & Pipeline',n:'Past-Due Quantity',d:'Units past their originally-promised delivery date.',u:'units',dir:'lower',f:'SUM(FACT_BACKLOG.PAST_DUE_QTY)',src:'FACT_BACKLOG',dash:'2,10,11'},
+ {cat:'Demand & Pipeline',n:'Backlog Age',d:'Weighted average age of open backlog orders in days.',u:'days',dir:'lower',f:'AVG(FACT_BACKLOG.AVERAGE_AGE_DAYS)',src:'FACT_BACKLOG',dash:'2'},
+ // Design Win Pipeline
+ {cat:'Design-Win Pipeline',n:'Pipeline Value (Unweighted)',d:'Total estimated annual revenue across all pipeline records.',u:'$',dir:'higher',f:'SUM(FACT_DESIGN_WINS.ESTIMATED_REVENUE)',src:'FACT_DESIGN_WINS',dash:'1,7'},
+ {cat:'Design-Win Pipeline',n:'Pipeline Value (Weighted)',d:'Probability-weighted revenue forecast from pipeline.',u:'$',dir:'higher',f:'SUM(ESTIMATED_REVENUE * WIN_PROBABILITY)',src:'FACT_DESIGN_WINS',dash:'1,7'},
+ {cat:'Design-Win Pipeline',n:'Competitive Displacement Rate',d:'Share of pipeline that displaces an incumbent vs greenfield wins.',u:'%',dir:'higher',f:'COUNT(*) WHERE IS_NEW_SOCKET=FALSE / COUNT(*)',src:'FACT_DESIGN_WINS',dash:'7'},
+ {cat:'Design-Win Pipeline',n:'Avg Design Cycle',d:'Average time from design-in to production per pipeline record.',u:'months',dir:'lower',f:'AVG(FACT_DESIGN_WINS.DESIGN_CYCLE_MONTHS)',src:'FACT_DESIGN_WINS',dash:'7'},
+ // Inventory
+ {cat:'Inventory',n:'Inventory Value',d:'Total dollar value of on-hand stock at latest snapshot.',u:'$',dir:'neutral',f:'SUM(FACT_INVENTORY.INVENTORY_VALUE)',src:'FACT_INVENTORY',dash:'9,11'},
+ {cat:'Inventory',n:'Weeks of Supply (WoS)',d:'On-hand inventory expressed as weeks of forward demand. Target: 4-12 weeks.',u:'weeks',dir:'neutral',f:'AVG(FACT_INVENTORY.WEEKS_OF_SUPPLY)',src:'FACT_INVENTORY',dash:'9,11'},
+ {cat:'Inventory',n:'Stockout Risk',d:'Count of (product × channel) pairs with WoS < 2 weeks.',u:'count',dir:'lower',f:'COUNT(*) FROM FACT_INVENTORY WHERE WEEKS_OF_SUPPLY < 2',src:'FACT_INVENTORY',dash:'9'},
+ {cat:'Inventory',n:'Excess Inventory',d:'Count of (product × channel) pairs with WoS > 16 weeks.',u:'count',dir:'lower',f:'COUNT(*) FROM FACT_INVENTORY WHERE WEEKS_OF_SUPPLY > 16',src:'FACT_INVENTORY',dash:'9'},
+ // Manufacturing
+ {cat:'Manufacturing / Fab',n:'Fab Utilization',d:'Capacity utilization as fraction of installed wafer-starts. Target 80-90%.',u:'%',dir:'neutral',f:'AVG(FACT_SUPPLY_CHAIN.UTILIZATION_RATE)',src:'FACT_SUPPLY_CHAIN',dash:'1,8,11'},
+ {cat:'Manufacturing / Fab',n:'Yield Rate',d:'Fraction of wafers producing good die after test.',u:'%',dir:'higher',f:'AVG(FACT_SUPPLY_CHAIN.YIELD_RATE)',src:'FACT_SUPPLY_CHAIN',dash:'8'},
+ {cat:'Manufacturing / Fab',n:'Cycle Time',d:'Average days from wafer start to wafer out.',u:'days',dir:'lower',f:'AVG(FACT_SUPPLY_CHAIN.CYCLE_TIME_DAYS)',src:'FACT_SUPPLY_CHAIN',dash:'8'},
+ {cat:'Manufacturing / Fab',n:'Cost per Die',d:'Average manufacturing cost per good die, USD.',u:'$',dir:'lower',f:'AVG(FACT_SUPPLY_CHAIN.COST_PER_DIE)',src:'FACT_SUPPLY_CHAIN',dash:'8'},
+ {cat:'Manufacturing / Fab',n:'Good Die Output',d:'Total good die produced across fabs for the period.',u:'count',dir:'higher',f:'SUM(FACT_SUPPLY_CHAIN.GOOD_DIE_COUNT)',src:'FACT_SUPPLY_CHAIN',dash:'8'},
+ // Customer / Channel
+ {cat:'Customer & Channel',n:'Customer Concentration (Top N)',d:'Revenue share concentrated in top N customers.',u:'%',dir:'lower',f:"SUM top N customers' REVENUE / total REVENUE",src:'FACT_SHIPMENTS + DIM_CUSTOMER',dash:'1,6'},
+ {cat:'Customer & Channel',n:'Channel Revenue Share',d:'Revenue share by channel (DIRECT/DISTI/OEM/ONLINE).',u:'%',dir:'neutral',f:'per-channel REVENUE / total',src:'FACT_SHIPMENTS + DIM_CHANNEL',dash:'3,6,11'},
+ {cat:'Customer & Channel',n:'End-Market Share (Revenue)',d:'Revenue per end-market via DIM_CUSTOMER.END_MARKET_CODE join.',u:'%',dir:'neutral',f:'per-EM REVENUE / total',src:'FACT_SHIPMENTS + DIM_CUSTOMER + DIM_END_MARKET',dash:'1,3,5,11'},
+ {cat:'Customer & Channel',n:'End-Market Target Variance',d:'Difference between actual revenue share and target share.',u:'pts',dir:'neutral',f:'actual_share_pct - MARKET_SHARE_TARGET*100',src:'DIM_END_MARKET',dash:'5'},
+ // Fulfillment
+ {cat:'Fulfillment',n:'Average Quoted Lead Time',d:'Promised delivery duration at time of order placement.',u:'days',dir:'lower',f:"AVG(FACT_ORDERS.LEAD_TIME_DAYS) WHERE ORDER_TYPE <> 'Sample'",src:'FACT_ORDERS',dash:'10'},
+ {cat:'Fulfillment',n:'On-Time Delivery (Proxy)',d:'Period-level proxy. No per-order join exists.',u:'%',dir:'higher',f:'1 − (Past-Due Qty / (Past-Due + Shipped))',src:'FACT_BACKLOG + FACT_SHIPMENTS',dash:'10,11'}];
+var CATS=['Revenue & Financial','Demand & Pipeline','Design-Win Pipeline','Inventory','Manufacturing / Fab','Customer & Channel','Fulfillment'];
+var activeCat='All';
+function render(){
+ var q=document.getElementById('q').value.toLowerCase();
+ var filt=METRICS.filter(function(m){
+  var matchCat=activeCat==='All'||m.cat===activeCat;
+  var matchQ=q===''||m.n.toLowerCase().indexOf(q)>=0||m.d.toLowerCase().indexOf(q)>=0||m.f.toLowerCase().indexOf(q)>=0||m.src.toLowerCase().indexOf(q)>=0;
+  return matchCat&&matchQ});
+ var list=document.getElementById('list');list.innerHTML='';
+ if(filt.length===0){list.innerHTML='<div class="empty">No metrics match your search.</div>';return}
+ var byCat={};filt.forEach(function(m){if(!byCat[m.cat])byCat[m.cat]=[];byCat[m.cat].push(m)});
+ CATS.forEach(function(c){if(!byCat[c])return;var sect=document.createElement('div');sect.className='cat-section';
+  sect.innerHTML='<div class="cat-title">'+c+' ('+byCat[c].length+')</div>';
+  byCat[c].forEach(function(m){var d=document.createElement('div');d.className='metric';
+   var dirCls=m.dir==='lower'?'tag dir lower':m.dir==='higher'?'tag dir':'tag dash';
+   var dirTxt=m.dir==='higher'?'higher = better':m.dir==='lower'?'lower = better':'context-dependent';
+   d.innerHTML='<div class="metric-name">'+m.n+'</div>'+
+    '<div class="metric-desc">'+m.d+'</div>'+
+    '<div class="metric-formula">'+m.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
+    '<div class="metric-tags" style="margin-top:8px"><span class="tag unit">'+m.u+'</span><span class="'+dirCls+'">'+dirTxt+'</span><span class="tag">'+m.src+'</span><span class="tag">Used on dashboards: '+m.dash+'</span></div>';
+   sect.appendChild(d)});list.appendChild(sect)})}
+function initChips(){var el=document.getElementById('catChips');var counts={};METRICS.forEach(function(m){counts[m.cat]=(counts[m.cat]||0)+1});
+ var all=document.createElement('div');all.className='cat-chip active';all.innerHTML='All <span class="n">'+METRICS.length+'</span>';all.onclick=function(){activeCat='All';updateChips();render()};el.appendChild(all);
+ CATS.forEach(function(c){var ch=document.createElement('div');ch.className='cat-chip';ch.innerHTML=c+' <span class="n">'+(counts[c]||0)+'</span>';ch.onclick=function(){activeCat=c;updateChips();render()};el.appendChild(ch)})}
+function updateChips(){var chips=document.querySelectorAll('.cat-chip');for(var i=0;i<chips.length;i++){chips[i].classList.remove('active');if((i===0&&activeCat==='All')||chips[i].textContent.indexOf(activeCat)===0)chips[i].classList.add('active')}}
+function applyFilter(){render()}
+initChips();render();
+</script></body></html>

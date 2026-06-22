@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14 — Metrics & Definitions | Falcon Analytics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        /* Search */
+        .search-bar { margin-bottom: 28px; position: relative; }
+        .search-bar input { width: 100%; padding: 14px 20px 14px 48px; background: rgba(30,42,69,0.8); border: 1px solid rgba(212,168,67,0.25); border-radius: 8px; color: #FFF; font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+        .search-bar input:focus { border-color: #D4A843; }
+        .search-bar input::placeholder { color: #666; }
+        .search-bar .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #D4A843; font-size: 18px; }
+
+        /* Jump nav */
+        .jump-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+        .jump-nav a { padding: 6px 16px; border-radius: 20px; background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.2); color: #D4A843; font-size: 12px; text-decoration: none; font-weight: 500; transition: all 0.2s; }
+        .jump-nav a:hover { background: rgba(212,168,67,0.2); color: #FFF; }
+
+        /* Three-tier visual */
+        .tier-visual { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+        .tier-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.2); border-radius: 10px; padding: 20px; text-align: center; position: relative; }
+        .tier-card .tier-num { font-family: 'Playfair Display', serif; font-size: 14px; color: #D4A843; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+        .tier-card h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: #D4A843; margin-bottom: 6px; }
+        .tier-card .tier-desc { font-size: 12px; color: #C0C0C0; line-height: 1.5; }
+        .tier-card .tier-arrow { position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: rgba(212,168,67,0.4); font-size: 22px; z-index: 2; }
+
+        /* Section headers */
+        .section-label { font-family: 'Playfair Display', serif; font-size: 20px; color: #D4A843; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(212,168,67,0.2); display: flex; align-items: center; gap: 10px; scroll-margin-top: 80px; }
+        .section-label .badge { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(212,168,67,0.15); color: #D4A843; }
+
+        /* Metric cards */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 14px; margin-bottom: 8px; }
+        .metric-card { background: rgba(30,42,69,0.6); border: 1px solid rgba(212,168,67,0.12); border-radius: 8px; padding: 18px 20px; transition: border-color 0.2s; }
+        .metric-card:hover { border-color: rgba(212,168,67,0.4); }
+        .metric-card .metric-name { font-size: 15px; font-weight: 600; color: #D4A843; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .metric-card .metric-name .type-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+        .tag-revenue { background: rgba(46,204,113,0.15); color: #2ECC71; }
+        .tag-volume { background: rgba(52,152,219,0.15); color: #3498DB; }
+        .tag-ratio { background: rgba(155,89,182,0.15); color: #9B59B6; }
+        .tag-pct { background: rgba(241,196,15,0.15); color: #F1C40F; }
+        .tag-count { background: rgba(230,126,34,0.15); color: #E67E22; }
+        .tag-time { background: rgba(26,188,156,0.15); color: #1ABC9C; }
+        .metric-card .metric-def { font-size: 13px; color: #C0C0C0; line-height: 1.6; margin-bottom: 8px; }
+        .metric-card .metric-meta { font-size: 11px; color: #777; display: flex; flex-wrap: wrap; gap: 14px; }
+        .metric-card .metric-meta span { display: flex; align-items: center; gap: 4px; }
+
+        /* Data model table */
+        .model-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        .model-table th { background: rgba(212,168,67,0.12); color: #D4A843; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(212,168,67,0.2); }
+        .model-table td { padding: 10px 14px; font-size: 13px; color: #C0C0C0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .model-table tr:hover td { background: rgba(212,168,67,0.04); }
+        .model-table .tname { color: #D4A843; font-weight: 500; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 30px; border-top: 1px solid rgba(212,168,67,0.15); margin-top: 40px; font-size: 12px; color: #555; }
+        .footer span { color: #D4A843; }
+
+        /* Hide filtered */
+        .metric-card.hidden, .section-label.hidden { display: none; }
+        .metrics-grid.all-hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+        <a href="14-metrics-glossary.html" class="active">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Metrics & Definitions</h1>
+    <div class="subtitle">Comprehensive glossary of all metrics, KPIs, and business terms used across Falcon Analytics dashboards</div>
+    <div class="dash-num">14</div>
+</div>
+
+<div class="container">
+
+<!-- Search -->
+<div class="search-bar">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="searchInput" placeholder="Search metrics, definitions, or table names..." oninput="filterMetrics()">
+</div>
+
+<!-- Jump nav -->
+<div class="jump-nav">
+    <a href="#three-tier">Three-Tier Model</a>
+    <a href="#shipment-metrics">Shipments (Tier 1)</a>
+    <a href="#depletion-metrics">Depletions (Tier 2)</a>
+    <a href="#consumption-metrics">Consumption (Tier 3)</a>
+    <a href="#inventory-metrics">Inventory</a>
+    <a href="#target-metrics">Targets & Budgets</a>
+    <a href="#trade-metrics">Trade Spend</a>
+    <a href="#derived-metrics">Derived & Calculated</a>
+    <a href="#dimension-ref">Dimensions</a>
+    <a href="#data-model">Data Model</a>
+</div>
+
+<!-- Three-Tier Visual -->
+<h2 class="section-label" id="three-tier">Three-Tier Distribution Model <span class="badge">Industry Framework</span></h2>
+<div class="tier-visual">
+    <div class="tier-card">
+        <div class="tier-num">Tier 1</div>
+        <h3>Shipments</h3>
+        <div class="tier-desc">Producer → Distributor<br>Sell-in volume &amp; revenue at wholesale level. Represents what the brand ships to distributors.</div>
+        <div class="tier-arrow">&#9654;</div>
+    </div>
+    <div class="tier-card">
+        <div class="tier-num">Tier 2</div>
+        <h3>Depletions</h3>
+        <div class="tier-desc">Distributor → Retailer/Account<br>Sell-through volume from distributor warehouse to retail accounts. The industry's most-watched metric.</div>
+        <div class="tier-arrow">&#9654;</div>
+    </div>
+    <div class="tier-card">
+        <div class="tier-num">Tier 3</div>
+        <h3>Consumption</h3>
+        <div class="tier-desc">Retailer → Consumer<br>Point-of-sale scan data (Nielsen/Circana). Actual consumer purchases at shelf.</div>
+    </div>
+</div>
+
+<!-- SHIPMENTS -->
+<h2 class="section-label" id="shipment-metrics" data-section="shipments">Shipment Metrics <span class="badge">Tier 1 · FACT_SHIPMENTS</span></h2>
+<div class="metrics-grid" data-section="shipments">
+
+    <div class="metric-card" data-keywords="cases shipped volume 9-liter equivalent">
+        <div class="metric-name">Cases Shipped <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Number of 9-liter equivalent cases shipped from producer to distributor. The standard industry unit — one case equals twelve 750ml bottles or its volume equivalent in other bottle sizes.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.CASES_SHIPPED</span><span>Dashboards: 01, 02, 06</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="bottles shipped units">
+        <div class="metric-name">Bottles Shipped <span class="type-tag tag-count">Count</span></div>
+        <div class="metric-def">Total individual bottle units shipped. Useful for pack-size analysis and unit economics where 9L-case equivalents obscure variation in bottle sizes.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.BOTTLES_SHIPPED</span><span>Dashboards: 02</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="gross revenue sales top line">
+        <div class="metric-name">Gross Revenue <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Total invoice value before excise taxes and deductions. Represents the full sell-in revenue from producer to distributor at list price before any tax or discount adjustments.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.GROSS_REVENUE</span><span>Dashboards: 01, 02</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="excise tax federal state alcohol spirits">
+        <div class="metric-name">Excise Tax <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Federal and state excise taxes applied to spirits shipments. Deducted from gross revenue to arrive at net revenue. Rates vary by state and proof level — a key factor in state-level margin analysis.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.EXCISE_TAX</span><span>Dashboards: 02, 09</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="net revenue after tax deductions">
+        <div class="metric-name">Net Revenue <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Gross revenue minus excise taxes. The true top-line revenue used for margin analysis and business performance reporting. This is the standard revenue metric across most dashboards.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.NET_REVENUE</span><span>Dashboards: 01, 02, 06, 08, 09, 10, 11</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="cost of goods sold cogs manufacturing">
+        <div class="metric-name">Cost of Goods (COGS) <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Direct production and packaging costs per shipment. Includes raw materials, distillation, aging, bottling, and labeling. Subtracted from net revenue to calculate gross profit.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.COST_OF_GOODS</span><span>Dashboards: 02, 08</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="gross profit margin gp">
+        <div class="metric-name">Gross Profit <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Net Revenue minus Cost of Goods. Measures the fundamental profitability of each shipment before trade spend, SG&A, and other below-the-line expenses.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.GROSS_PROFIT</span><span>Formula: NET_REVENUE − COST_OF_GOODS</span><span>Dashboards: 01, 02, 06, 08</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="returns cases returned damaged defective">
+        <div class="metric-name">Cases Returned <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Cases returned from distributor to producer. Tracked with return reason codes (damaged, recall, overstock, expired). High return rates may indicate quality issues or over-shipment.</div>
+        <div class="metric-meta"><span>Source: FACT_SHIPMENTS.CASES_RETURNED</span><span>Dashboards: 02</span></div>
+    </div>
+
+</div>
+
+<!-- DEPLETIONS -->
+<h2 class="section-label" id="depletion-metrics" data-section="depletions">Depletion Metrics <span class="badge">Tier 2 · FACT_DEPLETIONS</span></h2>
+<div class="metrics-grid" data-section="depletions">
+
+    <div class="metric-card" data-keywords="cases depleted sell-through distributor account">
+        <div class="metric-name">Cases Depleted <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">9-liter equivalent cases sold from distributor warehouse to retail accounts. The spirits industry's most-watched metric — it measures actual sell-through demand rather than forward loading. Used for quotas, bonuses, and market share calculations.</div>
+        <div class="metric-meta"><span>Source: FACT_DEPLETIONS.CASES_DEPLETED</span><span>Dashboards: 01, 03, 06, 10, 11</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="bottles depleted units account">
+        <div class="metric-name">Bottles Depleted <span class="type-tag tag-count">Count</span></div>
+        <div class="metric-def">Individual bottle units depleted from distributor to accounts. Used for unit-level analysis and when comparing across different pack configurations.</div>
+        <div class="metric-meta"><span>Source: FACT_DEPLETIONS.BOTTLES_DEPLETED</span><span>Dashboards: 03</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="depletion revenue sell-through dollars">
+        <div class="metric-name">Depletion Revenue <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Dollar value of cases depleted at distributor sell-through price. Reflects what distributors charge retail accounts — typically higher than Tier 1 shipment prices due to distributor margin.</div>
+        <div class="metric-meta"><span>Source: FACT_DEPLETIONS.DEPLETION_REVENUE</span><span>Dashboards: 01, 03, 06, 10, 11</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="depletion returns account">
+        <div class="metric-name">Depletion Returns <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Cases returned from retail accounts to distributor. May indicate product freshness issues, overstock at account level, or account closures.</div>
+        <div class="metric-meta"><span>Source: FACT_DEPLETIONS.CASES_RETURNED</span><span>Dashboards: 03</span></div>
+    </div>
+
+</div>
+
+<!-- CONSUMPTION -->
+<h2 class="section-label" id="consumption-metrics" data-section="consumption">Consumption Metrics <span class="badge">Tier 3 · FACT_CONSUMPTION</span></h2>
+<div class="metrics-grid" data-section="consumption">
+
+    <div class="metric-card" data-keywords="dollar sales pos scan retail consumer">
+        <div class="metric-name">Dollar Sales <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Total retail dollar sales from point-of-sale scanner data (Nielsen/Circana). Represents what consumers actually pay at checkout. The definitive measure of consumer demand.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.DOLLAR_SALES</span><span>Dashboards: 01, 04</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="cases sold consumer retail scan">
+        <div class="metric-name">Cases Sold <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">9-liter equivalent cases sold to consumers at retail, measured by POS scan data. Captures actual consumer off-take including on-promotion and off-promotion volume.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.CASES_SOLD</span><span>Dashboards: 04</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="average retail price arp shelf price">
+        <div class="metric-name">Avg Retail Price <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Average price consumers pay per unit at shelf. Calculated from scan data. Used for price positioning analysis, competitive benchmarking, and promo depth measurement.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.AVG_RETAIL_PRICE</span><span>Dashboards: 04, 08</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="market share percentage category">
+        <div class="metric-name">Market Share % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Brand or product's dollar share of total category sales within a market. Measured from POS data. The single most important competitive positioning metric in spirits.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.MARKET_SHARE_PCT</span><span>Dashboards: 04, 09</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="weighted distribution wd acv store coverage">
+        <div class="metric-name">Weighted Distribution <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Percentage of total market volume (ACV) represented by stores carrying the product (0–100%). A store doing $10M in spirits carrying your product contributes more than a store doing $1M. Measures quality of distribution.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.WEIGHTED_DISTRIBUTION</span><span>Dashboards: 04</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="numeric distribution store count doors">
+        <div class="metric-name">Numeric Distribution <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Percentage of total stores in a market that carry the product, regardless of store size. A simple door-count measure. When numeric is high but weighted is low, distribution skews toward smaller stores.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.NUMERIC_DISTRIBUTION</span><span>Dashboards: 04</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="velocity per point vpd turns efficiency">
+        <div class="metric-name">Velocity per Point <span class="type-tag tag-ratio">Ratio</span></div>
+        <div class="metric-def">Cases sold per point of weighted distribution. Isolates consumer pull from distribution breadth — a product with high velocity per point is selling well wherever it's placed, regardless of how many stores carry it.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.VELOCITY_PER_POINT</span><span>Formula: CASES_SOLD / WEIGHTED_DISTRIBUTION</span><span>Dashboards: 04</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="promotion promo on off pct sold">
+        <div class="metric-name">% Sold on Promotion <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Percentage of total units sold while on promotional pricing. High promo dependency (>40%) may indicate brand health issues — consumers only buy on deal. Low promo % with strong velocity signals brand strength.</div>
+        <div class="metric-meta"><span>Source: FACT_CONSUMPTION.PCT_SOLD_ON_PROMOTION</span><span>Dashboards: 04, 07</span></div>
+    </div>
+
+</div>
+
+<!-- INVENTORY -->
+<h2 class="section-label" id="inventory-metrics" data-section="inventory">Inventory Metrics <span class="badge">FACT_INVENTORY</span></h2>
+<div class="metrics-grid" data-section="inventory">
+
+    <div class="metric-card" data-keywords="cases on hand stock warehouse current">
+        <div class="metric-name">Cases on Hand <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Current 9L-equivalent cases physically present in distributor warehouses. Monthly snapshots. The foundation for all inventory health calculations.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.CASES_ON_HAND</span><span>Dashboards: 05</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="cases on order purchase reorder">
+        <div class="metric-name">Cases on Order <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Cases ordered from producer but not yet received. Open purchase orders in the pipeline. Combined with cases on hand, gives a forward-looking inventory position.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.CASES_ON_ORDER</span><span>Dashboards: 05</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="cases in transit shipping pipeline">
+        <div class="metric-name">Cases in Transit <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Cases currently being transported from producer warehouse to distributor. Shipped but not yet received. Important for understanding true supply pipeline timing.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.CASES_IN_TRANSIT</span><span>Dashboards: 05</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="days of supply dos coverage runway">
+        <div class="metric-name">Days of Supply <span class="type-tag tag-time">Time</span></div>
+        <div class="metric-def">Estimated number of days current inventory will last at current depletion rates. Industry target is typically 21–35 days. Below 14 days signals stockout risk; above 45 days suggests overstocking and capital tie-up.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.DAYS_OF_SUPPLY</span><span>Dashboards: 05, 11</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="weeks of supply wos coverage">
+        <div class="metric-name">Weeks of Supply <span class="type-tag tag-time">Time</span></div>
+        <div class="metric-def">Same concept as Days of Supply expressed in weeks. Preferred by some distributors for planning cycles. Typical healthy range: 3–5 weeks.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.WEEKS_OF_SUPPLY</span><span>Dashboards: 05</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="out of stock oos stockout empty shelf">
+        <div class="metric-name">Out of Stock (OOS) <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Boolean flag indicating zero inventory on hand. OOS rate is calculated as percentage of SKU-distributor combinations with IS_OUT_OF_STOCK = true. Every OOS day is lost revenue that cannot be recovered.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.IS_OUT_OF_STOCK</span><span>Dashboards: 05, 11</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="age days aging freshness expiry">
+        <div class="metric-name">Inventory Age (Days) <span class="type-tag tag-time">Time</span></div>
+        <div class="metric-def">Number of days since cases were received into distributor warehouse. Aging inventory ties up capital and may indicate slow-moving SKUs. Critical for date-sensitive products like cream liqueurs and RTDs.</div>
+        <div class="metric-meta"><span>Source: FACT_INVENTORY.AGE_DAYS</span><span>Dashboards: 05</span></div>
+    </div>
+
+</div>
+
+<!-- TARGETS -->
+<h2 class="section-label" id="target-metrics" data-section="targets">Target & Budget Metrics <span class="badge">FACT_TARGETS</span></h2>
+<div class="metrics-grid" data-section="targets">
+
+    <div class="metric-card" data-keywords="target cases quota plan budget volume">
+        <div class="metric-name">Target Cases <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Planned/budgeted case volume by brand-family, market, distributor, and channel. Set during annual planning. Used to measure quota attainment for sales reps and distributors.</div>
+        <div class="metric-meta"><span>Source: FACT_TARGETS.TARGET_CASES</span><span>Dashboards: 06, 10</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="target net revenue plan budget dollars">
+        <div class="metric-name">Target Net Revenue <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Budgeted net revenue target. Derived from target cases × expected net revenue per case. The primary financial goal against which actual performance is measured.</div>
+        <div class="metric-meta"><span>Source: FACT_TARGETS.TARGET_NET_REVENUE</span><span>Dashboards: 06</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="target gross profit plan budget margin">
+        <div class="metric-name">Target Gross Profit <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Budgeted gross profit target. Ensures volume growth isn't achieved at the expense of margin. A critical guardrail for trade spend decisions.</div>
+        <div class="metric-meta"><span>Source: FACT_TARGETS.TARGET_GROSS_PROFIT</span><span>Dashboards: 06</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="target trade spend budget allocation promotion">
+        <div class="metric-name">Target Trade Spend <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Planned trade promotion spend budget. Allocated by brand, market, and channel. Typically 15–25% of net revenue in spirits. Overspend erodes margins; underspend may cost market share.</div>
+        <div class="metric-meta"><span>Source: FACT_TARGETS.TARGET_TRADE_SPEND</span><span>Dashboards: 06, 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="target share market plan goal">
+        <div class="metric-name">Target Share % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Planned market share objective by market. Used to set distribution and velocity goals that ladder up to the share target.</div>
+        <div class="metric-meta"><span>Source: FACT_TARGETS.TARGET_SHARE_PCT</span><span>Dashboards: 06</span></div>
+    </div>
+
+</div>
+
+<!-- TRADE SPEND -->
+<h2 class="section-label" id="trade-metrics" data-section="trade">Trade Spend Metrics <span class="badge">FACT_TRADE_SPEND</span></h2>
+<div class="metrics-grid" data-section="trade">
+
+    <div class="metric-card" data-keywords="planned spend budget allocation promotion program">
+        <div class="metric-name">Planned Spend <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Budgeted trade promotion dollars allocated to a specific program, product, account, and time period. Set during promotion planning. Compared against actual to measure budget discipline.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.PLANNED_SPEND</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="actual spend realized promotion cost">
+        <div class="metric-name">Actual Spend <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Trade dollars actually spent against a program. May differ from planned due to program performance, distributor execution, or mid-year budget adjustments.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.ACTUAL_SPEND</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="accrued spend reserved pending deduction">
+        <div class="metric-name">Accrued Spend <span class="type-tag tag-revenue">Revenue</span></div>
+        <div class="metric-def">Trade dollars reserved/accrued but not yet paid out. Represents future obligations. Important for P&L forecasting and cash flow management.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.ACCRUED_SPEND</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="incremental cases lift promotion uplift">
+        <div class="metric-name">Incremental Cases <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Additional cases sold above the baseline that are directly attributable to the trade promotion. Calculated as actual volume during promo period minus expected baseline volume. The core measure of promotion effectiveness.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.INCREMENTAL_CASES</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="roi ratio return on investment trade efficiency">
+        <div class="metric-name">ROI Ratio <span class="type-tag tag-ratio">Ratio</span></div>
+        <div class="metric-def">Incremental revenue generated per trade dollar spent. An ROI of 2.0× means each $1 of trade spend generated $2 in incremental revenue. Industry benchmark is 1.5–3.0×. Below 1.0× means the promotion lost money.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.ROI_RATIO</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="compliance percentage execution retailer adherence">
+        <div class="metric-name">Compliance % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Percentage of promotional commitments actually executed by the retailer/distributor. Measures execution quality — did the display go up? Was the price reduced as agreed? Low compliance means trade dollars were spent but the promotion wasn't fully activated.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.COMPLIANCE_PCT</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="cases committed volume commitment goal">
+        <div class="metric-name">Cases Committed <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Volume commitments attached to trade programs — the number of cases distributors or accounts agreed to purchase as part of the promotion deal.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.CASES_COMMITTED</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="cases achieved actual volume delivered">
+        <div class="metric-name">Cases Achieved <span class="type-tag tag-volume">Volume</span></div>
+        <div class="metric-def">Actual cases sold during the promotion period. Compared against committed cases to measure program attainment and inform future program design.</div>
+        <div class="metric-meta"><span>Source: FACT_TRADE_SPEND.CASES_ACHIEVED</span><span>Dashboards: 07</span></div>
+    </div>
+
+</div>
+
+<!-- DERIVED -->
+<h2 class="section-label" id="derived-metrics" data-section="derived">Derived & Calculated Metrics <span class="badge">Computed in Dashboards</span></h2>
+<div class="metrics-grid" data-section="derived">
+
+    <div class="metric-card" data-keywords="year over year yoy growth change comparison">
+        <div class="metric-name">YoY Growth % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Year-over-year percentage change comparing FY2025 to FY2024. Calculated as ((FY25 − FY24) / FY24) × 100. Applied to revenue, cases, and profit metrics across all dashboards. Positive values shown in green, negative in red.</div>
+        <div class="metric-meta"><span>Formula: ((Current − Prior) / Prior) × 100</span><span>Dashboards: All</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="attainment quota achievement percentage">
+        <div class="metric-name">Attainment % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Actual performance divided by target, expressed as a percentage. An attainment of 95% means the rep or distributor achieved 95% of their quota. Used for incentive compensation and performance management.</div>
+        <div class="metric-meta"><span>Formula: (Actual / Target) × 100</span><span>Dashboards: 06, 10</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="gross margin percentage profit margin">
+        <div class="metric-name">Gross Margin % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Gross Profit as a percentage of Net Revenue. Measures how much of each revenue dollar is retained after direct costs. Higher-tier spirits (super-premium) typically have margins of 55–70%; value brands may be 30–40%.</div>
+        <div class="metric-meta"><span>Formula: (Gross Profit / Net Revenue) × 100</span><span>Dashboards: 02, 08</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="revenue per case average price mix">
+        <div class="metric-name">Revenue per Case <span class="type-tag tag-ratio">Ratio</span></div>
+        <div class="metric-def">Average net revenue generated per 9L-equivalent case. A key price/mix indicator — rising revenue per case with flat volume suggests successful premiumization or favorable mix shift.</div>
+        <div class="metric-meta"><span>Formula: Net Revenue / Cases</span><span>Dashboards: 02, 03, 08</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="return rate percentage quality defect">
+        <div class="metric-name">Return Rate % <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Cases returned as a percentage of cases shipped. Industry norm is under 2%. Spikes may indicate quality issues, recall events, or distributor overstocking during quarter-end loading.</div>
+        <div class="metric-meta"><span>Formula: (Cases Returned / Cases Shipped) × 100</span><span>Dashboards: 02</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="trade spend to revenue ratio percentage">
+        <div class="metric-name">Trade Spend as % of Revenue <span class="type-tag tag-pct">Percentage</span></div>
+        <div class="metric-def">Total trade promotion spend divided by net revenue. Industry average for spirits is 15–25%. Brands spending above 30% may be over-relying on promotions; below 10% may be under-investing in market activation.</div>
+        <div class="metric-meta"><span>Formula: (Total Trade Spend / Net Revenue) × 100</span><span>Dashboards: 07</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="shipment to depletion ratio pipeline loading inventory build">
+        <div class="metric-name">Ship-to-Depletion Ratio <span class="type-tag tag-ratio">Ratio</span></div>
+        <div class="metric-def">Shipment cases divided by depletion cases for the same period. A ratio above 1.0 means the pipeline is building (more shipped than sold through); below 1.0 means inventory is drawing down. Healthy range: 0.95–1.10.</div>
+        <div class="metric-meta"><span>Formula: Cases Shipped / Cases Depleted</span><span>Dashboards: 01, 05</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="inventory turns turnover efficiency">
+        <div class="metric-name">Inventory Turns <span class="type-tag tag-ratio">Ratio</span></div>
+        <div class="metric-def">Annual depletion volume divided by average inventory on hand. Measures how many times a distributor sells through their entire stock in a year. Higher turns = more efficient capital utilization. Typical spirits range: 8–15 turns.</div>
+        <div class="metric-meta"><span>Formula: Annual Depletions / Avg Inventory</span><span>Dashboards: 05, 11</span></div>
+    </div>
+
+</div>
+
+<!-- DIMENSIONS -->
+<h2 class="section-label" id="dimension-ref" data-section="dimensions">Dimension Reference <span class="badge">Lookup Tables</span></h2>
+<div class="metrics-grid" data-section="dimensions">
+
+    <div class="metric-card" data-keywords="fiscal year fy period quarter month calendar">
+        <div class="metric-name">Fiscal Calendar <span class="type-tag tag-time">Time</span></div>
+        <div class="metric-def">Fiscal year runs July–June: FY2025 = July 2024 through June 2025. FISCAL_PERIOD 1 = July (start of fiscal year) through FISCAL_PERIOD 12 = June. Quarters: Q1 = Jul–Sep, Q2 = Oct–Dec, Q3 = Jan–Mar, Q4 = Apr–Jun.</div>
+        <div class="metric-meta"><span>Source: DIM_DATE</span><span>Key fields: FISCAL_YEAR, FISCAL_QUARTER, FISCAL_PERIOD</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="product sku brand spirit type category price tier">
+        <div class="metric-name">Product Hierarchy <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">Products organized by: Spirit Type (Vodka, Whiskey, Tequila, Rum, Gin, etc.) → Brand Family → Brand → SKU. Each product has a Price Tier (Value, Standard, Premium, Super-Premium, Ultra-Premium) and proof level. 142 active SKUs.</div>
+        <div class="metric-meta"><span>Source: DIM_PRODUCT (27 columns)</span><span>Dashboards: 04, 08</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="market state region geography control open">
+        <div class="metric-name">Market Geography <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">50 US state-level markets with attributes: Census Region (Northeast, South, Midwest, West), Division, Control State flag, Population, Drinking Age Population, and Per-Capita Consumption. Control states operate government-run liquor distribution.</div>
+        <div class="metric-meta"><span>Source: DIM_MARKET (13 columns)</span><span>Dashboards: 09</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="distributor national regional wholesale">
+        <div class="metric-name">Distributors <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">12 distributor partners classified as National (multi-state, large scale) or Regional (state/area-specific). Each has market coverage tracked via BRIDGE_DISTRIBUTOR_MARKET for many-to-many distributor-market relationships.</div>
+        <div class="metric-meta"><span>Source: DIM_DISTRIBUTOR (11 columns)</span><span>Dashboards: 02, 03, 05, 06, 11</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="channel on premise off premise ecommerce liquor store bar restaurant">
+        <div class="metric-name">Channels <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">Two primary channel types: Off-Premise (liquor stores, grocery, big-box, convenience, e-commerce) and On-Premise (bars, restaurants, hotels, nightclubs). 13 sub-channels track granular venue types.</div>
+        <div class="metric-meta"><span>Source: DIM_CHANNEL (6 columns)</span><span>Dashboards: 12</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="account retailer store bar restaurant customer">
+        <div class="metric-name">Accounts <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">5,012 retail accounts (stores, bars, restaurants) that purchase from distributors. Each linked to a market, channel, and account type. The delivery point for Tier 2 depletions.</div>
+        <div class="metric-meta"><span>Source: DIM_ACCOUNT (21 columns)</span><span>Dashboards: 03</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="sales rep representative territory role">
+        <div class="metric-name">Sales Representatives <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">136 sales reps with FIRST_NAME and LAST_NAME (no single REP_NAME column). Roles include Brand Ambassador, Regional Manager, Key Account Manager, Territory Rep, and National Accounts. Each assigned to markets and distributors.</div>
+        <div class="metric-meta"><span>Source: DIM_SALES_REP (11 columns)</span><span>Note: Use FIRST_NAME || ' ' || LAST_NAME for full name</span></div>
+    </div>
+
+    <div class="metric-card" data-keywords="trade program promotion type display price reduction">
+        <div class="metric-name">Trade Programs <span class="type-tag tag-count">Dimension</span></div>
+        <div class="metric-def">126 trade promotion programs with types including: Price Reduction, Display/Feature, Volume Incentive, New Distribution, and Combo deals. Each has planned dates, status (Active, Completed, Cancelled), and budget allocations.</div>
+        <div class="metric-meta"><span>Source: DIM_TRADE_PROGRAM (12 columns)</span><span>Dashboards: 07</span></div>
+    </div>
+
+</div>
+
+<!-- DATA MODEL -->
+<h2 class="section-label" id="data-model" data-section="model">Data Model Overview <span class="badge">15 Tables</span></h2>
+<table class="model-table">
+    <thead>
+        <tr><th>Table</th><th>Type</th><th>Rows</th><th>Grain</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td class="tname">FACT_SHIPMENTS</td><td>Fact</td><td>1.16M</td><td>Weekly × Product × Distributor × Market</td><td>Tier 1: Producer-to-distributor sell-in transactions</td></tr>
+        <tr><td class="tname">FACT_DEPLETIONS</td><td>Fact</td><td>4.04M</td><td>Weekly × Product × Account × Market</td><td>Tier 2: Distributor-to-account sell-through (most-watched metric)</td></tr>
+        <tr><td class="tname">FACT_CONSUMPTION</td><td>Fact</td><td>1.02M</td><td>Weekly × Product × Account × Market</td><td>Tier 3: POS/scan data from Nielsen &amp; Circana</td></tr>
+        <tr><td class="tname">FACT_INVENTORY</td><td>Fact</td><td>272K</td><td>Monthly × Product × Distributor × Account</td><td>Distributor warehouse inventory snapshots</td></tr>
+        <tr><td class="tname">FACT_TARGETS</td><td>Fact</td><td>82K</td><td>Monthly × Product × Distributor × Market × Channel</td><td>Annual sales plan / budget quotas</td></tr>
+        <tr><td class="tname">FACT_TRADE_SPEND</td><td>Fact</td><td>29K</td><td>Per Program × Product × Account × Market</td><td>Trade promotion spend, ROI, and compliance</td></tr>
+        <tr><td class="tname">DIM_DATE</td><td>Dimension</td><td>2,557</td><td>One row per calendar date</td><td>Fiscal calendar: FY runs Jul–Jun, periods 1–12</td></tr>
+        <tr><td class="tname">DIM_PRODUCT</td><td>Dimension</td><td>142</td><td>One row per SKU</td><td>Spirit type, brand family, price tier, proof, size</td></tr>
+        <tr><td class="tname">DIM_DISTRIBUTOR</td><td>Dimension</td><td>12</td><td>One row per distributor</td><td>National vs regional, coverage, tier</td></tr>
+        <tr><td class="tname">DIM_MARKET</td><td>Dimension</td><td>50</td><td>One row per US state</td><td>Region, division, control/open, demographics</td></tr>
+        <tr><td class="tname">DIM_ACCOUNT</td><td>Dimension</td><td>5,012</td><td>One row per retail account</td><td>Stores, bars, restaurants receiving depletions</td></tr>
+        <tr><td class="tname">DIM_CHANNEL</td><td>Dimension</td><td>13</td><td>One row per sub-channel</td><td>On-premise, off-premise, e-commerce breakdown</td></tr>
+        <tr><td class="tname">DIM_SALES_REP</td><td>Dimension</td><td>136</td><td>One row per sales rep</td><td>Roles: Brand Ambassador, Regional Mgr, Key Acct, etc.</td></tr>
+        <tr><td class="tname">DIM_TRADE_PROGRAM</td><td>Dimension</td><td>126</td><td>One row per program</td><td>Price reduction, display, volume incentive programs</td></tr>
+        <tr><td class="tname">BRIDGE_DISTRIBUTOR_MARKET</td><td>Bridge</td><td>81</td><td>Distributor × Market assignment</td><td>Many-to-many distributor ↔ market mapping</td></tr>
+    </tbody>
+</table>
+
+</div>
+
+<div class="footer">
+    Powered by <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; Metrics Glossary v1.0
+</div>
+
+<script>
+function filterMetrics() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.metric-card');
+    const sections = document.querySelectorAll('.section-label[data-section]');
+    const grids = document.querySelectorAll('.metrics-grid[data-section]');
+
+    cards.forEach(c => {
+        const text = (c.innerText + ' ' + (c.dataset.keywords || '')).toLowerCase();
+        c.classList.toggle('hidden', q.length > 0 && !text.includes(q));
+    });
+
+    // Hide section headers if all their cards are hidden
+    grids.forEach(g => {
+        const sec = g.dataset.section;
+        const visible = g.querySelectorAll('.metric-card:not(.hidden)');
+        g.classList.toggle('all-hidden', visible.length === 0 && q.length > 0);
+        const hdr = document.querySelector('.section-label[data-section="' + sec + '"]');
+        if (hdr) hdr.classList.toggle('hidden', visible.length === 0 && q.length > 0);
+    });
+}
+</script>
+
+</body>
+</html>

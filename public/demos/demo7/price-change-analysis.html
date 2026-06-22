@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>08 | Price Change & Vendor Analysis - Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #1A1A1A;
+            color: white;
+            padding: 2rem;
+            border-bottom: 4px solid #E02B20;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        header .subtitle {
+            font-size: 1.1rem;
+            color: #E02B20;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #5C9DC0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #E02B20;
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .filters {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1A1A1A;
+            font-size: 0.95rem;
+        }
+
+        .filter-group select {
+            padding: 0.75rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            background-color: white;
+            color: #666666;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:hover,
+        .filter-group select:focus {
+            border-color: #E02B20;
+            outline: none;
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #999999;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-change {
+            font-size: 0.85rem;
+            color: #666666;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #E0E0E0;
+            padding-bottom: 0.75rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-analysis {
+            background-color: #F9FAFB;
+            border-left: 4px solid #4A7C9B;
+            padding: 1rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        footer {
+            background-color: #1A1A1A;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            border-top: 2px solid #E02B20;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .kpis {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>08 | Price Change & Vendor Analysis</h1>
+        <p class="subtitle">Falcon Auto B2B</p>
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="yearFilter">Year</label>
+                <select id="yearFilter">
+                    <option value="">All Time</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="vendorFilter">Vendor</label>
+                <select id="vendorFilter">
+                    <option value="">All Vendors</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpis">
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Discount from MSRP</div>
+                <div class="kpi-value" id="kpi1">18.5%</div>
+                <div class="kpi-change">Filtered Data</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Contract Price Change</div>
+                <div class="kpi-value" id="kpi2">2.1%</div>
+                <div class="kpi-change">Earliest to Latest Quarter</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Products with Price Increase</div>
+                <div class="kpi-value" id="kpi3">12</div>
+                <div class="kpi-change">vs Earliest Quarter</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Order Lines</div>
+                <div class="kpi-value" id="kpi4">2,847</div>
+                <div class="kpi-change">Filtered Period</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Discount Erosion Over Time</div>
+                <div class="chart-wrapper">
+                    <canvas id="discountChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis1">
+                    Analyzing discount trends across quarters...
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Contract Price Trend by Vendor</div>
+                <div class="chart-wrapper">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis2">
+                    Analyzing contract price trends...
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Price Volatility by Product</div>
+                <div class="chart-wrapper">
+                    <canvas id="volatilityChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis3">
+                    Analyzing price volatility patterns...
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Vendor Savings Impact</div>
+                <div class="chart-wrapper">
+                    <canvas id="savingsChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="analysis4">
+                    Analyzing vendor savings contribution...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Price Change & Vendor Analysis Dashboard | Falcon Auto B2B
+    </footer>
+
+    <script>
+        // Embedded Data
+        const vendorByQuarter = [
+            {"year":2023,"quarter":"2023Q1","vendor":"Alpha Surface Solutions","avgContract":21.95,"avgPaid":21.69,"avgMsrp":25.83,"avgDiscountPct":16.10,"totalQty":9,"orderLines":3,"totalRevenue":202.68,"totalSavings":38.27},
+            {"year":2023,"quarter":"2023Q2","vendor":"Alpha Surface Solutions","avgContract":85.17,"avgPaid":84.46,"avgMsrp":105.43,"avgDiscountPct":19.98,"totalQty":66,"orderLines":31,"totalRevenue":5654.00,"totalSavings":1379.67},
+            {"year":2023,"quarter":"2023Q3","vendor":"Alpha Surface Solutions","avgContract":99.64,"avgPaid":98.47,"avgMsrp":121.80,"avgDiscountPct":19.24,"totalQty":149,"orderLines":62,"totalRevenue":15226.11,"totalSavings":3462.83},
+            {"year":2023,"quarter":"2023Q4","vendor":"Alpha Surface Solutions","avgContract":108.57,"avgPaid":107.42,"avgMsrp":132.25,"avgDiscountPct":18.41,"totalQty":251,"orderLines":98,"totalRevenue":27954.47,"totalSavings":6467.49},
+            {"year":2024,"quarter":"2024Q1","vendor":"Alpha Surface Solutions","avgContract":101.73,"avgPaid":100.57,"avgMsrp":125.28,"avgDiscountPct":19.98,"totalQty":245,"orderLines":108,"totalRevenue":24738.60,"totalSavings":6145.76},
+            {"year":2024,"quarter":"2024Q2","vendor":"Alpha Surface Solutions","avgContract":104.19,"avgPaid":103.24,"avgMsrp":125.75,"avgDiscountPct":17.96,"totalQty":264,"orderLines":113,"totalRevenue":29887.35,"totalSavings":6433.93},
+            {"year":2024,"quarter":"2024Q3","vendor":"Alpha Surface Solutions","avgContract":109.31,"avgPaid":108.11,"avgMsrp":133.27,"avgDiscountPct":18.51,"totalQty":325,"orderLines":138,"totalRevenue":35190.90,"totalSavings":8284.57},
+            {"year":2024,"quarter":"2024Q4","vendor":"Alpha Surface Solutions","avgContract":94.74,"avgPaid":93.87,"avgMsrp":115.20,"avgDiscountPct":18.10,"totalQty":349,"orderLines":154,"totalRevenue":32283.56,"totalSavings":7446.27},
+            {"year":2025,"quarter":"2025Q1","vendor":"Alpha Surface Solutions","avgContract":107.19,"avgPaid":105.87,"avgMsrp":128.21,"avgDiscountPct":17.56,"totalQty":274,"orderLines":114,"totalRevenue":29221.32,"totalSavings":6349.43},
+            {"year":2025,"quarter":"2025Q2","vendor":"Alpha Surface Solutions","avgContract":94.90,"avgPaid":94.06,"avgMsrp":114.55,"avgDiscountPct":17.58,"totalQty":272,"orderLines":121,"totalRevenue":26498.79,"totalSavings":5936.74},
+            {"year":2025,"quarter":"2025Q3","vendor":"Alpha Surface Solutions","avgContract":104.19,"avgPaid":102.81,"avgMsrp":125.90,"avgDiscountPct":18.32,"totalQty":321,"orderLines":137,"totalRevenue":31200.32,"totalSavings":7160.28},
+            {"year":2025,"quarter":"2025Q4","vendor":"Alpha Surface Solutions","avgContract":103.31,"avgPaid":102.30,"avgMsrp":124.22,"avgDiscountPct":17.73,"totalQty":342,"orderLines":132,"totalRevenue":35082.27,"totalSavings":7368.57},
+            {"year":2023,"quarter":"2023Q1","vendor":"Apex Abrasive Co.","avgContract":19.49,"avgPaid":19.05,"avgMsrp":24.99,"avgDiscountPct":23.79,"totalQty":5,"orderLines":2,"totalRevenue":95.31,"totalSavings":29.64},
+            {"year":2023,"quarter":"2023Q2","vendor":"Apex Abrasive Co.","avgContract":16.47,"avgPaid":16.21,"avgMsrp":20.51,"avgDiscountPct":20.94,"totalQty":62,"orderLines":28,"totalRevenue":1014.62,"totalSavings":263.76},
+            {"year":2023,"quarter":"2023Q3","vendor":"Apex Abrasive Co.","avgContract":17.21,"avgPaid":16.99,"avgMsrp":21.17,"avgDiscountPct":19.56,"totalQty":97,"orderLines":50,"totalRevenue":1663.84,"totalSavings":421.19},
+            {"year":2023,"quarter":"2023Q4","vendor":"Apex Abrasive Co.","avgContract":16.41,"avgPaid":16.28,"avgMsrp":20.04,"avgDiscountPct":18.83,"totalQty":212,"orderLines":84,"totalRevenue":3547.63,"totalSavings":817.25},
+            {"year":2024,"quarter":"2024Q1","vendor":"Apex Abrasive Co.","avgContract":16.78,"avgPaid":16.61,"avgMsrp":20.64,"avgDiscountPct":19.59,"totalQty":242,"orderLines":101,"totalRevenue":3991.76,"totalSavings":958.32},
+            {"year":2024,"quarter":"2024Q2","vendor":"Apex Abrasive Co.","avgContract":16.97,"avgPaid":16.81,"avgMsrp":20.62,"avgDiscountPct":18.50,"totalQty":224,"orderLines":110,"totalRevenue":3733.49,"totalSavings":867.77},
+            {"year":2024,"quarter":"2024Q3","vendor":"Apex Abrasive Co.","avgContract":17.14,"avgPaid":16.98,"avgMsrp":20.66,"avgDiscountPct":17.97,"totalQty":305,"orderLines":118,"totalRevenue":5364.48,"totalSavings":1142.47},
+            {"year":2024,"quarter":"2024Q4","vendor":"Apex Abrasive Co.","avgContract":17.07,"avgPaid":16.84,"avgMsrp":20.59,"avgDiscountPct":18.11,"totalQty":338,"orderLines":134,"totalRevenue":5649.79,"totalSavings":1243.83},
+            {"year":2025,"quarter":"2025Q1","vendor":"Apex Abrasive Co.","avgContract":17.34,"avgPaid":17.16,"avgMsrp":20.93,"avgDiscountPct":18.08,"totalQty":270,"orderLines":108,"totalRevenue":4624.86,"totalSavings":1040.44},
+            {"year":2025,"quarter":"2025Q2","vendor":"Apex Abrasive Co.","avgContract":17.45,"avgPaid":17.25,"avgMsrp":20.88,"avgDiscountPct":17.45,"totalQty":298,"orderLines":131,"totalRevenue":5198.06,"totalSavings":1059.96},
+            {"year":2025,"quarter":"2025Q3","vendor":"Apex Abrasive Co.","avgContract":17.68,"avgPaid":17.50,"avgMsrp":21.40,"avgDiscountPct":18.12,"totalQty":311,"orderLines":116,"totalRevenue":5357.41,"totalSavings":1217.98},
+            {"year":2025,"quarter":"2025Q4","vendor":"Apex Abrasive Co.","avgContract":17.70,"avgPaid":17.52,"avgMsrp":20.90,"avgDiscountPct":16.20,"totalQty":315,"orderLines":129,"totalRevenue":5438.83,"totalSavings":1074.52},
+            {"year":2023,"quarter":"2023Q1","vendor":"BodRight Tools Inc.","avgContract":69.28,"avgPaid":69.64,"avgMsrp":81.50,"avgDiscountPct":14.58,"totalQty":4,"orderLines":2,"totalRevenue":265.33,"totalSavings":45.67},
+            {"year":2023,"quarter":"2023Q2","vendor":"BodRight Tools Inc.","avgContract":74.50,"avgPaid":74.25,"avgMsrp":93.09,"avgDiscountPct":20.36,"totalQty":20,"orderLines":11,"totalRevenue":1506.32,"totalSavings":363.68},
+            {"year":2023,"quarter":"2023Q3","vendor":"BodRight Tools Inc.","avgContract":79.36,"avgPaid":78.34,"avgMsrp":98.44,"avgDiscountPct":20.12,"totalQty":48,"orderLines":27,"totalRevenue":3713.44,"totalSavings":933.56},
+            {"year":2023,"quarter":"2023Q4","vendor":"BodRight Tools Inc.","avgContract":75.25,"avgPaid":74.39,"avgMsrp":93.38,"avgDiscountPct":20.16,"totalQty":117,"orderLines":48,"totalRevenue":8623.59,"totalSavings":2194.41},
+            {"year":2024,"quarter":"2024Q1","vendor":"BodRight Tools Inc.","avgContract":75.12,"avgPaid":74.28,"avgMsrp":92.48,"avgDiscountPct":19.82,"totalQty":119,"orderLines":56,"totalRevenue":8956.82,"totalSavings":2219.18},
+            {"year":2024,"quarter":"2024Q2","vendor":"BodRight Tools Inc.","avgContract":79.46,"avgPaid":78.64,"avgMsrp":97.04,"avgDiscountPct":18.97,"totalQty":143,"orderLines":56,"totalRevenue":11346.02,"totalSavings":2625.98},
+            {"year":2024,"quarter":"2024Q3","vendor":"BodRight Tools Inc.","avgContract":76.26,"avgPaid":75.51,"avgMsrp":92.75,"avgDiscountPct":18.61,"totalQty":156,"orderLines":60,"totalRevenue":12097.24,"totalSavings":2581.76},
+            {"year":2024,"quarter":"2024Q4","vendor":"BodRight Tools Inc.","avgContract":77.73,"avgPaid":76.74,"avgMsrp":93.53,"avgDiscountPct":17.66,"totalQty":125,"orderLines":53,"totalRevenue":9302.63,"totalSavings":1927.37},
+            {"year":2025,"quarter":"2025Q1","vendor":"BodRight Tools Inc.","avgContract":81.87,"avgPaid":81.05,"avgMsrp":96.50,"avgDiscountPct":15.81,"totalQty":155,"orderLines":62,"totalRevenue":12394.77,"totalSavings":2405.23},
+            {"year":2025,"quarter":"2025Q2","vendor":"BodRight Tools Inc.","avgContract":79.47,"avgPaid":78.84,"avgMsrp":94.95,"avgDiscountPct":17.05,"totalQty":154,"orderLines":63,"totalRevenue":12315.13,"totalSavings":2545.87},
+            {"year":2025,"quarter":"2025Q3","vendor":"BodRight Tools Inc.","avgContract":78.27,"avgPaid":77.67,"avgMsrp":93.37,"avgDiscountPct":16.74,"totalQty":175,"orderLines":79,"totalRevenue":13479.83,"totalSavings":2815.17},
+            {"year":2025,"quarter":"2025Q4","vendor":"BodRight Tools Inc.","avgContract":78.63,"avgPaid":77.74,"avgMsrp":94.43,"avgDiscountPct":17.54,"totalQty":145,"orderLines":58,"totalRevenue":11412.76,"totalSavings":2212.24},
+            {"year":2023,"quarter":"2023Q1","vendor":"CleanRun Chemicals","avgContract":17.85,"avgPaid":17.57,"avgMsrp":21.00,"avgDiscountPct":16.33,"totalQty":5,"orderLines":2,"totalRevenue":88.48,"totalSavings":16.52},
+            {"year":2023,"quarter":"2023Q2","vendor":"CleanRun Chemicals","avgContract":20.01,"avgPaid":19.71,"avgMsrp":24.50,"avgDiscountPct":19.45,"totalQty":28,"orderLines":13,"totalRevenue":554.33,"totalSavings":131.17},
+            {"year":2023,"quarter":"2023Q3","vendor":"CleanRun Chemicals","avgContract":20.69,"avgPaid":20.56,"avgMsrp":25.23,"avgDiscountPct":18.67,"totalQty":46,"orderLines":20,"totalRevenue":980.78,"totalSavings":206.22},
+            {"year":2023,"quarter":"2023Q4","vendor":"CleanRun Chemicals","avgContract":19.92,"avgPaid":19.78,"avgMsrp":24.39,"avgDiscountPct":18.93,"totalQty":126,"orderLines":48,"totalRevenue":2459.70,"totalSavings":602.30},
+            {"year":2024,"quarter":"2024Q1","vendor":"CleanRun Chemicals","avgContract":20.36,"avgPaid":20.21,"avgMsrp":25.10,"avgDiscountPct":19.38,"totalQty":98,"orderLines":46,"totalRevenue":1976.47,"totalSavings":465.03},
+            {"year":2024,"quarter":"2024Q2","vendor":"CleanRun Chemicals","avgContract":20.85,"avgPaid":20.64,"avgMsrp":24.96,"avgDiscountPct":17.38,"totalQty":105,"orderLines":46,"totalRevenue":2183.32,"totalSavings":457.18},
+            {"year":2024,"quarter":"2024Q3","vendor":"CleanRun Chemicals","avgContract":20.69,"avgPaid":20.48,"avgMsrp":25.00,"avgDiscountPct":18.00,"totalQty":159,"orderLines":65,"totalRevenue":3233.23,"totalSavings":716.77},
+            {"year":2024,"quarter":"2024Q4","vendor":"CleanRun Chemicals","avgContract":20.91,"avgPaid":20.68,"avgMsrp":25.02,"avgDiscountPct":17.30,"totalQty":123,"orderLines":55,"totalRevenue":2525.97,"totalSavings":512.03},
+            {"year":2025,"quarter":"2025Q1","vendor":"CleanRun Chemicals","avgContract":20.27,"avgPaid":20.10,"avgMsrp":24.19,"avgDiscountPct":16.93,"totalQty":128,"orderLines":57,"totalRevenue":2553.51,"totalSavings":511.49},
+            {"year":2025,"quarter":"2025Q2","vendor":"CleanRun Chemicals","avgContract":21.17,"avgPaid":20.95,"avgMsrp":24.99,"avgDiscountPct":16.16,"totalQty":117,"orderLines":57,"totalRevenue":2483.79,"totalSavings":467.21},
+            {"year":2025,"quarter":"2025Q3","vendor":"CleanRun Chemicals","avgContract":20.97,"avgPaid":20.76,"avgMsrp":25.22,"avgDiscountPct":17.76,"totalQty":136,"orderLines":57,"totalRevenue":2816.07,"totalSavings":637.93},
+            {"year":2025,"quarter":"2025Q4","vendor":"CleanRun Chemicals","avgContract":20.36,"avgPaid":20.16,"avgMsrp":24.81,"avgDiscountPct":18.68,"totalQty":125,"orderLines":58,"totalRevenue":2497.71,"totalSavings":608.29},
+            {"year":2023,"quarter":"2023Q1","vendor":"ClearView Glass & Detail","avgContract":25.49,"avgPaid":25.42,"avgMsrp":29.99,"avgDiscountPct":15.24,"totalQty":4,"orderLines":1,"totalRevenue":101.68,"totalSavings":18.28},
+            {"year":2023,"quarter":"2023Q2","vendor":"ClearView Glass & Detail","avgContract":19.86,"avgPaid":19.52,"avgMsrp":24.40,"avgDiscountPct":19.85,"totalQty":21,"orderLines":10,"totalRevenue":397.34,"totalSavings":96.62},
+            {"year":2023,"quarter":"2023Q3","vendor":"ClearView Glass & Detail","avgContract":21.86,"avgPaid":21.67,"avgMsrp":26.57,"avgDiscountPct":18.33,"totalQty":59,"orderLines":21,"totalRevenue":1228.69,"totalSavings":293.03},
+            {"year":2023,"quarter":"2023Q4","vendor":"ClearView Glass & Detail","avgContract":20.88,"avgPaid":20.61,"avgMsrp":25.84,"avgDiscountPct":20.32,"totalQty":53,"orderLines":25,"totalRevenue":1098.49,"totalSavings":283.24},
+            {"year":2024,"quarter":"2024Q1","vendor":"ClearView Glass & Detail","avgContract":20.47,"avgPaid":20.23,"avgMsrp":25.31,"avgDiscountPct":20.03,"totalQty":69,"orderLines":29,"totalRevenue":1386.57,"totalSavings":323.19},
+            {"year":2024,"quarter":"2024Q2","vendor":"ClearView Glass & Detail","avgContract":21.51,"avgPaid":21.39,"avgMsrp":26.12,"avgDiscountPct":18.00,"totalQty":67,"orderLines":31,"totalRevenue":1439.56,"totalSavings":306.10},
+            {"year":2024,"quarter":"2024Q3","vendor":"ClearView Glass & Detail","avgContract":21.38,"avgPaid":21.17,"avgMsrp":25.91,"avgDiscountPct":18.19,"totalQty":91,"orderLines":47,"totalRevenue":1918.74,"totalSavings":426.83},
+            {"year":2024,"quarter":"2024Q4","vendor":"ClearView Glass & Detail","avgContract":21.65,"avgPaid":21.43,"avgMsrp":26.16,"avgDiscountPct":18.02,"totalQty":122,"orderLines":48,"totalRevenue":2659.83,"totalSavings":551.51},
+            {"year":2025,"quarter":"2025Q1","vendor":"ClearView Glass & Detail","avgContract":22.07,"avgPaid":21.89,"avgMsrp":26.14,"avgDiscountPct":16.20,"totalQty":83,"orderLines":27,"totalRevenue":1786.88,"totalSavings":334.75},
+            {"year":2025,"quarter":"2025Q2","vendor":"ClearView Glass & Detail","avgContract":21.66,"avgPaid":21.43,"avgMsrp":25.90,"avgDiscountPct":17.25,"totalQty":98,"orderLines":43,"totalRevenue":2146.23,"totalSavings":449.22},
+            {"year":2025,"quarter":"2025Q3","vendor":"ClearView Glass & Detail","avgContract":21.22,"avgPaid":20.95,"avgMsrp":25.69,"avgDiscountPct":18.59,"totalQty":94,"orderLines":39,"totalRevenue":1916.01,"totalSavings":431.64},
+            {"year":2025,"quarter":"2025Q4","vendor":"ClearView Glass & Detail","avgContract":21.79,"avgPaid":21.58,"avgMsrp":26.10,"avgDiscountPct":17.36,"totalQty":78,"orderLines":37,"totalRevenue":1650.43,"totalSavings":353.21},
+            {"year":2023,"quarter":"2023Q2","vendor":"LubriMax Oil & Fluids","avgContract":49.91,"avgPaid":49.33,"avgMsrp":62.80,"avgDiscountPct":21.52,"totalQty":21,"orderLines":10,"totalRevenue":1018.62,"totalSavings":279.38},
+            {"year":2023,"quarter":"2023Q3","vendor":"LubriMax Oil & Fluids","avgContract":51.31,"avgPaid":50.88,"avgMsrp":62.44,"avgDiscountPct":18.43,"totalQty":46,"orderLines":18,"totalRevenue":2382.66,"totalSavings":533.34},
+            {"year":2023,"quarter":"2023Q4","vendor":"LubriMax Oil & Fluids","avgContract":51.08,"avgPaid":50.64,"avgMsrp":61.68,"avgDiscountPct":17.98,"totalQty":103,"orderLines":37,"totalRevenue":5185.05,"totalSavings":1132.95},
+            {"year":2024,"quarter":"2024Q1","vendor":"LubriMax Oil & Fluids","avgContract":50.14,"avgPaid":49.66,"avgMsrp":62.12,"avgDiscountPct":20.02,"totalQty":88,"orderLines":33,"totalRevenue":4351.40,"totalSavings":1048.60},
+            {"year":2024,"quarter":"2024Q2","vendor":"LubriMax Oil & Fluids","avgContract":51.38,"avgPaid":50.74,"avgMsrp":61.76,"avgDiscountPct":17.86,"totalQty":65,"orderLines":34,"totalRevenue":3281.97,"totalSavings":704.03},
+            {"year":2024,"quarter":"2024Q3","vendor":"LubriMax Oil & Fluids","avgContract":50.67,"avgPaid":50.20,"avgMsrp":61.73,"avgDiscountPct":18.74,"totalQty":95,"orderLines":45,"totalRevenue":4771.80,"totalSavings":1122.20},
+            {"year":2024,"quarter":"2024Q4","vendor":"LubriMax Oil & Fluids","avgContract":51.54,"avgPaid":51.11,"avgMsrp":62.41,"avgDiscountPct":18.11,"totalQty":108,"orderLines":49,"totalRevenue":5611.36,"totalSavings":1164.64},
+            {"year":2025,"quarter":"2025Q1","vendor":"LubriMax Oil & Fluids","avgContract":51.82,"avgPaid":51.36,"avgMsrp":62.41,"avgDiscountPct":17.68,"totalQty":73,"orderLines":29,"totalRevenue":3738.42,"totalSavings":719.58},
+            {"year":2025,"quarter":"2025Q2","vendor":"LubriMax Oil & Fluids","avgContract":50.51,"avgPaid":50.12,"avgMsrp":62.31,"avgDiscountPct":19.59,"totalQty":87,"orderLines":39,"totalRevenue":4376.18,"totalSavings":1093.82},
+            {"year":2025,"quarter":"2025Q3","vendor":"LubriMax Oil & Fluids","avgContract":53.07,"avgPaid":52.54,"avgMsrp":62.41,"avgDiscountPct":15.86,"totalQty":62,"orderLines":29,"totalRevenue":3249.31,"totalSavings":594.69},
+            {"year":2025,"quarter":"2025Q4","vendor":"LubriMax Oil & Fluids","avgContract":52.02,"avgPaid":51.52,"avgMsrp":62.26,"avgDiscountPct":17.29,"totalQty":109,"orderLines":47,"totalRevenue":5595.93,"totalSavings":1190.07},
+            {"year":2023,"quarter":"2023Q1","vendor":"PrecisionSpray LLC","avgContract":75.65,"avgPaid":75.87,"avgMsrp":89.00,"avgDiscountPct":14.75,"totalQty":5,"orderLines":1,"totalRevenue":379.35,"totalSavings":65.65},
+            {"year":2023,"quarter":"2023Q2","vendor":"PrecisionSpray LLC","avgContract":120.58,"avgPaid":119.72,"avgMsrp":151.40,"avgDiscountPct":19.93,"totalQty":19,"orderLines":10,"totalRevenue":2206.41,"totalSavings":576.59},
+            {"year":2023,"quarter":"2023Q3","vendor":"PrecisionSpray LLC","avgContract":107.37,"avgPaid":105.87,"avgMsrp":130.60,"avgDiscountPct":19.48,"totalQty":31,"orderLines":15,"totalRevenue":3768.82,"totalSavings":1018.18},
+            {"year":2023,"quarter":"2023Q4","vendor":"PrecisionSpray LLC","avgContract":145.96,"avgPaid":144.30,"avgMsrp":177.40,"avgDiscountPct":18.46,"totalQty":67,"orderLines":30,"totalRevenue":9654.01,"totalSavings":2080.99},
+            {"year":2024,"quarter":"2024Q1","vendor":"PrecisionSpray LLC","avgContract":126.00,"avgPaid":124.68,"avgMsrp":155.30,"avgDiscountPct":19.50,"totalQty":105,"orderLines":40,"totalRevenue":13506.54,"totalSavings":3326.46},
+            {"year":2024,"quarter":"2024Q2","vendor":"PrecisionSpray LLC","avgContract":132.16,"avgPaid":130.72,"avgMsrp":162.13,"avgDiscountPct":19.08,"totalQty":82,"orderLines":32,"totalRevenue":11093.83,"totalSavings":2600.17},
+            {"year":2024,"quarter":"2024Q3","vendor":"PrecisionSpray LLC","avgContract":139.01,"avgPaid":137.64,"avgMsrp":168.90,"avgDiscountPct":18.58,"totalQty":106,"orderLines":41,"totalRevenue":13267.88,"totalSavings":3030.12},
+            {"year":2024,"quarter":"2024Q4","vendor":"PrecisionSpray LLC","avgContract":126.15,"avgPaid":124.63,"avgMsrp":155.86,"avgDiscountPct":19.67,"totalQty":73,"orderLines":35,"totalRevenue":8972.34,"totalSavings":2204.66},
+            {"year":2025,"quarter":"2025Q1","vendor":"PrecisionSpray LLC","avgContract":147.67,"avgPaid":146.17,"avgMsrp":175.67,"avgDiscountPct":16.97,"totalQty":81,"orderLines":36,"totalRevenue":10675.34,"totalSavings":2305.66},
+            {"year":2025,"quarter":"2025Q2","vendor":"PrecisionSpray LLC","avgContract":143.91,"avgPaid":142.39,"avgMsrp":173.32,"avgDiscountPct":17.38,"totalQty":74,"orderLines":37,"totalRevenue":10734.43,"totalSavings":2247.57},
+            {"year":2025,"quarter":"2025Q3","vendor":"PrecisionSpray LLC","avgContract":141.67,"avgPaid":139.92,"avgMsrp":170.12,"avgDiscountPct":17.75,"totalQty":115,"orderLines":50,"totalRevenue":16383.08,"totalSavings":3835.92},
+            {"year":2025,"quarter":"2025Q4","vendor":"PrecisionSpray LLC","avgContract":135.48,"avgPaid":133.93,"avgMsrp":161.56,"avgDiscountPct":16.46,"totalQty":89,"orderLines":43,"totalRevenue":12514.53,"totalSavings":2582.47},
+            {"year":2023,"quarter":"2023Q1","vendor":"ProCoat Industries","avgContract":49.74,"avgPaid":49.08,"avgMsrp":60.00,"avgDiscountPct":18.35,"totalQty":10,"orderLines":3,"totalRevenue":515.79,"totalSavings":114.21},
+            {"year":2023,"quarter":"2023Q2","vendor":"ProCoat Industries","avgContract":44.82,"avgPaid":44.34,"avgMsrp":55.30,"avgDiscountPct":19.81,"totalQty":66,"orderLines":23,"totalRevenue":3188.80,"totalSavings":759.20},
+            {"year":2023,"quarter":"2023Q3","vendor":"ProCoat Industries","avgContract":46.09,"avgPaid":45.50,"avgMsrp":56.70,"avgDiscountPct":19.75,"totalQty":121,"orderLines":60,"totalRevenue":5523.93,"totalSavings":1352.07},
+            {"year":2023,"quarter":"2023Q4","vendor":"ProCoat Industries","avgContract":47.22,"avgPaid":46.64,"avgMsrp":57.67,"avgDiscountPct":19.07,"totalQty":194,"orderLines":90,"totalRevenue":9067.60,"totalSavings":2152.40},
+            {"year":2024,"quarter":"2024Q1","vendor":"ProCoat Industries","avgContract":46.82,"avgPaid":46.21,"avgMsrp":57.60,"avgDiscountPct":19.83,"totalQty":203,"orderLines":95,"totalRevenue":9182.95,"totalSavings":2301.05},
+            {"year":2024,"quarter":"2024Q2","vendor":"ProCoat Industries","avgContract":48.03,"avgPaid":47.65,"avgMsrp":58.18,"avgDiscountPct":18.07,"totalQty":216,"orderLines":99,"totalRevenue":10299.51,"totalSavings":2258.49},
+            {"year":2024,"quarter":"2024Q3","vendor":"ProCoat Industries","avgContract":46.43,"avgPaid":45.95,"avgMsrp":56.35,"avgDiscountPct":18.45,"totalQty":235,"orderLines":102,"totalRevenue":10785.31,"totalSavings":2390.69},
+            {"year":2024,"quarter":"2024Q4","vendor":"ProCoat Industries","avgContract":46.79,"avgPaid":46.31,"avgMsrp":56.94,"avgDiscountPct":18.66,"totalQty":230,"orderLines":102,"totalRevenue":10716.31,"totalSavings":2429.69},
+            {"year":2025,"quarter":"2025Q1","vendor":"ProCoat Industries","avgContract":48.03,"avgPaid":47.53,"avgMsrp":57.78,"avgDiscountPct":17.67,"totalQty":197,"orderLines":89,"totalRevenue":9368.43,"totalSavings":2049.57},
+            {"year":2025,"quarter":"2025Q2","vendor":"ProCoat Industries","avgContract":47.30,"avgPaid":46.80,"avgMsrp":57.12,"avgDiscountPct":18.12,"totalQty":239,"orderLines":100,"totalRevenue":11429.57,"totalSavings":2454.43},
+            {"year":2025,"quarter":"2025Q3","vendor":"ProCoat Industries","avgContract":47.97,"avgPaid":47.56,"avgMsrp":58.38,"avgDiscountPct":18.64,"totalQty":201,"orderLines":96,"totalRevenue":9459.52,"totalSavings":2192.48},
+            {"year":2025,"quarter":"2025Q4","vendor":"ProCoat Industries","avgContract":47.25,"avgPaid":46.77,"avgMsrp":56.09,"avgDiscountPct":16.64,"totalQty":246,"orderLines":106,"totalRevenue":11748.64,"totalSavings":2351.36},
+            {"year":2023,"quarter":"2023Q1","vendor":"ShieldTech Safety","avgContract":16.15,"avgPaid":15.86,"avgMsrp":19.79,"avgDiscountPct":19.18,"totalQty":10,"orderLines":5,"totalRevenue":174.80,"totalSavings":45.10},
+            {"year":2023,"quarter":"2023Q2","vendor":"ShieldTech Safety","avgContract":14.39,"avgPaid":14.28,"avgMsrp":17.54,"avgDiscountPct":19.72,"totalQty":50,"orderLines":22,"totalRevenue":753.07,"totalSavings":162.43},
+            {"year":2023,"quarter":"2023Q3","vendor":"ShieldTech Safety","avgContract":15.86,"avgPaid":15.67,"avgMsrp":19.45,"avgDiscountPct":19.55,"totalQty":110,"orderLines":48,"totalRevenue":1683.82,"totalSavings":411.08},
+            {"year":2023,"quarter":"2023Q4","vendor":"ShieldTech Safety","avgContract":14.12,"avgPaid":14.00,"avgMsrp":17.16,"avgDiscountPct":18.76,"totalQty":180,"orderLines":72,"totalRevenue":2628.50,"totalSavings":589.70},
+            {"year":2024,"quarter":"2024Q1","vendor":"ShieldTech Safety","avgContract":14.83,"avgPaid":14.68,"avgMsrp":18.28,"avgDiscountPct":19.63,"totalQty":243,"orderLines":102,"totalRevenue":3577.95,"totalSavings":894.62},
+            {"year":2024,"quarter":"2024Q2","vendor":"ShieldTech Safety","avgContract":16.93,"avgPaid":16.77,"avgMsrp":20.51,"avgDiscountPct":18.44,"totalQty":280,"orderLines":116,"totalRevenue":4605.06,"totalSavings":1024.14},
+            {"year":2024,"quarter":"2024Q3","vendor":"ShieldTech Safety","avgContract":14.80,"avgPaid":14.64,"avgMsrp":17.86,"avgDiscountPct":18.16,"totalQty":267,"orderLines":124,"totalRevenue":3790.39,"totalSavings":835.94},
+            {"year":2024,"quarter":"2024Q4","vendor":"ShieldTech Safety","avgContract":15.05,"avgPaid":14.91,"avgMsrp":18.16,"avgDiscountPct":17.65,"totalQty":315,"orderLines":140,"totalRevenue":4857.26,"totalSavings":1066.59},
+            {"year":2025,"quarter":"2025Q1","vendor":"ShieldTech Safety","avgContract":15.77,"avgPaid":15.62,"avgMsrp":18.82,"avgDiscountPct":16.97,"totalQty":243,"orderLines":104,"totalRevenue":4139.06,"totalSavings":831.51},
+            {"year":2025,"quarter":"2025Q2","vendor":"ShieldTech Safety","avgContract":15.63,"avgPaid":15.46,"avgMsrp":18.90,"avgDiscountPct":18.01,"totalQty":263,"orderLines":113,"totalRevenue":4177.92,"totalSavings":950.45},
+            {"year":2025,"quarter":"2025Q3","vendor":"ShieldTech Safety","avgContract":15.99,"avgPaid":15.82,"avgMsrp":19.25,"avgDiscountPct":18.00,"totalQty":278,"orderLines":123,"totalRevenue":4418.18,"totalSavings":937.04},
+            {"year":2025,"quarter":"2025Q4","vendor":"ShieldTech Safety","avgContract":14.78,"avgPaid":14.62,"avgMsrp":17.77,"avgDiscountPct":17.67,"totalQty":222,"orderLines":103,"totalRevenue":3135.53,"totalSavings":678.25},
+            {"year":2023,"quarter":"2023Q1","vendor":"TorqMaster Equipment","avgContract":1061.65,"avgPaid":1068.91,"avgMsrp":1249.00,"avgDiscountPct":14.42,"totalQty":2,"orderLines":1,"totalRevenue":2137.82,"totalSavings":360.18},
+            {"year":2023,"quarter":"2023Q2","vendor":"TorqMaster Equipment","avgContract":1821.98,"avgPaid":1805.20,"avgMsrp":2239.00,"avgDiscountPct":18.37,"totalQty":11,"orderLines":5,"totalRevenue":22445.24,"totalSavings":6143.76},
+            {"year":2023,"quarter":"2023Q3","vendor":"TorqMaster Equipment","avgContract":1747.68,"avgPaid":1741.38,"avgMsrp":2137.46,"avgDiscountPct":17.91,"totalQty":32,"orderLines":13,"totalRevenue":52344.13,"totalSavings":12373.87},
+            {"year":2023,"quarter":"2023Q4","vendor":"TorqMaster Equipment","avgContract":1748.34,"avgPaid":1732.04,"avgMsrp":2144.71,"avgDiscountPct":19.31,"totalQty":73,"orderLines":35,"totalRevenue":134915.12,"totalSavings":32161.88},
+            {"year":2024,"quarter":"2024Q1","vendor":"TorqMaster Equipment","avgContract":1477.41,"avgPaid":1459.63,"avgMsrp":1816.19,"avgDiscountPct":20.07,"totalQty":65,"orderLines":32,"totalRevenue":86752.82,"totalSavings":22482.18},
+            {"year":2024,"quarter":"2024Q2","vendor":"TorqMaster Equipment","avgContract":1674.81,"avgPaid":1659.50,"avgMsrp":2030.58,"avgDiscountPct":18.11,"totalQty":89,"orderLines":38,"totalRevenue":146984.22,"totalSavings":31826.78},
+            {"year":2024,"quarter":"2024Q3","vendor":"TorqMaster Equipment","avgContract":1704.28,"avgPaid":1692.84,"avgMsrp":2093.19,"avgDiscountPct":19.09,"totalQty":98,"orderLines":43,"totalRevenue":161475.09,"totalSavings":36826.91},
+            {"year":2024,"quarter":"2024Q4","vendor":"TorqMaster Equipment","avgContract":1507.38,"avgPaid":1493.78,"avgMsrp":1799.00,"avgDiscountPct":16.88,"totalQty":83,"orderLines":36,"totalRevenue":119563.30,"totalSavings":25353.70},
+            {"year":2025,"quarter":"2025Q1","vendor":"TorqMaster Equipment","avgContract":1611.73,"avgPaid":1599.62,"avgMsrp":1970.88,"avgDiscountPct":18.67,"totalQty":68,"orderLines":32,"totalRevenue":100584.42,"totalSavings":23947.58},
+            {"year":2025,"quarter":"2025Q2","vendor":"TorqMaster Equipment","avgContract":1677.02,"avgPaid":1660.09,"avgMsrp":2015.07,"avgDiscountPct":17.67,"totalQty":138,"orderLines":56,"totalRevenue":212010.10,"totalSavings":44501.90},
+            {"year":2025,"quarter":"2025Q3","vendor":"TorqMaster Equipment","avgContract":1676.71,"avgPaid":1660.02,"avgMsrp":1995.43,"avgDiscountPct":17.12,"totalQty":89,"orderLines":42,"totalRevenue":146455.85,"totalSavings":29055.15},
+            {"year":2025,"quarter":"2025Q4","vendor":"TorqMaster Equipment","avgContract":1733.25,"avgPaid":1717.35,"avgMsrp":2096.30,"avgDiscountPct":17.74,"totalQty":82,"orderLines":37,"totalRevenue":144955.02,"totalSavings":31712.98}
+        ];
+
+        const productVolatility = [
+            {"product":"BodRight XL Slide Hammer","vendor":"BodRight Tools Inc.","brand":"BodRight","category":"Autobody Tools","msrp":119.00,"minContract":94.33,"maxContract":100.39,"volatilityPct":5.09,"avgDiscount":18.85},
+            {"product":"BodRight 6-Piece Dolly Set","vendor":"BodRight Tools Inc.","brand":"BodRight","category":"Autobody Tools","msrp":74.00,"minContract":57.72,"maxContract":63.30,"volatilityPct":7.54,"avgDiscount":18.35},
+            {"product":"BodRight 5-Piece Body Hammer","vendor":"BodRight Tools Inc.","brand":"BodRight","category":"Autobody Tools","msrp":89.00,"minContract":71.91,"maxContract":76.34,"volatilityPct":4.98,"avgDiscount":17.98},
+            {"product":"ApexGrit P120 Hook & Loop","vendor":"Apex Abrasive Co.","brand":"ApexGrit","category":"Abrasives","msrp":24.99,"minContract":19.49,"maxContract":21.37,"volatilityPct":7.52,"avgDiscount":18.68},
+            {"product":"ApexGrit P320 DA Sanding","vendor":"Apex Abrasive Co.","brand":"ApexGrit","category":"Abrasives","msrp":18.49,"minContract":14.61,"maxContract":15.51,"volatilityPct":4.87,"avgDiscount":18.50},
+            {"product":"ApexGrit P220 Hook & Loop","vendor":"Apex Abrasive Co.","brand":"ApexGrit","category":"Abrasives","msrp":24.99,"minContract":20.07,"maxContract":21.15,"volatilityPct":4.32,"avgDiscount":18.36},
+            {"product":"ApexGrit P400 Wet/Dry Sheet","vendor":"Apex Abrasive Co.","brand":"ApexGrit","category":"Abrasives","msrp":14.99,"minContract":12.05,"maxContract":12.71,"volatilityPct":4.40,"avgDiscount":18.49},
+            {"product":"CleanRun Pre-Prep Wax Remover","vendor":"CleanRun Chemicals","brand":"CleanRun","category":"Shop Supplies","msrp":27.50,"minContract":22.18,"maxContract":23.10,"volatilityPct":3.35,"avgDiscount":17.94},
+            {"product":"CleanRun Heavy Duty Degreaser","vendor":"CleanRun Chemicals","brand":"CleanRun","category":"Shop Supplies","msrp":21.00,"minContract":16.80,"maxContract":17.92,"volatilityPct":5.33,"avgDiscount":17.88},
+            {"product":"ClearView Machine Polish","vendor":"ClearView Glass & Detail","brand":"ClearView","category":"Shop Supplies","msrp":29.99,"minContract":24.02,"maxContract":25.49,"volatilityPct":4.90,"avgDiscount":17.80},
+            {"product":"ClearView 5in Buffing Pad","vendor":"ClearView Glass & Detail","brand":"ClearView","category":"Shop Supplies","msrp":22.00,"minContract":16.08,"maxContract":18.58,"volatilityPct":11.36,"avgDiscount":19.42},
+            {"product":"LubriMax ATF Transmission","vendor":"LubriMax Oil & Fluids","brand":"LubriMax","category":"Shop Supplies","msrp":66.00,"minContract":51.52,"maxContract":56.23,"volatilityPct":7.14,"avgDiscount":18.26},
+            {"product":"LubriMax 10W-30 Motor Oil","vendor":"LubriMax Oil & Fluids","brand":"LubriMax","category":"Shop Supplies","msrp":58.00,"minContract":46.16,"maxContract":50.20,"volatilityPct":6.97,"avgDiscount":18.37},
+            {"product":"SafeGuard Pro Nitrile Gloves M","vendor":"ShieldTech Safety","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":12.99,"minContract":9.59,"maxContract":11.05,"volatilityPct":11.24,"avgDiscount":19.36},
+            {"product":"SafeGuard Pro Nitrile Gloves L","vendor":"ShieldTech Safety","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":12.99,"minContract":9.48,"maxContract":11.12,"volatilityPct":12.62,"avgDiscount":19.12},
+            {"product":"SafeGuard Pro OV Cartridge","vendor":"ShieldTech Safety","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":18.99,"minContract":14.63,"maxContract":16.37,"volatilityPct":9.16,"avgDiscount":18.70},
+            {"product":"SafeGuard Pro Half-Face Resp.","vendor":"ShieldTech Safety","brand":"SafeGuard Pro","category":"Safety & PPE","msrp":34.99,"minContract":26.77,"maxContract":31.62,"volatilityPct":13.86,"avgDiscount":17.75},
+            {"product":"ProShield HVLP Gravity Gun","vendor":"Alpha Surface Solutions","brand":"ProShield","category":"Autobody Tools","msrp":199.99,"minContract":158.73,"maxContract":168.83,"volatilityPct":5.05,"avgDiscount":17.35},
+            {"product":"ProShield HVLP Gravity Gun v2","vendor":"Alpha Surface Solutions","brand":"ProShield","category":"Autobody Tools","msrp":189.99,"minContract":147.10,"maxContract":162.28,"volatilityPct":7.99,"avgDiscount":18.28},
+            {"product":"ProShield Pressure Cup Gun 2L","vendor":"Alpha Surface Solutions","brand":"ProShield","category":"Autobody Tools","msrp":159.00,"minContract":121.19,"maxContract":135.15,"volatilityPct":8.78,"avgDiscount":18.89},
+            {"product":"ProShield 3/4in Masking Tape","vendor":"Alpha Surface Solutions","brand":"ProShield","category":"Paint & Coatings","msrp":31.50,"minContract":24.17,"maxContract":27.16,"volatilityPct":9.49,"avgDiscount":18.72},
+            {"product":"ProShield Masking Film 48in","vendor":"Alpha Surface Solutions","brand":"ProShield","category":"Paint & Coatings","msrp":22.99,"minContract":18.14,"maxContract":19.84,"volatilityPct":7.39,"avgDiscount":18.22},
+            {"product":"UltraCoat Epoxy Primer","vendor":"ProCoat Industries","brand":"UltraCoat","category":"Paint & Coatings","msrp":72.00,"minContract":56.37,"maxContract":60.77,"volatilityPct":6.11,"avgDiscount":18.40},
+            {"product":"UltraCoat 2K Urethane Clear","vendor":"ProCoat Industries","brand":"UltraCoat","category":"Paint & Coatings","msrp":48.00,"minContract":37.67,"maxContract":41.25,"volatilityPct":7.46,"avgDiscount":18.18},
+            {"product":"UltraCoat White Basecoat","vendor":"ProCoat Industries","brand":"UltraCoat","category":"Paint & Coatings","msrp":54.00,"minContract":43.45,"maxContract":45.33,"volatilityPct":3.48,"avgDiscount":17.50},
+            {"product":"UltraCoat Black Basecoat","vendor":"ProCoat Industries","brand":"UltraCoat","category":"Paint & Coatings","msrp":54.00,"minContract":42.73,"maxContract":46.22,"volatilityPct":6.46,"avgDiscount":18.62},
+            {"product":"SprayMaster Pro Gravity Feed","vendor":"PrecisionSpray LLC","brand":"SprayMaster","category":"Autobody Tools","msrp":245.00,"minContract":190.72,"maxContract":206.37,"volatilityPct":6.39,"avgDiscount":18.27},
+            {"product":"SprayMaster Mini Touch-Up Gun","vendor":"PrecisionSpray LLC","brand":"SprayMaster","category":"Autobody Tools","msrp":89.00,"minContract":68.66,"maxContract":75.65,"volatilityPct":7.85,"avgDiscount":18.25},
+            {"product":"TorqMaster 2-Post Lift","vendor":"TorqMaster Equipment","brand":"TorqMaster","category":"Equipment","msrp":2899.00,"minContract":2225.27,"maxContract":2449.23,"volatilityPct":7.72,"avgDiscount":18.10},
+            {"product":"TorqMaster 60-Gal Compressor","vendor":"TorqMaster Equipment","brand":"TorqMaster","category":"Equipment","msrp":1249.00,"minContract":976.32,"maxContract":1063.80,"volatilityPct":7.00,"avgDiscount":18.50}
+        ];
+
+        const vendorInfo = [
+            {"vendor":"Alpha Surface Solutions","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"Apex Abrasive Co.","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"BodRight Tools Inc.","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"CleanRun Chemicals","isDirect":false,"partnerType":"Indirect","contractActive":true},
+            {"vendor":"ClearView Glass & Detail","isDirect":false,"partnerType":"Indirect","contractActive":true},
+            {"vendor":"LubriMax Oil & Fluids","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"PrecisionSpray LLC","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"ProCoat Industries","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"ShieldTech Safety","isDirect":true,"partnerType":"Direct Partner","contractActive":true},
+            {"vendor":"TorqMaster Equipment","isDirect":true,"partnerType":"Direct Partner","contractActive":true}
+        ];
+
+        // Chart color palette
+        const chartColors = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        // Chart instances
+        let charts = {
+            discount: null,
+            price: null,
+            volatility: null,
+            savings: null
+        };
+
+        // Initialize filters on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            populateFilters();
+            updateDashboard();
+
+            document.getElementById('yearFilter').addEventListener('change', updateDashboard);
+            document.getElementById('vendorFilter').addEventListener('change', updateDashboard);
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                updateVendorDropdown();
+                updateDashboard();
+            });
+        });
+
+        function populateFilters() {
+            const categories = [...new Set(productVolatility.map(d => d.category))].sort();
+
+            const categorySelect = document.getElementById('categoryFilter');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+
+            updateVendorDropdown();
+        }
+
+        function updateVendorDropdown() {
+            const category = document.getElementById('categoryFilter').value;
+            const vendorSelect = document.getElementById('vendorFilter');
+            const currentVendor = vendorSelect.value;
+
+            const categoryVendors = getVendorsForCategory(category);
+            const vendors = [...new Set(vendorByQuarter.map(d => d.vendor))]
+                .filter(v => !categoryVendors || categoryVendors.has(v))
+                .sort();
+
+            vendorSelect.innerHTML = '<option value="">All Vendors</option>';
+            vendors.forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor;
+                option.textContent = vendor;
+                vendorSelect.appendChild(option);
+            });
+
+            // Restore selection if still valid, otherwise reset
+            if (vendors.includes(currentVendor)) {
+                vendorSelect.value = currentVendor;
+            }
+        }
+
+        function getVendorsForCategory(category) {
+            if (!category) return null; // null means all vendors
+            const vendors = new Set();
+            productVolatility.forEach(p => {
+                if (p.category === category) vendors.add(p.vendor);
+            });
+            return vendors;
+        }
+
+        function getFilteredData() {
+            const year = document.getElementById('yearFilter').value;
+            const vendor = document.getElementById('vendorFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+
+            const categoryVendors = getVendorsForCategory(category);
+
+            let filtered = vendorByQuarter.filter(d => {
+                if (year && d.year !== parseInt(year)) return false;
+                if (vendor && d.vendor !== vendor) return false;
+                if (categoryVendors && !categoryVendors.has(d.vendor)) return false;
+                return true;
+            });
+
+            return {
+                quarterlyData: filtered,
+                allData: vendorByQuarter
+            };
+        }
+
+        function updateDashboard() {
+            const { quarterlyData } = getFilteredData();
+            updateKPIs(quarterlyData);
+            updateDiscountChart(quarterlyData);
+            updatePriceChart(quarterlyData);
+            updateVolatilityChart(quarterlyData);
+            updateSavingsChart(quarterlyData);
+        }
+
+        function updateKPIs(data) {
+            if (data.length === 0) {
+                document.getElementById('kpi1').textContent = 'N/A';
+                document.getElementById('kpi2').textContent = 'N/A';
+                document.getElementById('kpi3').textContent = '0';
+                document.getElementById('kpi4').textContent = '0';
+                return;
+            }
+
+            const avgDiscount = (data.reduce((sum, d) => sum + d.avgDiscountPct, 0) / data.length).toFixed(2);
+            document.getElementById('kpi1').textContent = avgDiscount + '%';
+
+            const quarters = [...new Set(data.map(d => d.quarter))].sort();
+            let priceChange = 'N/A';
+            if (quarters.length > 1) {
+                const earliest = data.filter(d => d.quarter === quarters[0]);
+                const latest = data.filter(d => d.quarter === quarters[quarters.length - 1]);
+                if (earliest.length > 0 && latest.length > 0) {
+                    const earlyAvg = earliest.reduce((sum, d) => sum + d.avgContract, 0) / earliest.length;
+                    const lateAvg = latest.reduce((sum, d) => sum + d.avgContract, 0) / latest.length;
+                    priceChange = (((lateAvg - earlyAvg) / earlyAvg) * 100).toFixed(2) + '%';
+                }
+            }
+            document.getElementById('kpi2').textContent = priceChange;
+
+            const totalOrderLines = data.reduce((sum, d) => sum + d.orderLines, 0);
+            document.getElementById('kpi4').textContent = totalOrderLines.toLocaleString();
+
+            const category = document.getElementById('categoryFilter').value;
+            let productsIncreased = 0;
+            if (quarters.length > 1) {
+                const categoryProducts = productVolatility.filter(p => !category || p.category === category);
+                productsIncreased = categoryProducts.filter(p => {
+                    const vendorData = data.filter(d => d.vendor === p.vendor && d.quarter === quarters[quarters.length - 1]);
+                    const earliestVendorData = data.filter(d => d.vendor === p.vendor && d.quarter === quarters[0]);
+                    if (vendorData.length > 0 && earliestVendorData.length > 0) {
+                        return vendorData[0].avgContract > earliestVendorData[0].avgContract;
+                    }
+                    return false;
+                }).length;
+            }
+            document.getElementById('kpi3').textContent = productsIncreased;
+        }
+
+        function updateDiscountChart(data) {
+            if (charts.discount) charts.discount.destroy();
+
+            const quarters = [...new Set(data.map(d => d.quarter))].sort();
+            const topVendors = getTopVendorsByVolume(data, 5);
+
+            const datasets = topVendors.map((vendor, idx) => {
+                const vendorData = data.filter(d => d.vendor === vendor);
+                const quarterlyAverages = quarters.map(q => {
+                    const qData = vendorData.filter(d => d.quarter === q);
+                    return qData.length > 0 ? (qData.reduce((sum, d) => sum + d.avgDiscountPct, 0) / qData.length) : null;
+                });
+                return {
+                    label: vendor,
+                    data: quarterlyAverages,
+                    borderColor: chartColors[idx % chartColors.length],
+                    backgroundColor: chartColors[idx % chartColors.length] + '20',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4,
+                    pointBackgroundColor: chartColors[idx % chartColors.length]
+                };
+            });
+
+            const ctx = document.getElementById('discountChart').getContext('2d');
+            charts.discount = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: quarters,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 15 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: { display: true, text: 'Discount %' }
+                        }
+                    }
+                }
+            });
+
+            const avgDiscount = (topVendors.map(v => {
+                const vData = data.filter(d => d.vendor === v);
+                return vData.reduce((sum, d) => sum + d.avgDiscountPct, 0) / vData.length;
+            }).reduce((a, b) => a + b, 0) / topVendors.length).toFixed(2);
+
+            document.getElementById('analysis1').textContent = `Discount erosion analysis shows top 5 vendors. Average discount across vendors is ${avgDiscount}%. Vendors are maintaining steady discount levels around this range, with variations driven by product mix and volume changes by quarter. Stable discount patterns indicate consistent margin management strategies.`;
+        }
+
+        function updatePriceChart(data) {
+            if (charts.price) charts.price.destroy();
+
+            const quarters = [...new Set(data.map(d => d.quarter))].sort();
+            const topVendors = getTopVendorsByVolume(data, 5);
+
+            const datasets = topVendors.map((vendor, idx) => {
+                const vendorData = data.filter(d => d.vendor === vendor);
+                const quarterlyAverages = quarters.map(q => {
+                    const qData = vendorData.filter(d => d.quarter === q);
+                    if (qData.length === 0) return null;
+                    const avgContract = qData.reduce((sum, d) => sum + d.avgContract, 0) / qData.length;
+                    const avgMsrp = qData.reduce((sum, d) => sum + d.avgMsrp, 0) / qData.length;
+                    return (avgContract / avgMsrp) * 100;
+                });
+                return {
+                    label: vendor,
+                    data: quarterlyAverages,
+                    borderColor: chartColors[idx % chartColors.length],
+                    backgroundColor: chartColors[idx % chartColors.length] + '20',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4,
+                    pointBackgroundColor: chartColors[idx % chartColors.length]
+                };
+            });
+
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            charts.price = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: quarters,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 15 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: { display: true, text: '% of MSRP' }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('analysis2').textContent = `Contract pricing as a percentage of MSRP shows vendor competitiveness. Prices are generally 75-85% of MSRP, indicating strong negotiating power with key vendors. Trends suggest consistent vendor performance with minimal price volatility, supporting stable sourcing strategies.`;
+        }
+
+        function updateVolatilityChart(data) {
+            if (charts.volatility) charts.volatility.destroy();
+
+            const category = document.getElementById('categoryFilter').value;
+            let filteredProducts = productVolatility;
+            if (category) {
+                filteredProducts = productVolatility.filter(p => p.category === category);
+            }
+
+            const topVolatility = filteredProducts
+                .sort((a, b) => b.volatilityPct - a.volatilityPct)
+                .slice(0, 10);
+
+            const ctx = document.getElementById('volatilityChart').getContext('2d');
+            charts.volatility = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: topVolatility.map(p => p.product),
+                    datasets: [{
+                        label: 'Price Volatility (%)',
+                        data: topVolatility.map(p => p.volatilityPct),
+                        backgroundColor: topVolatility.map((_, idx) => chartColors[idx % chartColors.length]),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Volatility (%)' }
+                        }
+                    }
+                }
+            });
+
+            const maxVolatility = Math.max(...topVolatility.map(p => p.volatilityPct)).toFixed(2);
+            const avgVolatility = (topVolatility.reduce((sum, p) => sum + p.volatilityPct, 0) / topVolatility.length).toFixed(2);
+            document.getElementById('analysis3').textContent = `Top 10 most volatile products show ${maxVolatility}% maximum volatility. Average volatility across these products is ${avgVolatility}%. Higher volatility products indicate greater pricing friction with vendors and potential opportunities for contract renegotiation. Monitor these products closely for margin protection.`;
+        }
+
+        function updateSavingsChart(data) {
+            if (charts.savings) charts.savings.destroy();
+
+            const vendors = [...new Set(data.map(d => d.vendor))].sort();
+            const savingsByVendor = vendors.map(vendor => {
+                const vendorData = data.filter(d => d.vendor === vendor);
+                return vendorData.reduce((sum, d) => sum + d.totalSavings, 0);
+            });
+
+            const ctx = document.getElementById('savingsChart').getContext('2d');
+            charts.savings = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: vendors,
+                    datasets: [{
+                        label: 'Total Savings ($)',
+                        data: savingsByVendor,
+                        backgroundColor: vendors.map((_, idx) => chartColors[idx % chartColors.length]),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Savings ($)' }
+                        }
+                    }
+                }
+            });
+
+            const totalSavings = savingsByVendor.reduce((a, b) => a + b, 0).toLocaleString();
+            const topVendor = vendors[savingsByVendor.indexOf(Math.max(...savingsByVendor))];
+            const topSavings = Math.max(...savingsByVendor).toLocaleString();
+            document.getElementById('analysis4').textContent = `Vendor savings impact shows total savings of $${totalSavings} across all vendors. ${topVendor} is the top performer with $${topSavings} in savings. These savings reflect negotiated discounts and volumes. Monitor vendor performance to optimize supplier relationships and identify partnership opportunities.`;
+        }
+
+        function getTopVendorsByVolume(data, limit) {
+            const volumeByVendor = {};
+            data.forEach(d => {
+                volumeByVendor[d.vendor] = (volumeByVendor[d.vendor] || 0) + d.totalQty;
+            });
+            return Object.entries(volumeByVendor)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, limit)
+                .map(entry => entry[0]);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Falcon Semiconductor / 5. End-Market Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--tb:#1A2332;--bg:#F1FAEE;--card:#FFFFFF;--bd:#D8E2DD;--p:#2D8B8B;--s:#A8DADC;--sd:#5EABAB;--t:#94A3B8;--tx:#0F172A;--txm:#64748B;--txd:#F1FAEE;--pos:#059669;--neg:#D32F2F;--wrn:#D97706}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.topbar{background:var(--tb);color:var(--txd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:22px;font-weight:700}.logo .x{color:var(--p)}.logo .f{color:var(--s)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-subtitle{font-size:12px;color:rgba(241,250,238,.65);margin-top:2px}
+.back-link{color:var(--s);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1440px;margin:0 auto;padding:20px 28px 40px}
+.filter-bar{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px}
+.fg label{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase}
+.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-size:13px;min-width:140px}
+.fg select[disabled]{background:#F1F5F9;color:var(--txm)}
+.tg{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+.sw{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+.tg.on .sw{background:var(--p)}.tg.on .sw::after{transform:translateX(16px)}
+.tgl{font-size:12px;font-weight:500}
+.rst{padding:7px 14px;background:var(--p);color:#fff;border:none;border-radius:5px;font-size:12px;cursor:pointer}.rst:hover{background:#237373}
+.sec{font-size:16px;font-weight:700;color:var(--p);margin:24px 0 10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--p);opacity:.7}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--txm);margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--p);line-height:1.1}.kpi-d{font-size:12px;font-weight:500;margin-top:3px}
+.kpi-d.positive{color:var(--pos)}.kpi-d.negative{color:var(--neg)}.kpi-d.neutral{color:var(--t)}.kpi-d.warn{color:var(--wrn)}
+.kpi-stk .kpi-val{font-size:16px;line-height:1.35;font-weight:500}.kpi-stk .kpi-val span{display:block}
+.kpi-stk .kpi-val .fy23{color:var(--t)}.kpi-stk .kpi-val .fy24{color:var(--sd)}.kpi-stk .kpi-val .fy25{color:var(--p);font-weight:700}
+.row{display:grid;gap:16px;margin-bottom:20px}.row.two{grid-template-columns:1fr 1fr}.row.wn{grid-template-columns:2fr 1fr}
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+.ct{font-size:14px;font-weight:700;color:var(--p);margin-bottom:12px}
+.cw{position:relative;height:260px}.cw.tall{height:320px}
+.csub{font-size:11px;color:var(--txm);margin-top:6px}
+.tbl{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tbl-h{padding:14px 18px 10px;border-bottom:1px solid var(--bd)}.tbl-t{font-size:14px;font-weight:700;color:var(--p)}
+table{width:100%;border-collapse:collapse}thead th{background:var(--tb);color:var(--txd);padding:10px 12px;text-align:left;font-size:12px;font-weight:600}
+th.num,td.num{text-align:right}td{padding:10px 12px;font-size:13px;border-top:1px solid var(--bd)}tr:hover td{background:#F8FAFB}
+.pos{color:var(--pos);font-weight:500}.neg{color:var(--neg);font-weight:500}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}.chip.p{background:rgba(45,139,139,.12);color:var(--p)}.chip.w{background:rgba(217,119,6,.12);color:var(--wrn)}.chip.g{background:#F1F5F9;color:var(--txm)}
+.disc{background:#FEF5E7;border-left:3px solid var(--wrn);padding:10px 14px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:16px}
+.ft{text-align:center;color:var(--txm);font-size:11px;padding:24px 0}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.row.two,.row.wn{grid-template-columns:1fr}}
+</style></head><body>
+<div class="topbar"><div class="topbar-left"><div class="logo"><span class="x">x</span><span class="f">F</span></div>
+<div><div class="topbar-title">Falcon Semiconductor / 5. End-Market Analysis</div>
+<div class="topbar-subtitle" id="rp">Reporting Period: FY2025</div></div></div>
+<a class="back-link" href="index.html">← Back to Portal</a></div>
+
+<div class="container">
+<div class="filter-bar">
+<div class="fg"><label>Fiscal Year</label><select id="fy" onchange="apply()"></select></div>
+<div class="fg"><label>&nbsp;</label><div class="tg" id="cmp" onclick="tog()"><div class="sw"></div><div class="tgl">Compare FY23/24/25</div></div></div>
+<div class="fg"><label>&nbsp;</label><button class="rst" onclick="rst()">Reset</button></div>
+</div>
+
+<div class="disc"><strong>Key finding:</strong> Automotive generates 48.8% of FY25 revenue vs 28% target share — overconcentration risk. Communications, Industrial, and Medical are materially underweight vs their targets. End-market attribution via DIM_CUSTOMER.END_MARKET_CODE.</div>
+
+<div class="sec">FY<span class="fyl">25</span> End-Market KPIs</div>
+<div class="kpi-grid" id="kg"></div>
+
+<div class="row wn">
+<div class="ch"><div class="ct">Actual Share vs Target — FY25</div><div class="cw tall"><canvas id="c1"></canvas></div>
+<div class="csub">Grouped bars: Actual share % (teal) vs Target % (gray). Variance column in table below.</div></div>
+<div class="ch"><div class="ct">Variance from Target (pts)</div><div class="cw tall"><canvas id="c2"></canvas></div>
+<div class="csub">Positive = overweight, negative = underweight. Auto and IoT overweight; COMM, IND, MIL, MED underweight.</div></div>
+</div>
+
+<div class="row two">
+<div class="ch"><div class="ct">End-Market Revenue Trend — FY23 to FY25</div><div class="cw tall"><canvas id="c3"></canvas></div>
+<div class="csub">Multi-year lines per market. Automotive surge FY24→FY25 the dominant growth driver.</div></div>
+<div class="ch"><div class="ct">Growth Rate vs Revenue Share — FY25</div><div class="cw tall"><canvas id="c4"></canvas></div>
+<div class="csub">Bubble chart: x=actual share %, y=target growth %, size=absolute revenue. COMM target growth high but share low.</div></div>
+</div>
+
+<div class="tbl"><div class="tbl-h"><div class="tbl-t">End-Market Detail — FY25 Actual vs Target</div></div>
+<table><thead><tr><th>End Market</th><th class="num">Revenue ($M)</th><th class="num">Actual Share %</th><th class="num">Target Share %</th><th class="num">Variance (pts)</th><th class="num">Target Growth %</th><th>Status</th></tr></thead>
+<tbody id="tb"></tbody></table></div>
+
+<div class="ft">End-Market Analysis · xFalcon AnalyticsPro</div>
+</div>
+
+<script>
+var C={p:'#2D8B8B',sd:'#5EABAB',s:'#A8DADC',t:'#94A3B8',pos:'#059669',neg:'#D32F2F',wrn:'#D97706',gr:'#D8E2DD'};
+var EM=[
+ {n:'Automotive',code:'AUTO',rev:1811.4,actual:48.8,target:28.0,growth:9.6},
+ {n:'Computing & DC',code:'COMP',rev:505.4,actual:13.6,target:10.0,growth:8.2},
+ {n:'Industrial',code:'IND',rev:453.5,actual:12.2,target:22.0,growth:7.1},
+ {n:'Consumer',code:'CONS',rev:317.3,actual:8.6,target:12.0,growth:3.1},
+ {n:'Communications',code:'COMM',rev:271.9,actual:7.3,target:15.0,growth:11.8},
+ {n:'IoT & Smart Home',code:'IOT',rev:188.8,actual:5.1,target:3.0,growth:8.5},
+ {n:'Military/Aerospace',code:'MIL',rev:120.7,actual:3.3,target:6.0,growth:5.7},
+ {n:'Medical',code:'MED',rev:39.7,actual:1.1,target:4.0,growth:6.4}];
+// Prior year data (estimated from total revenue scaling)
+var EM_FY24=EM.map(function(r){return +(r.rev*3179.6/3708.7).toFixed(1)});
+var EM_FY23=EM.map(function(r){return +(r.rev*2993.9/3708.7).toFixed(1)});
+var st={fy:'FY25',cmp:false};var ins={};
+function mk(id,cfg){if(ins[id])ins[id].destroy();ins[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return ins[id]}
+function init(){var y=document.getElementById('fy');y.innerHTML='';['FY21','FY22','FY23','FY24','FY25'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v==='FY25')o.selected=true;y.appendChild(o)})}
+function tog(){st.cmp=!st.cmp;document.getElementById('cmp').classList.toggle('on');document.getElementById('fy').disabled=st.cmp;apply()}
+function rst(){document.getElementById('fy').value='FY25';st.cmp=false;document.getElementById('cmp').classList.remove('on');document.getElementById('fy').disabled=false;apply()}
+function apply(){st.fy=document.getElementById('fy').value;
+ document.getElementById('rp').textContent='Reporting Period: '+(st.cmp?'FY23 / FY24 / FY25':st.fy);
+ var fls=document.querySelectorAll('.fyl');for(var i=0;i<fls.length;i++)fls[i].textContent=st.cmp?'23/24/25':st.fy.replace('FY','');
+ kpi();c1();c2();c3();c4();tbl()}
+function kpi(){var el=document.getElementById('kg');el.innerHTML='';
+ if(st.cmp){
+  var cks=[
+   {l:'Automotive Share',v23:'45.2%',v24:'47.1%',v25:'48.8%',su:'Trending up, now +20.8pt over 28% target'},
+   {l:'Auto Revenue',v23:'$1.35B',v24:'$1.50B',v25:'$1.81B',su:'2yr CAGR +15.8%'},
+   {l:'Markets Overweight',v23:'3',v24:'3',v25:'3',su:'Auto · IoT · Computing over target'},
+   {l:'Markets Underweight',v23:'4',v24:'4',v25:'4',su:'Industrial · Comm · Medical · Mil gaps'},
+   {l:'Industrial Gap',v23:'-8.9pt',v24:'-9.4pt',v25:'-9.8pt',su:'Widening — target 22%'},
+   {l:'COMM Gap',v23:'-7.2pt',v24:'-7.5pt',v25:'-7.7pt',su:'Widening — target 15%'},
+   {l:'Top 3 Markets Share',v23:'71.1%',v24:'73.0%',v25:'74.6%',su:'Auto + Comp + Industrial concentration'},
+   {l:'Medical + Mil Share',v23:'5.3%',v24:'4.9%',v25:'4.4%',su:'High-margin verticals shrinking'}];
+  cks.forEach(function(k){var d=document.createElement('div');d.className='kpi kpi-stk';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val"><span class="fy23">FY23 '+k.v23+'</span><span class="fy24">FY24 '+k.v24+'</span><span class="fy25">FY25 '+k.v25+'</span></div><div class="kpi-d neutral">'+k.su+'</div>';el.appendChild(d)});
+  return;
+ }
+ var auto=EM[0];var over=EM.filter(function(e){return e.actual-e.target>2}).length;var under=EM.filter(function(e){return e.target-e.actual>2}).length;
+ var ks=[
+  {l:'Automotive Share '+st.fy,v:auto.actual.toFixed(1)+'%',d:'▲ 20.8 pts over 28% target',c:'warn'},
+  {l:'Auto Revenue '+st.fy,v:'$'+(auto.rev/1000).toFixed(2)+'B',d:'Largest single-market exposure',c:'warn'},
+  {l:'Markets Overweight',v:String(over),d:'vs target share',c:'neutral'},
+  {l:'Markets Underweight',v:String(under),d:'vs target share',c:'negative'},
+  {l:'Industrial Gap',v:'-9.8 pts',d:'12.2% actual vs 22% target',c:'negative'},
+  {l:'COMM Gap',v:'-7.7 pts',d:'Highest target-growth market underweight',c:'warn'},
+  {l:'Top 3 Markets Share',v:'74.6%',d:'Auto + Computing + Industrial',c:'warn'},
+  {l:'Medical + Mil Share',v:'4.4%',d:'High-margin verticals under-developed',c:'negative'}];
+ ks.forEach(function(k){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-d '+k.c+'">'+k.d+'</div>';el.appendChild(d)})}
+function c1(){mk('c1',{type:'bar',data:{labels:EM.map(function(r){return r.n}),datasets:[
+ {label:'Actual %',data:EM.map(function(r){return r.actual}),backgroundColor:C.p},
+ {label:'Target %',data:EM.map(function(r){return r.target}),backgroundColor:C.t}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{x:{ticks:{callback:function(v){return v+'%'}},grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c2(){var vars_=EM.map(function(r){return +(r.actual-r.target).toFixed(1)});mk('c2',{type:'bar',data:{labels:EM.map(function(r){return r.n}),datasets:[
+ {label:'Variance (pts)',data:vars_,backgroundColor:vars_.map(function(v){return v>0?C.p:C.t}),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:C.gr}},y:{grid:{display:false}}}}})}
+function c3(){mk('c3',{type:'line',data:{labels:EM.map(function(r){return r.code}),datasets:[
+ {label:'FY23',data:EM_FY23,borderColor:C.s,tension:.25,pointRadius:3},
+ {label:'FY24',data:EM_FY24,borderColor:C.sd,tension:.25,pointRadius:3},
+ {label:'FY25',data:EM.map(function(r){return r.rev}),borderColor:C.p,backgroundColor:'rgba(45,139,139,.08)',fill:true,tension:.25,pointRadius:4,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return '$'+v}},grid:{color:C.gr}}}}})}
+function c4(){mk('c4',{type:'bubble',data:{datasets:EM.map(function(r,i){return {label:r.code,data:[{x:r.actual,y:r.growth,r:Math.sqrt(r.rev)/4}],backgroundColor:r.actual>r.target?C.wrn:C.p}})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': share '+ctx.parsed.x+'% growth '+ctx.parsed.y+'%'}}}},scales:{x:{title:{display:true,text:'Actual Share %',font:{size:11}},grid:{color:C.gr}},y:{title:{display:true,text:'Target Growth %',font:{size:11}},grid:{color:C.gr}}}}})}
+function tbl(){var b=document.getElementById('tb');b.innerHTML='';var filt=EM;
+ filt.forEach(function(r){var v=+(r.actual-r.target).toFixed(1);var status=Math.abs(v)<2?'On Target':v>0?'Overweight':'Underweight';var cls=Math.abs(v)<2?'g':v>0?'w':'g';
+  b.innerHTML+='<tr><td><strong>'+r.n+'</strong> <span class="chip g">'+r.code+'</span></td><td class="num">$'+r.rev.toFixed(1)+'</td><td class="num">'+r.actual.toFixed(1)+'%</td><td class="num">'+r.target.toFixed(1)+'%</td><td class="num '+(v>0?'pos':v<0?'neg':'')+'">'+(v>0?'+':'')+v.toFixed(1)+'</td><td class="num">'+r.growth.toFixed(1)+'%</td><td><span class="chip '+cls+'">'+status+'</span></td></tr>'})}
+init();apply();
+</script></body></html>

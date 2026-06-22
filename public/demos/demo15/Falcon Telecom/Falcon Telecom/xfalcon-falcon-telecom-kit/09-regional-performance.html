@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom / 9. Regional Performance</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+        .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+        .logo-x { color: #E20074; }
+        .logo-f { color: white; }
+        .title { flex: 1; margin-left: 24px; }
+        .title-main { font-weight: 600; font-size: 16px; }
+        .title-sub { font-size: 13px; color: #94A3B8; }
+        .back-link { color: #E20074; text-decoration: none; font-weight: 500; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .filters { background: white; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; gap: 16px; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; }
+        .filter-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; }
+        select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 13px; font-family: 'Inter'; background: white; cursor: pointer; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi { background: white; border-radius: 8px; padding: 20px; border-left: 4px solid #E20074; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #E20074; margin-bottom: 8px; word-break: break-word; }
+        .kpi-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; }
+        .kpi-delta { font-size: 13px; margin-top: 8px; font-weight: 500; }
+        .kpi-delta.positive { color: #059669; }
+        .kpi-delta.negative { color: #D32F2F; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .card-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+        .chart-container { position: relative; height: 300px; margin-bottom: 20px; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #1D1D2C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+        tr:hover { background: #F8FAFC; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+        <div class="title">
+            <div class="title-main">Falcon Telecom / 9. Regional Performance</div>
+            <div class="title-sub" id="reporting-period">2025 Full Year</div>
+        </div>
+        <a href="index.html" class="back-link">← Back</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select id="yearSelect" onchange="applyFilters()">
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Region</label>
+                <select id="regionSelect" onchange="applyFilters()">
+                    <option value="">All Regions</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                    <option value="Central">Central</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Tier</label>
+                <select id="tierSelect" onchange="applyFilters()">
+                    <option value="">All Tiers</option>
+                    <option value="Tier 1">Tier 1</option>
+                    <option value="Tier 2">Tier 2</option>
+                    <option value="Tier 3">Tier 3</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi">
+                <div class="kpi-value" id="kpi1">₹22.5Cr</div>
+                <div class="kpi-label">Total Revenue</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi2">South</div>
+                <div class="kpi-label">Top Region</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi3">₹1,111</div>
+                <div class="kpi-label">Highest ARPU Circle</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi4">60</div>
+                <div class="kpi-label">Total Circles</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi5">56.3%</div>
+                <div class="kpi-label">Tier 1 Revenue Share</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi6">73.2%</div>
+                <div class="kpi-label">Urban Revenue Share</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi7">+4.5%</div>
+                <div class="kpi-label">YoY Growth</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value" id="kpi8">₹37.5L</div>
+                <div class="kpi-label">Revenue per Circle</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Revenue by Region (2024 vs 2025)</div>
+            <div class="chart-container">
+                <canvas id="chart1"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Revenue by Tier</div>
+            <div class="chart-container">
+                <canvas id="chart2"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Top 10 Circles by Revenue</div>
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">ARPU by Region</div>
+            <div class="chart-container">
+                <canvas id="chart4"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Subscribers by Region Trend</div>
+            <div class="chart-container">
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Urban vs Rural Revenue Split</div>
+            <div class="chart-container">
+                <canvas id="chart6"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Top 30 Circles</div>
+            <div class="table-wrapper">
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>Circle</th>
+                            <th>Region</th>
+                            <th>Tier</th>
+                            <th>Urban/Rural</th>
+                            <th>Revenue</th>
+                            <th>Subs</th>
+                            <th>ARPU</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var REGION_YEARLY = [
+            {year:2023, region:'North', revenue:52440996, subs:4912}, {year:2023, region:'South', revenue:54084552, subs:5003},
+            {year:2023, region:'East', revenue:32764542, subs:3022}, {year:2023, region:'West', revenue:31293253, subs:2895},
+            {year:2023, region:'Central', revenue:9231623, subs:843},
+            {year:2024, region:'North', revenue:63430259, subs:5791}, {year:2024, region:'South', revenue:64422841, subs:5854},
+            {year:2024, region:'East', revenue:39463964, subs:3570}, {year:2024, region:'West', revenue:37237861, subs:3392},
+            {year:2024, region:'Central', revenue:10562382, subs:977},
+            {year:2025, region:'North', revenue:66325676, subs:5587}, {year:2025, region:'South', revenue:66969718, subs:5613},
+            {year:2025, region:'East', revenue:41356458, subs:3418}, {year:2025, region:'West', revenue:39013656, subs:3263},
+            {year:2025, region:'Central', revenue:11024347, subs:940}
+        ];
+
+        var CIRCLES = [
+            {region:'West', circle:'Maharashtra', tier:'Tier 1', urban:'Urban', revenue:13143792, subs:1090, arpu:1028},
+            {region:'South', circle:'Tamil Nadu', tier:'Tier 1', urban:'Urban', revenue:10466872, subs:883, arpu:1011},
+            {region:'South', circle:'Karnataka', tier:'Tier 1', urban:'Urban', revenue:9647616, subs:842, arpu:980},
+            {region:'South', circle:'Andhra Pradesh', tier:'Tier 1', urban:'Urban', revenue:8624635, subs:740, arpu:1004},
+            {region:'North', circle:'Delhi', tier:'Tier 1', urban:'Urban', revenue:8613749, subs:760, arpu:972},
+            {region:'West', circle:'Gujarat', tier:'Tier 1', urban:'Urban', revenue:8492323, subs:699, arpu:1043},
+            {region:'North', circle:'Uttar Pradesh', tier:'Tier 1', urban:'Urban', revenue:7848424, subs:681, arpu:988},
+            {region:'East', circle:'West Bengal', tier:'Tier 1', urban:'Urban', revenue:7439923, subs:606, arpu:1049},
+            {region:'North', circle:'Rajasthan', tier:'Tier 2', urban:'Urban', revenue:7363959, subs:627, arpu:997},
+            {region:'West', circle:'Maharashtra', tier:'Tier 2', urban:'Semi-Urban', revenue:7262869, subs:609, arpu:1019},
+            {region:'Central', circle:'Madhya Pradesh', tier:'Tier 2', urban:'Urban', revenue:6161778, subs:520, arpu:1019},
+            {region:'East', circle:'Bihar', tier:'Tier 2', urban:'Urban', revenue:6001787, subs:504, arpu:1026},
+            {region:'South', circle:'Karnataka', tier:'Tier 2', urban:'Semi-Urban', revenue:5660644, subs:474, arpu:1012},
+            {region:'South', circle:'Tamil Nadu', tier:'Tier 2', urban:'Semi-Urban', revenue:5570727, subs:469, arpu:1013},
+            {region:'North', circle:'Punjab', tier:'Tier 2', urban:'Urban', revenue:5135173, subs:434, arpu:1022},
+            {region:'North', circle:'Delhi', tier:'Tier 2', urban:'Semi-Urban', revenue:4991253, subs:417, arpu:1029},
+            {region:'West', circle:'Gujarat', tier:'Tier 2', urban:'Semi-Urban', revenue:4857323, subs:407, arpu:1017},
+            {region:'North', circle:'Haryana', tier:'Tier 2', urban:'Urban', revenue:4808557, subs:426, arpu:959},
+            {region:'South', circle:'Andhra Pradesh', tier:'Tier 2', urban:'Semi-Urban', revenue:4236836, subs:350, arpu:1029},
+            {region:'South', circle:'Kerala', tier:'Tier 2', urban:'Urban', revenue:4078262, subs:312, arpu:1111},
+            {region:'South', circle:'Telangana', tier:'Tier 2', urban:'Urban', revenue:4016672, subs:346, arpu:990},
+            {region:'East', circle:'West Bengal', tier:'Tier 2', urban:'Semi-Urban', revenue:3994095, subs:337, arpu:1018},
+            {region:'North', circle:'Uttar Pradesh', tier:'Tier 2', urban:'Semi-Urban', revenue:3933594, subs:333, arpu:1019},
+            {region:'North', circle:'Rajasthan', tier:'Tier 2', urban:'Semi-Urban', revenue:3858646, subs:304, arpu:1088},
+            {region:'East', circle:'Odisha', tier:'Tier 2', urban:'Urban', revenue:3724376, subs:311, arpu:1031},
+            {region:'West', circle:'Maharashtra', tier:'Tier 3', urban:'Rural', revenue:3414504, subs:293, arpu:988},
+            {region:'Central', circle:'Madhya Pradesh', tier:'Tier 2', urban:'Semi-Urban', revenue:3286933, subs:283, arpu:1010},
+            {region:'East', circle:'Jharkhand', tier:'Tier 2', urban:'Urban', revenue:3139981, subs:243, arpu:1095},
+            {region:'East', circle:'Bihar', tier:'Tier 2', urban:'Semi-Urban', revenue:3040623, subs:249, arpu:1042},
+            {region:'North', circle:'Punjab', tier:'Tier 2', urban:'Semi-Urban', revenue:2964349, subs:237, arpu:1074}
+        ];
+
+        var charts = {};
+
+        function formatCurrency(val) {
+            if (val >= 10000000) return '₹' + (val / 10000000).toFixed(1) + 'Cr';
+            if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + 'L';
+            return '₹' + val.toLocaleString();
+        }
+
+        function formatNumber(val) {
+            if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+            if (val >= 1000) return (val / 1000).toFixed(1) + 'K';
+            return val.toFixed(0);
+        }
+
+        function applyFilters() {
+            var year = parseInt(document.getElementById('yearSelect').value);
+            var region = document.getElementById('regionSelect').value;
+            var tier = document.getElementById('tierSelect').value;
+
+            var yearly = REGION_YEARLY.filter(function(d) {
+                if (region && d.region !== region) return false;
+                return d.year === year;
+            });
+
+            var circles = CIRCLES.filter(function(c) {
+                if (region && c.region !== region) return false;
+                if (tier && c.tier !== tier) return false;
+                return true;
+            });
+
+            updateKPIs(yearly, circles, year);
+            updateCharts(yearly, circles, year);
+            updateTable(circles);
+            updateSubtitle(year);
+            fitKpiText();
+        }
+
+        function updateKPIs(yearly, circles, year) {
+            var totalRev = yearly.reduce(function(sum, d) { return sum + d.revenue; }, 0);
+            var topRegion = yearly.length > 0 ? yearly.reduce(function(max, d) { return d.revenue > max.revenue ? d : max; }) : {};
+            var highestArpu = circles.length > 0 ? Math.max.apply(null, circles.map(function(c) { return c.arpu; })) : 0;
+            var circleCount = circles.length;
+            var tier1Rev = circles.filter(function(c) { return c.tier === 'Tier 1'; }).reduce(function(sum, c) { return sum + c.revenue; }, 0);
+            var tier1Share = totalRev > 0 ? (tier1Rev / totalRev * 100) : 0;
+            var urbanRev = circles.filter(function(c) { return c.urban === 'Urban'; }).reduce(function(sum, c) { return sum + c.revenue; }, 0);
+            var urbanShare = totalRev > 0 ? (urbanRev / totalRev * 100) : 0;
+
+            var prev2024Rev = 0, prev2025Rev = 0;
+            if (year === 2025) {
+                prev2024Rev = yearly.find(function(d) { return d.year === 2024; }) ? yearly.find(function(d) { return d.year === 2024; }).revenue : 0;
+                prev2025Rev = yearly.find(function(d) { return d.year === 2025; }) ? yearly.find(function(d) { return d.year === 2025; }).revenue : 0;
+            }
+            var yoyGrowth = prev2024Rev > 0 && prev2025Rev > 0 ? ((prev2025Rev - prev2024Rev) / prev2024Rev * 100) : 0;
+            var revPerCircle = circleCount > 0 ? totalRev / circleCount : 0;
+
+            document.getElementById('kpi1').textContent = formatCurrency(totalRev);
+            document.getElementById('kpi2').textContent = topRegion.region || 'N/A';
+            document.getElementById('kpi3').textContent = '₹' + highestArpu;
+            document.getElementById('kpi4').textContent = String(circleCount);
+            document.getElementById('kpi5').textContent = tier1Share.toFixed(1) + '%';
+            document.getElementById('kpi6').textContent = urbanShare.toFixed(1) + '%';
+            document.getElementById('kpi7').textContent = (yoyGrowth >= 0 ? '+' : '') + yoyGrowth.toFixed(1) + '%';
+            document.getElementById('kpi8').textContent = formatCurrency(revPerCircle);
+        }
+
+        function updateCharts(yearly, circles, year) {
+            // Chart 1: Revenue by Region (2024 vs 2025)
+            var regions = ['North', 'South', 'East', 'West', 'Central'];
+            var rev2024Data = [];
+            var rev2025Data = [];
+
+            regions.forEach(function(r) {
+                var data2024 = REGION_YEARLY.find(function(d) { return d.year === 2024 && d.region === r; });
+                var data2025 = REGION_YEARLY.find(function(d) { return d.year === 2025 && d.region === r; });
+                rev2024Data.push(data2024 ? data2024.revenue : 0);
+                rev2025Data.push(data2025 ? data2025.revenue : 0);
+            });
+
+            if (charts.chart1) charts.chart1.destroy();
+            charts.chart1 = new Chart(document.getElementById('chart1'), {
+                type: 'bar',
+                data: {
+                    labels: regions,
+                    datasets: [
+                        { label: '2024', data: rev2024Data, backgroundColor: '#006AFF' },
+                        { label: '2025', data: rev2025Data, backgroundColor: '#1A7F64' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 2: Revenue by Tier
+            var tier1 = 0, tier2 = 0, tier3 = 0;
+            circles.forEach(function(c) {
+                if (c.tier === 'Tier 1') tier1 += c.revenue;
+                else if (c.tier === 'Tier 2') tier2 += c.revenue;
+                else if (c.tier === 'Tier 3') tier3 += c.revenue;
+            });
+
+            if (charts.chart2) charts.chart2.destroy();
+            charts.chart2 = new Chart(document.getElementById('chart2'), {
+                type: 'bar',
+                data: {
+                    labels: ['Tier 1', 'Tier 2', 'Tier 3'],
+                    datasets: [{ label: 'Revenue', data: [tier1, tier2, tier3], backgroundColor: ['#006AFF', '#1A7F64', '#F59E0B'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 3: Top 10 Circles (from filtered)
+            var top10 = circles.slice(0, 10);
+            var circleNames = top10.map(function(c) { return c.circle; });
+            var circleRevs = top10.map(function(c) { return c.revenue; });
+
+            if (charts.chart3) charts.chart3.destroy();
+            charts.chart3 = new Chart(document.getElementById('chart3'), {
+                type: 'bar',
+                data: {
+                    labels: circleNames,
+                    datasets: [{ label: 'Revenue', data: circleRevs, backgroundColor: '#1A7F64' }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 4: ARPU by Region (from filtered circles)
+            var regionArpu = {};
+            circles.forEach(function(c) {
+                if (!regionArpu[c.region]) regionArpu[c.region] = { total: 0, count: 0 };
+                regionArpu[c.region].total += c.arpu;
+                regionArpu[c.region].count += 1;
+            });
+
+            var regionLabels = Object.keys(regionArpu);
+            var regionArpuVals = regionLabels.map(function(r) { return regionArpu[r].total / regionArpu[r].count; });
+
+            if (charts.chart4) charts.chart4.destroy();
+            charts.chart4 = new Chart(document.getElementById('chart4'), {
+                type: 'bar',
+                data: {
+                    labels: regionLabels,
+                    datasets: [{ label: 'ARPU', data: regionArpuVals, backgroundColor: '#0EA5E9' }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Chart 5: Subscribers Trend
+            var allYears = [2023, 2024, 2025];
+            var subsByRegion = {};
+            regions.forEach(function(r) { subsByRegion[r] = []; });
+
+            allYears.forEach(function(y) {
+                REGION_YEARLY.forEach(function(d) {
+                    if (d.year === y) {
+                        subsByRegion[d.region].push(d.subs);
+                    }
+                });
+            });
+
+            if (charts.chart5) charts.chart5.destroy();
+            charts.chart5 = new Chart(document.getElementById('chart5'), {
+                type: 'line',
+                data: {
+                    labels: allYears.map(function(y) { return String(y); }),
+                    datasets: [
+                        { label: 'North', data: subsByRegion['North'], borderColor: '#006AFF', tension: 0.4 },
+                        { label: 'South', data: subsByRegion['South'], borderColor: '#1A7F64', tension: 0.4 },
+                        { label: 'East', data: subsByRegion['East'], borderColor: '#0EA5E9', tension: 0.4 },
+                        { label: 'West', data: subsByRegion['West'], borderColor: '#F59E0B', tension: 0.4 },
+                        { label: 'Central', data: subsByRegion['Central'], borderColor: '#E20074', tension: 0.4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Chart 6: Urban vs Rural (from filtered circles)
+            var urbanByRegion = {};
+            var ruralByRegion = {};
+            circles.forEach(function(c) {
+                if (!urbanByRegion[c.region]) { urbanByRegion[c.region] = 0; ruralByRegion[c.region] = 0; }
+                if (c.urban === 'Urban') urbanByRegion[c.region] += c.revenue;
+                else ruralByRegion[c.region] += c.revenue;
+            });
+
+            var regionLabels2 = Object.keys(urbanByRegion);
+            var urbanData = regionLabels2.map(function(r) { return urbanByRegion[r] || 0; });
+            var ruralData = regionLabels2.map(function(r) { return ruralByRegion[r] || 0; });
+
+            if (charts.chart6) charts.chart6.destroy();
+            charts.chart6 = new Chart(document.getElementById('chart6'), {
+                type: 'bar',
+                data: {
+                    labels: regionLabels2,
+                    datasets: [
+                        { label: 'Urban', data: urbanData, backgroundColor: '#006AFF' },
+                        { label: 'Rural', data: ruralData, backgroundColor: '#F59E0B' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+
+        function updateTable(circles) {
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            circles.slice(0, 30).forEach(function(row) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.circle + '</td>' +
+                    '<td>' + row.region + '</td>' +
+                    '<td>' + row.tier + '</td>' +
+                    '<td>' + row.urban + '</td>' +
+                    '<td>' + formatCurrency(row.revenue) + '</td>' +
+                    '<td>' + row.subs.toLocaleString() + '</td>' +
+                    '<td>₹' + row.arpu + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateSubtitle(year) {
+            document.getElementById('reporting-period').textContent = String(year) + ' Full Year';
+        }
+
+        function fitKpiText() {
+            var kpis = document.querySelectorAll('.kpi-value');
+            kpis.forEach(function(el) {
+                var len = el.textContent.length;
+                if (len > 12) el.style.fontSize = '22px';
+                else if (len > 10) el.style.fontSize = '26px';
+                else el.style.fontSize = '28px';
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

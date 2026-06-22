@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon World Cup 360 Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+            line-height: 1.6;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            padding: 24px 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid #FFD600;
+        }
+
+        .topbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .topbar-logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .topbar-logo-x {
+            color: #66BB6A;
+        }
+
+        .topbar-logo-f {
+            color: #FFD600;
+        }
+
+        .topbar-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #F1FAE5;
+            margin-bottom: 4px;
+        }
+
+        .topbar-subtitle {
+            font-size: 13px;
+            color: #FFD600;
+            font-weight: 500;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        /* KPI Grid */
+        .kpi-section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 24px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        @media (min-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 767px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            text-align: center;
+            border-top: 3px solid #FFD600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 48px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media (min-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .chart-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 28px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 20px;
+        }
+
+        .chart-canvas-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-full-width .chart-canvas-container {
+            height: 350px;
+        }
+
+        /* Dashboard Directory */
+        .directory-section {
+            margin-bottom: 48px;
+        }
+
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        @media (min-width: 768px) {
+            .directory-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .directory-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            border-left: 4px solid #1B5E20;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+        .directory-card:nth-child(2n) {
+            border-left-color: #FFD600;
+        }
+
+        .directory-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .directory-card-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 12px;
+        }
+
+        .directory-card:nth-child(2n) .directory-card-number {
+            color: #FFD600;
+        }
+
+        .directory-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 8px;
+        }
+
+        .directory-card-description {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.5;
+        }
+
+        /* Reference Card */
+        .reference-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            border-left: 4px solid #1B5E20;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            margin-bottom: 48px;
+        }
+
+        .reference-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .reference-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 8px;
+        }
+
+        .reference-card-description {
+            font-size: 13px;
+            color: #64748B;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #F1F5F9;
+            border-top: 1px solid #E2E8F0;
+            padding: 32px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 48px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-content">
+            <div class="topbar-logo">
+                <span class="topbar-logo-x">x</span><span class="topbar-logo-f">F</span>
+            </div>
+            <div class="topbar-title">Falcon World Cup 360 Analytics</div>
+            <div class="topbar-subtitle">All Tournaments: 1930–2014 | 20 Editions | 83 Nations</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- KPI Section -->
+        <div class="kpi-section">
+            <h2 class="section-title">Key Performance Indicators</h2>
+            <div class="kpi-grid" id="kpiGrid">
+                <!-- KPI cards generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <h2 class="section-title">Performance Metrics</h2>
+            <div class="charts-grid">
+                <div class="chart-card chart-full-width">
+                    <h3 class="chart-title">Revenue Growth by Tournament Year</h3>
+                    <div class="chart-canvas-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Top 10 World Cup Winners</h3>
+                    <div class="chart-canvas-container">
+                        <canvas id="winnersChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Tournament Attendance Growth</h3>
+                    <div class="chart-canvas-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Directory -->
+        <div class="directory-section">
+            <h2 class="section-title">Dashboard Directory</h2>
+            <div class="directory-grid" id="directoryGrid">
+                <!-- Directory cards generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Reference Card -->
+        <a href="metrics-definitions.html" class="reference-card">
+            <div class="reference-card-title">Metrics & KPI Definitions</div>
+            <div class="reference-card-description">Standardized definitions, formulas, and source tables for all metrics used across the analytics suite. Searchable and filterable.</div>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Falcon World Cup 360 Analytics | Powered by xFalcon AnalyticsPro | Data: 1930–2014</p>
+    </div>
+
+    <script>
+        // Chart instances container
+        var chartInstances = {};
+
+        // Chart.js helper function
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        // KPI Data
+        var kpiData = [
+            { label: 'Total Matches', value: '836' },
+            { label: 'Total Goals', value: '2,379' },
+            { label: 'Total Attendance', value: '38.2M' },
+            { label: 'Ticket Revenue', value: '$3.36B' },
+            { label: 'Merchandise Revenue', value: '$1.11B' },
+            { label: 'Broadcast Rights', value: '$1.36B' },
+            { label: 'Sponsorship Value', value: '$13.46B' },
+            { label: 'Total Revenue', value: '$19.3B' }
+        ];
+
+        // Dashboard Directory Data
+        var directoryData = [
+            {
+                number: '1',
+                title: 'Tournament Overview',
+                description: 'Executive overview of all 20 World Cup editions — key stats, winners, and attendance trends',
+                link: '01-tournament-overview.html'
+            },
+            {
+                number: '2',
+                title: 'Match Analytics',
+                description: 'Deep dive into 826 matches — goals, results, stage analysis, and patterns',
+                link: '02-match-analytics.html'
+            },
+            {
+                number: '3',
+                title: 'Player Performance',
+                description: 'Individual player stats — top scorers, appearances, cards, and performance metrics',
+                link: '03-player-performance.html'
+            },
+            {
+                number: '4',
+                title: 'Team Rankings',
+                description: 'National team rankings — wins, goals, titles, and confederation analysis',
+                link: '04-team-rankings.html'
+            },
+            {
+                number: '5',
+                title: 'Ticket Revenue',
+                description: 'Ticket sales analysis — revenue by tier, venue, demand index, and pricing trends',
+                link: '05-ticket-revenue.html'
+            },
+            {
+                number: '6',
+                title: 'Merchandise Sales',
+                description: 'Merchandise performance — revenue, margins, categories, channels, and team popularity',
+                link: '06-merchandise-sales.html'
+            },
+            {
+                number: '7',
+                title: 'Broadcast & Media',
+                description: 'Broadcast rights fees, ad revenue, viewership, and platform distribution',
+                link: '07-broadcast-media.html'
+            },
+            {
+                number: '8',
+                title: 'Sponsorship ROI',
+                description: 'Sponsorship deals — contract values, media value, ROI, and tier analysis',
+                link: '08-sponsorship-roi.html'
+            },
+            {
+                number: '9',
+                title: 'Venue & Attendance',
+                description: 'Stadium analytics — capacity utilization, attendance patterns, and geographic distribution',
+                link: '09-venue-attendance.html'
+            },
+            {
+                number: '10',
+                title: 'Historical Trends',
+                description: '84-year evolution — how the World Cup has grown in size, revenue, and global reach',
+                link: '10-historical-trends.html'
+            },
+            {
+                number: '11',
+                title: 'Predictions 2026',
+                description: 'AI-powered predictions for the 2026 FIFA World Cup — revenue, goals, attendance & more',
+                icon: '\uD83D\uDD2E',
+                link: '11-predictions-2026.html'
+            },
+            {
+                number: '12',
+                title: 'AutoExplore Report',
+                description: '30-iteration autonomous data discovery — 8 surprising findings from 836 matches across 92 years',
+                icon: '\uD83D\uDD0D',
+                link: '12-autoexplore-report.html'
+            }
+        ];
+
+        // Render KPI Cards
+        function renderKpiCards() {
+            var kpiGrid = document.getElementById('kpiGrid');
+            var html = '';
+            for (var i = 0; i < kpiData.length; i++) {
+                var kpi = kpiData[i];
+                html = html + '<div class="kpi-card"><div class="kpi-value">' + kpi.value + '</div><div class="kpi-label">' + kpi.label + '</div></div>';
+            }
+            kpiGrid.innerHTML = html;
+            fitKpiText();
+        }
+
+        // Render Directory Cards
+        function renderDirectoryCards() {
+            var directoryGrid = document.getElementById('directoryGrid');
+            var html = '';
+            for (var i = 0; i < directoryData.length; i++) {
+                var card = directoryData[i];
+                html = html + '<a href="' + card.link + '" class="directory-card"><div class="directory-card-number">' + card.number + '</div><div class="directory-card-title">' + card.title + '</div><div class="directory-card-description">' + card.description + '</div></a>';
+            }
+            directoryGrid.innerHTML = html;
+        }
+
+        // Adjust KPI text sizes based on content
+        function fitKpiText() {
+            var kpiCards = document.querySelectorAll('.kpi-card');
+            for (var i = 0; i < kpiCards.length; i++) {
+                var card = kpiCards[i];
+                var valueEl = card.querySelector('.kpi-value');
+                var valueText = valueEl.textContent;
+                var baseFontSize = 28;
+                var adjustedSize = baseFontSize;
+                if (valueText.length > 15) {
+                    adjustedSize = 20;
+                } else if (valueText.length > 10) {
+                    adjustedSize = 24;
+                }
+                valueEl.style.fontSize = adjustedSize + 'px';
+            }
+        }
+
+        // Initialize charts on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderKpiCards();
+            renderDirectoryCards();
+            initializeCharts();
+        });
+
+        // Chart Initialization
+        function initializeCharts() {
+            // Revenue Growth Chart
+            var revenueYears = ['1930','1934','1938','1950','1954','1958','1962','1966','1970','1974','1978','1982','1986','1990','1994','1998','2002','2006','2010','2014'];
+            var ticketData = [39.9, 26.8, 28.2, 52.8, 50.2, 50.8, 57.3, 97.0, 91.8, 96.3, 97.7, 146.8, 199.0, 221.0, 327.7, 269.3, 248.7, 355.7, 358.5, 547.9];
+            var sponsorshipData = [8.6, 7.5, 8.7, 9.0, 8.8, 9.2, 8.7, 8.0, 30.9, 33.4, 34.3, 163.1, 174.5, 287.6, 507.9, 1099.9, 1562.0, 2429.7, 2994.6, 4074.9];
+            var broadcastData = [0.006, 0.006, 0.008, 0.016, 0.032, 0.025, 0.026, 0.044, 0.63, 0.69, 0.72, 3.33, 3.48, 16.2, 23.8, 106.4, 96.2, 219.4, 348.1, 545.3];
+
+            mk('revenueChart', {
+                type: 'line',
+                data: {
+                    labels: revenueYears,
+                    datasets: [
+                        {
+                            label: 'Ticket Revenue (M)',
+                            data: ticketData,
+                            borderColor: '#2E7D32',
+                            backgroundColor: 'rgba(46, 125, 50, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#2E7D32',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Sponsorship Value (M)',
+                            data: sponsorshipData,
+                            borderColor: '#C8A415',
+                            backgroundColor: 'rgba(200, 164, 21, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#C8A415',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Broadcast Rights (M)',
+                            data: broadcastData,
+                            borderColor: '#94A3B8',
+                            backgroundColor: 'rgba(148, 163, 184, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#94A3B8',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: "'Inter', sans-serif", size: 12, weight: '600' },
+                                color: '#64748B',
+                                padding: 16,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: "'Inter', sans-serif", size: 12, weight: '600' },
+                            bodyFont: { family: "'Inter', sans-serif", size: 11 },
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#64748B',
+                                callback: function(value) {
+                                    return '$' + value + 'M';
+                                }
+                            },
+                            grid: { color: 'rgba(200, 200, 200, 0.1)' }
+                        },
+                        x: {
+                            ticks: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#64748B'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Winners Chart
+            var winnerTeams = ['Brazil', 'Italy', 'Germany FR', 'Argentina', 'Uruguay', 'France', 'Germany', 'Spain', 'England'];
+            var winnerTitles = [5, 4, 3, 2, 2, 1, 1, 1, 1];
+
+            mk('winnersChart', {
+                type: 'bar',
+                data: {
+                    labels: winnerTeams,
+                    datasets: [
+                        {
+                            label: 'World Cup Titles',
+                            data: winnerTitles,
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: "'Inter', sans-serif", size: 12, weight: '600' },
+                            bodyFont: { family: "'Inter', sans-serif", size: 11 },
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Titles: ' + context.parsed.x;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#64748B'
+                            },
+                            grid: { color: 'rgba(200, 200, 200, 0.1)' }
+                        },
+                        y: {
+                            ticks: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#64748B'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Attendance Chart
+            var attendanceYears = ['1930','1934','1938','1950','1954','1958','1962','1966','1970','1974','1978','1982','1986','1990','1994','1998','2002','2006','2010','2014'];
+            var attendanceData = [0.59, 0.36, 0.38, 1.05, 0.77, 0.82, 0.89, 1.56, 1.60, 1.87, 1.55, 2.11, 2.39, 2.52, 3.59, 2.79, 2.71, 3.36, 3.18, 3.39];
+
+            mk('attendanceChart', {
+                type: 'bar',
+                data: {
+                    labels: attendanceYears,
+                    datasets: [
+                        {
+                            label: 'Attendance (Millions)',
+                            data: attendanceData,
+                            backgroundColor: '#C8A415',
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: "'Inter', sans-serif", size: 12, weight: '600' },
+                            bodyFont: { family: "'Inter', sans-serif", size: 11 },
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Attendance: ' + context.parsed.y.toFixed(2) + 'M';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#64748B',
+                                callback: function(value) {
+                                    return value.toFixed(1) + 'M';
+                                }
+                            },
+                            grid: { color: 'rgba(200, 200, 200, 0.1)' }
+                        },
+                        x: {
+                            ticks: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#64748B'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

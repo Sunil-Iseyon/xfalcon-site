@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Auto B2B | Analytics Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F4F6F9;
+            color: #1A1A1A;
+            min-height: 100vh;
+        }
+        .top-bar {
+            background: #1A1A1A;
+            padding: 12px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .top-bar-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .top-bar-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .top-bar .shop-btn {
+            background: #E02B20;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+        .header {
+            background: #FFFFFF;
+            padding: 48px 32px 40px;
+            text-align: center;
+            border-bottom: 4px solid #E02B20;
+        }
+        .logo {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+        .logo span {
+            color: #E02B20;
+        }
+        .tagline {
+            font-size: 18px;
+            color: #666666;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #999999;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .hero-stats {
+            background: #1A1A1A;
+            padding: 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: -20px auto 0;
+            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-stat {
+            text-align: center;
+        }
+        .hero-stat .value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #E02B20;
+        }
+        .hero-stat .label {
+            font-size: 11px;
+            color: #CCCCCC;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 32px;
+        }
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999999;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+        .dashboard-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .card-accent {
+            height: 4px;
+            background: #E02B20;
+        }
+        .card-body {
+            padding: 28px;
+        }
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+        .card-icon.red { background: rgba(224,43,32,0.1); }
+        .card-icon.dark { background: rgba(26,26,26,0.08); }
+        .card-icon.blue { background: rgba(74,124,155,0.12); }
+        .card-icon.green { background: rgba(46,125,50,0.1); }
+        .card-icon.amber { background: rgba(249,168,37,0.12); }
+        .card-icon.teal { background: rgba(92,157,192,0.1); }
+        .card-icon.purple { background: rgba(142,107,191,0.12); }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+        .card-desc {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .card-metrics {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .card-metric {
+            background: #F4F6F9;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .card-metric .metric-val {
+            font-weight: 700;
+            color: #E02B20;
+        }
+        .card-metric .metric-label {
+            color: #666666;
+            margin-left: 4px;
+        }
+        .card-arrow {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #E02B20;
+        }
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: #999999;
+            font-size: 12px;
+            border-top: 1px solid #E8E8E8;
+        }
+        .footer a {
+            color: #E02B20;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .hero-stats { grid-template-columns: repeat(2, 1fr); }
+            .logo { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="top-bar-links">
+        <a href="#" class="shop-btn">Analytics Hub</a>
+    </div>
+    <div class="top-bar-links">
+        <a href="#">About</a>
+        <a href="#">Programs</a>
+        <a href="#">Membership</a>
+        <a href="#">Contact</a>
+    </div>
+</div>
+
+<div class="header">
+    <div class="logo">F<span>AL</span>CON AUTO<span>&trade;</span></div>
+    <div class="tagline">Analytics & Performance Hub</div>
+    <div class="subtitle">Powered by Falcon Auto B2B Intelligence Platform</div>
+</div>
+
+<div class="hero-stats" id="heroStats">
+    <!-- Populated dynamically -->
+</div>
+
+<div class="content">
+    <div class="section-title">Explore Your Dashboards</div>
+    <div class="dashboard-grid" id="dashboardGrid">
+        <!-- Populated dynamically -->
+    </div>
+</div>
+
+<div class="footer">
+    <div>Falcon Auto&trade; Analytics Hub &mdash; <span id="timestamp"></span></div>
+    <div style="margin-top:6px;">Powered by <a href="#">Falcon Auto B2B</a> Intelligence Platform</div>
+</div>
+
+<script>
+const dashboards = [
+    {
+        title: "01 | Sales & Revenue Performance",
+        desc: "Track total revenue, order trends, brand performance, and customer purchasing patterns across all years.",
+        link: "sales-revenue.html",
+        icon: "&#128200;",
+        iconClass: "red",
+        metrics: [
+            { val: "$2.1M", label: "Total Revenue" },
+            { val: "2,816", label: "Orders" },
+            { val: "10 Brands", label: "Tracked" }
+        ]
+    },
+    {
+        title: "02 | Lead Pipeline & Conversion",
+        desc: "Analyze lead generation sources, conversion rates, pipeline velocity, and geographic distribution of prospects.",
+        link: "lead-pipeline.html",
+        icon: "&#127919;",
+        iconClass: "dark",
+        metrics: [
+            { val: "320", label: "Total Leads" },
+            { val: "40.6%", label: "Conversion Rate" },
+            { val: "7 Sources", label: "Tracked" }
+        ]
+    },
+    {
+        title: "03 | Product & Pricing Intelligence",
+        desc: "Compare MSRP vs contract pricing across tiers, analyze product ratings, and identify top-performing categories.",
+        link: "product-pricing.html",
+        icon: "&#128176;",
+        iconClass: "blue",
+        metrics: [
+            { val: "30", label: "Products" },
+            { val: "3 Tiers", label: "Pricing" },
+            { val: "226", label: "Reviews" }
+        ]
+    },
+    {
+        title: "04 | Inventory Health",
+        desc: "Monitor stock levels, reorder thresholds, reserved quantities, and stock health ratios across all products.",
+        link: "inventory-health.html",
+        icon: "&#128230;",
+        iconClass: "green",
+        metrics: [
+            { val: "30 SKUs", label: "Tracked" },
+            { val: "4,522", label: "On Hand" },
+            { val: "0", label: "Below Reorder" }
+        ]
+    },
+    {
+        title: "05 | Program & Member Engagement",
+        desc: "Track program enrollments, member activity events, engagement trends, and program popularity over time.",
+        link: "program-engagement.html",
+        icon: "&#129309;",
+        iconClass: "amber",
+        metrics: [
+            { val: "827", label: "Enrollments" },
+            { val: "10", label: "Programs" },
+            { val: "3,407", label: "Activities" }
+        ]
+    },
+    {
+        title: "06 | Customer Analysis",
+        desc: "Understand your member organizations by business type, membership tier, region, and revenue contribution.",
+        link: "customer-analysis.html",
+        icon: "&#127970;",
+        iconClass: "teal",
+        metrics: [
+            { val: "250", label: "Organizations" },
+            { val: "5 Regions", label: "Coverage" },
+            { val: "3 Tiers", label: "Membership" }
+        ]
+    },
+    {
+        title: "07 | Cost Analysis & Savings",
+        desc: "Review cost analysis submissions, estimated savings, and the financial impact of Falcon Auto group purchasing.",
+        link: "cost-savings.html",
+        icon: "&#128178;",
+        iconClass: "purple",
+        metrics: [
+            { val: "81", label: "Submissions" },
+            { val: "$4.6M", label: "Est. Savings" },
+            { val: "17.3%", label: "Avg Savings" }
+        ]
+    },
+    {
+        title: "08 | Price Change & Vendor Analysis",
+        desc: "Analyze pricing trends, discount erosion, contract price volatility, and vendor savings impact across quarters.",
+        link: "price-change-analysis.html",
+        icon: "&#128200;",
+        iconClass: "red",
+        metrics: [
+            { val: "10", label: "Vendors" },
+            { val: "30", label: "Products" },
+            { val: "Q1–Q4", label: "Quarterly Trends" }
+        ]
+    },
+    {
+        title: "09 | Quarterly Business Review",
+        desc: "H2 2025 executive QBR covering all 8 business areas — sales, leads, products, inventory, programs, customers, and vendor analysis with Q3 vs Q4 comparisons.",
+        link: "qbr-dashboard.html",
+        icon: "&#128202;",
+        iconClass: "dark",
+        metrics: [
+            { val: "$469K", label: "H2 Revenue" },
+            { val: "Q3 vs Q4", label: "Comparison" },
+            { val: "8 Areas", label: "Covered" }
+        ]
+    }
+];
+
+const heroMetrics = [
+    { val: "$2.1M+", label: "Total Revenue" },
+    { val: "2,816", label: "Orders Processed" },
+    { val: "250", label: "Organizations" },
+    { val: "9", label: "Dashboards" }
+];
+
+// Render hero stats
+const heroEl = document.getElementById('heroStats');
+heroMetrics.forEach(m => {
+    heroEl.innerHTML += `
+        <div class="hero-stat">
+            <div class="value">${m.val}</div>
+            <div class="label">${m.label}</div>
+        </div>
+    `;
+});
+
+// Render dashboard cards
+const gridEl = document.getElementById('dashboardGrid');
+dashboards.forEach(d => {
+    const metricsHtml = d.metrics.map(m =>
+        `<div class="card-metric"><span class="metric-val">${m.val}</span><span class="metric-label">${m.label}</span></div>`
+    ).join('');
+
+    gridEl.innerHTML += `
+        <a href="${d.link}" class="dashboard-card">
+            <div class="card-accent"></div>
+            <div class="card-body">
+                <div class="card-icon ${d.iconClass}">${d.icon}</div>
+                <div class="card-title">${d.title}</div>
+                <div class="card-desc">${d.desc}</div>
+                <div class="card-metrics">${metricsHtml}</div>
+                <div class="card-arrow">Open Dashboard &#8594;</div>
+            </div>
+        </a>
+    `;
+});
+
+// Timestamp
+document.getElementById('timestamp').textContent = 'Generated ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + ' at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+</script>
+
+<script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
+</body>
+</html>

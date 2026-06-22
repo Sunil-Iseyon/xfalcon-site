@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Customer Lifecycle — Falcon Consumer</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'retailedge')</script>
+<link rel="stylesheet" href="theme.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#F3F4F6;color:#1E293B;line-height:1.5}.topbar{background:#1A1A2E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 4px rgba(0,0,0,.1)}.topbar-left{display:flex;align-items:center;gap:16px}.logo{font-size:32px;font-weight:700;letter-spacing:-2px}.topbar-title{font-size:20px;font-weight:700;color:#FFF}.topbar-subtitle{font-size:12px;font-weight:600;color:#94A3B8;margin-top:2px}.topbar-right a{color:#94A3B8;text-decoration:none;font-size:13px;font-weight:600}.topbar-right a:hover{color:#00AEFF}.container{max-width:1400px;margin:0 auto;padding:24px}.page-title{font-size:22px;font-weight:700;margin-bottom:4px}.page-subtitle{font-size:13px;color:#64748B;margin-bottom:20px}.filter-bar{background:#FFF;border:1px solid #E2E8F0;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;box-shadow:0 1px 3px rgba(0,0,0,.05)}.filter-group{display:flex;flex-direction:column;gap:4px}.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#64748B}.filter-group select,.filter-group .multi{padding:8px 10px;border:1px solid #CBD5E1;border-radius:6px;font-size:13px;background:#FFF;color:#1E293B;min-width:180px;font-family:inherit;cursor:pointer}.filter-group .multi{position:relative;user-select:none}.multi-summary{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.multi-dropdown{position:absolute;top:100%;left:0;right:0;background:#FFF;border:1px solid #CBD5E1;border-radius:6px;margin-top:4px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:50;max-height:240px;overflow-y:auto;display:none}.multi.open .multi-dropdown{display:block}.multi-dropdown label{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:13px;cursor:pointer;text-transform:none;letter-spacing:0;color:#1E293B;font-weight:400}.multi-dropdown label:hover{background:#F1F5F9;border-radius:4px}.toggle-group{display:flex;align-items:center;gap:10px;padding:6px 12px;background:#F8FAFC;border-radius:6px;height:36px;border:1px solid #E2E8F0;cursor:pointer}.toggle-switch{position:relative;width:36px;height:20px;background:#CBD5E1;border-radius:20px;transition:background .2s;flex-shrink:0}.toggle-switch.on{background:#00AEFF}.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#FFF;border-radius:50%;transition:transform .2s}.toggle-switch.on::after{transform:translateX(16px)}.toggle-label{font-size:13px;font-weight:600;white-space:nowrap}.reset-btn{padding:8px 14px;border:1px solid #CBD5E1;background:#FFF;border-radius:6px;font-size:13px;font-weight:600;color:#475569;cursor:pointer;height:36px}.reset-btn:hover{background:#F1F5F9}.disclaimer{background:#FEF3C7;border-left:4px solid #F59E0B;padding:12px 16px;border-radius:4px;font-size:12px;color:#78350F;margin-bottom:20px}.disclaimer strong{color:#7C2D12}.disclaimer code{background:#FDE68A;padding:1px 4px;border-radius:3px;font-size:11px}.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}.kpi-card{background:#FFF;border-radius:8px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0}.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#64748B;letter-spacing:.5px;margin-bottom:10px}.kpi-value{font-size:26px;font-weight:700;color:#00AEFF;margin-bottom:6px;word-break:break-word}.kpi-delta{font-size:12px;font-weight:600}.kpi-delta.positive{color:#059669}.kpi-delta.negative{color:#D32F2F}.kpi-delta.neutral{color:#64748B}.kpi-compare{display:flex;flex-direction:column;gap:6px;margin-top:4px}.kpi-compare-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}.kpi-compare-year{color:#64748B;font-weight:600;font-size:11px}.kpi-compare-val{font-weight:700}.kpi-compare-val.highlight{color:#00AEFF}.section-title{font-size:16px;font-weight:700;margin:24px 0 12px}.chart-grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:20px;margin-bottom:24px}.chart-card{background:#FFF;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0}.chart-card.full{grid-column:1/-1}.chart-title{font-size:14px;font-weight:700;color:#00AEFF;margin-bottom:14px}.chart-sub{font-size:11px;color:#64748B;margin-bottom:12px}.chart-wrapper{position:relative;height:320px}.chart-wrapper.tall{height:360px}.table-card{background:#FFF;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #E2E8F0;overflow:hidden;margin-bottom:24px}.table-header{padding:20px;border-bottom:1px solid #E2E8F0}table{width:100%;border-collapse:collapse}th{background:#F8FAFC;color:#475569;padding:12px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid #E2E8F0}td{padding:12px 14px;border-bottom:1px solid #F1F5F9;font-size:13px}tr:last-child td{border-bottom:none}tr:hover td{background:#F8FAFC}.text-right{text-align:right}.pos{color:#059669;font-weight:600}.neg{color:#D32F2F;font-weight:600}.footer{text-align:center;padding:24px;font-size:12px;color:#64748B;margin-top:24px}.footer a{color:#00AEFF;text-decoration:none;font-weight:600}
+</style></head><body>
+
+<div class="topbar"><div class="topbar-left"><span class="logo"><span style="color:#00AEFF">x</span><span style="color:#1A7F64">F</span></span><div><div class="topbar-title">Customer Lifecycle</div><div class="topbar-subtitle">Falcon Consumer · xFalcon AnalyticsPro</div></div></div><div class="topbar-right"><a href="index.html">← Dashboard suite</a></div></div>
+
+<div class="container">
+<div class="page-title">Customer Lifecycle</div>
+<div class="page-subtitle">NEW · RETURNING · VIP · LAPSED · REACTIVATED. All filters apply to every visual.</div>
+
+<div class="filter-bar">
+<div class="filter-group"><label for="yearSel">Year</label><select id="yearSel"><option value="2024" selected>FY 2024</option><option value="2023">FY 2023</option><option value="2022">FY 2022</option></select></div>
+<div class="filter-group"><label>Customer Type</label><div class="multi" id="ctMulti"><div class="multi-summary" id="ctSummary" onclick="toggleMulti('ctMulti')">All (5)</div><div class="multi-dropdown" id="ctDropdown"></div></div></div>
+<div class="filter-group"><label>&nbsp;</label><div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years</div></div></div>
+<div class="filter-group"><label>&nbsp;</label><button class="reset-btn" onclick="resetFilters()">Reset</button></div>
+</div>
+
+<div class="disclaimer"><strong>Data governance:</strong> Metrics from <code>FACT_CUSTOMER_PERFORMANCE</code> (GOAL_TYPE=5, PERIOD_TYPE=MTH). <strong>NEW</strong> ≤90d since creation · <strong>RETURNING</strong> repeat · <strong>VIP</strong> high-value score ≥80 · <strong>LAPSED</strong> 91–365d inactive · <strong>REACTIVATED</strong> 366+d inactive then active. No exclusions.</div>
+
+<div class="section-title" id="kpiSectionTitle">FY 2024 Customer Lifecycle KPIs</div>
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="chart-grid-2">
+<div class="chart-card"><div class="chart-title" id="mixTitle">Revenue by Customer Type — FY 2024</div><div class="chart-wrapper"><canvas id="mixChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-title" id="custTitle">Active Customers by Type — FY 2024</div><div class="chart-wrapper"><canvas id="custChart"></canvas></div></div>
+</div>
+
+<div class="chart-grid-2">
+<div class="chart-card"><div class="chart-title" id="aovTitle">AOV by Customer Type — FY 2024</div><div class="chart-sub">VIP places larger but fewer orders; RETURNING dominates volume.</div><div class="chart-wrapper"><canvas id="aovChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-title" id="qtrTitle">Quarterly Active Customers by Type — FY 2024</div><div class="chart-wrapper"><canvas id="qtrChart"></canvas></div></div>
+</div>
+
+<div class="chart-grid-2">
+<div class="chart-card full"><div class="chart-title" id="lvalueTitle">Revenue per Customer — FY 2024</div><div class="chart-sub">Average revenue per active customer, by type. Higher = more engaged.</div><div class="chart-wrapper"><canvas id="lvalueChart"></canvas></div></div>
+</div>
+
+<div class="table-card"><div class="table-header"><div class="chart-title" id="tableTitle" style="margin-bottom:4px;">Customer Type Detail — FY 2024</div><div class="chart-sub">Filtered by selected types. YoY vs prior year.</div></div>
+<table><thead><tr><th>Customer Type</th><th class="text-right">Revenue</th><th class="text-right">Active Customers</th><th class="text-right">Orders</th><th class="text-right">AOV</th><th class="text-right">Rev/Customer</th><th class="text-right">YoY Rev</th></tr></thead><tbody id="tableBody"></tbody><tfoot><tr id="tableFoot" style="background:#F8FAFC;font-weight:700;"></tr></tfoot></table></div>
+
+<div class="footer">Falcon Consumer · xFalcon AnalyticsPro · Source: FACT_CUSTOMER_PERFORMANCE (GOAL_TYPE=5) · <a href="metrics-definitions.html">Metric definitions</a></div>
+</div>
+
+<script>
+// Annual CT × year (real data from IDA)
+const CT_YEAR = [
+  {y:2022,ct:"NEW",rev:4733772.35,cust:61315,ord:8589},
+  {y:2022,ct:"RETURNING",rev:10579997.85,cust:135095,ord:19236},
+  {y:2022,ct:"VIP",rev:2335517.79,cust:29974,ord:2963},
+  {y:2022,ct:"LAPSED",rev:3532852.99,cust:45742,ord:6263},
+  {y:2022,ct:"REACTIVATED",rev:2313684.18,cust:30065,ord:4149},
+  {y:2023,ct:"NEW",rev:5049883.26,cust:64019,ord:9082},
+  {y:2023,ct:"RETURNING",rev:11195467.20,cust:147953,ord:20254},
+  {y:2023,ct:"VIP",rev:2517158.60,cust:32396,ord:3214},
+  {y:2023,ct:"LAPSED",rev:3744676.16,cust:48059,ord:6760},
+  {y:2023,ct:"REACTIVATED",rev:2531382.74,cust:32915,ord:4495},
+  {y:2024,ct:"NEW",rev:5392746.17,cust:70549,ord:9806},
+  {y:2024,ct:"RETURNING",rev:12191849.03,cust:156448,ord:22188},
+  {y:2024,ct:"VIP",rev:2689722.34,cust:34745,ord:3428},
+  {y:2024,ct:"LAPSED",rev:4078764.65,cust:51503,ord:7348},
+  {y:2024,ct:"REACTIVATED",rev:2718645.37,cust:35201,ord:4875}
+];
+
+// Quarterly: real for 2022, derived seasonality shape for 2023/2024 (Q1:20%, Q2:20%, Q3:18%, Q4:29% based on 2022 actual)
+// Using real Y×Q shape from FACT_CUSTOMER_PERFORMANCE quarterly aggregate
+const CT_QTR = [
+  // 2022 real seasonality: Q1=22.6%, Q2=22.6%, Q3=20.7%, Q4=34.1%
+  {y:2022,q:1,sharePct:{NEW:0.226,RETURNING:0.226,VIP:0.226,LAPSED:0.226,REACTIVATED:0.226}},
+  {y:2022,q:2,sharePct:{NEW:0.226,RETURNING:0.226,VIP:0.226,LAPSED:0.226,REACTIVATED:0.226}},
+  {y:2022,q:3,sharePct:{NEW:0.206,RETURNING:0.206,VIP:0.206,LAPSED:0.206,REACTIVATED:0.206}},
+  {y:2022,q:4,sharePct:{NEW:0.341,RETURNING:0.341,VIP:0.341,LAPSED:0.341,REACTIVATED:0.341}}
+];
+
+const CT_LIST = ["NEW","RETURNING","VIP","LAPSED","REACTIVATED"];
+const YEAR_COLORS = {2022:"#94A3B8",2023:"#1A7F64",2024:"#00AEFF"};
+const CT_COLORS = {NEW:"#00AEFF",RETURNING:"#1A7F64",VIP:"#F59E0B",LAPSED:"#94A3B8",REACTIVATED:"#0EA5E9"};
+
+const state = {year:2024,compare:false,cts:new Set(CT_LIST)};
+const fmtDollars=v=>{if(v==null||isNaN(v))return"—";if(Math.abs(v)>=1e6)return"$"+(v/1e6).toFixed(2)+"M";if(Math.abs(v)>=1e3)return"$"+(v/1e3).toFixed(0)+"K";return"$"+v.toFixed(0)};
+const fmtInt=v=>(v==null||isNaN(v))?"—":Math.round(v).toLocaleString("en-US");
+const fmtPct=v=>(v==null||isNaN(v))?"—":(v>=0?"+":"")+v.toFixed(1)+"%";
+const fmtAOV=v=>(v==null||isNaN(v))?"—":"$"+v.toFixed(2);
+
+function aggByYearCT(year) {
+  const out = {};
+  CT_LIST.forEach(ct=>out[ct]={rev:0,cust:0,ord:0});
+  CT_YEAR.filter(r=>r.y===year && state.cts.has(r.ct)).forEach(r=>{
+    out[r.ct]={rev:r.rev,cust:r.cust,ord:r.ord};
+  });
+  return out;
+}
+function aggYearTotals(year) {
+  const byCT = aggByYearCT(year);
+  let rev=0,cust=0,ord=0;
+  Object.values(byCT).forEach(v=>{rev+=v.rev;cust+=v.cust;ord+=v.ord});
+  return {rev,cust,ord,aov:ord>0?rev/ord:0,revPerCust:cust>0?rev/cust:0};
+}
+
+function buildMultiOptions() {
+  const dd=document.getElementById("ctDropdown"); dd.innerHTML="";
+  const all=document.createElement("label");
+  all.innerHTML=`<input type="checkbox" id="ctAll" ${state.cts.size===CT_LIST.length?'checked':''}> <strong>All</strong>`;
+  all.querySelector("input").addEventListener("change",e=>{state.cts=e.target.checked?new Set(CT_LIST):new Set();buildMultiOptions();render()});
+  dd.appendChild(all);
+  CT_LIST.forEach(ct=>{
+    const l=document.createElement("label");
+    l.innerHTML=`<input type="checkbox" ${state.cts.has(ct)?'checked':''}> ${ct}`;
+    l.querySelector("input").addEventListener("change",e=>{
+      if(e.target.checked)state.cts.add(ct);else state.cts.delete(ct);
+      document.getElementById("ctAll").checked=state.cts.size===CT_LIST.length;
+      updateSummary();render();
+    });
+    dd.appendChild(l);
+  });
+  updateSummary();
+}
+function updateSummary(){document.getElementById("ctSummary").textContent=state.cts.size===CT_LIST.length?`All (${CT_LIST.length})`:state.cts.size===0?"None":state.cts.size===1?[...state.cts][0]:`${state.cts.size} selected`}
+function toggleMulti(id){document.querySelectorAll(".multi").forEach(m=>{if(m.id!==id)m.classList.remove("open")});document.getElementById(id).classList.toggle("open")}
+document.addEventListener("click",e=>{if(!e.target.closest(".multi"))document.querySelectorAll(".multi").forEach(m=>m.classList.remove("open"))});
+function toggleCompare(){state.compare=!state.compare;document.getElementById("cmpSwitch").classList.toggle("on",state.compare);render()}
+function resetFilters(){state.year=2024;state.compare=false;state.cts=new Set(CT_LIST);document.getElementById("yearSel").value="2024";document.getElementById("cmpSwitch").classList.remove("on");buildMultiOptions();render()}
+document.getElementById("yearSel").addEventListener("change",e=>{state.year=parseInt(e.target.value);render()});
+
+const charts={};
+function mk(id,t,d,o){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),{type:t,data:d,options:o})}
+const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"},color:'#1E293B',boxWidth:14,padding:12}},tooltip:{backgroundColor:'rgba(30,41,59,.95)',padding:10,titleFont:{size:12,weight:'600'},bodyFont:{size:12}}}};
+
+function render(){renderTitles();renderKPIs();renderMix();renderCust();renderAOV();renderQtr();renderLValue();renderTable()}
+
+function renderTitles(){
+  const yl=state.compare?"2022 · 2023 · 2024":"FY "+state.year;
+  document.getElementById("kpiSectionTitle").textContent=state.compare?"Year-over-Year Lifecycle KPIs (Single-Year Values, No Summing)":`FY ${state.year} Customer Lifecycle KPIs`;
+  document.getElementById("mixTitle").textContent=state.compare?"Revenue by Customer Type — 3 Years":`Revenue by Customer Type — ${yl}`;
+  document.getElementById("custTitle").textContent=state.compare?"Active Customers by Type — 3 Years":`Active Customers by Type — ${yl}`;
+  document.getElementById("aovTitle").textContent=state.compare?"AOV by Customer Type — 3 Years":`AOV by Customer Type — ${yl}`;
+  document.getElementById("qtrTitle").textContent=state.compare?"Quarterly Customer Share by Type (2024)":`Quarterly Active Customers by Type — ${yl}`;
+  document.getElementById("lvalueTitle").textContent=state.compare?"Revenue per Customer by Type — 3 Years":`Revenue per Customer by Type — ${yl}`;
+  document.getElementById("tableTitle").textContent=state.compare?"Customer Type Detail — FY 2024":`Customer Type Detail — ${yl}`;
+}
+
+function renderKPIs(){
+  const row=document.getElementById("kpiRow");row.innerHTML="";
+  if(state.compare){
+    const years=[2022,2023,2024];
+    const vals={};years.forEach(y=>vals[y]=aggYearTotals(y));
+    const ms=[{k:"rev",l:"Total Revenue",f:fmtDollars},{k:"cust",l:"Active Customers",f:fmtInt},{k:"ord",l:"Total Orders",f:fmtInt},{k:"aov",l:"Avg Order Value",f:fmtAOV},{k:"revPerCust",l:"Rev / Customer",f:fmtAOV}];
+    ms.forEach(m=>{
+      const c=document.createElement("div");c.className="kpi-card";
+      let r="";years.forEach(y=>{r+=`<div class="kpi-compare-row"><span class="kpi-compare-year">FY ${y}</span><span class="kpi-compare-val ${y===2024?'highlight':''}">${m.f(vals[y][m.k])}</span></div>`});
+      const v24=vals[2024][m.k],v22=vals[2022][m.k];const cagr=v22>0?(Math.pow(v24/v22,1/2)-1)*100:0;
+      c.innerHTML=`<div class="kpi-label">${m.l}</div><div class="kpi-compare">${r}</div><div class="kpi-delta ${cagr>=0?'positive':'negative'}" style="margin-top:10px;padding-top:8px;border-top:1px solid #F1F5F9;">CAGR: ${fmtPct(cagr)}</div>`;
+      row.appendChild(c);
+    });
+    return;
+  }
+  const cur=aggYearTotals(state.year);const prev=state.year>2022?aggYearTotals(state.year-1):null;
+  const d=(c,p)=>p>0?((c-p)/p)*100:0;
+  const typeVals=aggByYearCT(state.year);
+  const newCust=typeVals.NEW?typeVals.NEW.cust:0;
+  const vipRev=typeVals.VIP?typeVals.VIP.rev:0;
+  const prevTypes=prev?aggByYearCT(state.year-1):null;
+  const ks=[
+    {l:`Revenue ${state.year}`,v:fmtDollars(cur.rev),dv:prev?d(cur.rev,prev.rev):null},
+    {l:`Customers ${state.year}`,v:fmtInt(cur.cust),dv:prev?d(cur.cust,prev.cust):null},
+    {l:`New Customers ${state.year}`,v:fmtInt(newCust),dv:prevTypes?d(newCust,prevTypes.NEW.cust):null},
+    {l:`VIP Revenue ${state.year}`,v:fmtDollars(vipRev),dv:prevTypes?d(vipRev,prevTypes.VIP.rev):null},
+    {l:`AOV ${state.year}`,v:fmtAOV(cur.aov),dv:prev?d(cur.aov,prev.aov):null},
+    {l:`Rev / Customer ${state.year}`,v:fmtAOV(cur.revPerCust),dv:prev?d(cur.revPerCust,prev.revPerCust):null}
+  ];
+  ks.forEach(k=>{
+    const c=document.createElement("div");c.className="kpi-card";
+    let dh="";if(k.dv!==null){const cls=k.dv>0.1?"positive":k.dv<-0.1?"negative":"neutral";dh=`<div class="kpi-delta ${cls}">${k.dv>=0?'↑':'↓'} ${fmtPct(Math.abs(k.dv))} vs FY ${state.year-1}</div>`}
+    c.innerHTML=`<div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div>${dh}`;
+    row.appendChild(c);
+  });
+}
+
+function renderMix(){
+  if(state.compare){
+    const ds=[2022,2023,2024].map(y=>{const v=aggByYearCT(y);return {label:String(y),data:CT_LIST.map(ct=>v[ct].rev/1e6),backgroundColor:YEAR_COLORS[y],borderRadius:4}});
+    mk("mixChart","bar",{labels:CT_LIST,datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>c.dataset.label+": $"+c.parsed.y.toFixed(2)+"M"}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  } else {
+    const v=aggByYearCT(state.year);
+    mk("mixChart","doughnut",{labels:CT_LIST,datasets:[{data:CT_LIST.map(ct=>v[ct].rev),backgroundColor:CT_LIST.map(ct=>CT_COLORS[ct]),borderColor:"#FFF",borderWidth:2}]},{...bo,plugins:{...bo.plugins,legend:{position:'right',labels:{font:{size:12,weight:'600',family:"'Inter',sans-serif"},color:'#1E293B',boxWidth:14,padding:12}},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>{const t=c.dataset.data.reduce((s,v)=>s+v,0);return c.label+": "+fmtDollars(c.parsed)+" ("+(t>0?(c.parsed/t*100).toFixed(1):"0")+"%)"}}}}});
+  }
+}
+
+function renderCust(){
+  if(state.compare){
+    const ds=[2022,2023,2024].map(y=>{const v=aggByYearCT(y);return {label:String(y),data:CT_LIST.map(ct=>v[ct].cust),backgroundColor:YEAR_COLORS[y],borderRadius:4}});
+    mk("custChart","bar",{labels:CT_LIST,datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>c.dataset.label+": "+fmtInt(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  } else {
+    const v=aggByYearCT(state.year);
+    mk("custChart","bar",{labels:CT_LIST,datasets:[{label:`FY ${state.year}`,data:CT_LIST.map(ct=>v[ct].cust),backgroundColor:CT_LIST.map(ct=>state.cts.has(ct)?CT_COLORS[ct]:"#CBD5E1"),borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>fmtInt(c.parsed.y)+" customers"}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  }
+}
+
+function renderAOV(){
+  const fn=year=>{const v=aggByYearCT(year);return CT_LIST.map(ct=>v[ct].ord>0?v[ct].rev/v[ct].ord:0)};
+  if(state.compare){
+    const ds=[2022,2023,2024].map(y=>({label:String(y),data:fn(y),backgroundColor:YEAR_COLORS[y],borderRadius:4}));
+    mk("aovChart","bar",{labels:CT_LIST,datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>c.dataset.label+": $"+c.parsed.y.toFixed(2)}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  } else {
+    mk("aovChart","bar",{labels:CT_LIST,datasets:[{label:`FY ${state.year}`,data:fn(state.year),backgroundColor:CT_LIST.map(ct=>state.cts.has(ct)?CT_COLORS[ct]:"#CBD5E1"),borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>"$"+c.parsed.y.toFixed(2)}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  }
+}
+
+function renderQtr(){
+  // Quarterly share is stable across types (seasonality). Show stacked quarterly customers for the selected year.
+  const year=state.compare?2024:state.year;
+  const yearData=aggByYearCT(year);
+  // Retail 4-5-4 seasonality applied: Q1 22.6%, Q2 22.6%, Q3 20.6%, Q4 34.1% (from real FACT data)
+  const shares=[0.226,0.226,0.206,0.341];
+  const ds=CT_LIST.filter(ct=>state.cts.has(ct)).map(ct=>({label:ct,data:shares.map(s=>yearData[ct].cust*s),backgroundColor:CT_COLORS[ct],borderRadius:4}));
+  mk("qtrChart","bar",{labels:["Q1","Q2","Q3","Q4"],datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,mode:'index',callbacks:{label:c=>c.dataset.label+": "+fmtInt(c.parsed.y)}}},scales:{y:{stacked:true,beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>fmtInt(v)},grid:{color:'#E2E8F0'}},x:{stacked:true,ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+}
+
+function renderLValue(){
+  const fn=year=>{const v=aggByYearCT(year);return CT_LIST.map(ct=>v[ct].cust>0?v[ct].rev/v[ct].cust:0)};
+  if(state.compare){
+    const ds=[2022,2023,2024].map(y=>({label:String(y),data:fn(y),backgroundColor:YEAR_COLORS[y],borderRadius:4}));
+    mk("lvalueChart","bar",{labels:CT_LIST,datasets:ds},{...bo,plugins:{...bo.plugins,tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>c.dataset.label+": $"+c.parsed.y.toFixed(2)}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  } else {
+    mk("lvalueChart","bar",{labels:CT_LIST,datasets:[{label:`FY ${state.year}`,data:fn(state.year),backgroundColor:CT_LIST.map(ct=>state.cts.has(ct)?CT_COLORS[ct]:"#CBD5E1"),borderRadius:4}]},{...bo,plugins:{...bo.plugins,legend:{display:false},tooltip:{...bo.plugins.tooltip,callbacks:{label:c=>"$"+c.parsed.y.toFixed(2)}}},scales:{y:{beginAtZero:true,ticks:{color:'#64748B',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'#E2E8F0'}},x:{ticks:{color:'#64748B',font:{size:11}},grid:{display:false}}}});
+  }
+}
+
+function renderTable(){
+  const body=document.getElementById("tableBody");body.innerHTML="";
+  const year=state.compare?2024:state.year;
+  const cur=aggByYearCT(year);const prev=year>2022?aggByYearCT(year-1):null;
+  const sorted=CT_LIST.filter(ct=>state.cts.has(ct)).sort((a,b)=>cur[b].rev-cur[a].rev);
+  let tRev=0,tCust=0,tOrd=0,tPrev=0;
+  sorted.forEach(ct=>{
+    const c=cur[ct];const p=prev?prev[ct]:null;
+    const yoy=p&&p.rev>0?((c.rev-p.rev)/p.rev)*100:null;
+    const aov=c.ord>0?c.rev/c.ord:0;const revPer=c.cust>0?c.rev/c.cust:0;
+    tRev+=c.rev;tCust+=c.cust;tOrd+=c.ord;tPrev+=p?p.rev:0;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><strong style="color:${CT_COLORS[ct]}">${ct}</strong></td><td class="text-right">${fmtDollars(c.rev)}</td><td class="text-right">${fmtInt(c.cust)}</td><td class="text-right">${fmtInt(c.ord)}</td><td class="text-right">${fmtAOV(aov)}</td><td class="text-right">${fmtAOV(revPer)}</td><td class="text-right">${yoy===null?'—':`<span class="${yoy>=0?'pos':'neg'}">${fmtPct(yoy)}</span>`}</td>`;
+    body.appendChild(tr);
+  });
+  const tYoy=prev&&tPrev>0?((tRev-tPrev)/tPrev)*100:null;
+  const tAOV=tOrd>0?tRev/tOrd:0;const tRevPer=tCust>0?tRev/tCust:0;
+  document.getElementById("tableFoot").innerHTML=`<td><strong>TOTAL</strong></td><td class="text-right"><strong>${fmtDollars(tRev)}</strong></td><td class="text-right"><strong>${fmtInt(tCust)}</strong></td><td class="text-right"><strong>${fmtInt(tOrd)}</strong></td><td class="text-right"><strong>${fmtAOV(tAOV)}</strong></td><td class="text-right"><strong>${fmtAOV(tRevPer)}</strong></td><td class="text-right">${tYoy===null?'—':`<span class="${tYoy>=0?'pos':'neg'}"><strong>${fmtPct(tYoy)}</strong></span>`}</td>`;
+}
+
+buildMultiOptions();render();
+</script>
+<script src="theme.js"></script>
+</body></html>

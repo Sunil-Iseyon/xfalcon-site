@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 17: Place of Service Utilization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid #2C5F8A;
+        }
+
+        .kpi-card.secondary {
+            border-left-color: #E8913A;
+        }
+
+        .kpi-card.success {
+            border-left-color: #5BA67D;
+        }
+
+        .kpi-card.danger {
+            border-left-color: #C75B5B;
+        }
+
+        .kpi-card.info {
+            border-left-color: #6A9BC3;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f5f6fa;
+            border-bottom: 2px solid #e8eaed;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2d3436;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .footer-note {
+            display: inline-block;
+            background: #f5f6fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Area 17: Place of Service Utilization</h1>
+            <p>7 Service Settings | Jan 2023 – Dec 2025 | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Total POS Types</div>
+                <div class="kpi-value">7</div>
+                <div class="kpi-detail">Service settings</div>
+            </div>
+            <div class="kpi-card secondary">
+                <div class="kpi-label">Most Common</div>
+                <div class="kpi-value">Office</div>
+                <div class="kpi-detail">453 encounters (30.3%)</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Highest Revenue</div>
+                <div class="kpi-value">$9.14M</div>
+                <div class="kpi-detail">Inpatient Hospital</div>
+            </div>
+            <div class="kpi-card info">
+                <div class="kpi-label">Inpatient Share</div>
+                <div class="kpi-value">10%</div>
+                <div class="kpi-detail">Encounters, 76.6% revenue</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Telehealth Volume</div>
+                <div class="kpi-value">158</div>
+                <div class="kpi-detail">10.6% of encounters</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">POS Volume Distribution</div>
+                <div class="chart-wrap h300">
+            <canvas id="volumeChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">POS Revenue Contribution</div>
+                <div class="chart-wrap h300">
+            <canvas id="revenueChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Facility vs Non-Facility</div>
+                <div class="chart-wrap h300">
+            <canvas id="facilityChart"></canvas>
+        </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Inpatient vs Outpatient vs Emergency</div>
+                <div class="chart-wrap h300">
+            <canvas id="typeChart"></canvas>
+        </div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom: 30px;">
+            <div class="chart-title">Average Billed Amount by Place of Service</div>
+            <div class="chart-wrap h300">
+            <canvas id="avgBilledChart"></canvas>
+        </div>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Place of Service Utilization Details</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Place of Service</th>
+                        <th>Category</th>
+                        <th>Facility?</th>
+                        <th>Encounters</th>
+                        <th>% of Total</th>
+                        <th>Total Billed</th>
+                        <th>% of Revenue</th>
+                        <th>Avg Billed</th>
+                        <th>Avg LOS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Office</td>
+                        <td>Outpatient</td>
+                        <td>No</td>
+                        <td>453</td>
+                        <td>30.3%</td>
+                        <td>$502,729</td>
+                        <td>4.2%</td>
+                        <td>$1,110</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Independent Laboratory</td>
+                        <td>Outpatient</td>
+                        <td>No</td>
+                        <td>293</td>
+                        <td>19.6%</td>
+                        <td>$132,630</td>
+                        <td>1.1%</td>
+                        <td>$453</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>On Campus-Outpatient Hospital</td>
+                        <td>Outpatient</td>
+                        <td>Yes</td>
+                        <td>170</td>
+                        <td>11.4%</td>
+                        <td>$423,445</td>
+                        <td>3.6%</td>
+                        <td>$2,491</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Telehealth</td>
+                        <td>Outpatient</td>
+                        <td>No</td>
+                        <td>158</td>
+                        <td>10.6%</td>
+                        <td>$385,634</td>
+                        <td>3.2%</td>
+                        <td>$2,441</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Independent Clinic</td>
+                        <td>Outpatient</td>
+                        <td>No</td>
+                        <td>152</td>
+                        <td>10.2%</td>
+                        <td>$399,899</td>
+                        <td>3.4%</td>
+                        <td>$2,631</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Inpatient Hospital</td>
+                        <td>Inpatient</td>
+                        <td>Yes</td>
+                        <td>150</td>
+                        <td>10.0%</td>
+                        <td>$9,135,749</td>
+                        <td>76.6%</td>
+                        <td>$60,905</td>
+                        <td>3.95</td>
+                    </tr>
+                    <tr>
+                        <td>Emergency Room</td>
+                        <td>Emergency</td>
+                        <td>Yes</td>
+                        <td>121</td>
+                        <td>8.1%</td>
+                        <td>$949,642</td>
+                        <td>8.0%</td>
+                        <td>$7,848</td>
+                        <td>0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="footer-note">Generated on March 11, 2026 | Data represents encounters from Jan 2023 – Dec 2025</div>
+        </div>
+    </div>
+
+    <script>
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        const posData = [
+            { pos: 'Office', enc: 453, billed: 502729 },
+            { pos: 'Independent Laboratory', enc: 293, billed: 132630 },
+            { pos: 'On Campus-Outpatient', enc: 170, billed: 423445 },
+            { pos: 'Telehealth', enc: 158, billed: 385634 },
+            { pos: 'Independent Clinic', enc: 152, billed: 399899 },
+            { pos: 'Inpatient Hospital', enc: 150, billed: 9135749 },
+            { pos: 'Emergency Room', enc: 121, billed: 949642 }
+        ];
+
+        const colorArray = [colors.primary, colors.secondary, colors.success, colors.danger, colors.warning, colors.info, colors.purple];
+
+        // Volume Chart
+        new Chart(document.getElementById('volumeChart'), {
+            type: 'bar',
+            data: {
+                labels: posData.map(p => p.pos),
+                datasets: [{
+                    label: 'Encounters',
+                    data: posData.map(p => p.enc),
+                    backgroundColor: colorArray,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Revenue Chart
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'bar',
+            data: {
+                labels: posData.map(p => p.pos),
+                datasets: [{
+                    label: 'Total Billed ($)',
+                    data: posData.map(p => p.billed),
+                    backgroundColor: colorArray,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Facility vs Non-Facility Doughnut
+        const facilityData = [
+            { label: 'Facility', value: 612 },
+            { label: 'Non-Facility', value: 886 }
+        ];
+
+        new Chart(document.getElementById('facilityChart'), {
+            type: 'doughnut',
+            data: {
+                labels: facilityData.map(d => d.label),
+                datasets: [{
+                    data: facilityData.map(d => d.value),
+                    backgroundColor: [colors.info, colors.teal],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + percentage + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inpatient vs Outpatient vs Emergency Doughnut
+        const typeData = [
+            { label: 'Outpatient', value: 1228 },
+            { label: 'Inpatient', value: 150 },
+            { label: 'Emergency', value: 121 }
+        ];
+
+        new Chart(document.getElementById('typeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: typeData.map(d => d.label),
+                datasets: [{
+                    data: typeData.map(d => d.value),
+                    backgroundColor: [colors.success, colors.danger, colors.warning],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + percentage + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Average Billed Chart
+        const avgBilledData = [
+            { pos: 'Office', avg: 1110 },
+            { pos: 'Independent Lab', avg: 453 },
+            { pos: 'On Campus-Outpatient', avg: 2491 },
+            { pos: 'Telehealth', avg: 2441 },
+            { pos: 'Independent Clinic', avg: 2631 },
+            { pos: 'Inpatient Hospital', avg: 60905 },
+            { pos: 'Emergency Room', avg: 7848 }
+        ];
+
+        new Chart(document.getElementById('avgBilledChart'), {
+            type: 'bar',
+            data: {
+                labels: avgBilledData.map(d => d.pos),
+                datasets: [{
+                    label: 'Average Billed ($)',
+                    data: avgBilledData.map(d => d.avg),
+                    backgroundColor: colors.primary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        type: 'logarithmic',
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>06 — Target vs Actual | Falcon Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1A1A2E; color: #FFFFFF; }
+
+        .top-nav { background: #1A1A2E; border-bottom: 2px solid #D4A843; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .top-nav a { color: #D4A843; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .top-nav a:hover { color: #FFF; }
+        .top-nav .nav-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { padding: 4px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(212,168,67,0.15); }
+        .nav-links a.active { color: #FFF; background: rgba(212,168,67,0.2); }
+
+        .header { background: linear-gradient(135deg, #1E2A45, #232340); padding: 30px; border-bottom: 3px solid #D4A843; position: relative; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: #D4A843; }
+        .header .subtitle { font-size: 13px; color: #C0C0C0; }
+        .header .dash-num { font-family: 'Playfair Display', serif; font-size: 48px; color: rgba(212,168,67,0.15); position: absolute; right: 30px; top: 15px; }
+        .fy-badge { display: inline-block; background: #D4A843; color: #1A1A2E; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #D4A843; }
+        .kpi-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; color: #D4A843; font-family: 'Playfair Display', serif; }
+        .kpi-card .change { font-size: 11px; margin-top: 4px; }
+        .kpi-card .change.positive { color: #C9B037; }
+        .kpi-card .change.negative { color: #E74C3C; }
+        .kpi-card .sub-value { font-size: 10px; color: #666; margin-top: 2px; }
+        .kpi-card .sparkline-row { display: flex; align-items: flex-end; gap: 2px; margin-top: 6px; height: 20px; }
+        .kpi-card .sparkline-row .bar { background: rgba(212,168,67,0.35); border-radius: 1px; flex: 1; }
+        .kpi-card .sparkline-row .bar.peak { background: #D4A843; }
+
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: linear-gradient(145deg, #1E2A45, #232340); border: 1px solid rgba(212,168,67,0.15); border-radius: 10px; padding: 22px; }
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #D4A843; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+        .chart-card .chart-subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 16px; color: #D4A843; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid rgba(212,168,67,0.15); }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(212,168,67,0.3); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #D4A843; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #C0C0C0; }
+        .data-table tr:hover td { background: rgba(212,168,67,0.05); }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .pos { color: #C9B037; }
+        .data-table .neg { color: #E74C3C; }
+
+        .footer { text-align: center; font-size: 11px; color: #555; margin-top: 32px; padding: 20px; border-top: 1px solid rgba(212,168,67,0.1); }
+        .footer span { color: #D4A843; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="index.html" class="nav-title">&#9664; Falcon Analytics</a>
+    <div class="nav-links">
+        <a href="01-executive-summary.html">01</a>
+        <a href="02-shipments.html">02</a>
+        <a href="03-depletions.html">03</a>
+        <a href="04-consumption.html">04</a>
+        <a href="05-inventory.html">05</a>
+        <a href="06-target-vs-actual.html" class="active">06</a>
+        <a href="07-trade-spend.html">07</a>
+        <a href="08-product-portfolio.html">08</a>
+        <a href="09-market-geography.html">09</a>
+        <a href="10-sales-rep.html">10</a>
+        <a href="11-distributor.html">11</a>
+        <a href="12-channel-mix.html">12</a>
+        <a href="13-what-if-launch.html">13</a>
+            <a href="14-metrics-glossary.html">14</a>
+    </div>
+</div>
+
+<div class="header">
+    <h1>Target vs Actual <span class="fy-badge">FY 2025</span></h1>
+    <div class="subtitle">Sales Plan Attainment | Monthly & Quarterly with Prior Year Comparison</div>
+    <div class="dash-num">06</div>
+</div>
+
+<div class="container">
+
+<!-- ═══ KPI CARDS ═══ -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ═══ MONTHLY TARGET vs ACTUAL REVENUE ═══ -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <h3>Monthly Revenue: Target vs Actual — FY2025</h3>
+        <div class="chart-subtitle">Line comparison of planned and actual net revenue by fiscal period</div>
+        <canvas id="revenueChart" height="70"></canvas>
+    </div>
+</div>
+
+<!-- ═══ CASES TARGET vs ACTUAL ═══ -->
+<div class="section-label">Volume Performance — FY2025 vs FY2024</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Monthly Cases: Target vs Actual</h3>
+        <div class="chart-subtitle">Volume attainment by month (FY25 vs plan)</div>
+        <canvas id="casesChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Quarterly Revenue: Target vs Actual</h3>
+        <div class="chart-subtitle">Grouped bar comparison by quarter — FY2025</div>
+        <canvas id="qtrAttainChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR PERFORMANCE ═══ -->
+<div class="section-label">Distributor Attainment — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Distributor Revenue: Target vs Actual</h3>
+        <div class="chart-subtitle">Side-by-side comparison showing the gap between plan and actual</div>
+        <canvas id="distAttainChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Distributor Attainment %</h3>
+        <div class="chart-subtitle">Revenue attainment as % of target — 100% line marks plan</div>
+        <canvas id="distAttainPctChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ CATEGORY & GROSS PROFIT ═══ -->
+<div class="section-label">Category & Profitability — FY2025</div>
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Category Revenue Attainment</h3>
+        <div class="chart-subtitle">Target vs actual revenue by product category</div>
+        <canvas id="catChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Gross Profit: Target vs Actual</h3>
+        <div class="chart-subtitle">Monthly GP comparison — FY25 vs plan</div>
+        <canvas id="gpChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ DISTRIBUTOR TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Distributor Attainment Detail — FY2025</h3>
+    <div class="chart-subtitle">Revenue and case targets vs actuals with attainment percentage by distributor</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Distributor</th>
+            <th class="num">Target Revenue</th><th class="num">Actual Revenue</th><th class="num">Attainment %</th>
+            <th class="num">Target Cases</th><th class="num">Actual Cases</th><th class="num">Case Att. %</th>
+        </tr></thead>
+        <tbody id="distTable"></tbody>
+        <tfoot id="distTfoot"></tfoot>
+    </table>
+</div>
+
+<!-- ═══ MONTHLY DETAIL TABLE ═══ -->
+<div class="chart-card full-width" style="margin-bottom:20px;">
+    <h3>Monthly Attainment Detail — FY2025</h3>
+    <div class="chart-subtitle">Target vs actual revenue, cases, and gross profit with variance analysis by fiscal period</div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Month</th><th>Qtr</th>
+            <th class="num">Revenue Target</th><th class="num">Revenue Actual</th><th class="num">Rev. Att. %</th>
+            <th class="num">Cases Target</th><th class="num">Cases Actual</th><th class="num">Case Att. %</th>
+            <th class="num">GP Target</th><th class="num">GP Actual</th>
+        </tr></thead>
+        <tbody id="monthTable"></tbody>
+        <tfoot id="monthTfoot"></tfoot>
+    </table>
+</div>
+
+</div>
+
+<div class="footer">Dashboard 06 of 12 &bull; <span>Falcon Analytics</span> &bull; Spirits & Alcohol Demo &bull; FY2025 (Jul 2024 — Jun 2025)</div>
+
+<script>
+// ── THEME ──
+const G='#D4A843',DG='#B8860B',LG='#C9B037',GL='rgba(212,168,67,0.1)',PY='rgba(184,134,11,0.4)';
+Chart.defaults.color='#C0C0C0'; Chart.defaults.borderColor=GL; Chart.defaults.font.family="'Inter',sans-serif";
+function fmt$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0);}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(1)+'K';}
+function pct(a,b){return b?((a-b)/b*100).toFixed(1):0;}
+
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+// ── MONTHLY FY25 TARGETS ──
+const targets25 = [
+    {m:'Jul',q:1,tc:313481.0,tr:9364728.00,gp:4195886.93},
+    {m:'Aug',q:1,tc:314692.0,tr:9444675.00,gp:4240263.14},
+    {m:'Sep',q:1,tc:314439.0,tr:9379517.50,gp:4226390.43},
+    {m:'Oct',q:2,tc:314057.0,tr:9379638.00,gp:4224299.75},
+    {m:'Nov',q:2,tc:312477.0,tr:9354621.50,gp:4216208.39},
+    {m:'Dec',q:2,tc:315823.0,tr:9474502.00,gp:4240038.32},
+    {m:'Jan',q:3,tc:314301.0,tr:9409585.50,gp:4227387.27},
+    {m:'Feb',q:3,tc:312389.0,tr:9347409.00,gp:4226978.11},
+    {m:'Mar',q:3,tc:314854.0,tr:9431783.00,gp:4271233.93},
+    {m:'Apr',q:4,tc:314363.0,tr:9421119.00,gp:4253137.71},
+    {m:'May',q:4,tc:314552.0,tr:9386852.00,gp:4215268.79},
+    {m:'Jun',q:4,tc:314124.0,tr:9398626.50,gp:4267286.97}
+];
+
+// ── MONTHLY FY25 ACTUALS ──
+const actuals25 = [
+    {m:'Jul',q:1,ac:79563.5,ar:3328697.91,gp:1240658.00},
+    {m:'Aug',q:1,ac:61571.6,ar:2616557.45,gp:975640.97},
+    {m:'Sep',q:1,ac:75642.9,ar:3335445.97,gp:1241590.25},
+    {m:'Oct',q:2,ac:64277.5,ar:2887869.86,gp:1072944.15},
+    {m:'Nov',q:2,ac:73804.2,ar:3266443.72,gp:1214095.42},
+    {m:'Dec',q:2,ac:118072.8,ar:5263840.10,gp:1958186.99},
+    {m:'Jan',q:3,ac:52496.4,ar:2318625.06,gp:861745.54},
+    {m:'Feb',q:3,ac:51037.8,ar:2257008.53,gp:839489.88},
+    {m:'Mar',q:3,ac:70459.4,ar:3070893.98,gp:1142391.18},
+    {m:'Apr',q:4,ac:58431.2,ar:2547395.68,gp:946410.14},
+    {m:'May',q:4,ac:61762.1,ar:2662191.32,gp:991523.20},
+    {m:'Jun',q:4,ac:81137.9,ar:3452340.67,gp:1286722.03}
+];
+
+// ── QUARTERLY DATA ──
+const qtrTargets = [
+    {q:1,tc:942612.0,tr:28188920.50},{q:2,tc:942357.0,tr:28208761.50},
+    {q:3,tc:941544.0,tr:28188777.50},{q:4,tc:943039.0,tr:28206597.50}
+];
+
+const qtrActuals = [
+    {q:1,ac:216777.0,ar:9280701.33},{q:2,ac:256154.5,ar:11418153.68},
+    {q:3,ac:173993.6,ar:7646527.57},{q:4,ac:201331.2,ar:8661927.67}
+];
+
+// ── DISTRIBUTOR DATA ──
+const distTargets = [
+    {n:'Southern Wine & Spirits Partne',tr:23665710.00,tc:792325.0},
+    {n:'Republic National Distributing',tr:23583658.50,tc:786015.0},
+    {n:'Breakthru Beverage Holdings',tr:19683845.50,tc:657765.0},
+    {n:"Young's Market Company",tr:15051402.00,tc:503810.0},
+    {n:'Empire Merchants Distribution',tr:7196078.50,tc:240125.0},
+    {n:'Heidelberg Distributing',tr:5360109.50,tc:179472.0},
+    {n:'Winesellers Ltd',tr:4214970.50,tc:140248.0},
+    {n:'Capitol Beverage Sales',tr:3510261.00,tc:117758.0},
+    {n:'Horizon Beverage Group',tr:3253115.50,tc:108766.0},
+    {n:'Lipman Brothers',tr:3209365.50,tc:107367.0},
+    {n:'Fedway Associates',tr:2200972.50,tc:73724.0},
+    {n:'State Control Board',tr:1863568.00,tc:62177.0}
+];
+
+const distActuals = [
+    {n:'Southern Wine & Spirits Partne',ar:7821989.47,ac:179189.2},
+    {n:'Republic National Distributing',ar:7790759.50,ac:178046.1},
+    {n:'Breakthru Beverage Holdings',ar:6460733.11,ac:147947.4},
+    {n:"Young's Market Company",ar:4866963.97,ac:111886.3},
+    {n:'Empire Merchants Distribution',ar:2348886.88,ac:53617.8},
+    {n:'Heidelberg Distributing',ar:1753016.48,ac:39949.5},
+    {n:'Winesellers Ltd',ar:1376625.23,ac:31589.7},
+    {n:'Capitol Beverage Sales',ar:1157678.55,ac:26741.4},
+    {n:'Horizon Beverage Group',ar:1067906.33,ac:24706.8},
+    {n:'Lipman Brothers',ar:1031767.39,ac:24043.4},
+    {n:'Fedway Associates',ar:722121.28,ac:16596.7},
+    {n:'State Control Board',ar:608862.06,ac:13943.0}
+];
+
+// ── CATEGORY DATA ──
+const catTargets = [
+    {c:'Scotch Whisky',tr:19317084.00},{c:'Premium Tequila',tr:16355924.00},
+    {c:'Ultra-Premium Tequila',tr:15025488.00},{c:'Ultra-Premium Vodka',tr:10742300.00},
+    {c:'Bourbon',tr:9463950.00},{c:'Canadian Whisky',tr:8827084.00},
+    {c:'Super-Premium Vodka',tr:8746864.00},{c:'Premium Gin',tr:7561440.00},
+    {c:'Cream Liqueur',tr:7493064.00},{c:'Spiced Rum',tr:4848865.00},
+    {c:'Premium Vodka',tr:4410994.00}
+];
+
+const catActuals = [
+    {c:'Scotch Whisky',ar:15763321.65},{c:'Canadian Whisky',ar:11526007.10},
+    {c:'Premium Vodka',ar:3723863.12},{c:'Spiced Rum',ar:2194944.83},
+    {c:'Premium Tequila',ar:1580027.04},{c:'Ultra-Premium Tequila',ar:594384.99},
+    {c:'Bourbon',ar:458059.51},{c:'Ultra-Premium Vodka',ar:413945.51},
+    {c:'Super-Premium Vodka',ar:284346.09},{c:'Premium Gin',ar:265125.72},
+    {c:'Cream Liqueur',ar:184370.48}
+];
+
+// ── TOTALS ──
+let totalTargetRev=0,totalActualRev=0,totalTargetCases=0,totalActualCases=0,totalTargetGP=0,totalActualGP=0;
+targets25.forEach(d=>{totalTargetRev+=d.tr;totalTargetCases+=d.tc;totalTargetGP+=d.gp;});
+actuals25.forEach(d=>{totalActualRev+=d.ar;totalActualCases+=d.ac;totalActualGP+=d.gp;});
+
+// ── KPI CARDS ──
+const kpis = [
+    {label:'Revenue Target',val:totalTargetRev,sub:'Annual FY2025 plan',isMoney:true},
+    {label:'Revenue Actual',val:totalActualRev,sub:'YTD through Jun 2025',isMoney:true},
+    {label:'Revenue Attainment',val:(totalActualRev/totalTargetRev*100),sub:'Actual as % of target',isPercent:true},
+    {label:'Cases Target',val:totalTargetCases,sub:'Annual FY2025 volume',isCases:true},
+    {label:'Cases Actual',val:totalActualCases,sub:'YTD volume shipped',isCases:true},
+    {label:'GP Attainment %',val:(totalActualGP/totalTargetGP*100),sub:'Gross profit as % of plan',isPercent:true}
+];
+
+const kpiRow = document.getElementById('kpiRow');
+kpis.forEach(k=>{
+    const displayVal = k.isPercent ? k.val.toFixed(1)+'%' : k.isCases ? fmtK(k.val) : fmt$(k.val);
+    const sparkVals = actuals25.map(d => d.ar);
+    const sparkMax = Math.max(...sparkVals);
+    const bars = sparkVals.map(v=>`<div class="bar${v===sparkMax?' peak':''}" style="height:${Math.max(3,Math.round(v/sparkMax*20))}px"></div>`).join('');
+    kpiRow.innerHTML += `<div class="kpi-card">
+        <div class="label">${k.label}</div>
+        <div class="value">${displayVal}</div>
+        <div class="sub-value">${k.sub}</div>
+        <div class="sparkline-row">${bars}</div>
+    </div>`;
+});
+
+// ── REVENUE TARGET vs ACTUAL ──
+new Chart(document.getElementById('revenueChart'),{type:'line',data:{
+    labels:months,
+    datasets:[
+        {label:'Target',data:targets25.map(d=>d.tr),borderColor:G,backgroundColor:'rgba(212,168,67,0.08)',fill:true,tension:.3,pointRadius:2,borderWidth:2},
+        {label:'Actual',data:actuals25.map(d=>d.ar),borderColor:DG,fill:false,tension:.3,pointRadius:2,borderWidth:2}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── CASES TARGET vs ACTUAL ──
+new Chart(document.getElementById('casesChart'),{type:'bar',data:{
+    labels:months,
+    datasets:[
+        {label:'Target',data:targets25.map(d=>d.tc),backgroundColor:G,borderRadius:3,barPercentage:.8},
+        {label:'Actual',data:actuals25.map(d=>d.ac),backgroundColor:PY,borderRadius:3,barPercentage:.8}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── QUARTERLY TARGET vs ACTUAL ──
+new Chart(document.getElementById('qtrAttainChart'),{type:'bar',data:{
+    labels:['Q1','Q2','Q3','Q4'],
+    datasets:[
+        {label:'Target',data:qtrTargets.map(d=>d.tr),backgroundColor:'rgba(212,168,67,0.3)',borderColor:G,borderWidth:1,borderRadius:4,barPercentage:0.7},
+        {label:'Actual',data:qtrActuals.map(d=>d.ar),backgroundColor:G,borderRadius:4,barPercentage:0.7}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}},tooltip:{callbacks:{label:ctx=>{const i=ctx.dataIndex;const att=(qtrActuals[i].ar/qtrTargets[i].tr*100).toFixed(1);return ctx.dataset.label+': '+fmt$(ctx.raw)+(ctx.datasetIndex===1?' ('+att+'% att.)':'');}}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── DISTRIBUTOR TARGET vs ACTUAL GROUPED BAR ──
+const distLabels = distTargets.map(d=>d.n.length>22?d.n.substring(0,22)+'…':d.n);
+new Chart(document.getElementById('distAttainChart'),{type:'bar',data:{
+    labels:distLabels,
+    datasets:[
+        {label:'Target',data:distTargets.map(d=>d.tr),backgroundColor:'rgba(212,168,67,0.3)',borderColor:G,borderWidth:1,borderRadius:3,barPercentage:0.85},
+        {label:'Actual',data:distActuals.map(d=>d.ar),backgroundColor:G,borderRadius:3,barPercentage:0.85}
+    ]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0',padding:12}},tooltip:{callbacks:{label:ctx=>{const i=ctx.dataIndex;const att=(distActuals[i].ar/distTargets[i].tr*100).toFixed(1);return ctx.dataset.label+': '+fmt$(ctx.raw)+(ctx.datasetIndex===1?' ('+att+'%)':'');}}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── DISTRIBUTOR ATTAINMENT % BAR WITH 100% LINE ──
+const attPctData = distTargets.map((d,i)=>(distActuals[i].ar/d.tr*100));
+const attColors = attPctData.map(v=>v>=50?G:v>=30?DG:'#E74C3C');
+new Chart(document.getElementById('distAttainPctChart'),{type:'bar',data:{
+    labels:distLabels,
+    datasets:[{label:'Attainment %',data:attPctData,backgroundColor:attColors,borderRadius:3,barPercentage:0.7}]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(1)+'% of target'}},annotation:false},scales:{x:{min:0,max:50,ticks:{callback:v=>v+'%'},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── CATEGORY TARGET vs ACTUAL ──
+new Chart(document.getElementById('catChart'),{type:'bar',data:{
+    labels:catTargets.map(d=>d.c),
+    datasets:[
+        {label:'Target',data:catTargets.map(d=>d.tr),backgroundColor:G,borderRadius:3},
+        {label:'Actual',data:catActuals.map(d=>d.ar),backgroundColor:PY,borderRadius:3}
+    ]
+},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{x:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// ── GP TARGET vs ACTUAL ──
+new Chart(document.getElementById('gpChart'),{type:'bar',data:{
+    labels:months,
+    datasets:[
+        {label:'Target GP',data:targets25.map(d=>d.gp),backgroundColor:G,borderRadius:3,barPercentage:.8},
+        {label:'Actual GP',data:actuals25.map(d=>d.gp),backgroundColor:PY,borderRadius:3,barPercentage:.8}
+    ]
+},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#C0C0C0'}}},scales:{y:{ticks:{callback:v=>fmt$(v)},grid:{color:GL}},x:{grid:{display:false}}}}});
+
+// ── DISTRIBUTOR TABLE ──
+const dtb = document.getElementById('distTable');
+let dtTgtRev=0,dtActRev=0,dtTgtCases=0,dtActCases=0;
+distTargets.forEach((d,i)=>{
+    const att=(distActuals[i].ar/d.tr*100).toFixed(1);
+    const catt=(distActuals[i].ac/d.tc*100).toFixed(1);
+    dtTgtRev+=d.tr; dtActRev+=distActuals[i].ar; dtTgtCases+=d.tc; dtActCases+=distActuals[i].ac;
+    dtb.innerHTML+=`<tr>
+        <td>${d.n}</td>
+        <td class="num">${fmt$(d.tr)}</td><td class="num">${fmt$(distActuals[i].ar)}</td><td class="num ${att>=100?'pos':'neg'}">${att}%</td>
+        <td class="num">${fmtK(d.tc)}</td><td class="num">${fmtK(distActuals[i].ac)}</td><td class="num ${catt>=100?'pos':'neg'}">${catt}%</td>
+    </tr>`;
+});
+document.getElementById('distTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td>
+    <td class="num" style="color:#D4A843">${fmt$(dtTgtRev)}</td><td class="num" style="color:#D4A843">${fmt$(dtActRev)}</td>
+    <td class="num ${(dtActRev/dtTgtRev*100)>=100?'pos':'neg'}" style="color:#D4A843">${(dtActRev/dtTgtRev*100).toFixed(1)}%</td>
+    <td class="num" style="color:#D4A843">${fmtK(dtTgtCases)}</td><td class="num" style="color:#D4A843">${fmtK(dtActCases)}</td>
+    <td class="num ${(dtActCases/dtTgtCases*100)>=100?'pos':'neg'}" style="color:#D4A843">${(dtActCases/dtTgtCases*100).toFixed(1)}%</td>
+</tr>`;
+
+// ── MONTHLY TABLE ──
+const mtb = document.getElementById('monthTable');
+let mtTgtRev=0,mtActRev=0,mtTgtCases=0,mtActCases=0,mtTgtGP=0,mtActGP=0;
+targets25.forEach((d,i)=>{
+    const revAtt=(actuals25[i].ar/d.tr*100).toFixed(1);
+    const caseAtt=(actuals25[i].ac/d.tc*100).toFixed(1);
+    mtTgtRev+=d.tr; mtActRev+=actuals25[i].ar; mtTgtCases+=d.tc; mtActCases+=actuals25[i].ac; mtTgtGP+=d.gp; mtActGP+=actuals25[i].gp;
+    mtb.innerHTML+=`<tr>
+        <td>${d.m}</td><td>Q${d.q}</td>
+        <td class="num">${fmt$(d.tr)}</td><td class="num">${fmt$(actuals25[i].ar)}</td><td class="num ${revAtt>=100?'pos':'neg'}">${revAtt}%</td>
+        <td class="num">${fmtK(d.tc)}</td><td class="num">${fmtK(actuals25[i].ac)}</td><td class="num ${caseAtt>=100?'pos':'neg'}">${caseAtt}%</td>
+        <td class="num">${fmt$(d.gp)}</td><td class="num">${fmt$(actuals25[i].gp)}</td>
+    </tr>`;
+});
+document.getElementById('monthTfoot').innerHTML=`<tr style="font-weight:700;border-top:2px solid rgba(212,168,67,0.3);">
+    <td style="color:#D4A843">TOTAL</td><td>FY25</td>
+    <td class="num" style="color:#D4A843">${fmt$(mtTgtRev)}</td><td class="num" style="color:#D4A843">${fmt$(mtActRev)}</td>
+    <td class="num ${(mtActRev/mtTgtRev*100)>=100?'pos':'neg'}" style="color:#D4A843">${(mtActRev/mtTgtRev*100).toFixed(1)}%</td>
+    <td class="num" style="color:#D4A843">${fmtK(mtTgtCases)}</td><td class="num" style="color:#D4A843">${fmtK(mtActCases)}</td>
+    <td class="num ${(mtActCases/mtTgtCases*100)>=100?'pos':'neg'}" style="color:#D4A843">${(mtActCases/mtTgtCases*100).toFixed(1)}%</td>
+    <td class="num" style="color:#D4A843">${fmt$(mtTgtGP)}</td><td class="num" style="color:#D4A843">${fmt$(mtActGP)}</td>
+</tr>`;
+</script>
+</body>
+</html>

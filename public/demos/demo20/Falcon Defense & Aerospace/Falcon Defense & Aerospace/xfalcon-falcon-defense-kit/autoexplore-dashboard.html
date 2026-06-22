@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / Supply Chain Vulnerability Findings</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    .finding { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-card); }
+    .finding-num { font-size: 11px; font-weight: 700; color: var(--color-text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .finding-headline { font-size: 18px; font-weight: 700; color: var(--color-primary); margin: 6px 0 4px; }
+    .finding-subhead { font-size: 13px; color: var(--color-text-muted); margin-bottom: 14px; }
+    .finding-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .finding-copy { font-size: 13px; line-height: 1.6; color: var(--color-text); }
+    .finding-copy h4 { font-size: 12px; font-weight: 700; color: var(--color-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .finding-copy p { margin-bottom: 10px; }
+    .finding-canvas { position: relative; height: 260px; background: var(--color-surface-alt); border-radius: 8px; padding: 8px; }
+    @media (max-width: 720px) { .finding-body { grid-template-columns: 1fr; } }
+    .severity { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+    .severity.high   { background: #FEE2E2; color: #991B1B; }
+    .severity.med    { background: #FEF3C7; color: #92400E; }
+    .severity.info   { background: #DBEAFE; color: #1E40AF; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / Supply Chain Vulnerability Findings</div>
+        <div class="topbar-subtitle">AutoExplore run 2026-04-20 &middot; 20 hypotheses tested across 3 tables (FACT_PARTS_SUPPLY, DIM_SUPPLIER, DIM_PARTS)</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <main class="content">
+    <div class="section-title">Executive Summary</div>
+    <div class="section-subtitle">Six findings prioritized by funded spend at risk. See <a href="autoexplore-memo.html">long-form memo</a> for the full narrative and recommended actions.</div>
+
+    <div class="finding">
+      <div class="finding-num">Finding 01 <span class="severity high">HIGH</span></div>
+      <div class="finding-headline">Tier 3 small-business suppliers handle 74% of parts spend ($1.01T of $1.36T, 5 years)</div>
+      <div class="finding-subhead">172 active small-business vendors &middot; avg OTD 79% &middot; 0% DCAA-approved</div>
+      <div class="finding-body">
+        <div class="finding-copy">
+          <h4>What the data shows</h4>
+          <p>Summed across all years, Tier 3 captures <strong>$1.007T</strong> of purchase order value vs $259B for Tier 1 primes and $94B for Tier 2. Despite holding only 10 prime-OEM relationships, T1's per-supplier spend is 17&times; higher than T3. The small-business layer is load-bearing.</p>
+          <h4>So what</h4>
+          <p>Any concentrated disruption &mdash; a supply shock, a quality incident, a capacity ceiling &mdash; at the Tier 3 layer hits 3/4 of ARES's parts pipeline. The lack of DCAA approval at Tier 3 means none of this spend is easily pass-through on cost-type contracts.</p>
+        </div>
+        <div class="finding-canvas"><canvas id="chSpend"></canvas></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">Finding 02 <span class="severity high">HIGH</span></div>
+      <div class="finding-headline">Mission Critical parts are 30% sole-source &mdash; 144 parts with single points of failure</div>
+      <div class="finding-subhead">Flight Safety close behind at 29% sole-source</div>
+      <div class="finding-body">
+        <div class="finding-copy">
+          <h4>What the data shows</h4>
+          <p>Of 479 Mission Critical parts, <strong>144 are sole-source</strong> (30.1%). Flight Safety parts (634 total) show 29.0% sole-source. Routine and Operational parts cluster around 24&ndash;28%. There is no "criticality premium" driving dual-sourcing on the most mission-essential hardware.</p>
+          <h4>So what</h4>
+          <p>The highest-criticality categories should show the <em>lowest</em> sole-source share &mdash; they show the opposite. Each of the 144 Mission Critical sole-source parts is a program-stoppable failure mode. Dual-sourcing even 20% of these would materially de-risk platform deliveries.</p>
+        </div>
+        <div class="finding-canvas"><canvas id="chCriticality"></canvas></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">Finding 03 <span class="severity high">HIGH</span></div>
+      <div class="finding-headline">Zero Tier 3 suppliers are DCAA-approved (172 of 172 unapproved)</div>
+      <div class="finding-subhead">$1.01T flows through non-DCAA-compliant accounting systems</div>
+      <div class="finding-body">
+        <div class="finding-copy">
+          <h4>What the data shows</h4>
+          <p>100% of Tier 1 suppliers (10/10) and 50% of Tier 2 (8/16) are DCAA-approved. In Tier 3, approval drops to <strong>0%</strong>. This means the 172 small businesses handling the bulk of parts spend lack the accounting systems needed to pass through costs on cost-type government contracts.</p>
+          <h4>So what</h4>
+          <p>ARES is absorbing the administrative cost burden of T3 vendor audits internally. A DCAA-approval push targeting the top-spend T3 vendors (15-20 suppliers representing ~30% of T3 spend) would shift this burden back and open cost-type contract eligibility.</p>
+        </div>
+        <div class="finding-canvas"><canvas id="chDCAA"></canvas></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">Finding 04 <span class="severity med">MED</span></div>
+      <div class="finding-headline">Quality-OTD correlation is flat below 4.5 rating &mdash; step-function at the top</div>
+      <div class="finding-subhead">Suppliers rated 1.0-4.5 all cluster at ~79-80% OTD; 4.5+ jumps to 96%</div>
+      <div class="finding-body">
+        <div class="finding-copy">
+          <h4>What the data shows</h4>
+          <p>Binning active suppliers by quality rating: 0-3.0 = 79.7% OTD, 3.0-3.5 = 79.7%, 3.5-4.0 = 80.0%, 4.0-4.5 = 80.3%, <strong>4.5+ = 96.0%</strong>. The first four bins are statistically indistinguishable. Only the top 9 suppliers (rating 4.5+) deliver meaningfully different performance.</p>
+          <h4>So what</h4>
+          <p>"Raising a supplier from 3.5 to 4.0" probably won't yield OTD gains. The real leverage is identifying suppliers with structural improvement potential to reach 4.5+. This changes the supplier development framework from gradual coaching to targeted elevation.</p>
+        </div>
+        <div class="finding-canvas"><canvas id="chQualityOtd"></canvas></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">Finding 05 <span class="severity med">MED</span></div>
+      <div class="finding-headline">95 active suppliers are single points of failure (low OTD + sole-source)</div>
+      <div class="finding-subhead">48% of the active supplier base carries concentrated supply risk</div>
+      <div class="finding-body">
+        <div class="finding-copy">
+          <h4>What the data shows</h4>
+          <p>Counting active suppliers with ON_TIME_DELIVERY_PCT &lt; 80% that also supply at least one IS_SOLE_SOURCE part: <strong>95 of 198</strong> active suppliers match the profile. These vendors combine below-threshold OTD with single-source exclusivity.</p>
+          <h4>So what</h4>
+          <p>A focused dual-sourcing program on just these 95 vendors would reclassify roughly half the active portfolio's risk profile. Prioritize by (a) spend, (b) part criticality, and (c) whether a qualified alternate exists in DIM_PARTS with the same NSN/CAGE.</p>
+        </div>
+        <div class="finding-canvas"><canvas id="chSPOF"></canvas></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">Finding 06 <span class="severity info">INFO</span></div>
+      <div class="finding-headline">Lead time variability is uniform across tiers (~4.7 days deviation)</div>
+      <div class="finding-subhead">Tier performance differentiation comes from OTD &amp; quality, not lead-time noise</div>
+      <div class="finding-body">
+        <div class="finding-copy">
+          <h4>What the data shows</h4>
+          <p>Average absolute deviation from promised date: Tier 1 = 4.78 days, Tier 2 = 4.69 days, Tier 3 = 4.73 days. Average lead times cluster tightly at 186-188 days. There's essentially <strong>no tier difference in lead-time predictability</strong>.</p>
+          <h4>So what</h4>
+          <p>Don't build risk frameworks around lead-time volatility &mdash; it's a commodity baseline across all tiers. The differentiated levers are OTD hit rate (yes/no), quality defects, DCAA approval status, and sole-source concentration. Lead-time scheduling can treat all tiers as equivalent.</p>
+        </div>
+        <div class="finding-canvas"><canvas id="chLeadTime"></canvas></div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Method.</strong> AutoExplore ran 20 directed-mode hypotheses against FACT_PARTS_SUPPLY, DIM_SUPPLIER, and DIM_PARTS. Findings surfaced with p-value &lt; 0.05 or effect size &gt;10% of portfolio mean. Nulls (hypotheses that did NOT find signal) are logged in <code>autoexplore-journal.md</code>. See the <a href="autoexplore-memo.html">long-form memo</a> for prioritized recommended actions and the "what we didn't find" section. Synthetic demo data.
+    </div>
+  </main>
+
+  <script src="dashboard-common.js"></script>
+  <script>
+    var p = fdPalette();
+
+    mk('chSpend', {
+      type:'bar',
+      data: {
+        labels:['Tier 1 (10)','Tier 2 (16)','Tier 3 (172)'],
+        datasets:[{ label:'5-yr spend ($B)', data:[259, 94, 1007], backgroundColor:[p.secondary, p.tertiary, p.primary], borderRadius:4 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+        scales:{ y:{ beginAtZero:true, grid:{ color:p.grid }, ticks:{ callback:function(v){return '$'+v+'B';} } }, x:{ grid:{ display:false } } }
+      }
+    });
+
+    mk('chCriticality', {
+      type:'bar',
+      data: {
+        labels:['Mission Critical','Flight Safety','Routine','Operational'],
+        datasets:[{ label:'Sole-source %', data:[30.1, 29.0, 28.7, 24.3], backgroundColor:[p.primary, p.primary, p.tertiary, p.tertiary], borderRadius:4 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+        scales:{ y:{ beginAtZero:true, max:35, grid:{ color:p.grid }, ticks:{ callback:function(v){return v+'%';} } }, x:{ grid:{ display:false } } }
+      }
+    });
+
+    mk('chDCAA', {
+      type:'bar',
+      data: {
+        labels:['Tier 1','Tier 2','Tier 3'],
+        datasets:[
+          { label:'DCAA Approved', data:[10, 8, 0], backgroundColor:p.primary, stack:'s' },
+          { label:'Not Approved',  data:[0, 8, 172], backgroundColor:p.amber,  stack:'s' }
+        ]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', align:'end' } },
+        scales:{ y:{ stacked:true, beginAtZero:true, grid:{ color:p.grid } }, x:{ stacked:true, grid:{ display:false } } }
+      }
+    });
+
+    mk('chQualityOtd', {
+      type:'bar',
+      data: {
+        labels:['<3.0','3.0-3.5','3.5-4.0','4.0-4.5','4.5+'],
+        datasets:[{ label:'OTD %', data:[79.65, 79.66, 79.96, 80.26, 96.02], backgroundColor:[p.tertiary, p.tertiary, p.tertiary, p.tertiary, p.primary], borderRadius:4 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+        scales:{ y:{ min:75, max:100, grid:{ color:p.grid }, ticks:{ callback:function(v){return v+'%';} } }, x:{ grid:{ display:false } } }
+      }
+    });
+
+    mk('chSPOF', {
+      type:'bar',
+      data: {
+        labels:['Single-Point-of-Failure (low OTD + sole source)','Other active suppliers'],
+        datasets:[{ label:'Suppliers', data:[95, 103], backgroundColor:[p.primary, p.tertiary], borderRadius:4 }]
+      },
+      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+        scales:{ x:{ beginAtZero:true, grid:{ color:p.grid } }, y:{ grid:{ display:false } } }
+      }
+    });
+
+    mk('chLeadTime', {
+      type:'bar',
+      data: {
+        labels:['Tier 1','Tier 2','Tier 3'],
+        datasets:[
+          { label:'Avg lead time (days)', data:[188.1, 187.3, 186.1], backgroundColor:p.secondary, yAxisID:'y', borderRadius:4 },
+          { label:'Avg abs deviation (days)', data:[4.78, 4.69, 4.73], backgroundColor:p.primary, yAxisID:'y1', borderRadius:4 }
+        ]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', align:'end' } },
+        scales:{
+          y:{ beginAtZero:false, min:180, max:195, grid:{ color:p.grid }, title:{ display:true, text:'Lead time (days)' } },
+          y1:{ position:'right', beginAtZero:true, max:10, grid:{ display:false }, title:{ display:true, text:'Abs deviation (days)' } },
+          x:{ grid:{ display:false } }
+        }
+      }
+    });
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

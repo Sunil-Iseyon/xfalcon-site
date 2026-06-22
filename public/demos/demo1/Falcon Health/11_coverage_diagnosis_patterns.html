@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 11: Coverage Type vs Diagnosis Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2d3436;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #636e72;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2C5F8A;
+            line-height: 1.2;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-inner {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            background: #f5f6fa;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #2d3436;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #b2bec3;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .heat-cell-hot {
+            background: #fff3cd;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .heat-cell-warm {
+            background: #ffe0b2;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .heat-cell-cool {
+            background: #c8e6c9;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 11: Coverage Type vs Diagnosis Patterns</h1>
+            <p>How Case Mix Varies by Payer | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Plan Types</div>
+                <div class="kpi-value">4</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">EPO, HDHP, HMO, PPO</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">HMO Dominates</div>
+                <div class="kpi-value">530</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">35.4% of encounters</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Highest Avg Billed</div>
+                <div class="kpi-value" style="font-size: 20px;">$22,377</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">HDHP Mental Health</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Most Diverse</div>
+                <div class="kpi-value" style="font-size: 18px;">HMO</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">All 10 body systems</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container full-width">
+                <div class="chart-title">Plan Type × Body System (Stacked Encounters)</div>
+                <div class="chart-inner"><canvas id="stackedBarChart"></canvas></div>
+            </div>
+            <div class="chart-container full-width">
+                <div class="chart-title">Grouped Bar: Plan Type Composition by Top 5 Body Systems</div>
+                <div class="chart-inner"><canvas id="groupedBarChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="chart-title">Avg Billed by Plan Type × Body System</div>
+            <table id="heatmapTable">
+            </table>
+        </div>
+
+        <div class="footer">
+            Dashboard generated with Chart.js • Data represents consolidated encounters Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const bodySystems = ['Circulatory', 'Respiratory', 'Digestive', 'Endocrine', 'Musculoskeletal', 'Genitourinary', 'Nervous', 'Preventive', 'Mental Health', 'Dermatologic'];
+
+        const coverageDiagnosisData = {
+            EPO: {Circulatory:29, Respiratory:27, Musculoskeletal:27, Digestive:26, Genitourinary:24, Endocrine:20, Nervous:17, Preventive:12, MentalHealth:6, Dermatologic:5},
+            HDHP: {Respiratory:42, Circulatory:37, Digestive:28, Endocrine:23, Musculoskeletal:23, Genitourinary:19, Preventive:17, MentalHealth:10, Nervous:10, Dermatologic:5},
+            HMO: {Circulatory:133, Respiratory:124, Digestive:96, Endocrine:85, Musculoskeletal:70, Nervous:54, Preventive:51, Genitourinary:48, MentalHealth:25, Dermatologic:25},
+            PPO: {Respiratory:59, Circulatory:55, Digestive:49, Endocrine:44, Nervous:38, Genitourinary:36, Musculoskeletal:36, Preventive:33, Dermatologic:15, MentalHealth:14}
+        };
+
+        const avgBilledData = {
+            EPO: {Circulatory:4482, Respiratory:2399, Musculoskeletal:5823, Digestive:6664, Genitourinary:7106, Endocrine:5289, Nervous:8338, Preventive:11589, MentalHealth:19994, Dermatologic:10390},
+            HDHP: {Respiratory:5297, Circulatory:13858, Digestive:4736, Endocrine:10866, Musculoskeletal:12222, Genitourinary:7157, Preventive:3611, MentalHealth:22377, Nervous:18846, Dermatologic:2042},
+            HMO: {Circulatory:7652, Respiratory:6033, Digestive:5759, Endocrine:9366, Musculoskeletal:9633, Nervous:11915, Preventive:5773, Genitourinary:5789, MentalHealth:5087, Dermatologic:12589},
+            PPO: {Respiratory:7196, Circulatory:10610, Digestive:4317, Endocrine:13069, Nervous:12370, Genitourinary:11025, Musculoskeletal:5831, Preventive:8179, Dermatologic:1733, MentalHealth:3052}
+        };
+
+        const chartColors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        const typeColors = {
+            EPO: chartColors.primary,
+            HDHP: chartColors.warning,
+            HMO: chartColors.success,
+            PPO: chartColors.secondary
+        };
+
+        // Stacked Bar Chart
+        const stackedCtx = document.getElementById('stackedBarChart').getContext('2d');
+        const stackedDatasets = [];
+        const planTypes = ['EPO', 'HDHP', 'HMO', 'PPO'];
+
+        bodySystems.forEach((system, idx) => {
+            const sysKey = system.replace(/\s+/g, '').replace('-', '');
+            const sysData = planTypes.map(type => {
+                const key = system === 'Mental Health' ? 'MentalHealth' : (system === 'Genitourinary' ? 'Genitourinary' : sysKey);
+                return coverageDiagnosisData[type][key] || 0;
+            });
+            stackedDatasets.push({
+                label: system,
+                data: sysData,
+                backgroundColor: Object.values(typeColors)[idx % 4]
+            });
+        });
+
+        new Chart(stackedCtx, {
+            type: 'bar',
+            data: {
+                labels: planTypes,
+                datasets: stackedDatasets
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 11 }, padding: 10 }
+                    }
+                },
+                scales: {
+                    x: { stacked: true, ticks: { color: '#636e72', font: { size: 12 } } },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    }
+                }
+            }
+        });
+
+        // Grouped Bar: Top 5 Body Systems
+        const top5Systems = ['Circulatory', 'Respiratory', 'Digestive', 'Endocrine', 'Musculoskeletal'];
+        const groupedCtx = document.getElementById('groupedBarChart').getContext('2d');
+        const groupedDatasets = planTypes.map(type => {
+            const sysKey = system => system === 'Mental Health' ? 'MentalHealth' : system.replace(/\s+/g, '').replace('-', '');
+            return {
+                label: type,
+                data: top5Systems.map(sys => coverageDiagnosisData[type][sysKey(sys)] || 0),
+                backgroundColor: typeColors[type]
+            };
+        });
+
+        new Chart(groupedCtx, {
+            type: 'bar',
+            data: {
+                labels: top5Systems,
+                datasets: groupedDatasets
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 12 }, padding: 10 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 12 } } }
+                }
+            }
+        });
+
+        // Heatmap Table
+        const heatTable = document.getElementById('heatmapTable');
+        let html = '<tr><th>Plan Type</th>';
+        bodySystems.forEach(sys => html += `<th>${sys.substring(0, 4)}</th>`);
+        html += '</tr>';
+
+        planTypes.forEach(type => {
+            html += `<tr><td>${type}</td>`;
+            bodySystems.forEach(sys => {
+                const key = sys === 'Mental Health' ? 'MentalHealth' : (sys === 'Genitourinary' ? 'Genitourinary' : sys.replace(/\s+/g, '').replace('-', ''));
+                const value = avgBilledData[type][key] || 0;
+                const maxVal = Math.max(...planTypes.map(t => Object.values(avgBilledData[t]).reduce((a,b) => Math.max(a,b))));
+                let cellClass = '';
+                if (value > maxVal * 0.7) cellClass = 'heat-cell-hot';
+                else if (value > maxVal * 0.4) cellClass = 'heat-cell-warm';
+                else cellClass = 'heat-cell-cool';
+                html += `<td class="${cellClass}">$${value.toLocaleString()}</td>`;
+            });
+            html += '</tr>';
+        });
+
+        heatTable.innerHTML = html;
+    </script>
+</body>
+</html>

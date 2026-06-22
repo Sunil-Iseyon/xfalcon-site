@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Falcon World Cup 360 | Team Rankings</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+            border-bottom: 3px solid #FFD600;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-title-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .logo-x {
+            color: #66BB6A;
+        }
+
+        .logo-f {
+            color: #FFD600;
+        }
+
+        .title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .main-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #F1FAE5;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #FFD600;
+        }
+
+        .back-link {
+            color: #FFD600;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            border-top: 3px solid #FFD600;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            padding: 24px 24px 16px 24px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #2E7D32;
+            color: #FFFFFF;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 12px 12px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .positive {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .negative {
+            color: #D32F2F;
+            font-weight: 500;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        canvas {
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="logo-title-container">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="title-section">
+                <div class="main-title">Falcon World Cup 360 / 4. Team Rankings</div>
+                <div class="subtitle">Historical Performance & Statistics</div>
+            </div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi1">83</div>
+                <div class="kpi-label">Total Nations</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi2">Brazil (20)</div>
+                <div class="kpi-label">Most Appearances</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi3">Brazil (73)</div>
+                <div class="kpi-label">Most Wins</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi4">Brazil (229)</div>
+                <div class="kpi-label">Most Goals Scored</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi5">Brazil (67.0%)</div>
+                <div class="kpi-label">Best Win Rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi6">Brazil (+124)</div>
+                <div class="kpi-label">Best Goal Difference</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi7">6</div>
+                <div class="kpi-label">Confederations</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi8">8 Unique</div>
+                <div class="kpi-label">World Champions</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Chart 1: Top 10 Teams by Wins -->
+            <div class="chart-container">
+                <div class="chart-title">Top 10 Teams by Wins</div>
+                <canvas id="chart1"></canvas>
+            </div>
+
+            <!-- Chart 2: Win Rate Top 10 -->
+            <div class="chart-container">
+                <div class="chart-title">Win Rate Top 10 (%)</div>
+                <canvas id="chart2"></canvas>
+            </div>
+
+            <!-- Chart 3: Goals Scored vs Conceded -->
+            <div class="chart-container">
+                <div class="chart-title">Goals Scored vs Conceded (Top 10)</div>
+                <canvas id="chart3"></canvas>
+            </div>
+
+            <!-- Chart 4: Confederation Teams -->
+            <div class="chart-container">
+                <div class="chart-title">Teams by Confederation</div>
+                <canvas id="chart4"></canvas>
+            </div>
+
+            <!-- Chart 5: Titles by Confederation -->
+            <div class="chart-container">
+                <div class="chart-title">World Cup Titles by Confederation</div>
+                <canvas id="chart5"></canvas>
+            </div>
+
+            <!-- Chart 6: Goal Difference Top 10 -->
+            <div class="chart-container">
+                <div class="chart-title">Goal Difference - Top 10 Teams</div>
+                <canvas id="chart6"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <div class="table-title">All Teams - World Cup Performance</div>
+            <div class="table-wrapper">
+                <table id="teamTable">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Confederation</th>
+                            <th>Appearances</th>
+                            <th>Matches</th>
+                            <th>Wins</th>
+                            <th>Draws</th>
+                            <th>Losses</th>
+                            <th>Goals For</th>
+                            <th>Goals Against</th>
+                            <th>Goal Diff</th>
+                            <th>Win %</th>
+                            <th>Titles</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        var CONFEDS = [
+            {name:'UEFA', teams:45, tournaments:20},
+            {name:'CAF', teams:12, tournaments:13},
+            {name:'CONMEBOL', teams:9, tournaments:20},
+            {name:'CONCACAF', teams:8, tournaments:20},
+            {name:'AFC', teams:7, tournaments:11},
+            {name:'OFC', teams:2, tournaments:5}
+        ];
+
+        var CHAMPIONS = [
+            {team:'Brazil', titles:5, confederation:'CONMEBOL'},
+            {team:'Italy', titles:4, confederation:'UEFA'},
+            {team:'Germany', titles:4, confederation:'UEFA'},
+            {team:'Argentina', titles:2, confederation:'CONMEBOL'},
+            {team:'Uruguay', titles:2, confederation:'CONMEBOL'},
+            {team:'France', titles:1, confederation:'UEFA'},
+            {team:'Spain', titles:1, confederation:'UEFA'},
+            {team:'England', titles:1, confederation:'UEFA'}
+        ];
+
+        var TOP_TEAMS = [
+            {team:'Brazil', confed:'CONMEBOL', appearances:20, matches:109, wins:73, draws:18, losses:18, goalsFor:229, goalsAgainst:105, titles:5},
+            {team:'Germany', confed:'UEFA', appearances:18, matches:109, wins:67, draws:20, losses:22, goalsFor:226, goalsAgainst:125, titles:4},
+            {team:'Italy', confed:'UEFA', appearances:18, matches:83, wins:45, draws:21, losses:17, goalsFor:128, goalsAgainst:77, titles:4},
+            {team:'Argentina', confed:'CONMEBOL', appearances:17, matches:81, wins:43, draws:15, losses:23, goalsFor:137, goalsAgainst:93, titles:2},
+            {team:'France', confed:'UEFA', appearances:15, matches:66, wins:34, draws:13, losses:19, goalsFor:120, goalsAgainst:77, titles:1},
+            {team:'England', confed:'UEFA', appearances:15, matches:69, wins:29, draws:21, losses:19, goalsFor:91, goalsAgainst:64, titles:1},
+            {team:'Spain', confed:'UEFA', appearances:15, matches:63, wins:30, draws:15, losses:18, goalsFor:99, goalsAgainst:72, titles:1},
+            {team:'Netherlands', confed:'UEFA', appearances:10, matches:50, wins:27, draws:11, losses:12, goalsFor:86, goalsAgainst:52, titles:0},
+            {team:'Uruguay', confed:'CONMEBOL', appearances:13, matches:56, wins:24, draws:12, losses:20, goalsFor:87, goalsAgainst:74, titles:2},
+            {team:'Mexico', confed:'CONCACAF', appearances:16, matches:57, wins:16, draws:14, losses:27, goalsFor:60, goalsAgainst:98, titles:0},
+            {team:'Sweden', confed:'UEFA', appearances:12, matches:51, wins:20, draws:13, losses:18, goalsFor:78, goalsAgainst:69, titles:0},
+            {team:'Serbia', confed:'UEFA', appearances:12, matches:46, wins:18, draws:8, losses:20, goalsFor:68, goalsAgainst:62, titles:0},
+            {team:'South Korea', confed:'AFC', appearances:10, matches:34, wins:7, draws:9, losses:18, goalsFor:35, goalsAgainst:67, titles:0},
+            {team:'Poland', confed:'UEFA', appearances:8, matches:34, wins:16, draws:5, losses:13, goalsFor:46, goalsAgainst:45, titles:0},
+            {team:'USA', confed:'CONCACAF', appearances:10, matches:33, wins:8, draws:6, losses:19, goalsFor:37, goalsAgainst:62, titles:0}
+        ];
+
+        // Helper function to fit text in KPI cards
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var text = el.textContent;
+                if (text.length > 15) {
+                    el.style.fontSize = '24px';
+                } else if (text.length > 12) {
+                    el.style.fontSize = '26px';
+                }
+            });
+        }
+
+        // Marker function
+        function mk(config) {
+            return config;
+        }
+
+        // Initialize
+        function init() {
+            fitKpiText();
+            buildTable();
+            renderCharts();
+        }
+
+        // Build data table
+        function buildTable() {
+            var tbody = document.getElementById('tableBody');
+            var html = '';
+
+            TOP_TEAMS.forEach(function(team) {
+                var winRate = ((team.wins / team.matches) * 100).toFixed(1);
+                var goalDiff = team.goalsFor - team.goalsAgainst;
+                var goalDiffClass = goalDiff >= 0 ? 'positive' : 'negative';
+                var titleClass = team.titles > 0 ? 'positive' : '';
+
+                html += '<tr>' +
+                    '<td class="team-name">' + team.team + '</td>' +
+                    '<td>' + team.confed + '</td>' +
+                    '<td>' + team.appearances + '</td>' +
+                    '<td>' + team.matches + '</td>' +
+                    '<td>' + team.wins + '</td>' +
+                    '<td>' + team.draws + '</td>' +
+                    '<td>' + team.losses + '</td>' +
+                    '<td>' + team.goalsFor + '</td>' +
+                    '<td>' + team.goalsAgainst + '</td>' +
+                    '<td class="' + goalDiffClass + '">' + (goalDiff >= 0 ? '+' : '') + goalDiff + '</td>' +
+                    '<td>' + winRate + '%</td>' +
+                    '<td class="' + titleClass + '">' + team.titles + '</td>' +
+                    '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Chart utilities
+        var chartInstances = {};
+
+        function renderCharts() {
+            renderChart1();
+            renderChart2();
+            renderChart3();
+            renderChart4();
+            renderChart5();
+            renderChart6();
+        }
+
+        // Chart 1: Top 10 Teams by Wins
+        function renderChart1() {
+            var top10 = TOP_TEAMS.slice(0, 10).reverse();
+            var labels = top10.map(function(t) { return t.team; });
+            var data = top10.map(function(t) { return t.wins; });
+
+            var ctx = document.getElementById('chart1').getContext('2d');
+            chartInstances.chart1 = new Chart(ctx, mk({
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Wins',
+                        data: data,
+                        backgroundColor: '#2E7D32',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#64748B' },
+                            grid: { color: '#E2E8F0' }
+                        },
+                        y: {
+                            ticks: { color: '#64748B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Chart 2: Win Rate Top 10
+        function renderChart2() {
+            var top10 = TOP_TEAMS.slice(0, 10).reverse();
+            var labels = top10.map(function(t) { return t.team; });
+            var data = top10.map(function(t) { return ((t.wins / t.matches) * 100).toFixed(1); });
+
+            var ctx = document.getElementById('chart2').getContext('2d');
+            chartInstances.chart2 = new Chart(ctx, mk({
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Win Rate %',
+                        data: data,
+                        backgroundColor: '#C8A415',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#64748B' },
+                            grid: { color: '#E2E8F0' }
+                        },
+                        y: {
+                            ticks: { color: '#64748B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Chart 3: Goals Scored vs Conceded
+        function renderChart3() {
+            var top10 = TOP_TEAMS.slice(0, 10);
+            var labels = top10.map(function(t) { return t.team; });
+            var scored = top10.map(function(t) { return t.goalsFor; });
+            var conceded = top10.map(function(t) { return t.goalsAgainst; });
+
+            var ctx = document.getElementById('chart3').getContext('2d');
+            chartInstances.chart3 = new Chart(ctx, mk({
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Goals Scored',
+                            data: scored,
+                            backgroundColor: '#2E7D32'
+                        },
+                        {
+                            label: 'Goals Conceded',
+                            data: conceded,
+                            backgroundColor: '#94A3B8'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#64748B' } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#64748B' },
+                            grid: { color: '#E2E8F0' }
+                        },
+                        x: {
+                            ticks: { color: '#64748B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Chart 4: Teams by Confederation
+        function renderChart4() {
+            var labels = CONFEDS.map(function(c) { return c.name; }).reverse();
+            var data = CONFEDS.map(function(c) { return c.teams; }).reverse();
+
+            var ctx = document.getElementById('chart4').getContext('2d');
+            chartInstances.chart4 = new Chart(ctx, mk({
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Teams',
+                        data: data,
+                        backgroundColor: '#2E7D32',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#64748B' },
+                            grid: { color: '#E2E8F0' }
+                        },
+                        y: {
+                            ticks: { color: '#64748B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Chart 5: Titles by Confederation
+        function renderChart5() {
+            var confedTitles = {};
+            CONFEDS.forEach(function(c) {
+                confedTitles[c.name] = 0;
+            });
+
+            CHAMPIONS.forEach(function(champ) {
+                confedTitles[champ.confederation] += champ.titles;
+            });
+
+            var labels = Object.keys(confedTitles).reverse();
+            var data = labels.map(function(l) { return confedTitles[l]; });
+
+            var ctx = document.getElementById('chart5').getContext('2d');
+            chartInstances.chart5 = new Chart(ctx, mk({
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Titles',
+                        data: data,
+                        backgroundColor: '#C8A415',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#64748B' },
+                            grid: { color: '#E2E8F0' }
+                        },
+                        y: {
+                            ticks: { color: '#64748B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Chart 6: Goal Difference Top 10
+        function renderChart6() {
+            var top10 = TOP_TEAMS.slice(0, 10);
+            var labels = top10.map(function(t) { return t.team; });
+            var data = top10.map(function(t) { return t.goalsFor - t.goalsAgainst; });
+
+            var colors = data.map(function(d) {
+                return d >= 0 ? '#059669' : '#D32F2F';
+            });
+
+            var ctx = document.getElementById('chart6').getContext('2d');
+            chartInstances.chart6 = new Chart(ctx, mk({
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Goal Difference',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#64748B' },
+                            grid: { color: '#E2E8F0' }
+                        },
+                        x: {
+                            ticks: { color: '#64748B' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

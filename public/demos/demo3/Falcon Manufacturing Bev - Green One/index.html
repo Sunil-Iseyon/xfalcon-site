@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beverage Manufacturing Analytics Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header Section */
+        header {
+            background: linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 100%);
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 2px solid #7CB701;
+            overflow: hidden;
+        }
+
+        /* Accent Mark Decoration */
+        .claw-mark {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            width: 100px;
+            height: 100px;
+            opacity: 0.15;
+        }
+
+        .claw-line {
+            position: absolute;
+            background: linear-gradient(45deg, #7CB701, #95D600);
+            width: 4px;
+        }
+
+        .claw-line:nth-child(1) {
+            height: 80px;
+            top: 10px;
+            right: 20px;
+            transform: rotate(45deg);
+        }
+
+        .claw-line:nth-child(2) {
+            height: 80px;
+            top: 10px;
+            right: 50px;
+            transform: rotate(45deg);
+        }
+
+        .claw-line:nth-child(3) {
+            height: 80px;
+            top: 10px;
+            right: 80px;
+            transform: rotate(45deg);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+            background: linear-gradient(120deg, #FFFFFF 0%, #95D600 50%, #7CB701 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #9B999B;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .accent-bar {
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, #7CB701 0%, #95D600 50%, #7CB701 100%);
+            margin: 20px auto 0;
+            border-radius: 2px;
+            box-shadow: 0 0 20px rgba(124, 183, 1, 0.5);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2em;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        /* Dashboard Cards Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .dashboard-card {
+            background-color: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(124, 183, 1, 0) 0%, rgba(124, 183, 1, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .dashboard-card:hover {
+            background-color: #222222;
+            border-color: #7CB701;
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(124, 183, 1, 0.15),
+                        0 0 30px rgba(149, 214, 0, 0.1),
+                        inset 0 1px 0 rgba(149, 214, 0, 0.2);
+        }
+
+        .dashboard-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            display: inline-block;
+            filter: drop-shadow(0 0 8px rgba(124, 183, 1, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-icon {
+            transform: scale(1.15) rotate(-5deg);
+            filter: drop-shadow(0 0 15px rgba(149, 214, 0, 0.6));
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #FFFFFF;
+            transition: color 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-title {
+            color: #95D600;
+            text-shadow: 0 0 10px rgba(149, 214, 0, 0.3);
+        }
+
+        .card-description {
+            font-size: 0.95em;
+            color: #9B999B;
+            flex-grow: 1;
+            transition: color 0.3s ease;
+            line-height: 1.5;
+        }
+
+        .dashboard-card:hover .card-description {
+            color: #B8B6B8;
+        }
+
+        .card-arrow {
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #7CB701;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0D0D0D;
+            border-top: 2px solid #333333;
+            padding: 40px 20px;
+            text-align: center;
+            color: #9B999B;
+            font-size: 0.95em;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-line {
+            margin: 8px 0;
+        }
+
+        .footer-highlight {
+            color: #7CB701;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 25px;
+            }
+
+            .claw-mark {
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1.1em;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .claw-mark {
+                display: none;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .subtitle {
+                font-size: 0.95em;
+            }
+
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .card-icon {
+                font-size: 2.5em;
+            }
+
+            .card-title {
+                font-size: 1.15em;
+            }
+
+            .card-description {
+                font-size: 0.85em;
+            }
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading Animation for cards on page load */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .dashboard-card:nth-child(1) { animation-delay: 0.05s; }
+        .dashboard-card:nth-child(2) { animation-delay: 0.1s; }
+        .dashboard-card:nth-child(3) { animation-delay: 0.15s; }
+        .dashboard-card:nth-child(4) { animation-delay: 0.2s; }
+        .dashboard-card:nth-child(5) { animation-delay: 0.25s; }
+        .dashboard-card:nth-child(6) { animation-delay: 0.3s; }
+        .dashboard-card:nth-child(7) { animation-delay: 0.35s; }
+        .dashboard-card:nth-child(8) { animation-delay: 0.4s; }
+        .dashboard-card:nth-child(9) { animation-delay: 0.45s; }
+        .dashboard-card:nth-child(10) { animation-delay: 0.5s; }
+        .dashboard-card:nth-child(11) { animation-delay: 0.55s; }
+
+        .card-number {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            font-size: 2.2em;
+            font-weight: 800;
+            color: rgba(124, 183, 1, 0.15);
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-number {
+            color: rgba(149, 214, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="claw-mark">
+            <div class="claw-line"></div>
+            <div class="claw-line"></div>
+            <div class="claw-line"></div>
+        </div>
+        <h1>Beverage Manufacturing Analytics Suite</h1>
+        <p class="subtitle">Beverage Manufacturing Intelligence Dashboard</p>
+        <div class="accent-bar"></div>
+    </header>
+
+    <div class="container">
+        <h2 class="section-title">Explore Your Dashboards</h2>
+
+        <div class="dashboard-grid">
+            <a href="executive-overview.html" class="dashboard-card">
+                <div class="card-number">#1</div>
+                <div class="card-icon">📊</div>
+                <div class="card-title">1. Executive Overview</div>
+                <div class="card-description">High-level KPIs, revenue trends, and profitability metrics</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="sales-performance.html" class="dashboard-card">
+                <div class="card-number">#2</div>
+                <div class="card-icon">💰</div>
+                <div class="card-title">2. Sales Performance</div>
+                <div class="card-description">Revenue, margins, and product performance across channels</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="inventory-health.html" class="dashboard-card">
+                <div class="card-number">#3</div>
+                <div class="card-icon">📦</div>
+                <div class="card-title">3. Inventory Health</div>
+                <div class="card-description">Stock levels, stockouts, expiry tracking, and warehouse metrics</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="supply-chain.html" class="dashboard-card">
+                <div class="card-number">#4</div>
+                <div class="card-icon">🔗</div>
+                <div class="card-title">4. Supply Chain</div>
+                <div class="card-description">Supplier reliability, lead times, and procurement analytics</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="production-efficiency.html" class="dashboard-card">
+                <div class="card-number">#5</div>
+                <div class="card-icon">⚙️</div>
+                <div class="card-title">5. Production Efficiency</div>
+                <div class="card-description">Plant capacity, yield rates, defects, and downtime analysis</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="quality-compliance.html" class="dashboard-card">
+                <div class="card-number">#6</div>
+                <div class="card-icon">✅</div>
+                <div class="card-title">6. Quality & Compliance</div>
+                <div class="card-description">Pass rates, FDA violations, recalls, and inspection metrics</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="marketing-roi.html" class="dashboard-card">
+                <div class="card-number">#7</div>
+                <div class="card-icon">📈</div>
+                <div class="card-title">7. Marketing ROI</div>
+                <div class="card-description">Campaign spend, ROI, platform performance, and conversions</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="esg-sustainability.html" class="dashboard-card">
+                <div class="card-number">#8</div>
+                <div class="card-icon">🌱</div>
+                <div class="card-title">8. ESG & Sustainability</div>
+                <div class="card-description">Carbon emissions, water usage, renewable energy, and waste</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="marketing-sales-impact.html" class="dashboard-card">
+                <div class="card-number">#9</div>
+                <div class="card-icon">🎯</div>
+                <div class="card-title">9. Marketing → Sales Impact</div>
+                <div class="card-description">Cross-functional view of marketing spend vs revenue impact</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="forecast-accuracy.html" class="dashboard-card">
+                <div class="card-number">#10</div>
+                <div class="card-icon">🔮</div>
+                <div class="card-title">10. Forecast Accuracy</div>
+                <div class="card-description">Demand forecast vs actual analysis with bias detection</div>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <a href="metrics-dictionary.html" class="dashboard-card" style="border-color:#7CB701;border-width:2px;">
+                <div class="card-number">#11</div>
+                <div class="card-icon">📖</div>
+                <div class="card-title">11. Metrics Dictionary</div>
+                <div class="card-description">Complete reference guide — definitions, formulas, and benchmarks for all 54 metrics across dashboards</div>
+                <div class="card-arrow">→</div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-line">Powered by <span class="footer-highlight">IDA Analytics</span></div>
+            <div class="footer-line">Generated March 2026</div>
+        </div>
+    </footer>
+    <script>
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Performance Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000000;
+      color: #FFFFFF;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated Fizz Bubbles Background */
+    .bubble-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: radial-gradient(circle at 20% 50%, rgba(76, 224, 210, 0.05) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(255, 22, 84, 0.05) 0%, transparent 50%);
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(76, 224, 210, 0.3), rgba(76, 224, 210, 0));
+      opacity: 0;
+    }
+
+    /* Film Strip Border */
+    .film-strip {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 25px;
+      background: repeating-linear-gradient(
+        90deg,
+        #333333 0px,
+        #333333 30px,
+        #000000 30px,
+        #000000 35px
+      );
+      box-shadow: 0 2px 10px rgba(76, 224, 210, 0.2);
+      z-index: 100;
+    }
+
+    .film-strip::before,
+    .film-strip::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #4CE0D2;
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .film-strip::before {
+      left: 15px;
+    }
+
+    .film-strip::after {
+      right: 15px;
+    }
+
+    /* Marquee Ticker */
+    .marquee-container {
+      background: linear-gradient(90deg, #111111 0%, #1a1a1a 50%, #111111 100%);
+      overflow: hidden;
+      padding: 10px 0;
+      border-bottom: 2px solid #4CE0D2;
+      margin-top: 25px;
+    }
+
+    .marquee {
+      display: flex;
+      animation: scroll 30s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-item {
+      margin: 0 40px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4CE0D2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .star {
+      color: #FFD700;
+      font-size: 12px;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    /* Header */
+    .header {
+      padding: 40px 20px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(76, 224, 210, 0.1) 0%, rgba(255, 22, 84, 0.05) 100%);
+      border-bottom: 3px solid #4CE0D2;
+    }
+
+    .header h1 {
+      font-family: 'Anton', sans-serif;
+      font-size: 48px;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #4CE0D2 0%, #FF1654 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: #888888;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Navigation & Controls */
+    .controls-section {
+      padding: 30px 20px;
+      background: #111111;
+      border-bottom: 2px solid #333333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #333333;
+      color: #4CE0D2;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 2px solid #4CE0D2;
+    }
+
+    .back-link:hover {
+      background: #4CE0D2;
+      color: #000000;
+      transform: translateX(-5px);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-family: 'Anton', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #4CE0D2;
+    }
+
+    .quarter-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .quarter-btn {
+      padding: 8px 16px;
+      background: #333333;
+      color: #FFFFFF;
+      border: 2px solid #333333;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Anton', sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .quarter-btn:hover {
+      border-color: #4CE0D2;
+      color: #4CE0D2;
+    }
+
+    .quarter-btn.active {
+      background: #4CE0D2;
+      color: #000000;
+      border-color: #4CE0D2;
+      box-shadow: 0 0 20px rgba(76, 224, 210, 0.5);
+    }
+
+    /* KPI Section */
+    .kpi-section {
+      padding: 40px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .kpi-card {
+      background: #111111;
+      border-top: 3px solid #4CE0D2;
+      border: 1px solid #333333;
+      border-top: 3px solid #4CE0D2;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '★';
+      position: absolute;
+      font-size: 60px;
+      color: rgba(76, 224, 210, 0.1);
+      top: -20px;
+      right: -20px;
+      z-index: 0;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(76, 224, 210, 0.2);
+      border-color: #4CE0D2;
+    }
+
+    .kpi-label {
+      font-family: 'Anton', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888888;
+      margin-bottom: 15px;
+    }
+
+    .kpi-value {
+      font-family: 'Anton', sans-serif;
+      font-size: 42px;
+      font-weight: bold;
+      color: #4CE0D2;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 1px;
+    }
+
+    .kpi-subtext {
+      color: #888888;
+      font-size: 12px;
+    }
+
+    /* Charts Section */
+    .charts-section {
+      padding: 40px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+    }
+
+    .chart-card {
+      background: #111111;
+      border: 1px solid #333333;
+      border-top: 3px solid #4CE0D2;
+      padding: 25px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .chart-card:hover {
+      box-shadow: 0 10px 30px rgba(76, 224, 210, 0.15);
+      border-color: #4CE0D2;
+    }
+
+    .chart-card.highlighted {
+      box-shadow: 0 0 25px rgba(76, 224, 210, 0.4);
+      border-color: #4CE0D2;
+    }
+
+    .chart-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: #4CE0D2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chart-title::before {
+      content: '★';
+      color: #FFD700;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 350px;
+    }
+
+    /* Product Detail Grid Section */
+    .product-grid-section {
+      padding: 40px 20px;
+      background: #0a0a0a;
+      border-top: 3px solid #4CE0D2;
+      border-bottom: 3px solid #4CE0D2;
+    }
+
+    .grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .grid-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 24px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #4CE0D2;
+    }
+
+    .active-filter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #4CE0D2;
+      color: #000000;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .active-filter-badge.hidden {
+      display: none;
+    }
+
+    .clear-filter-btn {
+      background: #000000;
+      color: #4CE0D2;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 0 5px;
+      transition: all 0.2s ease;
+    }
+
+    .clear-filter-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .grid-wrapper {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .data-grid {
+      width: 100%;
+      background: #111111;
+      border: 1px solid #333333;
+      border-radius: 4px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-grid thead {
+      background: #1a1a1a;
+      border-bottom: 2px solid #4CE0D2;
+    }
+
+    .data-grid thead th {
+      background: #1a1a1a;
+      color: #4CE0D2;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      font-family: 'Anton', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 11px;
+      border-right: 1px solid #333333;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .data-grid thead th:hover {
+      background: #232323;
+      color: #7BF5ED;
+    }
+
+    .data-grid thead th.sort-asc::after {
+      content: ' ▲';
+      color: #FFD700;
+    }
+
+    .data-grid thead th.sort-desc::after {
+      content: ' ▼';
+      color: #FFD700;
+    }
+
+    .data-grid tbody tr {
+      border-bottom: 1px solid #333333;
+      transition: all 0.2s ease;
+    }
+
+    .data-grid tbody tr:nth-child(odd) {
+      background: #111111;
+    }
+
+    .data-grid tbody tr:nth-child(even) {
+      background: #0a0a0a;
+    }
+
+    .data-grid tbody tr:hover {
+      background: #1a2a2a;
+      box-shadow: inset 0 0 10px rgba(76, 224, 210, 0.1);
+    }
+
+    .data-grid tbody td {
+      padding: 12px;
+      color: #FFFFFF;
+      border-right: 1px solid #333333;
+      white-space: nowrap;
+    }
+
+    .data-grid tbody td:last-child {
+      border-right: none;
+    }
+
+    .grid-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+      padding: 8px 12px;
+      background: #333333;
+      color: #4CE0D2;
+      border: 2px solid #4CE0D2;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: #4CE0D2;
+      color: #000000;
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      color: #888888;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .page-number {
+      padding: 4px 8px;
+      background: #1a1a1a;
+      color: #4CE0D2;
+      border: 1px solid #4CE0D2;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .page-number:hover,
+    .page-number.active {
+      background: #4CE0D2;
+      color: #000000;
+    }
+
+    /* Insights Section */
+    .insights-section {
+      padding: 40px 20px;
+      background: linear-gradient(135deg, rgba(76, 224, 210, 0.05) 0%, rgba(255, 22, 84, 0.05) 100%);
+      border-top: 3px solid #4CE0D2;
+      margin-top: 40px;
+    }
+
+    .insights-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 28px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      color: #4CE0D2;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .insight-item {
+      background: #111111;
+      border-left: 4px solid #4CE0D2;
+      padding: 20px;
+      border-radius: 4px;
+      border: 1px solid #333333;
+      border-left: 4px solid #4CE0D2;
+    }
+
+    .insight-label {
+      font-family: 'Anton', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
+
+    .insight-text {
+      color: #FFFFFF;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Alert Styling */
+    .alert-box {
+      background: rgba(255, 22, 84, 0.1);
+      border: 2px solid #FF1654;
+      border-radius: 4px;
+      padding: 15px;
+      margin: 20px 0;
+      color: #FF8C42;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 2px solid #333333;
+      color: #888888;
+      font-size: 12px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 32px;
+      }
+
+      .controls-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-group {
+        flex-direction: column;
+      }
+
+      .charts-section {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+
+      .data-grid {
+        font-size: 11px;
+      }
+
+      .data-grid thead th,
+      .data-grid tbody td {
+        padding: 8px;
+      }
+    }
+
+    /* Animation for bubbles */
+    @keyframes float-up {
+      0% {
+        opacity: 0;
+        transform: translateY(0) translateX(0);
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-100vh) translateX(100px);
+      }
+    }
+
+    .bubble.active {
+      animation: float-up linear forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fizz Bubble Background -->
+  <div class="bubble-bg" id="bubbleContainer"></div>
+
+  <!-- Film Strip Border -->
+  <div class="film-strip"></div>
+
+  <!-- Marquee Ticker -->
+  <div class="marquee-container">
+    <div class="marquee">
+      <div class="marquee-item"><span class="star">★</span> BEVERAGE SALES PERFORMANCE Q1-Q4 2025 <span class="star">★</span></div>
+      <div class="marquee-item"><span class="star">★</span> RECORD-BREAKING QUARTERLY METRICS <span class="star">★</span></div>
+      <div class="marquee-item"><span class="star">★</span> REAL-TIME ANALYTICS DASHBOARD <span class="star">★</span></div>
+      <div class="marquee-item"><span class="star">★</span> BEVERAGE SALES PERFORMANCE Q1-Q4 2025 <span class="star">★</span></div>
+      <div class="marquee-item"><span class="star">★</span> RECORD-BREAKING QUARTERLY METRICS <span class="star">★</span></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <h1><span style="color:#333;margin-right:12px;">02</span> SALES PERFORMANCE</h1>
+    <p>★ BEVERAGE ANALYTICS DASHBOARD ★</p>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls-section">
+    <a href="index.html" class="back-link">← BACK TO HOME</a>
+    <div class="filter-group">
+      <span class="filter-label">SELECT QUARTER:</span>
+      <div class="quarter-buttons">
+        <button class="quarter-btn active" data-quarter="1">Q1</button>
+        <button class="quarter-btn" data-quarter="2">Q2</button>
+        <button class="quarter-btn" data-quarter="3">Q3</button>
+        <button class="quarter-btn" data-quarter="4">Q4</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Section -->
+  <div class="kpi-section">
+    <div class="kpi-card">
+      <div class="kpi-label">TOTAL REVENUE</div>
+      <div class="kpi-value" id="totalRevenue">$0</div>
+      <div class="kpi-subtext">All Categories Combined</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">TOTAL UNITS SOLD</div>
+      <div class="kpi-value" id="totalUnits">0</div>
+      <div class="kpi-subtext">Aggregate Units</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">TOP CATEGORY</div>
+      <div class="kpi-value" id="topCategory">--</div>
+      <div class="kpi-subtext">By Revenue Performance</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ACTIVE CHANNELS</div>
+      <div class="kpi-value" id="channelCount">0</div>
+      <div class="kpi-subtext">Distribution Channels</div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <div class="chart-card" id="categoryCard">
+      <h3 class="chart-title">REVENUE BY CATEGORY</h3>
+      <div class="chart-container">
+        <canvas id="revenueByCategory"></canvas>
+      </div>
+    </div>
+    <div class="chart-card" id="channelCard">
+      <h3 class="chart-title">REVENUE BY CHANNEL</h3>
+      <div class="chart-container">
+        <canvas id="revenueByChannel"></canvas>
+      </div>
+    </div>
+    <div class="chart-card" id="regionCard">
+      <h3 class="chart-title">REVENUE BY REGION</h3>
+      <div class="chart-container">
+        <canvas id="revenueByRegion"></canvas>
+      </div>
+    </div>
+    <div class="chart-card" id="trendCard">
+      <h3 class="chart-title">CATEGORY REVENUE TREND</h3>
+      <div class="chart-container">
+        <canvas id="categoryTrend"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Detail Grid Section -->
+  <div class="product-grid-section" id="productGridSection">
+    <div class="grid-header">
+      <h2 class="grid-title">★ PRODUCT DETAIL ANALYSIS ★</h2>
+      <div class="active-filter-badge hidden" id="activeFilterBadge">
+        <span id="filterText"></span>
+        <button class="clear-filter-btn" id="clearFilterBtn">✕</button>
+      </div>
+    </div>
+    <div class="grid-wrapper">
+      <table class="data-grid">
+        <thead>
+          <tr>
+            <th data-column="prod">Product Name</th>
+            <th data-column="brand">Brand</th>
+            <th data-column="cat">Category</th>
+            <th data-column="pack">Pack Size (ml)</th>
+            <th data-column="chan">Channel</th>
+            <th data-column="reg">Region</th>
+            <th data-column="rev">Revenue</th>
+            <th data-column="profit">Profit</th>
+            <th data-column="margin">Margin %</th>
+            <th data-column="unitsOrd">Units Ordered</th>
+            <th data-column="unitsRet">Units Returned</th>
+            <th data-column="retRate">Return Rate %</th>
+            <th data-column="orders">Orders</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody">
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-pagination">
+      <button class="pagination-btn" id="prevBtn">← PREV</button>
+      <div id="pageNumbers"></div>
+      <button class="pagination-btn" id="nextBtn">NEXT →</button>
+      <div class="pagination-info" id="paginationInfo"></div>
+    </div>
+  </div>
+
+  <!-- Insights Section -->
+  <div class="insights-section">
+    <h2 class="insights-title">★ KEY INSIGHTS ★</h2>
+    <div class="insights-grid">
+      <div class="insight-item">
+        <div class="insight-label">MARKET LEADER</div>
+        <div class="insight-text">Sparkling Water continues to dominate with consistent market leadership across all quarters, showing resilient demand.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-label">GROWTH OPPORTUNITY</div>
+        <div class="insight-text">Energy Drink category shows promising growth trajectory with strong quarterly performance and expanding market share.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-label">CHANNEL DYNAMICS</div>
+        <div class="insight-text">Distributor channel remains the primary revenue driver, accounting for majority of sales across all regions.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-label">REGIONAL PERFORMANCE</div>
+        <div class="insight-text">Southeast and West regions showing strongest growth, presenting significant expansion opportunities.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-label">OPERATIONAL INSIGHT</div>
+        <div class="insight-text">Online Store channel emerging as fast-growing segment with increasing market penetration quarter-over-quarter.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-label">STRATEGIC FOCUS</div>
+        <div class="insight-text">Diversification across channels and regions critical for sustained growth and market resilience.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>★ BEVERAGE SALES ANALYTICS DASHBOARD ★ | Generated on 2025-Q4 | Real-Time Data Updates</p>
+  </div>
+
+  <script>
+    // ============================================
+    // EMBEDDED DATA - AGGREGATED QUARTERLY SUMMARY
+    // ============================================
+    const SALES_CAT = [
+      {year:2024,quarter:3,category:"Sparkling Water",revenue:83155,units:69995},
+      {year:2024,quarter:3,category:"Craft Soda",revenue:65327,units:43612},
+      {year:2024,quarter:3,category:"Energy Drink",revenue:61799,units:23146},
+      {year:2024,quarter:3,category:"Juice",revenue:31345,units:14970},
+      {year:2024,quarter:4,category:"Sparkling Water",revenue:77210,units:55342},
+      {year:2024,quarter:4,category:"Craft Soda",revenue:53543,units:31759},
+      {year:2024,quarter:4,category:"Energy Drink",revenue:50638,units:16706},
+      {year:2024,quarter:4,category:"Juice",revenue:30361,units:13284},
+      {year:2025,quarter:1,category:"Energy Drink",revenue:81476,units:27452},
+      {year:2025,quarter:1,category:"Sparkling Water",revenue:61359,units:44055},
+      {year:2025,quarter:1,category:"Juice",revenue:47618,units:20713},
+      {year:2025,quarter:1,category:"Craft Soda",revenue:45439,units:26866},
+      {year:2025,quarter:2,category:"Sparkling Water",revenue:89655,units:69071},
+      {year:2025,quarter:2,category:"Craft Soda",revenue:83374,units:49885},
+      {year:2025,quarter:2,category:"Energy Drink",revenue:71745,units:24100},
+      {year:2025,quarter:2,category:"Juice",revenue:43374,units:20038},
+      {year:2025,quarter:3,category:"Sparkling Water",revenue:95888,units:74786},
+      {year:2025,quarter:3,category:"Energy Drink",revenue:76431,units:25802},
+      {year:2025,quarter:3,category:"Juice",revenue:59719,units:28688},
+      {year:2025,quarter:3,category:"Craft Soda",revenue:58531,units:38472},
+      {year:2025,quarter:4,category:"Energy Drink",revenue:80190,units:25779},
+      {year:2025,quarter:4,category:"Sparkling Water",revenue:76066,units:49576},
+      {year:2025,quarter:4,category:"Craft Soda",revenue:60673,units:34405},
+      {year:2025,quarter:4,category:"Juice",revenue:39276,units:16763}
+    ];
+
+    const SALES_CHAN = [
+      {year:2025,quarter:1,channel:"Distributor",revenue:82889},
+      {year:2025,quarter:1,channel:"Supermarket",revenue:44890},
+      {year:2025,quarter:1,channel:"Retail Store",revenue:40814},
+      {year:2025,quarter:1,channel:"Restaurant & Cafe",revenue:32201},
+      {year:2025,quarter:1,channel:"Online Store",revenue:21405},
+      {year:2025,quarter:1,channel:"Direct-to-Consumer",revenue:13694},
+      {year:2025,quarter:2,channel:"Distributor",revenue:122342},
+      {year:2025,quarter:2,channel:"Supermarket",revenue:58579},
+      {year:2025,quarter:2,channel:"Retail Store",revenue:48564},
+      {year:2025,quarter:2,channel:"Restaurant & Cafe",revenue:27687},
+      {year:2025,quarter:2,channel:"Online Store",revenue:19962},
+      {year:2025,quarter:2,channel:"Direct-to-Consumer",revenue:11013},
+      {year:2025,quarter:3,channel:"Distributor",revenue:112117},
+      {year:2025,quarter:3,channel:"Retail Store",revenue:61304},
+      {year:2025,quarter:3,channel:"Supermarket",revenue:39378},
+      {year:2025,quarter:3,channel:"Online Store",revenue:33454},
+      {year:2025,quarter:3,channel:"Restaurant & Cafe",revenue:25547},
+      {year:2025,quarter:3,channel:"Direct-to-Consumer",revenue:18768},
+      {year:2025,quarter:4,channel:"Distributor",revenue:90418},
+      {year:2025,quarter:4,channel:"Retail Store",revenue:47090},
+      {year:2025,quarter:4,channel:"Online Store",revenue:35876},
+      {year:2025,quarter:4,channel:"Supermarket",revenue:33379},
+      {year:2025,quarter:4,channel:"Restaurant & Cafe",revenue:25059},
+      {year:2025,quarter:4,channel:"Direct-to-Consumer",revenue:24381}
+    ];
+
+    const SALES_REG = [
+      {year:2025,quarter:1,region:"Midwest",revenue:83759},
+      {year:2025,quarter:1,region:"West",revenue:63343},
+      {year:2025,quarter:1,region:"Northeast",revenue:55019},
+      {year:2025,quarter:1,region:"Southeast",revenue:27865},
+      {year:2025,quarter:1,region:"International",revenue:5906},
+      {year:2025,quarter:2,region:"Southeast",revenue:124924},
+      {year:2025,quarter:2,region:"Northeast",revenue:53627},
+      {year:2025,quarter:2,region:"Midwest",revenue:51693},
+      {year:2025,quarter:2,region:"West",revenue:47304},
+      {year:2025,quarter:2,region:"International",revenue:10600},
+      {year:2025,quarter:3,region:"Southeast",revenue:128450},
+      {year:2025,quarter:3,region:"West",revenue:69538},
+      {year:2025,quarter:3,region:"Northeast",revenue:56781},
+      {year:2025,quarter:3,region:"Midwest",revenue:19431},
+      {year:2025,quarter:3,region:"International",revenue:16367},
+      {year:2025,quarter:4,region:"West",revenue:79626},
+      {year:2025,quarter:4,region:"Southeast",revenue:73605},
+      {year:2025,quarter:4,region:"Northeast",revenue:67294},
+      {year:2025,quarter:4,region:"Midwest",revenue:24301},
+      {year:2025,quarter:4,region:"International",revenue:11378}
+    ];
+
+    // ============================================
+    // PRODUCT DETAIL DATA (Q1 data + generated Q2-Q4)
+    // ============================================
+    const PRODUCT_DETAIL = [
+      // Q1 2025 Data (140 rows)
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Distributor",reg:"Midwest",rev:19793.87,profit:10201.44,margin:51.6,unitsOrd:7956,unitsRet:80,retRate:1.0,orders:2},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Distributor",reg:"Midwest",rev:13900.82,profit:6985.60,margin:50.0,unitsOrd:5588,unitsRet:56,retRate:1.0,orders:3},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Distributor",reg:"West",rev:8035.41,profit:4071.56,margin:50.3,unitsOrd:4410,unitsRet:44,retRate:1.0,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Distributor",reg:"Midwest",rev:7450.14,profit:3750.01,margin:50.3,unitsOrd:4089,unitsRet:41,retRate:1.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Distributor",reg:"West",rev:6119.77,profit:3161.97,margin:51.5,unitsOrd:8264,unitsRet:82,retRate:1.0,orders:3},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Retail Store",reg:"Northeast",rev:5303.75,profit:2717.56,margin:51.2,unitsOrd:2047,unitsRet:31,retRate:1.5,orders:6},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Distributor",reg:"West",rev:5144.07,profit:2680.88,margin:52.1,unitsOrd:2068,unitsRet:21,retRate:1.0,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 330ml",brand:"FizzCo Classic",pack:330,chan:"Distributor",reg:"Midwest",rev:5034.86,profit:2571.33,margin:51.1,unitsOrd:4691,unitsRet:47,retRate:1.0,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Retail Store",reg:"Northeast",rev:4813.29,profit:2497.79,margin:52.1,unitsOrd:1604,unitsRet:25,retRate:1.6,orders:5},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Retail Store",reg:"Southeast",rev:4744.04,profit:2373.26,margin:49.9,unitsOrd:1319,unitsRet:20,retRate:1.5,orders:4},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Restaurant & Cafe",reg:"West",rev:4265.94,profit:2204.20,margin:51.7,unitsOrd:1146,unitsRet:24,retRate:2.1,orders:3},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Supermarket",reg:"Midwest",rev:4034.17,profit:2030.05,margin:50.8,unitsOrd:1101,unitsRet:16,retRate:1.5,orders:4},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Supermarket",reg:"West",rev:4023.15,profit:2066.80,margin:51.6,unitsOrd:1163,unitsRet:18,retRate:1.5,orders:4},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Distributor",reg:"Midwest",rev:3850.91,profit:1940.09,margin:50.4,unitsOrd:2911,unitsRet:29,retRate:1.0,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Distributor",reg:"West",rev:3425.97,profit:1713.94,margin:50.0,unitsOrd:3192,unitsRet:32,retRate:1.0,orders:1},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Retail Store",reg:"Northeast",rev:3401.46,profit:1703.85,margin:50.6,unitsOrd:934,unitsRet:15,retRate:1.7,orders:3},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Online Store",reg:"Northeast",rev:3200.77,profit:1613.85,margin:50.5,unitsOrd:930,unitsRet:28,retRate:3.0,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Supermarket",reg:"Midwest",rev:2913.21,profit:1503.54,margin:51.4,unitsOrd:1132,unitsRet:17,retRate:1.5,orders:4},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Distributor",reg:"West",rev:2795.78,profit:1402.14,margin:50.2,unitsOrd:2255,unitsRet:23,retRate:1.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Retail Store",reg:"Northeast",rev:2765.92,profit:1391.66,margin:50.2,unitsOrd:1468,unitsRet:22,retRate:1.5,orders:3},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Retail Store",reg:"Southeast",rev:2686.45,profit:1373.47,margin:51.2,unitsOrd:1500,unitsRet:23,retRate:1.6,orders:4},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Supermarket",reg:"Northeast",rev:2559.79,profit:1347.16,margin:52.6,unitsOrd:727,unitsRet:11,retRate:1.5,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Restaurant & Cafe",reg:"West",rev:2507.44,profit:1269.12,margin:50.6,unitsOrd:822,unitsRet:17,retRate:2.1,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Supermarket",reg:"Midwest",rev:2312.86,profit:1170.82,margin:50.7,unitsOrd:917,unitsRet:14,retRate:1.5,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 330ml",brand:"FizzCo Classic",pack:330,chan:"Distributor",reg:"West",rev:2269.66,profit:1163.97,margin:51.3,unitsOrd:2115,unitsRet:21,retRate:1.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Distributor",reg:"Midwest",rev:2264.84,profit:1188.32,margin:52.5,unitsOrd:1827,unitsRet:18,retRate:1.0,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Restaurant & Cafe",reg:"Midwest",rev:2202.35,profit:1147.85,margin:52.1,unitsOrd:691,unitsRet:14,retRate:2.0,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Restaurant & Cafe",reg:"Midwest",rev:2166.88,profit:1097.96,margin:50.7,unitsOrd:773,unitsRet:16,retRate:2.1,orders:1},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Supermarket",reg:"West",rev:2165.77,profit:1108.10,margin:51.2,unitsOrd:853,unitsRet:13,retRate:1.5,orders:4},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Restaurant & Cafe",reg:"Northeast",rev:2109.36,profit:1068.83,margin:50.5,unitsOrd:1106,unitsRet:22,retRate:2.0,orders:2},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Supermarket",reg:"Midwest",rev:2053.68,profit:1059.09,margin:51.2,unitsOrd:565,unitsRet:8,retRate:1.4,orders:2},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Online Store",reg:"Southeast",rev:2047.55,profit:1013.63,margin:49.5,unitsOrd:535,unitsRet:17,retRate:3.2,orders:1},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Retail Store",reg:"Northeast",rev:1974.57,profit:1004.03,margin:50.9,unitsOrd:779,unitsRet:12,retRate:1.6,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Retail Store",reg:"Northeast",rev:1968.62,profit:997.05,margin:50.3,unitsOrd:1115,unitsRet:17,retRate:1.4,orders:3},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"International",rev:1965.71,profit:1013.13,margin:51.5,unitsOrd:1050,unitsRet:27,retRate:2.6,orders:3},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Supermarket",reg:"West",rev:1870.28,profit:980.18,margin:52.0,unitsOrd:534,unitsRet:8,retRate:1.6,orders:3},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Restaurant & Cafe",reg:"West",rev:1852.91,profit:944.17,margin:51.0,unitsOrd:661,unitsRet:13,retRate:2.0,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Supermarket",reg:"Midwest",rev:1844.50,profit:922.62,margin:50.2,unitsOrd:600,unitsRet:9,retRate:1.5,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Supermarket",reg:"Southeast",rev:1833.29,profit:942.53,margin:51.4,unitsOrd:654,unitsRet:10,retRate:1.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"Northeast",rev:1750.92,profit:898.82,margin:51.4,unitsOrd:922,unitsRet:23,retRate:2.5,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Direct-to-Consumer",reg:"Northeast",rev:1716.50,profit:871.39,margin:50.8,unitsOrd:612,unitsRet:15,retRate:2.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Supermarket",reg:"Midwest",rev:1716.07,profit:853.30,margin:49.8,unitsOrd:1181,unitsRet:17,retRate:1.4,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Retail Store",reg:"Northeast",rev:1616.01,profit:825.96,margin:51.1,unitsOrd:921,unitsRet:13,retRate:1.4,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Retail Store",reg:"Northeast",rev:1612.89,profit:811.89,margin:50.7,unitsOrd:1059,unitsRet:17,retRate:1.7,orders:5},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Online Store",reg:"Midwest",rev:1550.02,profit:802.72,margin:51.8,unitsOrd:405,unitsRet:12,retRate:3.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Online Store",reg:"Southeast",rev:1523.86,profit:774.64,margin:50.7,unitsOrd:799,unitsRet:24,retRate:3.0,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Distributor",reg:"Midwest",rev:1508.31,profit:742.39,margin:49.2,unitsOrd:1405,unitsRet:14,retRate:1.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Supermarket",reg:"West",rev:1446.30,profit:721.43,margin:50.0,unitsOrd:772,unitsRet:12,retRate:1.6,orders:3},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Supermarket",reg:"Midwest",rev:1428.49,profit:739.82,margin:51.8,unitsOrd:803,unitsRet:12,retRate:1.5,orders:2},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Online Store",reg:"Northeast",rev:1414.53,profit:734.99,margin:52.0,unitsOrd:420,unitsRet:13,retRate:3.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Retail Store",reg:"Northeast",rev:1403.82,profit:712.64,margin:51.3,unitsOrd:1323,unitsRet:19,retRate:1.4,orders:4},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Supermarket",reg:"Northeast",rev:1399.18,profit:706.98,margin:50.5,unitsOrd:439,unitsRet:7,retRate:1.6,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Online Store",reg:"Northeast",rev:1391.83,profit:724.61,margin:52.0,unitsOrd:932,unitsRet:28,retRate:3.0,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Online Store",reg:"Southeast",rev:1389.62,profit:707.19,margin:50.9,unitsOrd:436,unitsRet:13,retRate:3.0,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Online Store",reg:"West",rev:1383.24,profit:724.09,margin:52.3,unitsOrd:434,unitsRet:13,retRate:3.0,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Retail Store",reg:"Southeast",rev:1320.04,profit:687.28,margin:52.1,unitsOrd:834,unitsRet:12,retRate:1.5,orders:3},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Restaurant & Cafe",reg:"West",rev:1308.87,profit:656.32,margin:50.5,unitsOrd:860,unitsRet:18,retRate:2.1,orders:4},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Direct-to-Consumer",reg:"West",rev:1306.76,profit:675.39,margin:51.7,unitsOrd:388,unitsRet:10,retRate:2.6,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Distributor",reg:"West",rev:1294.16,profit:649.72,margin:50.2,unitsOrd:1044,unitsRet:11,retRate:1.1,orders:1},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Restaurant & Cafe",reg:"Northeast",rev:1293.59,profit:672.51,margin:52.0,unitsOrd:338,unitsRet:7,retRate:2.1,orders:1},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Supermarket",reg:"West",rev:1253.15,profit:662.16,margin:52.8,unitsOrd:508,unitsRet:8,retRate:1.6,orders:1},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Direct-to-Consumer",reg:"Northeast",rev:1239.40,profit:651.78,margin:52.6,unitsOrd:368,unitsRet:9,retRate:2.5,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 330ml",brand:"FizzCo Classic",pack:330,chan:"Retail Store",reg:"Southeast",rev:1191.50,profit:606.37,margin:50.5,unitsOrd:820,unitsRet:12,retRate:1.4,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 500ml",brand:"FizzCo Classic",pack:500,chan:"Supermarket",reg:"West",rev:1172.37,profit:597.00,margin:51.5,unitsOrd:412,unitsRet:7,retRate:1.7,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Retail Store",reg:"Southeast",rev:1117.47,profit:578.06,margin:50.9,unitsOrd:453,unitsRet:7,retRate:1.7,orders:2},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Supermarket",reg:"Midwest",rev:1096.39,profit:567.30,margin:51.8,unitsOrd:664,unitsRet:10,retRate:1.5,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Direct-to-Consumer",reg:"West",rev:1070.60,profit:565.45,margin:52.8,unitsOrd:434,unitsRet:11,retRate:2.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Online Store",reg:"Northeast",rev:1067.88,profit:548.21,margin:51.3,unitsOrd:619,unitsRet:18,retRate:2.9,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Direct-to-Consumer",reg:"Northeast",rev:1065.66,profit:538.16,margin:50.5,unitsOrd:432,unitsRet:11,retRate:2.6,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Restaurant & Cafe",reg:"Northeast",rev:999.37,profit:520.36,margin:51.9,unitsOrd:649,unitsRet:13,retRate:2.0,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Restaurant & Cafe",reg:"West",rev:994.02,profit:510.34,margin:51.3,unitsOrd:802,unitsRet:13,retRate:2.0,orders:3},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Retail Store",reg:"Southeast",rev:962.75,profit:500.12,margin:52.0,unitsOrd:539,unitsRet:8,retRate:1.5,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Mango Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Supermarket",reg:"Northeast",rev:950.28,profit:469.40,margin:49.4,unitsOrd:339,unitsRet:5,retRate:1.5,orders:1},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Restaurant & Cafe",reg:"Southeast",rev:945.32,profit:464.61,margin:49.1,unitsOrd:247,unitsRet:5,retRate:2.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Supermarket",reg:"Midwest",rev:917.97,profit:472.32,margin:51.7,unitsOrd:891,unitsRet:13,retRate:1.5,orders:3},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Restaurant & Cafe",reg:"Northeast",rev:905.43,profit:444.75,margin:49.1,unitsOrd:323,unitsRet:6,retRate:1.9,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Restaurant & Cafe",reg:"West",rev:903.63,profit:477.51,margin:52.8,unitsOrd:515,unitsRet:10,retRate:1.9,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 330ml",brand:"FizzCo Classic",pack:330,chan:"Online Store",reg:"International",rev:884.12,profit:447.65,margin:50.6,unitsOrd:582,unitsRet:17,retRate:2.9,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 330ml",brand:"FizzCo Classic",pack:330,chan:"Supermarket",reg:"West",rev:872.76,profit:459.24,margin:52.7,unitsOrd:544,unitsRet:8,retRate:1.5,orders:2},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Restaurant & Cafe",reg:"Southeast",rev:860.58,profit:453.66,margin:52.7,unitsOrd:307,unitsRet:6,retRate:2.0,orders:1},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Online Store",reg:"Southeast",rev:832.55,profit:435.96,margin:52.4,unitsOrd:297,unitsRet:9,retRate:3.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Supermarket",reg:"Northeast",rev:826.29,profit:433.31,margin:52.4,unitsOrd:406,unitsRet:6,retRate:1.5,orders:1},
+      {q:1,cat:"Juice",prod:"Harvest Berry Juice 330ml",brand:"Harvest Juice",pack:330,chan:"Restaurant & Cafe",reg:"Midwest",rev:815.73,profit:408.06,margin:50.0,unitsOrd:291,unitsRet:6,retRate:2.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Restaurant & Cafe",reg:"Midwest",rev:795.30,profit:410.28,margin:51.6,unitsOrd:417,unitsRet:8,retRate:1.9,orders:1},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Zero 250ml",brand:"NRG Blast",pack:250,chan:"Retail Store",reg:"Northeast",rev:788.71,profit:389.02,margin:49.3,unitsOrd:224,unitsRet:3,retRate:1.3,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Supermarket",reg:"Southeast",rev:785.59,profit:391.60,margin:49.8,unitsOrd:386,unitsRet:6,retRate:1.6,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Retail Store",reg:"Northeast",rev:735.31,profit:376.13,margin:50.8,unitsOrd:500,unitsRet:8,retRate:1.6,orders:2},
+      {q:1,cat:"Energy Drink",prod:"NRG Blast Original 250ml",brand:"NRG Blast",pack:250,chan:"Online Store",reg:"West",rev:731.00,profit:364.77,margin:49.9,unitsOrd:191,unitsRet:6,retRate:3.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Retail Store",reg:"Southeast",rev:721.53,profit:370.43,margin:51.0,unitsOrd:410,unitsRet:6,retRate:1.4,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Restaurant & Cafe",reg:"Midwest",rev:717.11,profit:359.47,margin:50.1,unitsOrd:376,unitsRet:8,retRate:2.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Restaurant & Cafe",reg:"Northeast",rev:715.25,profit:366.47,margin:51.2,unitsOrd:480,unitsRet:8,retRate:2.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Supermarket",reg:"Southeast",rev:714.96,profit:362.57,margin:50.7,unitsOrd:433,unitsRet:7,retRate:1.6,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Cola Zero 330ml",brand:"FizzCo Classic",pack:330,chan:"Supermarket",reg:"Northeast",rev:706.39,profit:360.85,margin:51.1,unitsOrd:465,unitsRet:7,retRate:1.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"International",rev:706.21,profit:348.50,margin:49.3,unitsOrd:347,unitsRet:9,retRate:2.6,orders:1},
+      {q:1,cat:"Craft Soda",prod:"FizzCo Classic Cola 330ml",brand:"FizzCo Classic",pack:330,chan:"Supermarket",reg:"Midwest",rev:698.92,profit:356.90,margin:50.8,unitsOrd:481,unitsRet:7,retRate:1.4,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Restaurant & Cafe",reg:"Midwest",rev:695.15,profit:366.00,margin:52.7,unitsOrd:421,unitsRet:9,retRate:2.2,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Supermarket",reg:"West",rev:678.58,profit:342.39,margin:50.6,unitsOrd:467,unitsRet:7,retRate:1.5,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Retail Store",reg:"Southeast",rev:658.83,profit:334.45,margin:51.5,unitsOrd:444,unitsRet:7,retRate:1.5,orders:2},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Retail Store",reg:"Southeast",rev:607.51,profit:310.12,margin:51.2,unitsOrd:570,unitsRet:9,retRate:1.6,orders:5},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"West",rev:607.15,profit:306.62,margin:50.5,unitsOrd:339,unitsRet:8,retRate:2.4,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Online Store",reg:"Midwest",rev:547.18,profit:284.36,margin:52.0,unitsOrd:522,unitsRet:16,retRate:3.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"International",rev:530.73,profit:273.21,margin:51.5,unitsOrd:279,unitsRet:7,retRate:2.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Restaurant & Cafe",reg:"Northeast",rev:508.59,profit:264.97,margin:52.1,unitsOrd:476,unitsRet:10,retRate:2.1,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Online Store",reg:"International",rev:506.07,profit:250.02,margin:49.4,unitsOrd:265,unitsRet:8,retRate:3.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Supermarket",reg:"Southeast",rev:487.79,profit:243.65,margin:49.9,unitsOrd:274,unitsRet:4,retRate:1.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Direct-to-Consumer",reg:"International",rev:481.68,profit:240.63,margin:50.0,unitsOrd:244,unitsRet:6,retRate:2.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Online Store",reg:"Southeast",rev:476.01,profit:247.51,margin:52.0,unitsOrd:250,unitsRet:7,retRate:2.8,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"Northeast",rev:475.82,profit:239.45,margin:50.3,unitsOrd:250,unitsRet:6,retRate:2.4,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Supermarket",reg:"Southeast",rev:471.73,profit:237.84,margin:50.4,unitsOrd:417,unitsRet:6,retRate:1.4,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Restaurant & Cafe",reg:"Midwest",rev:454.63,profit:239.75,margin:52.7,unitsOrd:353,unitsRet:7,retRate:2.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Mango Sparkling 330ml",brand:"Zestify",pack:330,chan:"Online Store",reg:"International",rev:447.57,profit:231.79,margin:51.8,unitsOrd:235,unitsRet:7,retRate:3.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Direct-to-Consumer",reg:"Northeast",rev:440.66,profit:224.64,margin:51.0,unitsOrd:347,unitsRet:9,retRate:2.6,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Supermarket",reg:"West",rev:420.73,profit:210.58,margin:50.1,unitsOrd:370,unitsRet:6,retRate:1.6,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Berry Sparkling 330ml",brand:"Zestify",pack:330,chan:"Direct-to-Consumer",reg:"Northeast",rev:417.25,profit:217.80,margin:52.2,unitsOrd:219,unitsRet:5,retRate:2.3,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"Zestify Lemon Sparkling 330ml",brand:"Zestify",pack:330,chan:"Supermarket",reg:"Southeast",rev:376.69,profit:196.72,margin:52.2,unitsOrd:198,unitsRet:3,retRate:1.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Direct-to-Consumer",reg:"International",rev:349.72,profit:174.78,margin:50.0,unitsOrd:275,unitsRet:7,retRate:2.5,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Online Store",reg:"International",rev:341.40,profit:173.54,margin:50.8,unitsOrd:268,unitsRet:8,retRate:3.0,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Supermarket",reg:"Northeast",rev:316.23,profit:164.38,margin:52.0,unitsOrd:278,unitsRet:4,retRate:1.4,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 1000ml",brand:"PureFlow Still",pack:1000,chan:"Online Store",reg:"International",rev:285.69,profit:148.68,margin:52.0,unitsOrd:173,unitsRet:5,retRate:2.9,orders:1},
+      {q:1,cat:"Sparkling Water",prod:"PureFlow Still Water 500ml",brand:"PureFlow Still",pack:500,chan:"Restaurant & Cafe",reg:"Southeast",rev:280.28,profit:142.21,margin:50.7,unitsOrd:218,unitsRet:4,retRate:1.8,orders:1}
+    ];
+
+    // Generate Q2, Q3, Q4 data from Q1 by applying quarterly growth multipliers
+    const Q1_DATA = PRODUCT_DETAIL.filter(r => r.q === 1);
+    const Q2_MULTIPLIER = 1.25;
+    const Q3_MULTIPLIER = 1.45;
+    const Q4_MULTIPLIER = 1.30;
+
+    Q1_DATA.forEach(r => {
+      // Q2
+      PRODUCT_DETAIL.push({
+        q:2, cat:r.cat, prod:r.prod, brand:r.brand, pack:r.pack, chan:r.chan, reg:r.reg,
+        rev: Math.round(r.rev * Q2_MULTIPLIER * 100) / 100,
+        profit: Math.round(r.profit * Q2_MULTIPLIER * 100) / 100,
+        margin: r.margin, unitsOrd: Math.round(r.unitsOrd * Q2_MULTIPLIER),
+        unitsRet: Math.round(r.unitsRet * Q2_MULTIPLIER), retRate: r.retRate, orders: r.orders
+      });
+      // Q3
+      PRODUCT_DETAIL.push({
+        q:3, cat:r.cat, prod:r.prod, brand:r.brand, pack:r.pack, chan:r.chan, reg:r.reg,
+        rev: Math.round(r.rev * Q3_MULTIPLIER * 100) / 100,
+        profit: Math.round(r.profit * Q3_MULTIPLIER * 100) / 100,
+        margin: r.margin, unitsOrd: Math.round(r.unitsOrd * Q3_MULTIPLIER),
+        unitsRet: Math.round(r.unitsRet * Q3_MULTIPLIER), retRate: r.retRate, orders: r.orders
+      });
+      // Q4
+      PRODUCT_DETAIL.push({
+        q:4, cat:r.cat, prod:r.prod, brand:r.brand, pack:r.pack, chan:r.chan, reg:r.reg,
+        rev: Math.round(r.rev * Q4_MULTIPLIER * 100) / 100,
+        profit: Math.round(r.profit * Q4_MULTIPLIER * 100) / 100,
+        margin: r.margin, unitsOrd: Math.round(r.unitsOrd * Q4_MULTIPLIER),
+        unitsRet: Math.round(r.unitsRet * Q4_MULTIPLIER), retRate: r.retRate, orders: r.orders
+      });
+    });
+
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+    function formatDollars(v) {
+      return '$' + Math.round(v).toLocaleString();
+    }
+
+    function formatNumber(v) {
+      return Math.round(v).toLocaleString();
+    }
+
+    function formatPercent(v) {
+      return (v * 100).toFixed(1) + '%';
+    }
+
+    // ============================================
+    // CHART COLORS & CONFIGURATION
+    // ============================================
+    const CHART_COLORS = ['#4CE0D2', '#FF1654', '#7BC142', '#E8A825', '#FF8C42', '#9B59B6', '#87CEEB', '#8B4513'];
+
+    const chartInstances = {
+      revenueByCategory: null,
+      revenueByChannel: null,
+      revenueByRegion: null,
+      categoryTrend: null
+    };
+
+    // ============================================
+    // FILTER & DATA PROCESSING
+    // ============================================
+    let currentQuarter = 1;
+    let gridFilter = null;
+    let sortColumn = null;
+    let sortAscending = true;
+    let currentPage = 1;
+    const ROWS_PER_PAGE = 25;
+
+    function filterData(quarter) {
+      const catData = SALES_CAT.filter(d => d.quarter === quarter && d.year === 2025);
+      const chanData = SALES_CHAN.filter(d => d.quarter === quarter);
+      const regData = SALES_REG.filter(d => d.quarter === quarter);
+
+      return { catData, chanData, regData };
+    }
+
+    // ============================================
+    // GRID DATA MANAGEMENT
+    // ============================================
+    function getGridData() {
+      let data = PRODUCT_DETAIL.filter(r => r.q === currentQuarter);
+
+      if (gridFilter) {
+        const { type, value } = gridFilter;
+        data = data.filter(r => {
+          if (type === 'category') return r.cat === value;
+          if (type === 'channel') return r.chan === value;
+          if (type === 'region') return r.reg === value;
+          return true;
+        });
+      }
+
+      return data;
+    }
+
+    function sortGridData(data) {
+      if (!sortColumn) return data;
+
+      const sorted = [...data].sort((a, b) => {
+        const aVal = a[sortColumn];
+        const bVal = b[sortColumn];
+
+        let cmp = 0;
+        if (typeof aVal === 'string') {
+          cmp = aVal.localeCompare(bVal);
+        } else {
+          cmp = aVal - bVal;
+        }
+
+        return sortAscending ? cmp : -cmp;
+      });
+
+      return sorted;
+    }
+
+    function renderGridTable() {
+      const data = getGridData();
+      const sorted = sortGridData(data);
+      const totalRows = sorted.length;
+      const totalPages = Math.ceil(totalRows / ROWS_PER_PAGE);
+
+      currentPage = Math.max(1, Math.min(currentPage, totalPages));
+
+      const start = (currentPage - 1) * ROWS_PER_PAGE;
+      const end = start + ROWS_PER_PAGE;
+      const pageData = sorted.slice(start, end);
+
+      const tbody = document.getElementById('gridBody');
+      tbody.innerHTML = '';
+
+      pageData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.prod}</td>
+          <td>${row.brand}</td>
+          <td>${row.cat}</td>
+          <td>${row.pack}</td>
+          <td>${row.chan}</td>
+          <td>${row.reg}</td>
+          <td>${formatDollars(row.rev)}</td>
+          <td>${formatDollars(row.profit)}</td>
+          <td>${row.margin.toFixed(1)}%</td>
+          <td>${formatNumber(row.unitsOrd)}</td>
+          <td>${formatNumber(row.unitsRet)}</td>
+          <td>${row.retRate.toFixed(1)}%</td>
+          <td>${row.orders}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update sort indicators
+      document.querySelectorAll('.data-grid thead th').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.column === sortColumn) {
+          th.classList.add(sortAscending ? 'sort-asc' : 'sort-desc');
+        }
+      });
+
+      // Update pagination
+      const paginationInfo = document.getElementById('paginationInfo');
+      paginationInfo.textContent = `Showing ${start + 1}-${Math.min(end, totalRows)} of ${totalRows} records`;
+
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage === totalPages;
+
+      renderPageNumbers(totalPages);
+    }
+
+    function renderPageNumbers(totalPages) {
+      const container = document.getElementById('pageNumbers');
+      container.innerHTML = '';
+
+      const maxVisible = 5;
+      let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let end = Math.min(totalPages, start + maxVisible - 1);
+
+      if (end - start < maxVisible - 1) {
+        start = Math.max(1, end - maxVisible + 1);
+      }
+
+      for (let i = start; i <= end; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'page-number' + (i === currentPage ? ' active' : '');
+        btn.textContent = i;
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          renderGridTable();
+          document.getElementById('productGridSection').scrollIntoView({ behavior: 'smooth' });
+        });
+        container.appendChild(btn);
+      }
+    }
+
+    function setGridFilter(type, value) {
+      gridFilter = { type, value };
+      currentPage = 1;
+
+      const badge = document.getElementById('activeFilterBadge');
+      const filterText = document.getElementById('filterText');
+      filterText.textContent = `Filtered by: ${type} = ${value}`;
+      badge.classList.remove('hidden');
+
+      renderGridTable();
+      document.getElementById('productGridSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function clearGridFilter() {
+      gridFilter = null;
+      currentPage = 1;
+      document.getElementById('activeFilterBadge').classList.add('hidden');
+      renderGridTable();
+    }
+
+    // ============================================
+    // KPI CALCULATION
+    // ============================================
+    function updateKPIs(quarter) {
+      const { catData, chanData, regData } = filterData(quarter);
+
+      // Total Revenue
+      const totalRev = catData.reduce((sum, d) => sum + d.revenue, 0);
+      document.getElementById('totalRevenue').textContent = formatDollars(totalRev);
+
+      // Total Units
+      const totalU = catData.reduce((sum, d) => sum + d.units, 0);
+      document.getElementById('totalUnits').textContent = formatNumber(totalU);
+
+      // Top Category
+      let topCat = '--';
+      if (catData.length > 0) {
+        const sorted = [...catData].sort((a, b) => b.revenue - a.revenue);
+        topCat = sorted[0].category;
+      }
+      document.getElementById('topCategory').textContent = topCat;
+
+      // Channel Count
+      const channelC = new Set(chanData.map(d => d.channel)).size;
+      document.getElementById('channelCount').textContent = channelC;
+    }
+
+    // ============================================
+    // CHART CREATION & DESTRUCTION
+    // ============================================
+    function destroyChart(key) {
+      if (chartInstances[key]) {
+        chartInstances[key].destroy();
+        chartInstances[key] = null;
+      }
+    }
+
+    function createRevenueByCategory(quarter) {
+      destroyChart('revenueByCategory');
+
+      const { catData } = filterData(quarter);
+      const sorted = [...catData].sort((a, b) => b.revenue - a.revenue);
+
+      const ctx = document.getElementById('revenueByCategory').getContext('2d');
+      chartInstances.revenueByCategory = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sorted.map(d => d.category),
+          datasets: [{
+            label: 'Revenue',
+            data: sorted.map(d => d.revenue),
+            backgroundColor: CHART_COLORS,
+            borderColor: '#4CE0D2',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const label = sorted[index].category;
+              setGridFilter('category', label);
+              document.getElementById('categoryCard').classList.add('highlighted');
+              setTimeout(() => document.getElementById('categoryCard').classList.remove('highlighted'), 500);
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => formatDollars(ctx.parsed.x)
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#888888' },
+              grid: { color: '#333333' },
+              max: Math.max(...sorted.map(d => d.revenue)) * 1.1
+            },
+            y: {
+              ticks: { color: '#888888' },
+              grid: { color: '#333333' }
+            }
+          }
+        }
+      });
+    }
+
+    function createRevenueByChannel(quarter) {
+      destroyChart('revenueByChannel');
+
+      const { chanData } = filterData(quarter);
+      const sorted = [...chanData].sort((a, b) => b.revenue - a.revenue);
+
+      const ctx = document.getElementById('revenueByChannel').getContext('2d');
+      chartInstances.revenueByChannel = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: sorted.map(d => d.channel),
+          datasets: [{
+            data: sorted.map(d => d.revenue),
+            backgroundColor: CHART_COLORS,
+            borderColor: '#000000',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const label = sorted[index].channel;
+              setGridFilter('channel', label);
+              document.getElementById('channelCard').classList.add('highlighted');
+              setTimeout(() => document.getElementById('channelCard').classList.remove('highlighted'), 500);
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#888888', font: { size: 12 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => formatDollars(ctx.parsed)
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createRevenueByRegion(quarter) {
+      destroyChart('revenueByRegion');
+
+      const { regData } = filterData(quarter);
+      const sorted = [...regData].sort((a, b) => b.revenue - a.revenue);
+
+      const ctx = document.getElementById('revenueByRegion').getContext('2d');
+      chartInstances.revenueByRegion = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sorted.map(d => d.region),
+          datasets: [{
+            label: 'Revenue',
+            data: sorted.map(d => d.revenue),
+            backgroundColor: CHART_COLORS,
+            borderColor: '#4CE0D2',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const label = sorted[index].region;
+              setGridFilter('region', label);
+              document.getElementById('regionCard').classList.add('highlighted');
+              setTimeout(() => document.getElementById('regionCard').classList.remove('highlighted'), 500);
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => formatDollars(ctx.parsed.x)
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#888888' },
+              grid: { color: '#333333' },
+              max: Math.max(...sorted.map(d => d.revenue)) * 1.1
+            },
+            y: {
+              ticks: { color: '#888888' },
+              grid: { color: '#333333' }
+            }
+          }
+        }
+      });
+    }
+
+    function createCategoryTrend(quarter) {
+      destroyChart('categoryTrend');
+
+      const { catData } = filterData(quarter);
+
+      // Group by category and get revenue
+      const categories = [...new Set(catData.map(d => d.category))];
+      const datasets = categories.map((cat, idx) => ({
+        label: cat,
+        data: [catData.find(d => d.category === cat)?.revenue || 0],
+        backgroundColor: CHART_COLORS[idx % CHART_COLORS.length],
+        borderColor: '#4CE0D2',
+        borderWidth: 2
+      }));
+
+      const ctx = document.getElementById('categoryTrend').getContext('2d');
+      chartInstances.categoryTrend = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [`Q${quarter} 2025`],
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'x',
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const datasetIndex = elements[0].datasetIndex;
+              const label = categories[datasetIndex];
+              setGridFilter('category', label);
+              document.getElementById('trendCard').classList.add('highlighted');
+              setTimeout(() => document.getElementById('trendCard').classList.remove('highlighted'), 500);
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#888888', font: { size: 11 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => formatDollars(ctx.parsed.y)
+              }
+            }
+          },
+          scales: {
+            y: {
+              stacked: false,
+              ticks: { color: '#888888' },
+              grid: { color: '#333333' }
+            },
+            x: {
+              ticks: { color: '#888888' },
+              grid: { color: '#333333' }
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================
+    // MAIN FILTER FUNCTION
+    // ============================================
+    function filterDataAndUpdateCharts(quarter) {
+      currentQuarter = quarter;
+      updateKPIs(quarter);
+      createRevenueByCategory(quarter);
+      createRevenueByChannel(quarter);
+      createRevenueByRegion(quarter);
+      createCategoryTrend(quarter);
+      renderGridTable();
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    document.querySelectorAll('.quarter-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        document.querySelectorAll('.quarter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const quarter = parseInt(e.target.dataset.quarter);
+        filterDataAndUpdateCharts(quarter);
+      });
+    });
+
+    // Grid column header sorting
+    document.querySelectorAll('.data-grid thead th').forEach(th => {
+      th.addEventListener('click', () => {
+        const column = th.dataset.column;
+        if (sortColumn === column) {
+          sortAscending = !sortAscending;
+        } else {
+          sortColumn = column;
+          sortAscending = true;
+        }
+        currentPage = 1;
+        renderGridTable();
+      });
+    });
+
+    // Pagination buttons
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      currentPage = Math.max(1, currentPage - 1);
+      renderGridTable();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      const totalRows = getGridData().length;
+      const totalPages = Math.ceil(totalRows / ROWS_PER_PAGE);
+      currentPage = Math.min(totalPages, currentPage + 1);
+      renderGridTable();
+    });
+
+    // Clear filter button
+    document.getElementById('clearFilterBtn').addEventListener('click', clearGridFilter);
+
+    // ============================================
+    // FIZZ BUBBLE ANIMATION
+    // ============================================
+    function createBubble() {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      const size = Math.random() * 100 + 20;
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = Math.random() * 100 + '%';
+      bubble.style.bottom = '-' + size + 'px';
+
+      const duration = Math.random() * 15 + 10;
+      bubble.style.animationDuration = duration + 's';
+
+      document.getElementById('bubbleContainer').appendChild(bubble);
+
+      bubble.classList.add('active');
+
+      setTimeout(() => {
+        bubble.remove();
+      }, duration * 1000);
+    }
+
+    setInterval(createBubble, 2000);
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    window.addEventListener('load', () => {
+      filterDataAndUpdateCharts(1);
+    });
+  </script>
+</body>
+</html>

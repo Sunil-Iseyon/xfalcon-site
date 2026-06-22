@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Health | Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        header {
+            background: #FFFFFF;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #1A1A1A;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666666;
+            font-size: 14px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #E02B20;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #1A1A1A;
+        }
+
+        .filters {
+            background: #FFFFFF;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1A1A1A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            background: #FFFFFF;
+            color: #1A1A1A;
+            cursor: pointer;
+            min-width: 180px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: #E02B20;
+        }
+
+        .filter-group select:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999999;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .kpi-unit {
+            font-size: 13px;
+            color: #999999;
+            margin-top: 5px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            background: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chart-wrapper h3 {
+            font-size: 16px;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        .chart-analysis {
+            border-left: 3px solid #E02B20;
+            padding: 15px;
+            background: #fafafa;
+            font-size: 13px;
+            color: #555555;
+            margin-top: 15px;
+            border-radius: 2px;
+            line-height: 1.6;
+        }
+
+        footer {
+            background: #FFFFFF;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .filter-group select {
+                width: 100%;
+            }
+
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+
+        <header>
+            <h1>04 | Inventory Health</h1>
+            <p class="subtitle">Falcon Auto B2B - Current Stock Snapshot</p>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="brandFilter">Brand</label>
+                <select id="brandFilter">
+                    <option value="">All Brands</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Stock Status</label>
+                <select id="statusFilter">
+                    <option value="">All</option>
+                    <option value="Healthy">Healthy</option>
+                    <option value="Low Stock">Low Stock</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display:flex;align-items:flex-end;">
+                <span style="font-size:13px;color:#999;padding:10px 0;">Data as of March 2026 (Point-in-Time Snapshot)</span>
+            </div>
+        </div>
+
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-label">Total SKUs</div>
+                <div class="kpi-value" id="kpiTotalSkus">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Qty On Hand</div>
+                <div class="kpi-value" id="kpiTotalQty">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Reserved</div>
+                <div class="kpi-value" id="kpiTotalReserved">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Stock Ratio</div>
+                <div class="kpi-value" id="kpiAvgRatio">0.00</div>
+                <div class="kpi-unit">x reorder level</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-wrapper">
+                <h3>Stock Levels by Product</h3>
+                <div class="chart-container">
+                    <canvas id="stockLevelsChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="stockLevelsAnalysis"></div>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3>Inventory by Brand</h3>
+                <div class="chart-container">
+                    <canvas id="inventoryByBrandChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="inventoryByBrandAnalysis"></div>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3>Available vs Reserved</h3>
+                <div class="chart-container">
+                    <canvas id="availableVsReservedChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="availableVsReservedAnalysis"></div>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3>Stock Health Ratio</h3>
+                <div class="chart-container">
+                    <canvas id="stockHealthRatioChart"></canvas>
+                </div>
+                <div class="chart-analysis" id="stockHealthRatioAnalysis"></div>
+            </div>
+        </div>
+
+        <footer>
+            Dashboard generated on <span id="footerDate"></span>. Inventory data is a point-in-time snapshot.
+        </footer>
+    </div>
+
+    <script>
+        // Embedded inventory data
+        const inventoryData = [
+            {"id":27,"name":"TorqMaster 2-Post Hydraulic Lift","brand":"TorqMaster","onHand":12,"reserved":6,"reorder":5,"status":"Healthy"},
+            {"id":26,"name":"TorqMaster 60-Gal Air Compressor","brand":"TorqMaster","onHand":22,"reserved":8,"reorder":5,"status":"Healthy"},
+            {"id":30,"name":"ProShield Pressure Cup Gun 2L","brand":"ProShield","onHand":25,"reserved":12,"reorder":5,"status":"Healthy"},
+            {"id":25,"name":"LubriMax ATF Transmission Fluid","brand":"LubriMax","onHand":35,"reserved":10,"reorder":5,"status":"Healthy"},
+            {"id":29,"name":"ClearView 5in Buffing Pad","brand":"ClearView","onHand":64,"reserved":20,"reorder":20,"status":"Healthy"},
+            {"id":22,"name":"BodRight 6-Piece Dolly Set","brand":"BodRight","onHand":65,"reserved":10,"reorder":20,"status":"Healthy"},
+            {"id":24,"name":"LubriMax 10W-30 Motor Oil","brand":"LubriMax","onHand":66,"reserved":1,"reorder":20,"status":"Healthy"},
+            {"id":20,"name":"CleanRun Heavy Duty Degreaser","brand":"CleanRun","onHand":85,"reserved":8,"reorder":20,"status":"Healthy"},
+            {"id":3,"name":"SprayMaster Pro Gravity Feed Gun","brand":"SprayMaster","onHand":85,"reserved":2,"reorder":20,"status":"Healthy"},
+            {"id":11,"name":"UltraCoat White Basecoat Quart","brand":"UltraCoat","onHand":95,"reserved":20,"reorder":20,"status":"Healthy"},
+            {"id":4,"name":"SprayMaster Mini Touch-Up Gun","brand":"SprayMaster","onHand":107,"reserved":9,"reorder":20,"status":"Healthy"},
+            {"id":28,"name":"ClearView Machine Polish 16oz","brand":"ClearView","onHand":109,"reserved":10,"reorder":20,"status":"Healthy"},
+            {"id":21,"name":"BodRight 5-Piece Body Hammer Set","brand":"BodRight","onHand":118,"reserved":17,"reorder":20,"status":"Healthy"},
+            {"id":1,"name":"ProShield HVLP Gravity Spray Gun","brand":"ProShield","onHand":122,"reserved":14,"reorder":50,"status":"Healthy"},
+            {"id":15,"name":"SafeGuard Pro Half-Face Respirator","brand":"SafeGuard Pro","onHand":122,"reserved":8,"reorder":20,"status":"Healthy"},
+            {"id":7,"name":"ApexGrit P320 DA Sanding Disc","brand":"ApexGrit","onHand":123,"reserved":7,"reorder":50,"status":"Healthy"},
+            {"id":18,"name":"ProShield Masking Film 48in","brand":"ProShield","onHand":130,"reserved":7,"reorder":20,"status":"Healthy"},
+            {"id":16,"name":"SafeGuard Pro OV Cartridge","brand":"SafeGuard Pro","onHand":136,"reserved":19,"reorder":50,"status":"Healthy"},
+            {"id":12,"name":"UltraCoat Black Basecoat Quart","brand":"UltraCoat","onHand":143,"reserved":11,"reorder":20,"status":"Healthy"},
+            {"id":23,"name":"BodRight XL Slide Hammer","brand":"BodRight","onHand":144,"reserved":1,"reorder":20,"status":"Healthy"},
+            {"id":13,"name":"SafeGuard Pro Nitrile Gloves L","brand":"SafeGuard Pro","onHand":183,"reserved":11,"reorder":50,"status":"Healthy"},
+            {"id":19,"name":"CleanRun Pre-Prep Wax Remover","brand":"CleanRun","onHand":183,"reserved":14,"reorder":50,"status":"Healthy"},
+            {"id":17,"name":"ProShield 3/4in Masking Tape","brand":"ProShield","onHand":187,"reserved":17,"reorder":50,"status":"Healthy"},
+            {"id":6,"name":"ApexGrit P220 Hook & Loop Disc","brand":"ApexGrit","onHand":198,"reserved":2,"reorder":50,"status":"Healthy"},
+            {"id":9,"name":"UltraCoat 2K Urethane Clearcoat","brand":"UltraCoat","onHand":219,"reserved":3,"reorder":50,"status":"Healthy"},
+            {"id":8,"name":"ApexGrit P400 Wet/Dry Sheet","brand":"ApexGrit","onHand":248,"reserved":2,"reorder":50,"status":"Healthy"},
+            {"id":14,"name":"SafeGuard Pro Nitrile Gloves M","brand":"SafeGuard Pro","onHand":281,"reserved":6,"reorder":50,"status":"Healthy"},
+            {"id":5,"name":"ApexGrit P120 Hook & Loop Disc","brand":"ApexGrit","onHand":285,"reserved":18,"reorder":50,"status":"Healthy"},
+            {"id":10,"name":"UltraCoat Epoxy Primer Gallon","brand":"UltraCoat","onHand":294,"reserved":8,"reorder":50,"status":"Healthy"},
+            {"id":2,"name":"ProShield HVLP Gravity Gun v2","brand":"ProShield","onHand":374,"reserved":3,"reorder":50,"status":"Healthy"}
+        ];
+
+        const chartPalette = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        // Determine stock status
+        function getStockStatus(onHand, reorder) {
+            return onHand < reorder * 2 ? 'Low Stock' : 'Healthy';
+        }
+
+        // Add computed status to inventory data
+        const enrichedData = inventoryData.map(item => ({
+            ...item,
+            computedStatus: getStockStatus(item.onHand, item.reorder)
+        }));
+
+        // Chart instances for cleanup
+        let charts = {
+            stockLevels: null,
+            inventoryByBrand: null,
+            availableVsReserved: null,
+            stockHealthRatio: null
+        };
+
+        // Initialize filters
+        function initializeFilters() {
+            const brands = [...new Set(enrichedData.map(item => item.brand))].sort();
+            const brandFilter = document.getElementById('brandFilter');
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandFilter.appendChild(option);
+            });
+        }
+
+        // Filter data based on selections
+        function getFilteredData() {
+            const brandFilter = document.getElementById('brandFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            return enrichedData.filter(item => {
+                let match = true;
+                if (brandFilter && item.brand !== brandFilter) match = false;
+                if (statusFilter && item.computedStatus !== statusFilter) match = false;
+                return match;
+            });
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            const filtered = getFilteredData();
+
+            const totalSkus = filtered.length;
+            const totalQty = filtered.reduce((sum, item) => sum + item.onHand, 0);
+            const totalReserved = filtered.reduce((sum, item) => sum + item.reserved, 0);
+            const avgRatio = filtered.length > 0
+                ? (filtered.reduce((sum, item) => sum + (item.onHand / item.reorder), 0) / filtered.length)
+                : 0;
+
+            document.getElementById('kpiTotalSkus').textContent = totalSkus;
+            document.getElementById('kpiTotalQty').textContent = totalQty.toLocaleString();
+            document.getElementById('kpiTotalReserved').textContent = totalReserved.toLocaleString();
+            document.getElementById('kpiAvgRatio').textContent = avgRatio.toFixed(2);
+        }
+
+        // Stock Levels by Product (horizontal bar)
+        function renderStockLevelsChart() {
+            const filtered = getFilteredData().sort((a, b) => b.onHand - a.onHand);
+
+            if (charts.stockLevels) charts.stockLevels.destroy();
+
+            const ctx = document.getElementById('stockLevelsChart').getContext('2d');
+            charts.stockLevels = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: filtered.map(item => item.name.substring(0, 30)),
+                    datasets: [
+                        {
+                            label: 'On Hand',
+                            data: filtered.map(item => item.onHand),
+                            backgroundColor: '#E02B20',
+                            barThickness: 12
+                        },
+                        {
+                            label: 'Reorder Threshold',
+                            data: filtered.map(item => item.reorder),
+                            backgroundColor: '#4A7C9B',
+                            barThickness: 12
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { size: 12 }, color: '#1A1A1A' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#666666', font: { size: 11 } },
+                            grid: { color: '#e0e0e0' }
+                        },
+                        y: {
+                            ticks: { color: '#666666', font: { size: 10 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const lowStockItems = filtered.filter(item => item.onHand < item.reorder * 2);
+            const healthyCount = filtered.length - lowStockItems.length;
+            const analysisText = `Displaying ${filtered.length} product(s). ${healthyCount} item(s) have healthy stock levels (${((healthyCount/filtered.length)*100).toFixed(0)}%), while ${lowStockItems.length} item(s) are below safe levels.`;
+            document.getElementById('stockLevelsAnalysis').textContent = analysisText;
+        }
+
+        // Inventory by Brand (vertical bar)
+        function renderInventoryByBrandChart() {
+            const filtered = getFilteredData();
+            const byBrand = {};
+
+            filtered.forEach(item => {
+                if (!byBrand[item.brand]) byBrand[item.brand] = 0;
+                byBrand[item.brand] += item.onHand;
+            });
+
+            const brands = Object.keys(byBrand).sort();
+            const quantities = brands.map(brand => byBrand[brand]);
+
+            if (charts.inventoryByBrand) charts.inventoryByBrand.destroy();
+
+            const ctx = document.getElementById('inventoryByBrandChart').getContext('2d');
+            charts.inventoryByBrand = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: brands,
+                    datasets: [{
+                        label: 'On Hand Qty',
+                        data: quantities,
+                        backgroundColor: chartPalette.slice(0, brands.length),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#666666', font: { size: 11 } },
+                            grid: { color: '#e0e0e0' }
+                        },
+                        x: {
+                            ticks: { color: '#666666', font: { size: 11 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const topBrand = brands[0];
+            const topQty = quantities[0];
+            const totalQty = quantities.reduce((a, b) => a + b, 0);
+            const analysisText = `${topBrand} leads inventory with ${topQty} units (${((topQty/totalQty)*100).toFixed(1)}% of total). ${brands.length} brand(s) represented with ${totalQty} total units in current filter.`;
+            document.getElementById('inventoryByBrandAnalysis').textContent = analysisText;
+        }
+
+        // Available vs Reserved (stacked bar)
+        function renderAvailableVsReservedChart() {
+            const filtered = getFilteredData();
+            const byBrand = {};
+
+            filtered.forEach(item => {
+                if (!byBrand[item.brand]) byBrand[item.brand] = { available: 0, reserved: 0 };
+                byBrand[item.brand].available += item.onHand - item.reserved;
+                byBrand[item.brand].reserved += item.reserved;
+            });
+
+            const brands = Object.keys(byBrand).sort();
+            const available = brands.map(brand => byBrand[brand].available);
+            const reserved = brands.map(brand => byBrand[brand].reserved);
+
+            if (charts.availableVsReserved) charts.availableVsReserved.destroy();
+
+            const ctx = document.getElementById('availableVsReservedChart').getContext('2d');
+            charts.availableVsReserved = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: brands,
+                    datasets: [
+                        {
+                            label: 'Available',
+                            data: available,
+                            backgroundColor: '#2E7D32',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Reserved',
+                            data: reserved,
+                            backgroundColor: '#F9A825',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { size: 12 }, color: '#1A1A1A' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#666666', font: { size: 11 } },
+                            grid: { color: '#e0e0e0' }
+                        },
+                        x: {
+                            ticks: { color: '#666666', font: { size: 11 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const totalAvailable = available.reduce((a, b) => a + b, 0);
+            const totalReserved = reserved.reduce((a, b) => a + b, 0);
+            const reservationRate = ((totalReserved / (totalAvailable + totalReserved)) * 100).toFixed(1);
+            const analysisText = `${totalAvailable} units currently available for sale; ${totalReserved} units reserved for pending orders (${reservationRate}% reservation rate). Healthy inventory turnover indicates steady demand.`;
+            document.getElementById('availableVsReservedAnalysis').textContent = analysisText;
+        }
+
+        // Stock Health Ratio (horizontal bar)
+        function renderStockHealthRatioChart() {
+            const filtered = getFilteredData().sort((a, b) => (b.onHand / b.reorder) - (a.onHand / a.reorder));
+
+            if (charts.stockHealthRatio) charts.stockHealthRatio.destroy();
+
+            const ratios = filtered.map(item => item.onHand / item.reorder);
+            const colors = ratios.map(ratio => {
+                if (ratio >= 3) return '#2E7D32';      // Green
+                if (ratio >= 2) return '#F9A825';      // Amber
+                return '#E02B20';                      // Red
+            });
+
+            const ctx = document.getElementById('stockHealthRatioChart').getContext('2d');
+            charts.stockHealthRatio = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: filtered.map(item => item.name.substring(0, 30)),
+                    datasets: [{
+                        label: 'Stock Ratio (On Hand / Reorder)',
+                        data: ratios,
+                        backgroundColor: colors,
+                        barThickness: 12
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#666666', font: { size: 11 } },
+                            grid: { color: '#e0e0e0' }
+                        },
+                        y: {
+                            ticks: { color: '#666666', font: { size: 10 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Analysis
+            const green = filtered.filter(item => (item.onHand / item.reorder) >= 3).length;
+            const amber = filtered.filter(item => (item.onHand / item.reorder) >= 2 && (item.onHand / item.reorder) < 3).length;
+            const red = filtered.filter(item => (item.onHand / item.reorder) < 2).length;
+            const analysisText = `Health Assessment: ${green} item(s) are well-stocked (green, 3x+ reorder), ${amber} item(s) adequate (amber, 2-3x), ${red} item(s) below safe level (red, <2x). Focus on red items for reordering.`;
+            document.getElementById('stockHealthRatioAnalysis').textContent = analysisText;
+        }
+
+        // Render all charts
+        function renderAllCharts() {
+            renderStockLevelsChart();
+            renderInventoryByBrandChart();
+            renderAvailableVsReservedChart();
+            renderStockHealthRatioChart();
+        }
+
+        // Set footer date
+        function setFooterDate() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('footerDate').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFilters();
+            setFooterDate();
+            updateKPIs();
+            renderAllCharts();
+
+            const brandFilter = document.getElementById('brandFilter');
+            const statusFilter = document.getElementById('statusFilter');
+
+            brandFilter.addEventListener('change', function() {
+                updateKPIs();
+                renderAllCharts();
+            });
+
+            statusFilter.addEventListener('change', function() {
+                updateKPIs();
+                renderAllCharts();
+            });
+        });
+    </script>
+</body>
+</html>

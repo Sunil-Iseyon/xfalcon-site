@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 3. Earned Value Management</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 3. Earned Value Management</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option><option value="2021">2021</option>
+        <option value="2022">2022</option><option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>CPI/SPI weighted by incurred cost &middot; Green &ge;1.00, Yellow &ge;0.95, Red &lt;0.95</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Portfolio EVM Indicators</div>
+    <div class="section-subtitle" id="kpiSubtitle">2024</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Program &amp; Trend Analysis</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">Program CPI &times; SPI Scatter</div>
+        <div class="chart-subtitle">Bubble size = 2024 incurred cost &middot; axes zoomed to show spread (target 1.00, 1.00 is off-chart upper-right)</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chScatter"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly CPI/SPI Trend</div>
+        <div class="chart-subtitle" id="monthlySub">2024 &middot; weighted by incurred cost</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chMonthly"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Health Tier Distribution</div>
+        <div class="chart-subtitle">Count of programs by tier &middot; 2024</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chHealth"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Top 15 At-Risk Programs (lowest CPI)</div>
+      <table class="detail-table" id="tblRisk">
+        <thead><tr>
+          <th>Program</th><th>Domain</th>
+          <th class="num">Incurred ($M)</th>
+          <th class="num">CPI</th>
+          <th class="num">SPI</th>
+          <th class="num">Cost Var ($M)</th>
+          <th>Health</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Methodology.</strong> Portfolio CPI/SPI weighted by INCURRED_COST_USD (simple averages overweight small contracts). Cost Variance = (CPI &minus; 1) &times; Incurred Cost; Schedule Variance similarly derived. All 15 programs cluster tightly at CPI ~0.97, SPI ~0.95 &mdash; indicating a systematic (not program-specific) slight over-cost and behind-schedule pattern. BCWP/BCWS/ACWP are not stored as separate fields, so raw earned-value curves cannot be reconstructed; CPI/SPI are per-row values aggregated up. Synthetic demo data.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    // Using precomputed 2024 values from queries
+    var PROGRAMS = [
+      {code:'ARES-HERMES', domain:'Land',         rev:6052, incurred: 6235, cpi:0.9702, spi:0.9498},
+      {code:'ARES-GHOST',  domain:'Air',          rev:5313, incurred: 5478, cpi:0.9698, spi:0.9490},
+      {code:'ARES-BRIDGE', domain:'Cyber',        rev:4699, incurred: 4846, cpi:0.9698, spi:0.9502},
+      {code:'ARES-TRIDENT',domain:'Sea',          rev:4672, incurred: 4816, cpi:0.9699, spi:0.9504},
+      {code:'ARES-FORGE',  domain:'Multi-Domain', rev:4313, incurred: 4446, cpi:0.9704, spi:0.9493},
+      {code:'ARES-POSEIDON',domain:'Sea',         rev:4298, incurred: 4431, cpi:0.9698, spi:0.9497},
+      {code:'ARES-ARGO',   domain:'Multi-Domain', rev:4274, incurred: 4407, cpi:0.9695, spi:0.9514},
+      {code:'ARES-HORIZON',domain:'Space',        rev:4243, incurred: 4374, cpi:0.9699, spi:0.9500},
+      {code:'ARES-SENTINEL',domain:'Air',         rev:4025, incurred: 4150, cpi:0.9703, spi:0.9486},
+      {code:'ARES-PHALANX',domain:'Multi-Domain', rev:3874, incurred: 3994, cpi:0.9700, spi:0.9499},
+      {code:'ARES-ATLAS',  domain:'Land',         rev:3669, incurred: 3782, cpi:0.9700, spi:0.9505},
+      {code:'ARES-TITAN',  domain:'Air',          rev:3539, incurred: 3649, cpi:0.9696, spi:0.9504},
+      {code:'ARES-VANGUARD',domain:'Air',         rev:3114, incurred: 3210, cpi:0.9699, spi:0.9506},
+      {code:'ARES-NEXUS',  domain:'Multi-Domain', rev:2959, incurred: 3051, cpi:0.9702, spi:0.9505},
+      {code:'ARES-SHIELD', domain:'Cyber',        rev:2744, incurred: 2829, cpi:0.9700, spi:0.9498}
+    ];
+    var MONTHLY = [
+      {m:1,cpi:0.9704,spi:0.9507},{m:2,cpi:0.9697,spi:0.9493},{m:3,cpi:0.9698,spi:0.9493},
+      {m:4,cpi:0.9702,spi:0.9496},{m:5,cpi:0.9693,spi:0.9501},{m:6,cpi:0.9703,spi:0.9502},
+      {m:7,cpi:0.9696,spi:0.9503},{m:8,cpi:0.9698,spi:0.9504},{m:9,cpi:0.9707,spi:0.9495},
+      {m:10,cpi:0.9700,spi:0.9497},{m:11,cpi:0.9690,spi:0.9506},{m:12,cpi:0.9713,spi:0.9499}
+    ];
+    var CPI_BY_YEAR = { 2020:0.9700, 2021:0.9699, 2022:0.9700, 2023:0.9702, 2024:0.9700 };
+    var SPI_BY_YEAR = { 2020:0.9498, 2021:0.9500, 2022:0.9503, 2023:0.9502, 2024:0.9499 };
+
+    var state = { year: 2024 };
+
+    function kpiCard(lbl,val,d){ return '<div class="kpi-card"><div class="kpi-label">'+lbl+'</div><div class="kpi-value">'+val+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>'; }
+
+    function renderKPIs(yr){
+      var cpi = CPI_BY_YEAR[yr], spi = SPI_BY_YEAR[yr];
+      var cpiP = CPI_BY_YEAR[yr-1], spiP = SPI_BY_YEAR[yr-1];
+      var greens=0, yellows=0, reds=0;
+      for (var i=0;i<PROGRAMS.length;i++){
+        var p=PROGRAMS[i];
+        if (p.cpi>=1.0 && p.spi>=1.0) greens++;
+        else if (p.cpi>=0.95 && p.spi>=0.95) yellows++;
+        else reds++;
+      }
+      var totInc=0; for (var j=0;j<PROGRAMS.length;j++) totInc += PROGRAMS[j].incurred;
+      var cv = (cpi - 1) * totInc; // ~ -30 * 63000 ~ -1890
+      var sv = (spi - 1) * totInc;
+      var eac = totInc * 1.03; // placeholder EAC = actuals * 1.03
+
+      var html = '';
+      html += kpiCard('Portfolio CPI ' + yr, cpi.toFixed(3), cpiP?fmtDeltaLabel(cpi,cpiP,null,yr-1):{txt:'Target &ge; 1.000',cls:'neutral'});
+      html += kpiCard('Portfolio SPI ' + yr, spi.toFixed(3), spiP?fmtDeltaLabel(spi,spiP,null,yr-1):{txt:'Target &ge; 1.000',cls:'neutral'});
+      html += kpiCard('Est at Completion', '$' + fmtInt(eac) + 'M', {txt:'All 15 active programs',cls:'neutral'});
+      html += kpiCard('Cost Variance', '-$' + fmtInt(Math.abs(cv)) + 'M', {txt:'From CPI &lt; 1.0',cls:'negative'});
+      html += kpiCard('Schedule Variance', '-$' + fmtInt(Math.abs(sv)) + 'M', {txt:'From SPI &lt; 1.0',cls:'negative'});
+      html += kpiCard('Green Tier', String(greens) + ' / 15', {txt:'CPI &amp; SPI &ge; 1.00',cls:greens>0?'positive':'neutral'});
+      html += kpiCard('Yellow Tier', String(yellows) + ' / 15', {txt:'CPI &amp; SPI &ge; 0.95',cls:'neutral'});
+      html += kpiCard('Red Tier', String(reds) + ' / 15', {txt:'Either &lt; 0.95',cls:reds>0?'negative':'positive'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = yr + ' vs ' + (yr-1);
+    }
+
+    function renderScatter(){
+      var p = fdPalette();
+      // Scale bubble radii: incurred range 2829-6235 -> radii 12-24 px
+      var minInc = 2829, maxInc = 6235;
+      var pointData = PROGRAMS.map(function(pr){
+        var r = 12 + ((pr.incurred - minInc) / (maxInc - minInc)) * 12;
+        return { x: pr.cpi, y: pr.spi, r: r, code: pr.code, domain: pr.domain, incurred: pr.incurred };
+      });
+
+      // Labels plugin: draws program code next to each bubble
+      var labelPlugin = {
+        id: 'pointLabels',
+        afterDatasetsDraw: function(chart) {
+          var ctx = chart.ctx;
+          var meta = chart.getDatasetMeta(0);
+          if (!meta || !meta.data) return;
+          ctx.save();
+          ctx.font = '600 11px Inter, system-ui, sans-serif';
+          ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'clean-light' ? '#0F172A' : '#1C2128';
+          ctx.textBaseline = 'middle';
+          for (var i = 0; i < meta.data.length; i++) {
+            var pt = meta.data[i];
+            var label = pointData[i].code.replace('ARES-', '');
+            var r = pt.options && pt.options.radius ? pt.options.radius : 12;
+            ctx.textAlign = 'left';
+            ctx.fillText(label, pt.x + r + 5, pt.y);
+          }
+          ctx.restore();
+        }
+      };
+
+      // Reference lines at (1.00, 1.00) — "on plan" target
+      var targetPlugin = {
+        id: 'targetLines',
+        beforeDatasetsDraw: function(chart) {
+          var ctx = chart.ctx;
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          if (!xScale || !yScale) return;
+          var xAt1 = xScale.getPixelForValue(1.00);
+          var yAt1 = yScale.getPixelForValue(1.00);
+          ctx.save();
+          ctx.strokeStyle = p.tertiary;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          // Horizontal line at SPI = 1.00 (if within range)
+          if (yAt1 >= chart.chartArea.top && yAt1 <= chart.chartArea.bottom) {
+            ctx.beginPath();
+            ctx.moveTo(chart.chartArea.left, yAt1);
+            ctx.lineTo(chart.chartArea.right, yAt1);
+            ctx.stroke();
+          }
+          // Vertical line at CPI = 1.00 (if within range)
+          if (xAt1 >= chart.chartArea.left && xAt1 <= chart.chartArea.right) {
+            ctx.beginPath();
+            ctx.moveTo(xAt1, chart.chartArea.top);
+            ctx.lineTo(xAt1, chart.chartArea.bottom);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      };
+
+      mk('chScatter', {
+        type: 'bubble',
+        data: {
+          datasets: [{
+            label: 'Program',
+            data: pointData,
+            backgroundColor: 'rgba(54, 69, 79, 0.55)',
+            borderColor: p.primary,
+            borderWidth: 1.5,
+            hoverBackgroundColor: 'rgba(54, 69, 79, 0.85)',
+            hoverBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx){
+                  var d = ctx.raw;
+                  return d.code + ' · ' + d.domain + ' · CPI ' + d.x.toFixed(4) + ' · SPI ' + d.y.toFixed(4) + ' · $' + Math.round(d.incurred) + 'M incurred';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              min: 0.968, max: 0.972,
+              title: { display: true, text: 'CPI (Cost Performance) · target 1.00 →' },
+              grid: { color: p.grid },
+              ticks: { stepSize: 0.001, callback: function(v){ return v.toFixed(3); } }
+            },
+            y: {
+              min: 0.947, max: 0.953,
+              title: { display: true, text: 'SPI (Schedule Performance) · target 1.00 ↑' },
+              grid: { color: p.grid },
+              ticks: { stepSize: 0.001, callback: function(v){ return v.toFixed(3); } }
+            }
+          }
+        },
+        plugins: [labelPlugin, targetPlugin]
+      });
+    }
+
+    function renderMonthly(){
+      var p = fdPalette();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      mk('chMonthly', {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label:'CPI', data: MONTHLY.map(function(r){return r.cpi;}), borderColor: p.primary, backgroundColor:'transparent', tension:0.3, borderWidth:3, pointRadius:3 },
+            { label:'SPI', data: MONTHLY.map(function(r){return r.spi;}), borderColor: p.secondary, backgroundColor:'transparent', tension:0.3, borderWidth:3, pointRadius:3, borderDash:[5,5] }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { min: 0.93, max: 1.01, grid: { color: p.grid } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+
+    function renderHealth(){
+      var p = fdPalette();
+      var greens=0, yellows=0, reds=0;
+      for (var i=0;i<PROGRAMS.length;i++){
+        var pr=PROGRAMS[i];
+        if (pr.cpi>=1.0 && pr.spi>=1.0) greens++;
+        else if (pr.cpi>=0.95 && pr.spi>=0.95) yellows++;
+        else reds++;
+      }
+      mk('chHealth', {
+        type: 'bar',
+        data: {
+          labels: ['Green (≥1.00)', 'Yellow (≥0.95)', 'Red (<0.95)'],
+          datasets: [{
+            label: 'Programs',
+            data: [greens, yellows, reds],
+            backgroundColor: [p.primary, p.amber, p.tertiary],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { beginAtZero:true, grid: { color: p.grid }, ticks: { stepSize: 1 } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+
+    function renderTable(){
+      var rows = PROGRAMS.slice().sort(function(a,b){return a.cpi-b.cpi;});
+      var html = '';
+      for (var i=0;i<rows.length;i++){
+        var r=rows[i];
+        var cv = (r.cpi - 1) * r.incurred;
+        var health = (r.cpi>=1.0 && r.spi>=1.0) ? 'green' : ((r.cpi>=0.95 && r.spi>=0.95) ? 'yellow' : 'red');
+        var htxt = (r.cpi>=1.0 && r.spi>=1.0) ? 'Green' : ((r.cpi>=0.95 && r.spi>=0.95) ? 'Yellow' : 'Red');
+        html += '<tr><td><strong>'+r.code+'</strong></td><td>'+r.domain+'</td>'+
+          '<td class="num">'+String(fmtInt(r.incurred))+'</td>'+
+          '<td class="num">'+String(r.cpi.toFixed(3))+'</td>'+
+          '<td class="num">'+String(r.spi.toFixed(3))+'</td>'+
+          '<td class="num">'+String(fmtInt(cv))+'</td>'+
+          '<td><span class="pill '+health+'">'+htxt+'</span></td></tr>';
+      }
+      document.querySelector('#tblRisk tbody').innerHTML = html;
+    }
+
+    function applyFilters(){
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      renderKPIs(state.year);
+      renderScatter(); renderMonthly(); renderHealth(); renderTable();
+      document.getElementById('subtitle').textContent = 'Reporting Period: Jan-Dec ' + state.year;
+      document.getElementById('monthlySub').textContent = state.year + ' · weighted by incurred cost';
+      fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 6. Supply Chain Performance</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 6. Supply Chain Performance</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024 &middot; Active suppliers only</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option><option value="2021">2021</option>
+        <option value="2022">2022</option><option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Filter: DIM_SUPPLIER.IS_ACTIVE = TRUE &middot; 198 active suppliers (10/16/172 by tier)</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Supply Chain KPIs</div>
+    <div class="section-subtitle" id="kpiSubtitle">2024</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Tier &amp; Risk Analysis</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">5-Year OTD % by Supplier Tier (PO-level actual)</div>
+        <div class="chart-subtitle">Stable per-tier performance across 700K POs</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chOtdTrend"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Sole-Source Concentration by Part Category ($M)</div>
+        <div class="chart-subtitle" id="sscSub">2024 &middot; 28% portfolio avg sole-source</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chSoleSource"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tier Snapshot (Dim OTD avg)</div>
+        <div class="chart-subtitle">Tier-3 OTD 79% is the headline risk</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chTier"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Top 15 At-Risk Active Suppliers (lowest OTD)</div>
+      <table class="detail-table" id="tblRisk">
+        <thead><tr>
+          <th>Supplier Code</th><th>Name</th>
+          <th class="num">Tier</th>
+          <th class="num">Quality</th>
+          <th class="num">OTD %</th>
+          <th class="num">Spend ($M)</th>
+          <th class="num">Defects</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Methodology.</strong> Two OTD views coexist: (1) <strong>DIM_SUPPLIER.ON_TIME_DELIVERY_PCT</strong> is a supplier-scorecard metric (T1 95%, T2 87%, T3 79%). (2) <strong>PO-level</strong> OTD from FACT_PARTS_SUPPLY.ON_TIME_FLAG averages ~63% across tiers &mdash; reflecting tighter "on or before promised date" measurement. Both are valid; the scorecard is used for vendor management and the PO-level for operational tracking. Sole-source = parts with a single qualified supplier (IS_SOLE_SOURCE). Filter: active suppliers only. Synthetic demo data.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    var TIER_DIM = [
+      {tier:1, suppliers:10,  otdAvg:95.47, qualityAvg:4.65, dcaa:100},
+      {tier:2, suppliers:16,  otdAvg:87.29, qualityAvg:3.92, dcaa:75},
+      {tier:3, suppliers:172, otdAvg:79.15, qualityAvg:3.51, dcaa:30}
+    ];
+    var OTD_TREND = {
+      2020:[{tier:1,otd:62.96},{tier:2,otd:63.22},{tier:3,otd:63.20}],
+      2021:[{tier:1,otd:62.89},{tier:2,otd:62.76},{tier:3,otd:62.97}],
+      2022:[{tier:1,otd:62.67},{tier:2,otd:63.56},{tier:3,otd:63.10}],
+      2023:[{tier:1,otd:63.41},{tier:2,otd:63.70},{tier:3,otd:63.04}],
+      2024:[{tier:1,otd:63.04},{tier:2,otd:63.36},{tier:3,otd:62.99}]
+    };
+    var SOLE_SOURCE_2024 = [
+      {cat:'Avionics',total:99656,ssMn:25275,ssPct:25.4},
+      {cat:'Propulsion',total:54698,ssMn:17344,ssPct:31.7},
+      {cat:'Airframe Structures',total:52053,ssMn:17877,ssPct:34.3},
+      {cat:'Electronic Warfare',total:37718,ssMn:11491,ssPct:30.5},
+      {cat:'C4ISR Equipment',total:23524,ssMn:7256,ssPct:30.8},
+      {cat:'Weapons Systems',total:22139,ssMn:6107,ssPct:27.6},
+      {cat:'Ground Support',total:6807,ssMn:2000,ssPct:29.4},
+      {cat:'Navigation',total:5424,ssMn:1509,ssPct:27.8},
+      {cat:'Power Systems',total:4084,ssMn:784,ssPct:19.2},
+      {cat:'Hydraulics',total:2568,ssMn:537,ssPct:20.9}
+    ];
+    var AT_RISK = [
+      {code:'SUP-T3-005',name:'Northern Plastics LLC 5',tier:3,q:2.86,otd:65.4,spend:1065,def:74},
+      {code:'SUP-T3-138',name:'Tri-State Seals LLC 138',tier:3,q:3.80,otd:65.5,spend:1183,def:85},
+      {code:'SUP-T3-132',name:'Allied Fasteners Corp 132',tier:3,q:3.37,otd:65.7,spend:1336,def:81},
+      {code:'SUP-T3-189',name:'Tri-State Seals Inc 189',tier:3,q:4.32,otd:65.7,spend:1073,def:51},
+      {code:'SUP-T3-156',name:'Tri-State Seals Inc 156',tier:3,q:3.01,otd:65.7,spend:1214,def:49},
+      {code:'SUP-T3-055',name:'Nationwide Filters Inc 55',tier:3,q:2.76,otd:65.9,spend:1173,def:87},
+      {code:'SUP-T3-124',name:'Metro Gaskets LLC 124',tier:3,q:3.78,otd:66.1,spend:1247,def:117},
+      {code:'SUP-T3-129',name:'Tri-State Seals Corp 129',tier:3,q:3.23,otd:66.2,spend:1120,def:105},
+      {code:'SUP-T3-142',name:'Southern Composites Corp 142',tier:3,q:3.12,otd:66.4,spend:1225,def:74},
+      {code:'SUP-T3-167',name:'Nationwide Filters Inc 167',tier:3,q:4.26,otd:66.6,spend:1233,def:95},
+      {code:'SUP-T3-026',name:'Allied Fasteners Inc 26',tier:3,q:4.14,otd:66.7,spend:1166,def:58},
+      {code:'SUP-T3-113',name:'Eastern Bearings Inc 113',tier:3,q:3.59,otd:66.7,spend:1163,def:85},
+      {code:'SUP-T3-150',name:'Southern Composites LLC 150',tier:3,q:4.42,otd:67.0,spend:1085,def:88},
+      {code:'SUP-T3-071',name:'Southern Composites Corp 71',tier:3,q:4.33,otd:67.2,spend:1278,def:82},
+      {code:'SUP-T3-136',name:'Western Cables LLC 136',tier:3,q:4.07,otd:67.6,spend:1318,def:69}
+    ];
+
+    var state = { year: 2024 };
+    function kpiCard(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>';}
+
+    function renderKPIs(yr){
+      var trend = OTD_TREND[yr]; var t1=trend[0].otd, t2=trend[1].otd, t3=trend[2].otd;
+      var portfolioOtd = (t1+t2+t3)/3;
+      var prior = OTD_TREND[yr-1]; var priorPort = prior ? (prior[0].otd+prior[1].otd+prior[2].otd)/3 : null;
+      var totalSpend = 0, totalSs = 0;
+      for (var i=0;i<SOLE_SOURCE_2024.length;i++){ totalSpend+=SOLE_SOURCE_2024[i].total; totalSs+=SOLE_SOURCE_2024[i].ssMn; }
+      var ssPct = totalSs/totalSpend*100;
+
+      var html = '';
+      html += kpiCard('Portfolio OTD ' + yr, portfolioOtd.toFixed(1)+'%', priorPort?fmtDeltaLabel(portfolioOtd,priorPort,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('T1 Prime OEM OTD', t1.toFixed(1)+'%', {txt:'10 suppliers',cls:'positive'});
+      html += kpiCard('T3 Small Biz OTD', t3.toFixed(1)+'%', {txt:'172 suppliers',cls:'negative'});
+      html += kpiCard('Active Suppliers', '198', {txt:'T1·10 T2·16 T3·172',cls:'neutral'});
+      html += kpiCard('Sole-Source Spend', ssPct.toFixed(1)+'%', {txt:'28% portfolio risk',cls:'negative'});
+      html += kpiCard('Avg Quality Rating', '3.52', {txt:'out of 5.0',cls:'neutral'});
+      html += kpiCard('T1 DCAA Coverage', '100%', {txt:'All primes approved',cls:'positive'});
+      html += kpiCard('MIL-SPEC Parts %', '63.6%', {txt:'Of 1,800 part numbers',cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = yr.toString();
+    }
+
+    function renderOtdTrend(){
+      var p = fdPalette();
+      var yrs = ['2020','2021','2022','2023','2024'];
+      mk('chOtdTrend', {
+        type:'line',
+        data: {
+          labels: yrs,
+          datasets: [
+            { label:'Tier 1', data: yrs.map(function(y){return OTD_TREND[y][0].otd;}), borderColor: p.primary, backgroundColor:'transparent', tension:0.3, borderWidth:3, pointRadius:4 },
+            { label:'Tier 2', data: yrs.map(function(y){return OTD_TREND[y][1].otd;}), borderColor: p.secondary, backgroundColor:'transparent', tension:0.3, borderWidth:3, pointRadius:4 },
+            { label:'Tier 3', data: yrs.map(function(y){return OTD_TREND[y][2].otd;}), borderColor: p.tertiary, backgroundColor:'transparent', tension:0.3, borderWidth:3, pointRadius:4 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            y: { min:60, max:70, grid: { color: p.grid }, ticks: { callback: function(v){return v+'%';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderSoleSource(){
+      var p = fdPalette();
+      var rows = SOLE_SOURCE_2024.slice();
+      mk('chSoleSource', {
+        type:'bar',
+        data: {
+          labels: rows.map(function(r){return r.cat;}),
+          datasets: [
+            { label:'Multi-source ($M)', data: rows.map(function(r){return r.total - r.ssMn;}), backgroundColor: p.secondary, stack:'s' },
+            { label:'Sole-source ($M)',  data: rows.map(function(r){return r.ssMn;}),          backgroundColor: p.amber,     stack:'s' }
+          ]
+        },
+        options: {
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            x: { stacked:true, beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(0)+'B';} } },
+            y: { stacked:true, grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTier(){
+      var p = fdPalette();
+      mk('chTier', {
+        type:'bar',
+        data: {
+          labels: ['Tier 1', 'Tier 2', 'Tier 3'],
+          datasets: [
+            { label:'OTD %', data: TIER_DIM.map(function(t){return t.otdAvg;}), backgroundColor: p.primary, yAxisID:'y', borderRadius:4 },
+            { label:'Quality (0-5)', data: TIER_DIM.map(function(t){return t.qualityAvg*20;}), backgroundColor: p.secondary, yAxisID:'y', borderRadius:4 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' }, tooltip: { callbacks: { label: function(ctx){ if (ctx.datasetIndex===1) return 'Quality '+(ctx.parsed.y/20).toFixed(2)+' / 5.0'; return 'OTD '+ctx.parsed.y.toFixed(1)+'%'; } } } },
+          scales: {
+            y: { beginAtZero:true, max:100, grid: { color: p.grid }, ticks: { callback: function(v){return v+'%';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTable(){
+      var html = '';
+      for (var i=0;i<AT_RISK.length;i++){
+        var r = AT_RISK[i];
+        var risk = r.otd < 66 ? 'red' : (r.otd < 70 ? 'yellow' : 'green');
+        html += '<tr><td><strong>'+r.code+'</strong></td><td>'+r.name+'</td>'+
+          '<td class="num"><span class="pill neutral">T'+r.tier+'</span></td>'+
+          '<td class="num">'+String(r.q.toFixed(2))+'</td>'+
+          '<td class="num"><span class="pill '+risk+'">'+String(r.otd.toFixed(1))+'%</span></td>'+
+          '<td class="num">'+String(fmtInt(r.spend))+'</td>'+
+          '<td class="num">'+String(r.def)+'</td></tr>';
+      }
+      document.querySelector('#tblRisk tbody').innerHTML = html;
+    }
+    function applyFilters(){
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      renderKPIs(state.year); renderOtdTrend(); renderSoleSource(); renderTier(); renderTable();
+      document.getElementById('subtitle').textContent = 'Reporting Period: Jan-Dec ' + state.year + ' · Active suppliers only';
+      document.getElementById('sscSub').textContent = state.year + ' · 28% portfolio avg sole-source';
+      fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

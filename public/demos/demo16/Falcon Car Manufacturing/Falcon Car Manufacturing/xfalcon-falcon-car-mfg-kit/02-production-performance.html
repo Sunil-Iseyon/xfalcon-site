@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Performance - Falcon Car Manufacturing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+        .topbar {
+            background-color: #1B3A5C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .logo-x {
+            color: #E87722;
+        }
+        .logo-f {
+            color: white;
+        }
+        .title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            color: #E87722;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .filter-section {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+            text-transform: uppercase;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            background-color: white;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #E87722;
+        }
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #64748B;
+            margin-bottom: 6px;
+        }
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1B3A5C;
+            margin-bottom: 2px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .kpi-subtext {
+            font-size: 11px;
+            color: #64748B;
+        }
+        .kpi-positive {
+            color: #059669;
+        }
+        .kpi-negative {
+            color: #D32F2F;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1B3A5C;
+            margin-bottom: 16px;
+            text-transform: none;
+        }
+        .chart-wrap {
+            position: relative;
+            height: 320px;
+        }
+        .table-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        .table-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #1B3A5C;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 13px;
+            color: #1E293B;
+        }
+        tr:hover {
+            background-color: #F8FAFC;
+        }
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .charts-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 600px) {
+            .kpi-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="title">Falcon Car Manufacturing / Production Performance</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearFilter" onchange="applyFilters()">
+                        <option value="">All Years</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Plant:</label>
+                    <select id="plantFilter" onchange="applyFilters()">
+                        <option value="">All Plants</option>
+                        <option value="Chennai Vehicle Plant">Chennai Vehicle Plant</option>
+                        <option value="Detroit Production Hub">Detroit Production Hub</option>
+                        <option value="Nagoya Main Assembly">Nagoya Main Assembly</option>
+                        <option value="Stuttgart Assembly Plant">Stuttgart Assembly Plant</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Brand:</label>
+                    <select id="brandFilter" onchange="applyFilters()">
+                        <option value="">All Brands</option>
+                        <option value="BMW">BMW</option>
+                        <option value="Ford">Ford</option>
+                        <option value="Honda">Honda</option>
+                        <option value="Mercedes">Mercedes</option>
+                        <option value="Toyota">Toyota</option>
+                        <option value="Volkswagen">Volkswagen</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiGrid">
+            <!-- KPI cards will be populated here -->
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Monthly Production Trend</div>
+                <div class="chart-wrap"><canvas id="monthlyProductionTrend"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Production by Model</div>
+                <div class="chart-wrap"><canvas id="productionByModel"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Plant Comparison</div>
+                <div class="chart-wrap"><canvas id="plantComparison"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Yearly Production Trend</div>
+                <div class="chart-wrap"><canvas id="yearlyProductionTrend"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Brand Mix</div>
+                <div class="chart-wrap"><canvas id="brandMix"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">OEE by Model</div>
+                <div class="chart-wrap"><canvas id="oeeByModel"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-title">Detailed Model Production</div>
+            <table id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Produced</th>
+                        <th>Planned</th>
+                        <th>Yield %</th>
+                        <th>Scrap Rate %</th>
+                        <th>Rework Rate %</th>
+                        <th>OEE %</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(elem) {
+                var text = elem.textContent;
+                if (text.length > 12) {
+                    elem.style.fontSize = '18px';
+                } else {
+                    elem.style.fontSize = '24px';
+                }
+            });
+        }
+
+        var DATA = {
+            monthlyProduction: [
+                {year: 2020, month: 'January', produced: 32085, planned: 32890, reworked: 785, scrapped: 102},
+                {year: 2020, month: 'February', produced: 29146, planned: 29900, reworked: 723, scrapped: 94},
+                {year: 2020, month: 'March', produced: 30603, planned: 31395, reworked: 753, scrapped: 90},
+                {year: 2020, month: 'April', produced: 32068, planned: 32890, reworked: 796, scrapped: 109},
+                {year: 2020, month: 'May', produced: 30641, planned: 31395, reworked: 752, scrapped: 89},
+                {year: 2020, month: 'June', produced: 30615, planned: 31395, reworked: 770, scrapped: 90},
+                {year: 2020, month: 'July', produced: 33554, planned: 34385, reworked: 838, scrapped: 96},
+                {year: 2020, month: 'August', produced: 30610, planned: 31395, reworked: 744, scrapped: 99},
+                {year: 2020, month: 'September', produced: 30609, planned: 31395, reworked: 733, scrapped: 116},
+                {year: 2020, month: 'October', produced: 32102, planned: 32890, reworked: 803, scrapped: 116},
+                {year: 2020, month: 'November', produced: 30646, planned: 31395, reworked: 758, scrapped: 116},
+                {year: 2020, month: 'December', produced: 32076, planned: 32890, reworked: 794, scrapped: 112},
+                {year: 2021, month: 'January', produced: 30614, planned: 31395, reworked: 758, scrapped: 96},
+                {year: 2021, month: 'February', produced: 29180, planned: 29900, reworked: 727, scrapped: 90},
+                {year: 2021, month: 'March', produced: 32105, planned: 32890, reworked: 788, scrapped: 110},
+                {year: 2021, month: 'April', produced: 32052, planned: 32890, reworked: 786, scrapped: 100},
+                {year: 2021, month: 'May', produced: 30625, planned: 31395, reworked: 777, scrapped: 92},
+                {year: 2021, month: 'June', produced: 30613, planned: 31395, reworked: 735, scrapped: 106},
+                {year: 2021, month: 'July', produced: 32090, planned: 32890, reworked: 780, scrapped: 106},
+                {year: 2021, month: 'August', produced: 32073, planned: 32890, reworked: 794, scrapped: 106},
+                {year: 2021, month: 'September', produced: 30611, planned: 31395, reworked: 765, scrapped: 105},
+                {year: 2021, month: 'October', produced: 30627, planned: 31395, reworked: 776, scrapped: 86},
+                {year: 2021, month: 'November', produced: 32058, planned: 32890, reworked: 804, scrapped: 103},
+                {year: 2021, month: 'December', produced: 32095, planned: 32890, reworked: 781, scrapped: 82},
+                {year: 2022, month: 'January', produced: 30648, planned: 31395, reworked: 745, scrapped: 87},
+                {year: 2022, month: 'February', produced: 29136, planned: 29900, reworked: 716, scrapped: 104},
+                {year: 2022, month: 'March', produced: 32064, planned: 32890, reworked: 825, scrapped: 104},
+                {year: 2022, month: 'April', produced: 30614, planned: 31395, reworked: 751, scrapped: 92},
+                {year: 2022, month: 'May', produced: 32103, planned: 32890, reworked: 786, scrapped: 93},
+                {year: 2022, month: 'June', produced: 30605, planned: 31395, reworked: 758, scrapped: 103},
+                {year: 2022, month: 'July', produced: 30650, planned: 31395, reworked: 745, scrapped: 102},
+                {year: 2022, month: 'August', produced: 33520, planned: 34385, reworked: 820, scrapped: 106},
+                {year: 2022, month: 'September', produced: 30588, planned: 31395, reworked: 758, scrapped: 101},
+                {year: 2022, month: 'October', produced: 30618, planned: 31395, reworked: 761, scrapped: 109},
+                {year: 2022, month: 'November', produced: 32112, planned: 32890, reworked: 774, scrapped: 108},
+                {year: 2022, month: 'December', produced: 30627, planned: 31395, reworked: 738, scrapped: 111},
+                {year: 2023, month: 'January', produced: 32065, planned: 32890, reworked: 789, scrapped: 109},
+                {year: 2023, month: 'February', produced: 29156, planned: 29900, reworked: 723, scrapped: 117},
+                {year: 2023, month: 'March', produced: 32054, planned: 32890, reworked: 800, scrapped: 105},
+                {year: 2023, month: 'April', produced: 29119, planned: 29900, reworked: 725, scrapped: 104},
+                {year: 2023, month: 'May', produced: 33540, planned: 34385, reworked: 824, scrapped: 110},
+                {year: 2023, month: 'June', produced: 30587, planned: 31395, reworked: 745, scrapped: 94},
+                {year: 2023, month: 'July', produced: 30613, planned: 31395, reworked: 766, scrapped: 125},
+                {year: 2023, month: 'August', produced: 33528, planned: 34385, reworked: 826, scrapped: 114},
+                {year: 2023, month: 'September', produced: 29167, planned: 29900, reworked: 743, scrapped: 105},
+                {year: 2023, month: 'October', produced: 32040, planned: 32890, reworked: 790, scrapped: 119},
+                {year: 2023, month: 'November', produced: 32062, planned: 32890, reworked: 797, scrapped: 90},
+                {year: 2023, month: 'December', produced: 29166, planned: 29900, reworked: 717, scrapped: 95},
+                {year: 2024, month: 'January', produced: 33509, planned: 34385, reworked: 849, scrapped: 125},
+                {year: 2024, month: 'February', produced: 30622, planned: 31395, reworked: 762, scrapped: 108},
+                {year: 2024, month: 'March', produced: 29161, planned: 29900, reworked: 728, scrapped: 94},
+                {year: 2024, month: 'April', produced: 32114, planned: 32890, reworked: 791, scrapped: 108},
+                {year: 2024, month: 'May', produced: 33529, planned: 34385, reworked: 846, scrapped: 115},
+                {year: 2024, month: 'June', produced: 27689, planned: 28405, reworked: 701, scrapped: 103},
+                {year: 2024, month: 'July', produced: 33541, planned: 34385, reworked: 853, scrapped: 111},
+                {year: 2024, month: 'August', produced: 32092, planned: 32890, reworked: 811, scrapped: 103},
+                {year: 2024, month: 'September', produced: 29130, planned: 29900, reworked: 717, scrapped: 98},
+                {year: 2024, month: 'October', produced: 33527, planned: 34385, reworked: 829, scrapped: 127},
+                {year: 2024, month: 'November', produced: 30602, planned: 31395, reworked: 756, scrapped: 98},
+                {year: 2024, month: 'December', produced: 21867, planned: 22425, reworked: 534, scrapped: 72}
+            ],
+            modelProduction: [
+                {brand: 'BMW', model: '3 Series', year: 2020, produced: 45835, planned: 47060, reworked: 1121, scrapped: 162, oee: 88.16},
+                {brand: 'BMW', model: '3 Series', year: 2021, produced: 28918, planned: 29640, reworked: 705, scrapped: 95, oee: 88.18},
+                {brand: 'BMW', model: '3 Series', year: 2022, produced: 49888, planned: 51155, reworked: 1231, scrapped: 175, oee: 87.91},
+                {brand: 'BMW', model: '3 Series', year: 2023, produced: 43275, planned: 44395, reworked: 1076, scrapped: 158, oee: 87.79},
+                {brand: 'BMW', model: '3 Series', year: 2024, produced: 27845, planned: 28600, reworked: 684, scrapped: 94, oee: 87.83},
+                {brand: 'BMW', model: 'X5', year: 2020, produced: 13003, planned: 13325, reworked: 312, scrapped: 39, oee: 87.87},
+                {brand: 'BMW', model: 'X5', year: 2021, produced: 24956, planned: 25610, reworked: 606, scrapped: 78, oee: 87.89},
+                {brand: 'BMW', model: 'X5', year: 2022, produced: 24838, planned: 25480, reworked: 615, scrapped: 87, oee: 88.02},
+                {brand: 'BMW', model: 'X5', year: 2023, produced: 12284, planned: 12610, reworked: 304, scrapped: 48, oee: 87.94},
+                {brand: 'BMW', model: 'X5', year: 2024, produced: 24428, planned: 25025, reworked: 596, scrapped: 87, oee: 87.95},
+                {brand: 'Ford', model: 'F-150', year: 2020, produced: 23391, planned: 23985, reworked: 601, scrapped: 80, oee: 87.81},
+                {brand: 'Ford', model: 'F-150', year: 2021, produced: 25010, planned: 25610, reworked: 614, scrapped: 71, oee: 87.77},
+                {brand: 'Ford', model: 'F-150', year: 2022, produced: 12368, planned: 12675, reworked: 295, scrapped: 33, oee: 88.17},
+                {brand: 'Ford', model: 'F-150', year: 2023, produced: 23839, planned: 24440, reworked: 589, scrapped: 81, oee: 88.29},
+                {brand: 'Ford', model: 'F-150', year: 2024, produced: 23838, planned: 24440, reworked: 584, scrapped: 85, oee: 88.17},
+                {brand: 'Ford', model: 'Mustang', year: 2020, produced: 24339, planned: 24960, reworked: 612, scrapped: 76, oee: 88.02},
+                {brand: 'Ford', model: 'Mustang', year: 2021, produced: 20287, planned: 20800, reworked: 527, scrapped: 72, oee: 88.04},
+                {brand: 'Ford', model: 'Mustang', year: 2022, produced: 15765, planned: 16185, reworked: 387, scrapped: 51, oee: 87.95},
+                {brand: 'Ford', model: 'Mustang', year: 2023, produced: 26160, planned: 26845, reworked: 664, scrapped: 76, oee: 88.21},
+                {brand: 'Ford', model: 'Mustang', year: 2024, produced: 19640, planned: 20150, reworked: 504, scrapped: 67, oee: 87.80},
+                {brand: 'Ford', model: 'Transit', year: 2020, produced: 11795, planned: 12090, reworked: 293, scrapped: 35, oee: 88.02},
+                {brand: 'Ford', model: 'Transit', year: 2021, produced: 24542, planned: 25155, reworked: 588, scrapped: 72, oee: 87.68},
+                {brand: 'Ford', model: 'Transit', year: 2022, produced: 27835, planned: 28535, reworked: 695, scrapped: 91, oee: 88.36},
+                {brand: 'Ford', model: 'Transit', year: 2023, produced: 11791, planned: 12090, reworked: 304, scrapped: 43, oee: 87.71},
+                {brand: 'Ford', model: 'Transit', year: 2024, produced: 22004, planned: 22555, reworked: 537, scrapped: 70, oee: 87.61},
+                {brand: 'Honda', model: 'Civic', year: 2020, produced: 50483, planned: 51740, reworked: 1232, scrapped: 159, oee: 87.89},
+                {brand: 'Honda', model: 'Civic', year: 2021, produced: 48188, planned: 49465, reworked: 1208, scrapped: 148, oee: 87.93},
+                {brand: 'Honda', model: 'Civic', year: 2022, produced: 28803, planned: 29510, reworked: 700, scrapped: 96, oee: 88.15},
+                {brand: 'Honda', model: 'Civic', year: 2023, produced: 47116, planned: 48360, reworked: 1196, scrapped: 159, oee: 88.09},
+                {brand: 'Honda', model: 'Civic', year: 2024, produced: 49258, planned: 50505, reworked: 1207, scrapped: 147, oee: 87.99},
+                {brand: 'Honda', model: 'CR-V', year: 2020, produced: 25888, planned: 26520, reworked: 640, scrapped: 103, oee: 88.04},
+                {brand: 'Honda', model: 'CR-V', year: 2021, produced: 14459, planned: 14820, reworked: 355, scrapped: 47, oee: 87.87},
+                {brand: 'Honda', model: 'CR-V', year: 2022, produced: 24691, planned: 25350, reworked: 611, scrapped: 84, oee: 88.25},
+                {brand: 'Honda', model: 'CR-V', year: 2023, produced: 28591, planned: 29315, reworked: 693, scrapped: 84, oee: 87.94},
+                {brand: 'Honda', model: 'CR-V', year: 2024, produced: 11350, planned: 11635, reworked: 291, scrapped: 37, oee: 88.28},
+                {brand: 'Mercedes', model: 'E-Class', year: 2020, produced: 24978, planned: 25545, reworked: 624, scrapped: 92, oee: 87.87},
+                {brand: 'Mercedes', model: 'E-Class', year: 2021, produced: 11790, planned: 12090, reworked: 293, scrapped: 36, oee: 87.99},
+                {brand: 'Mercedes', model: 'E-Class', year: 2022, produced: 23270, planned: 23855, reworked: 574, scrapped: 80, oee: 87.83},
+                {brand: 'Mercedes', model: 'E-Class', year: 2023, produced: 24758, planned: 25415, reworked: 608, scrapped: 86, oee: 88.02},
+                {brand: 'Mercedes', model: 'E-Class', year: 2024, produced: 12439, planned: 12740, reworked: 309, scrapped: 43, oee: 88.11},
+                {brand: 'Mercedes', model: 'EQS', year: 2020, produced: 21322, planned: 21840, reworked: 509, scrapped: 69, oee: 87.95},
+                {brand: 'Mercedes', model: 'EQS', year: 2021, produced: 16368, planned: 16770, reworked: 405, scrapped: 49, oee: 88.28},
+                {brand: 'Mercedes', model: 'EQS', year: 2022, produced: 26853, planned: 27495, reworked: 665, scrapped: 76, oee: 87.92},
+                {brand: 'Mercedes', model: 'EQS', year: 2023, produced: 21777, planned: 22360, reworked: 545, scrapped: 75, oee: 87.99},
+                {brand: 'Mercedes', model: 'EQS', year: 2024, produced: 14694, planned: 15080, reworked: 386, scrapped: 48, oee: 88.20},
+                {brand: 'Toyota', model: 'Camry', year: 2020, produced: 33203, planned: 34060, reworked: 837, scrapped: 95, oee: 88.07},
+                {brand: 'Toyota', model: 'Camry', year: 2021, produced: 37521, planned: 38480, reworked: 953, scrapped: 111, oee: 87.94},
+                {brand: 'Toyota', model: 'Camry', year: 2022, produced: 48471, planned: 49725, reworked: 1194, scrapped: 160, oee: 87.89},
+                {brand: 'Toyota', model: 'Camry', year: 2023, produced: 33781, planned: 34645, reworked: 838, scrapped: 125, oee: 88.00},
+                {brand: 'Toyota', model: 'Camry', year: 2024, produced: 42208, planned: 43290, reworked: 1078, scrapped: 148, oee: 88.05},
+                {brand: 'Toyota', model: 'RAV4', year: 2020, produced: 24213, planned: 24830, reworked: 601, scrapped: 72, oee: 88.10},
+                {brand: 'Toyota', model: 'RAV4', year: 2021, produced: 37264, planned: 38220, reworked: 929, scrapped: 133, oee: 87.95},
+                {brand: 'Toyota', model: 'RAV4', year: 2022, produced: 30361, planned: 31135, reworked: 731, scrapped: 97, oee: 87.97},
+                {brand: 'Toyota', model: 'RAV4', year: 2023, produced: 23894, planned: 24505, reworked: 573, scrapped: 68, oee: 88.07},
+                {brand: 'Toyota', model: 'RAV4', year: 2024, produced: 37532, planned: 38480, reworked: 925, scrapped: 137, oee: 87.86},
+                {brand: 'Volkswagen', model: 'Golf', year: 2020, produced: 24588, planned: 25220, reworked: 611, scrapped: 93, oee: 87.99},
+                {brand: 'Volkswagen', model: 'Golf', year: 2021, produced: 39987, planned: 40950, reworked: 979, scrapped: 130, oee: 88.10},
+                {brand: 'Volkswagen', model: 'Golf', year: 2022, produced: 31311, planned: 32045, reworked: 773, scrapped: 100, oee: 88.06},
+                {brand: 'Volkswagen', model: 'Golf', year: 2023, produced: 24235, planned: 24830, reworked: 596, scrapped: 84, oee: 87.88},
+                {brand: 'Volkswagen', model: 'Golf', year: 2024, produced: 38627, planned: 39585, reworked: 991, scrapped: 136, oee: 88.03},
+                {brand: 'Volkswagen', model: 'ID.4', year: 2020, produced: 26981, planned: 27690, reworked: 650, scrapped: 78, oee: 88.00},
+                {brand: 'Volkswagen', model: 'ID.4', year: 2021, produced: 19962, planned: 20475, reworked: 495, scrapped: 63, oee: 88.06},
+                {brand: 'Volkswagen', model: 'ID.4', year: 2022, produced: 16293, planned: 16705, reworked: 410, scrapped: 49, oee: 87.99},
+                {brand: 'Volkswagen', model: 'ID.4', year: 2023, produced: 26857, planned: 27560, reworked: 659, scrapped: 114, oee: 87.98},
+                {brand: 'Volkswagen', model: 'ID.4', year: 2024, produced: 18681, planned: 19175, reworked: 471, scrapped: 74, oee: 87.87},
+                {brand: 'Volkswagen', model: 'Tiguan', year: 2020, produced: 24736, planned: 25350, reworked: 606, scrapped: 76, oee: 88.01},
+                {brand: 'Volkswagen', model: 'Tiguan', year: 2021, produced: 25491, planned: 26130, reworked: 614, scrapped: 77, oee: 88.07},
+                {brand: 'Volkswagen', model: 'Tiguan', year: 2022, produced: 12538, planned: 12870, reworked: 296, scrapped: 41, oee: 88.01},
+                {brand: 'Volkswagen', model: 'Tiguan', year: 2023, produced: 24739, planned: 25350, reworked: 600, scrapped: 86, oee: 88.03},
+                {brand: 'Volkswagen', model: 'Tiguan', year: 2024, produced: 24839, planned: 25480, reworked: 614, scrapped: 89, oee: 88.31}
+            ],
+            plantProduction: [
+                {year: 2020, plant: 'Chennai Vehicle Plant', produced: 65171, planned: 66820, reworked: 1621, scrapped: 209, oee: 87.93},
+                {year: 2020, plant: 'Detroit Production Hub', produced: 97754, planned: 100230, reworked: 2403, scrapped: 324, oee: 88.11},
+                {year: 2020, plant: 'Nagoya Main Assembly', produced: 81470, planned: 83525, reworked: 2007, scrapped: 267, oee: 87.98},
+                {year: 2020, plant: 'Stuttgart Assembly Plant', produced: 130360, planned: 133640, reworked: 3218, scrapped: 429, oee: 87.94},
+                {year: 2021, plant: 'Chennai Vehicle Plant', produced: 65144, planned: 66820, reworked: 1600, scrapped: 224, oee: 88.02},
+                {year: 2021, plant: 'Detroit Production Hub', produced: 97691, planned: 100230, reworked: 2456, scrapped: 300, oee: 87.99},
+                {year: 2021, plant: 'Nagoya Main Assembly', produced: 81535, planned: 83525, reworked: 2027, scrapped: 278, oee: 87.94},
+                {year: 2021, plant: 'Stuttgart Assembly Plant', produced: 130373, planned: 133640, reworked: 3188, scrapped: 380, oee: 87.96},
+                {year: 2022, plant: 'Chennai Vehicle Plant', produced: 64947, planned: 66560, reworked: 1580, scrapped: 211, oee: 88.04},
+                {year: 2022, plant: 'Detroit Production Hub', produced: 97449, planned: 99840, reworked: 2388, scrapped: 304, oee: 87.95},
+                {year: 2022, plant: 'Nagoya Main Assembly', produced: 81125, planned: 83200, reworked: 1991, scrapped: 282, oee: 88.05},
+                {year: 2022, plant: 'Stuttgart Assembly Plant', produced: 129764, planned: 133120, reworked: 3218, scrapped: 423, oee: 88.04},
+                {year: 2023, plant: 'Chennai Vehicle Plant', produced: 64947, planned: 66560, reworked: 1596, scrapped: 218, oee: 88.00},
+                {year: 2023, plant: 'Detroit Production Hub', produced: 97332, planned: 99840, reworked: 2425, scrapped: 353, oee: 88.11},
+                {year: 2023, plant: 'Nagoya Main Assembly', produced: 81084, planned: 83200, reworked: 2022, scrapped: 278, oee: 87.88},
+                {year: 2023, plant: 'Stuttgart Assembly Plant', produced: 129734, planned: 133120, reworked: 3202, scrapped: 438, oee: 88.00},
+                {year: 2024, plant: 'Chennai Vehicle Plant', produced: 63868, planned: 65520, reworked: 1622, scrapped: 222, oee: 88.00},
+                {year: 2024, plant: 'Detroit Production Hub', produced: 95802, planned: 98280, reworked: 2355, scrapped: 319, oee: 87.91},
+                {year: 2024, plant: 'Nagoya Main Assembly', produced: 79886, planned: 81900, reworked: 1995, scrapped: 275, oee: 88.06},
+                {year: 2024, plant: 'Stuttgart Assembly Plant', produced: 127827, planned: 131040, reworked: 3205, scrapped: 446, oee: 87.99}
+            ]
+        };
+
+        function getFilters() {
+            return {
+                year: document.getElementById('yearFilter').value,
+                plant: document.getElementById('plantFilter').value,
+                brand: document.getElementById('brandFilter').value
+            };
+        }
+
+        function updateKPIs(filtered) {
+            var grid = document.getElementById('kpiGrid');
+            grid.innerHTML = '';
+
+            var totalProd = filtered.modelProduction.reduce(function(sum, d) { return sum + d.produced; }, 0);
+            var totalPlan = filtered.modelProduction.reduce(function(sum, d) { return sum + d.planned; }, 0);
+            var totalRework = filtered.modelProduction.reduce(function(sum, d) { return sum + d.reworked; }, 0);
+            var totalScrap = filtered.modelProduction.reduce(function(sum, d) { return sum + d.scrapped; }, 0);
+            var avgOEE = filtered.modelProduction.length > 0 ? (filtered.modelProduction.reduce(function(sum, d) { return sum + d.oee; }, 0) / filtered.modelProduction.length).toFixed(2) : 0;
+
+            var yield = totalProd > 0 ? (((totalProd - totalScrap) / totalProd) * 100).toFixed(2) : 0;
+            var scrapRate = totalProd > 0 ? ((totalScrap / totalProd) * 100).toFixed(2) : 0;
+            var reworkRate = totalProd > 0 ? ((totalRework / totalProd) * 100).toFixed(2) : 0;
+            var planAtt = totalPlan > 0 ? ((totalProd / totalPlan) * 100).toFixed(1) : 0;
+
+            var kpis = [
+                {label: 'Units Produced', value: totalProd.toLocaleString(), subtext: 'units'},
+                {label: 'Units Planned', value: totalPlan.toLocaleString(), subtext: 'units'},
+                {label: 'Yield %', value: yield, subtext: 'good quality'},
+                {label: 'Scrap Rate %', value: scrapRate, subtext: scrapRate < 0.4 ? 'excellent' : 'acceptable'},
+                {label: 'Rework Rate %', value: reworkRate, subtext: reworkRate < 2.5 ? 'good' : 'monitor'},
+                {label: 'Plan Attainment %', value: planAtt, subtext: 'vs planned'},
+                {label: 'Avg OEE %', value: avgOEE, subtext: 'average'},
+                {label: 'Records', value: filtered.modelProduction.length, subtext: 'filtered'}
+            ];
+
+            kpis.forEach(function(kpi) {
+                var card = document.createElement('div');
+                card.className = 'kpi-card';
+                card.innerHTML = '<div class="kpi-label">' + kpi.label + '</div>' +
+                                '<div class="kpi-value">' + kpi.value + '</div>' +
+                                '<div class="kpi-subtext">' + kpi.subtext + '</div>';
+                grid.appendChild(card);
+            });
+
+            fitKpiText();
+        }
+
+        function updateCharts(filtered) {
+            // Monthly Production Trend
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            var monthlyByYear = {};
+            filtered.monthlyProduction.forEach(function(d) {
+                if (!monthlyByYear[d.year]) monthlyByYear[d.year] = {};
+                monthlyByYear[d.year][d.month.substring(0, 3)] = d.produced;
+            });
+
+            var datasets = [];
+            var colors = ['#1B3A5C', '#E87722', '#0EA5E9', '#F59E0B', '#94A3B8'];
+            var years = Object.keys(monthlyByYear).sort();
+            years.forEach(function(year, idx) {
+                datasets.push({
+                    label: year,
+                    data: months.map(function(m) { return monthlyByYear[year][m] || 0; }),
+                    borderColor: colors[idx % colors.length],
+                    backgroundColor: 'rgba(0,0,0,0.05)',
+                    tension: 0.4
+                });
+            });
+
+            mk('monthlyProductionTrend', {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Production by Model (with brand filter applied)
+            var models = {};
+            filtered.modelProduction.forEach(function(d) {
+                var key = d.model;
+                models[key] = (models[key] || 0) + d.produced;
+            });
+            var modelLabels = Object.keys(models).sort(function(a, b) { return models[b] - models[a]; }).slice(0, 10);
+
+            mk('productionByModel', {
+                type: 'bar',
+                data: {
+                    labels: modelLabels,
+                    datasets: [{
+                        label: 'Units Produced',
+                        data: modelLabels.map(function(m) { return models[m]; }),
+                        backgroundColor: '#1B3A5C'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+
+            // Plant Comparison
+            var plants = {};
+            filtered.plantProduction.forEach(function(d) {
+                if (!plants[d.plant]) plants[d.plant] = {produced: 0, planned: 0};
+                plants[d.plant].produced += d.produced;
+                plants[d.plant].planned += d.planned;
+            });
+            var plantLabels = Object.keys(plants).sort();
+
+            mk('plantComparison', {
+                type: 'bar',
+                data: {
+                    labels: plantLabels,
+                    datasets: [
+                        {
+                            label: 'Produced',
+                            data: plantLabels.map(function(p) { return plants[p].produced; }),
+                            backgroundColor: '#1B3A5C'
+                        },
+                        {
+                            label: 'Planned',
+                            data: plantLabels.map(function(p) { return plants[p].planned; }),
+                            backgroundColor: '#E87722'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Yearly Production Trend (replaces Shift Comparison)
+            var yearlyTotals = {};
+            filtered.plantProduction.forEach(function(d) {
+                yearlyTotals[d.year] = (yearlyTotals[d.year] || 0) + d.produced;
+            });
+            var yearLabels = Object.keys(yearlyTotals).sort();
+
+            mk('yearlyProductionTrend', {
+                type: 'bar',
+                data: {
+                    labels: yearLabels,
+                    datasets: [{
+                        label: 'Total Production',
+                        data: yearLabels.map(function(y) { return yearlyTotals[y]; }),
+                        backgroundColor: ['#1B3A5C', '#E87722', '#0EA5E9', '#F59E0B', '#94A3B8']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Brand Mix
+            var brands = {};
+            filtered.modelProduction.forEach(function(d) {
+                brands[d.brand] = (brands[d.brand] || 0) + d.produced;
+            });
+            var brandLabels = Object.keys(brands).sort();
+
+            mk('brandMix', {
+                type: 'bar',
+                data: {
+                    labels: brandLabels,
+                    datasets: [{
+                        label: 'Production',
+                        data: brandLabels.map(function(b) { return brands[b]; }),
+                        backgroundColor: '#0EA5E9'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+
+            // OEE by Model
+            var modelOEE = {};
+            filtered.modelProduction.forEach(function(d) {
+                if (!modelOEE[d.model]) modelOEE[d.model] = {oee: 0, count: 0};
+                modelOEE[d.model].oee += d.oee;
+                modelOEE[d.model].count += 1;
+            });
+            var oeeLabels = Object.keys(modelOEE).sort().slice(0, 10);
+
+            mk('oeeByModel', {
+                type: 'bar',
+                data: {
+                    labels: oeeLabels,
+                    datasets: [{
+                        label: 'OEE %',
+                        data: oeeLabels.map(function(m) { return (modelOEE[m].oee / modelOEE[m].count).toFixed(2); }),
+                        backgroundColor: '#F59E0B'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        function updateTable(filtered) {
+            var tbody = document.querySelector('#detailTable tbody');
+            tbody.innerHTML = '';
+
+            filtered.modelProduction.forEach(function(row) {
+                var yield = row.produced > 0 ? (((row.produced - row.scrapped) / row.produced) * 100).toFixed(2) : 0;
+                var scrapPct = row.produced > 0 ? ((row.scrapped / row.produced) * 100).toFixed(2) : 0;
+                var reworkPct = row.produced > 0 ? ((row.reworked / row.produced) * 100).toFixed(2) : 0;
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.year + '</td>' +
+                              '<td>' + row.brand + '</td>' +
+                              '<td>' + row.model + '</td>' +
+                              '<td>' + row.produced.toLocaleString() + '</td>' +
+                              '<td>' + row.planned.toLocaleString() + '</td>' +
+                              '<td>' + yield + '%</td>' +
+                              '<td>' + scrapPct + '%</td>' +
+                              '<td>' + reworkPct + '%</td>' +
+                              '<td>' + row.oee.toFixed(2) + '%</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = {
+                monthlyProduction: DATA.monthlyProduction.filter(function(d) {
+                    return (!filters.year || parseInt(d.year) === parseInt(filters.year));
+                }),
+                modelProduction: DATA.modelProduction.filter(function(d) {
+                    return (!filters.year || parseInt(d.year) === parseInt(filters.year)) &&
+                           (!filters.brand || d.brand == filters.brand);
+                }),
+                plantProduction: DATA.plantProduction.filter(function(d) {
+                    return (!filters.year || parseInt(d.year) === parseInt(filters.year)) && (!filters.plant || d.plant == filters.plant);
+                })
+            };
+
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+        }
+
+        window.addEventListener('load', function() {
+            applyFilters();
+        });
+    </script>
+</body>
+</html>

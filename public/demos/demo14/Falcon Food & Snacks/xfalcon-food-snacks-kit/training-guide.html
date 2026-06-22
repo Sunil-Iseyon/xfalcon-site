@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training & User Guide — xFalcon AnalyticsPro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F3F4F6;
+            color: #1F2937;
+            line-height: 1.6;
+        }
+
+        .topbar {
+            background: #0F172A;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            gap: 2px;
+        }
+
+        .logo-x {
+            color: #006AFF;
+        }
+
+        .logo-f {
+            color: #1A7F64;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .topbar-spacer {
+            flex: 1;
+        }
+
+        .back-link {
+            color: #E5E7EB;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #FFFFFF;
+        }
+
+        .toc-nav {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0;
+            position: sticky;
+            top: 57px;
+            z-index: 99;
+            overflow-x: auto;
+        }
+
+        .toc-nav ul {
+            list-style: none;
+            display: flex;
+            gap: 12px;
+            padding: 12px 32px;
+            max-width: 100%;
+            min-width: min-content;
+        }
+
+        .toc-nav a {
+            text-decoration: none;
+            color: #64748B;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .toc-nav a:hover {
+            color: #006AFF;
+            background: #F3F4F6;
+        }
+
+        .toc-nav a.active {
+            color: #006AFF;
+            background: #EEF5FF;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 40px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        section {
+            margin-bottom: 48px;
+            scroll-margin-top: 130px;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: #374151;
+        }
+
+        .card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0F172A;
+            margin-bottom: 16px;
+        }
+
+        .card-list {
+            list-style: none;
+        }
+
+        .card-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #F3F4F6;
+            color: #374151;
+        }
+
+        .card-list li:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-blue {
+            background: #EEF5FF;
+            color: #006AFF;
+        }
+
+        .badge-green {
+            background: #E8F7F3;
+            color: #1A7F64;
+        }
+
+        .badge-gray {
+            background: #F1F5F9;
+            color: #64748B;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: #006AFF;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .scenario-card {
+            border-left: 4px solid #006AFF;
+            padding: 24px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .scenario-card h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #0F172A;
+        }
+
+        .scenario-step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .scenario-step p {
+            margin: 0;
+            flex: 1;
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .question-card {
+            background: #FFFFFF;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .question-card:hover {
+            border-color: #006AFF;
+            background: #F9FBFF;
+            transform: translateY(-2px);
+        }
+
+        .question-card.active {
+            border-color: #006AFF;
+            background: #EEF5FF;
+        }
+
+        .question-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0F172A;
+            margin: 0;
+        }
+
+        .answer-panel {
+            background: #FFFFFF;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            display: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .answer-panel.active {
+            display: block;
+        }
+
+        .answer-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0F172A;
+            margin-bottom: 16px;
+        }
+
+        .answer-dashboards {
+            margin: 20px 0;
+        }
+
+        .dashboard-link {
+            display: inline-block;
+            background: #006AFF;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-link:hover {
+            background: #0052CC;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin: 20px 0;
+        }
+
+        .chart-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .glossary-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .glossary-item:last-child {
+            border-bottom: none;
+        }
+
+        .glossary-term {
+            font-weight: 600;
+            color: #0F172A;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .glossary-definition {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .dashboard-accordion {
+            margin-top: 20px;
+        }
+
+        .accordion-item {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+
+        .accordion-header:hover {
+            background: #F9FAFB;
+        }
+
+        .accordion-header.active {
+            background: #EEF5FF;
+        }
+
+        .accordion-toggle {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: #64748B;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .accordion-header.active .accordion-toggle {
+            transform: rotate(90deg);
+        }
+
+        .accordion-number {
+            display: inline-block;
+            min-width: 32px;
+            height: 28px;
+            background: #EEF5FF;
+            color: #006AFF;
+            border-radius: 6px;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .accordion-title {
+            flex: 1;
+            font-weight: 600;
+            color: #0F172A;
+            font-size: 14px;
+        }
+
+        .accordion-content {
+            padding: 16px;
+            background: #FAFBFC;
+            display: none;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .accordion-description {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .accordion-link {
+            color: #006AFF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .accordion-link:hover {
+            text-decoration: underline;
+        }
+
+        .tips-list {
+            list-style: none;
+            counter-reset: tips-counter;
+        }
+
+        .tips-list li {
+            counter-increment: tips-counter;
+            padding: 20px;
+            background: #FFFFFF;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #1A7F64;
+        }
+
+        .tips-list li:before {
+            content: counter(tips-counter);
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #1A7F64;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 13px;
+        }
+
+        .tips-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+        }
+
+        .tips-content {
+            flex: 1;
+        }
+
+        .tips-list li:before {
+            display: inline-block;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        strong {
+            color: #0F172A;
+            font-weight: 600;
+        }
+
+        a {
+            color: #006AFF;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: #0052CC;
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+
+            .container {
+                padding: 24px 16px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .question-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toc-nav ul {
+                padding: 12px 16px;
+            }
+
+            .toc-nav a {
+                font-size: 12px;
+            }
+        }
+
+        .generator-panel {
+            background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+            border: 2px solid #006AFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+        }
+        .generator-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .generator-icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+        .generator-header strong {
+            font-size: 16px;
+            color: #0F172A;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .generator-desc {
+            font-size: 13px;
+            color: #64748B;
+            margin: 0;
+        }
+        .generator-form {
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #E5E7EB;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .form-row label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-row select {
+            padding: 8px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #FFFFFF;
+            color: #1F2937;
+        }
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .btn-generate {
+            background: #006AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-generate:hover {
+            background: #0055CC;
+        }
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+        .btn-action {
+            background: #006AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            width: 100%;
+            text-align: center;
+        }
+        .btn-action:hover {
+            background: #0055CC;
+        }
+        .form-note {
+            font-size: 12px;
+            color: #64748B;
+            margin: 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">
+            <span class="logo-x">x</span><span class="logo-f">F</span>alcon
+        </div>
+        <div class="topbar-title">AnalyticsPro</div>
+        <div class="topbar-spacer"></div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="toc-nav">
+        <ul>
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#kpi-cards">KPI Cards</a></li>
+            <li><a href="#chart-types">Chart Types</a></li>
+            <li><a href="#using-filters">Using Filters</a></li>
+            <li><a href="#which-dashboard">Which Dashboard?</a></li>
+            <li><a href="#walkthroughs">Walkthroughs</a></li>
+            <li><a href="#dashboard-ref">Dashboard Ref</a></li>
+            <li><a href="#tips">Tips</a></li>
+            <li><a href="#glossary">Glossary</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Training & User Guide</h1>
+            <p class="page-subtitle">Master xFalcon AnalyticsPro — your complete guide to navigating dashboards, understanding KPIs, and answering business questions with data.</p>
+        </div>
+
+        <!-- GETTING STARTED -->
+        <section id="getting-started">
+            <h2>Getting Started</h2>
+
+            <div class="card">
+                <div class="card-header">Opening the Portal</div>
+                <p>Open <strong>index.html</strong> in your web browser to launch the xFalcon AnalyticsPro portal. You'll see:</p>
+                <ul class="card-list">
+                    <li><strong>Executive KPI Cards</strong> — Top-line metrics: Net Revenue, Gross Profit, COGS, Margin %</li>
+                    <li><strong>Key Charts</strong> — Trending revenue, margin, and customer metrics</li>
+                    <li><strong>Customer Table</strong> — Top customers by revenue</li>
+                    <li><strong>Dashboard Directory</strong> — 11 specialized analytics dashboards</li>
+                    <li><strong>Resources Section</strong> — Links to documentation and support</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Navigation Basics</div>
+                <p>The portal is organized into 11 focused dashboards, each answering a specific business question:</p>
+                <ul class="card-list">
+                    <li><strong>Click any dashboard card</strong> in the Directory to open that dashboard</li>
+                    <li><strong>Use "← Back to Portal"</strong> link in the topbar to return to the home page</li>
+                    <li><strong>Use the sticky Table of Contents</strong> at the top of this guide to jump between sections</li>
+                    <li><strong>All data</strong> is read-only — reports refresh automatically based on source data</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- KPI CARDS -->
+        <section id="kpi-cards">
+            <h2>Understanding KPI Cards</h2>
+
+            <div class="card">
+                <div class="card-header">Card Structure</div>
+                <p>Every KPI card follows the same layout:</p>
+                <ul class="card-list">
+                    <li><strong>Label</strong> — Metric name (e.g., "Net Revenue")</li>
+                    <li><strong>Value</strong> — Current period number (e.g., "$31.5M")</li>
+                    <li><strong>Arrow</strong> — Direction indicator (↑ or ↓)</li>
+                    <li><strong>Comparison</strong> — Change vs. prior year or period</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Interpreting Arrows</div>
+                <p style="margin-bottom: 12px;"><strong style="color: #16A34A;">Green ↑</strong> = Improvement (higher is better)</p>
+                <p style="margin-bottom: 12px;">Examples: Revenue, Profit, Growth Rate, Customer Count</p>
+                <p style="margin-bottom: 20px;"><strong style="color: #DC2626;">Red ↓</strong> = Decline (lower may be better)</p>
+                <p style="margin: 0;">Examples: COGS, Discounts, Returns, Churn Rate</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Real Example</div>
+                <p style="margin: 0; font-size: 18px; font-weight: 600; color: #0F172A;">Net Revenue</p>
+                <p style="margin: 12px 0 0 0; font-size: 28px; font-weight: 700; color: #006AFF;">$31.5M <span style="color: #16A34A; font-size: 20px;">↑ +45.8%</span></p>
+                <p style="margin: 12px 0 0 0; font-size: 13px; color: #64748B;">vs. Last Year</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Context Matters</div>
+                <p><strong>Always consider the business context.</strong> For example:</p>
+                <ul class="card-list">
+                    <li><strong>COGS ↓ (Red Arrow)</strong> — Actually good! Lower cost = higher profit margin</li>
+                    <li><strong>Returns ↑ (Red Arrow)</strong> — Problem. More returns = lost revenue</li>
+                    <li><strong>Fill Rate ↓ (Red Arrow)</strong> — Concerning. Out-of-stock hurts sales</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- CHART TYPES -->
+        <section id="chart-types">
+            <h2>Chart Types with Live Examples</h2>
+            <p>Below are the 5 main chart types used across xFalcon dashboards. Each example uses live Chart.js rendering with real-world data patterns.</p>
+
+            <!-- Grouped Bar Chart -->
+            <div class="card">
+                <div class="card-header">A. Grouped Bar Chart</div>
+                <p><strong>Purpose:</strong> Compare two or more categories side-by-side across groups (e.g., regions, time periods, brands).</p>
+                <p><strong>How to read:</strong> Taller bar = higher value. Grouped bars let you spot differences between years or products at a glance.</p>
+                <div class="chart-label">Sample: 2024 vs 2025 Revenue by Region</div>
+                <div class="chart-container">
+                    <canvas id="chartGrouped"></canvas>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin-top: 12px;"><strong style="color: #94A3B8;">Gray bars</strong> = 2024 data | <strong style="color: #006AFF;">Blue bars</strong> = 2025 growth</p>
+            </div>
+
+            <!-- Horizontal Bar Chart -->
+            <div class="card">
+                <div class="card-header">B. Horizontal Bar Chart</div>
+                <p><strong>Purpose:</strong> Rank categories with long names. Read top-to-bottom: highest at top, lowest at bottom.</p>
+                <p><strong>How to read:</strong> Length of bar represents value. Easier to read category labels than vertical bars.</p>
+                <div class="chart-label">Sample: Revenue by Sales Channel</div>
+                <div class="chart-container">
+                    <canvas id="chartHorizontal"></canvas>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin-top: 12px;">Grocery leads, eCommerce growing, Club smallest</p>
+            </div>
+
+            <!-- Line Chart -->
+            <div class="card">
+                <div class="card-header">C. Line Chart</div>
+                <p><strong>Purpose:</strong> Track trends over time. Multiple lines show how metrics evolve and compare across periods.</p>
+                <p><strong>How to read:</strong> Steep slope = rapid change. Overlapping lines show if trends are aligning or diverging.</p>
+                <div class="chart-label">Sample: Monthly Revenue Trend 2024 vs 2025</div>
+                <div class="chart-container">
+                    <canvas id="chartLine"></canvas>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin-top: 12px;"><strong style="color: #94A3B8;">Gray line</strong> = 2024 | <strong style="color: #006AFF;">Blue line</strong> = 2025 (accelerating upward)</p>
+            </div>
+
+            <!-- Waterfall Chart -->
+            <div class="card">
+                <div class="card-header">D. Waterfall Chart</div>
+                <p><strong>Purpose:</strong> Show how a starting value flows through additions and deductions to arrive at an ending value.</p>
+                <p><strong>How to read:</strong> Each segment shows a step. Down = cost/deduction, Up = addition/gain. Final bar = result.</p>
+                <div class="chart-label">Sample: Gross Revenue → Net Revenue Waterfall</div>
+                <div class="chart-container">
+                    <canvas id="chartWaterfall"></canvas>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin-top: 12px;">Start at $36.5M → Trade Discounts (-$5M) → Net $31.5M → COGS (-$17.3M) → Gross Profit $14.2M</p>
+            </div>
+
+            <!-- Annual Trend Bar -->
+            <div class="card">
+                <div class="card-header">E. Annual Trend Bar</div>
+                <p><strong>Purpose:</strong> Quick multi-year performance snapshot. One bar per year shows the arc of growth or decline.</p>
+                <p><strong>How to read:</strong> Bar height = annual value. Consistent growth = rising bars. Flat = mature. Declining = falling bars.</p>
+                <div class="chart-label">Sample: Annual Net Revenue (2020-2025)</div>
+                <div class="chart-container">
+                    <canvas id="chartAnnual"></canvas>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin-top: 12px;">Flat growth 2020-2024, then surge in 2025 (+46%)</p>
+            </div>
+        </section>
+
+        <!-- USING FILTERS -->
+        <section id="using-filters">
+            <h2>Using Filters</h2>
+
+            <div class="card">
+                <div class="card-header">Filter Basics</div>
+                <p>Most dashboards have filter controls at the top. Use them to:</p>
+                <ul class="card-list">
+                    <li><strong>Zoom into a specific region, brand, or channel</strong> — All charts below update instantly</li>
+                    <li><strong>Compare time periods</strong> — Select fiscal year, quarter, or month</li>
+                    <li><strong>Segment by customer type</strong> — Filter to Retail, DTC, or All</li>
+                    <li><strong>Focus on product categories</strong> — Filter by brand or category</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Filter Tips</div>
+                <ul class="card-list">
+                    <li><strong>Multi-select:</strong> Most filters allow selecting multiple values. Click checkboxes to add/remove.</li>
+                    <li><strong>Clear all:</strong> Look for a "Reset" button to clear all filters and see full dataset.</li>
+                    <li><strong>Charts update automatically:</strong> No refresh button needed — filters are real-time.</li>
+                    <li><strong>Combine filters:</strong> Use region + brand together for detailed deep-dives.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- WHICH DASHBOARD -->
+        <section id="which-dashboard">
+            <h2>Which Dashboard Do I Use?</h2>
+            <p>Not sure where to find the data you need? Answer a business question below and we'll show you the best dashboard(s) to visit.</p>
+
+            <div class="question-grid" id="questionGrid">
+                <div class="question-card" data-question="0">
+                    <p class="question-text">How is the business performing overall?</p>
+                </div>
+                <div class="question-card" data-question="1">
+                    <p class="question-text">Why is revenue up or down?</p>
+                </div>
+                <div class="question-card" data-question="2">
+                    <p class="question-text">Which products should we invest in?</p>
+                </div>
+                <div class="question-card" data-question="3">
+                    <p class="question-text">Are we profitable enough?</p>
+                </div>
+                <div class="question-card" data-question="4">
+                    <p class="question-text">Who are our most important customers?</p>
+                </div>
+                <div class="question-card" data-question="5">
+                    <p class="question-text">Which channels are growing?</p>
+                </div>
+                <div class="question-card" data-question="6">
+                    <p class="question-text">Is our supply chain healthy?</p>
+                </div>
+                <div class="question-card" data-question="7">
+                    <p class="question-text">Are our promotions working?</p>
+                </div>
+                <div class="question-card" data-question="8">
+                    <p class="question-text">What do shoppers actually buy?</p>
+                </div>
+                <div class="question-card" data-question="9">
+                    <p class="question-text">Where should we expand?</p>
+                </div>
+            </div>
+
+            <div id="answerPanels">
+                <div class="answer-panel" data-answer="0">
+                    <div class="answer-title">How is the business performing overall?</div>
+                    <p>Start with <span class="badge badge-blue">01</span><strong>Executive Overview</strong> — this is your executive summary. See top-line KPIs, key metrics, year-over-year growth, and trending performance at a glance.</p>
+                    <div class="answer-dashboards">
+                        <a href="01-executive-overview.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="1">
+                    <div class="answer-title">Why is revenue up or down?</div>
+                    <p>Investigate with <span class="badge badge-blue">02</span><strong>Sales & Revenue</strong> — drill into which brands, regions, and channels drove the result. See waterfall decomposition and trend analysis.</p>
+                    <div class="answer-dashboards">
+                        <a href="02-sales-revenue.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="2">
+                    <div class="answer-title">Which products should we invest in?</div>
+                    <p>Review both <span class="badge badge-blue">03</span><strong>Product Performance</strong> (sales volume, growth) and <span class="badge badge-green">04</span><strong>Product Margin</strong> (profitability). Combine to find high-growth, high-margin opportunities.</p>
+                    <div class="answer-dashboards">
+                        <a href="03-product-performance.html" class="dashboard-link">Product Performance →</a>
+                        <a href="04-product-margin.html" class="dashboard-link">Product Margin →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="3">
+                    <div class="answer-title">Are we profitable enough?</div>
+                    <p>Go to <span class="badge badge-green">04</span><strong>Product Margin</strong> to see gross margin by brand and category. Cross-check with <span class="badge badge-blue">01</span><strong>Executive Overview</strong> for company-wide margin trends.</p>
+                    <div class="answer-dashboards">
+                        <a href="04-product-margin.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="4">
+                    <div class="answer-title">Who are our most important customers?</div>
+                    <p>Use <span class="badge badge-blue">05</span><strong>Customer Intelligence</strong> to identify top customers by revenue, frequency, basket size, and segment. Includes retention and churn analysis.</p>
+                    <div class="answer-dashboards">
+                        <a href="05-customer-intelligence.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="5">
+                    <div class="answer-title">Which channels are growing?</div>
+                    <p>Check <span class="badge badge-blue">06</span><strong>Channel & POS Analytics</strong> to see revenue and growth by retail channel (grocery, mass, club, eCommerce). Includes point-of-sale trends.</p>
+                    <div class="answer-dashboards">
+                        <a href="06-channel-pos-analytics.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="6">
+                    <div class="answer-title">Is our supply chain healthy?</div>
+                    <p>Review <span class="badge badge-blue">07</span><strong>Shipments & Fill Rate</strong> (order fulfillment, delivery health) and <span class="badge badge-blue">08</span><strong>Inventory</strong> (stock levels, turns, weeks of supply).</p>
+                    <div class="answer-dashboards">
+                        <a href="07-shipments-fill-rate.html" class="dashboard-link">Shipments →</a>
+                        <a href="08-inventory-operations.html" class="dashboard-link">Inventory →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="7">
+                    <div class="answer-title">Are our promotions working?</div>
+                    <p>Visit <span class="badge badge-blue">09</span><strong>Trade Spend / Promo ROI</strong> to measure promotional effectiveness, incremental lift, and return on promotional investment by brand and region.</p>
+                    <div class="answer-dashboards">
+                        <a href="09-trade-spend-promo-roi.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="8">
+                    <div class="answer-title">What do shoppers actually buy?</div>
+                    <p>Use <span class="badge badge-blue">10</span><strong>Consumer Panel</strong> to see actual shopper purchase patterns, preferences, brand loyalty, and consumer trends in the market.</p>
+                    <div class="answer-dashboards">
+                        <a href="10-consumer-panel.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+                <div class="answer-panel" data-answer="9">
+                    <div class="answer-title">Where should we expand?</div>
+                    <p>Start with <span class="badge badge-blue">11</span><strong>Geographic Performance</strong> to identify fast-growing regions and untapped markets. Cross-reference with Customer Intelligence and Channel Analytics.</p>
+                    <div class="answer-dashboards">
+                        <a href="11-geographic-performance.html" class="dashboard-link">Open Dashboard →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WALKTHROUGHS -->
+        <section id="walkthroughs">
+            <h2>Analysis Walkthroughs</h2>
+            <p>See how to use multiple dashboards together to answer complex business questions. Each scenario shows a real-world workflow.</p>
+
+            <div class="scenario-card">
+                <h3>Scenario A: Preparing for a Quarterly Business Review</h3>
+                <div class="scenario-step">
+                    <span class="step-number">1</span>
+                    <div class="tips-content">
+                        <p><strong>Start at <a href="01-executive-overview.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Executive Overview</a></strong> (01) — Note top-line KPIs: Net Revenue, Gross Profit, Margin %, Growth vs. prior quarter.</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">2</span>
+                    <div class="tips-content">
+                        <p><strong>Check <a href="02-sales-revenue.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Sales & Revenue</a></strong> (02) — Identify which brands and channels drove results. Look for surprises.</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">3</span>
+                    <div class="tips-content">
+                        <p><strong>Review <a href="04-product-margin.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Product Margin</a></strong> (04) — Confirm profitability trends. Any margin compression? Which brands are improving?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">4</span>
+                    <div class="tips-content">
+                        <p><strong>Check <a href="07-shipments-fill-rate.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Shipments & Fill Rate</a></strong> (07) — Note any supply chain issues that might impact future growth.</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">5</span>
+                    <div class="tips-content">
+                        <p><strong>Summarize findings:</strong> Revenue, Margin, Top Brands, Supply Chain status. Ready for the boardroom.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generator-panel">
+                <div class="generator-header">
+                    <span class="generator-icon">📊</span>
+                    <div>
+                        <strong>Generate QBR Package</strong>
+                        <p class="generator-desc">Opens Executive Overview, Sales & Revenue, Product Margin, and Shipments & Fill Rate in new tabs. Use filters on each dashboard to select your time period.</p>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="openQBR()">Open QBR Dashboards →</button>
+            </div>
+
+            <div class="scenario-card">
+                <h3>Scenario B: Investigating a Margin Drop</h3>
+                <div class="scenario-step">
+                    <span class="step-number">1</span>
+                    <div class="tips-content">
+                        <p><strong>Start at <a href="04-product-margin.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Product Margin</a></strong> (04) — Which brands have declining Gross Margin %? Filter by brand to isolate the culprit.</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">2</span>
+                    <div class="tips-content">
+                        <p><strong>Cross-reference with <a href="03-product-performance.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Product Performance</a></strong> (03) — Is it a volume mix problem? Are cheaper SKUs outselling premium ones?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">3</span>
+                    <div class="tips-content">
+                        <p><strong>Check <a href="09-trade-spend-promo-roi.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Trade Spend</a></strong> (09) — Did promotional spend increase? Heavy discounting erodes margin.</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">4</span>
+                    <div class="tips-content">
+                        <p><strong>Review <a href="02-sales-revenue.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Sales & Revenue</a> waterfall</strong> (02) — Where is the leakage? COGS up? Trade discounts spike?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">5</span>
+                    <div class="tips-content">
+                        <p><strong>Root cause identified.</strong> Recommend action: adjust mix, reduce promos, or improve cost structure.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3>Scenario C: Planning Regional Expansion</h3>
+                <div class="scenario-step">
+                    <span class="step-number">1</span>
+                    <div class="tips-content">
+                        <p><strong>Start at <a href="11-geographic-performance.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Geographic Performance</a></strong> (11) — Identify fast-growing regions and market penetration gaps. Which regions are underperforming?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">2</span>
+                    <div class="tips-content">
+                        <p><strong>Cross-reference with <a href="06-channel-pos-analytics.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Channel Analytics</a></strong> (06) — Which sales channels are strong in target regions? Retail dominance or eCommerce growth?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">3</span>
+                    <div class="tips-content">
+                        <p><strong>Check <a href="05-customer-intelligence.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Customer Intelligence</a></strong> (05) — Who are the major retailers/distributors in target regions? What's their growth trajectory?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">4</span>
+                    <div class="tips-content">
+                        <p><strong>Review <a href="08-inventory-operations.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Inventory</a></strong> (08) — Do we have sufficient supply to support expansion? What's our current weeks of supply?</p>
+                    </div>
+                </div>
+                <div class="scenario-step">
+                    <span class="step-number">5</span>
+                    <div class="tips-content">
+                        <p><strong>Build expansion business case.</strong> Target region, entry channel, required inventory, expected ROI.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generator-panel">
+                <div class="generator-header">
+                    <span class="generator-icon">🌎</span>
+                    <div>
+                        <strong>Generate Regional Expansion Package</strong>
+                        <p class="generator-desc">Opens Geographic Performance, Channel & POS, Customer Intelligence, and Inventory in new tabs. Use filters on each dashboard to select year and region.</p>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="openRegion()">Open Regional Dashboards →</button>
+            </div>
+        </section>
+
+        <!-- DASHBOARD REFERENCE -->
+        <section id="dashboard-ref">
+            <h2>Dashboard Reference</h2>
+            <p>Here are all 11 analytics dashboards in the xFalcon suite. Click any to open.</p>
+
+            <div class="dashboard-accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">01</span>
+                        <span class="accordion-title">Executive Overview</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Company-wide KPIs, year-over-year comparisons, and trending metrics. Your starting point for any business review.</div>
+                        <a href="01-executive-overview.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">02</span>
+                        <span class="accordion-title">Sales & Revenue</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Revenue trends, waterfall decomposition, sales by brand and channel, growth drivers, and competitive analysis.</div>
+                        <a href="02-sales-revenue.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">03</span>
+                        <span class="accordion-title">Product Performance</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Sales volume, velocity, SKU performance, new product launches, and product-level growth trends.</div>
+                        <a href="03-product-performance.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">04</span>
+                        <span class="accordion-title">Product Margin</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Gross margin by product, brand, and category. Profitability analysis, margin trends, and cost structure deep-dives.</div>
+                        <a href="04-product-margin.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">05</span>
+                        <span class="accordion-title">Customer Intelligence</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Top customers by revenue, segments, cohort analysis, retention rates, churn trends, and customer value.</div>
+                        <a href="05-customer-intelligence.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">06</span>
+                        <span class="accordion-title">Channel & POS Analytics</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Revenue by sales channel (Grocery, Mass, Club, eCommerce). Point-of-sale trends, channel mix shifts, and growth rates.</div>
+                        <a href="06-channel-pos-analytics.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">07</span>
+                        <span class="accordion-title">Shipments & Fill Rate</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Order fulfillment rates, shipping timelines, on-time delivery, backlog analysis, and supply chain health metrics.</div>
+                        <a href="07-shipments-fill-rate.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">08</span>
+                        <span class="accordion-title">Inventory</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Stock levels by location and SKU, inventory turns, weeks of supply, out-of-stock incidents, and seasonal patterns.</div>
+                        <a href="08-inventory-operations.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">09</span>
+                        <span class="accordion-title">Trade Spend / Promo ROI</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Promotional spending, incremental lift by campaign, ROI by brand and region, and effectiveness benchmarks.</div>
+                        <a href="09-trade-spend-promo-roi.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">10</span>
+                        <span class="accordion-title">Consumer Panel</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Shopper behavior, brand loyalty, purchase frequency, category trends, and consumer preference insights.</div>
+                        <a href="10-consumer-panel.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span class="accordion-toggle">›</span>
+                        <span class="accordion-number">11</span>
+                        <span class="accordion-title">Geographic Performance</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-description">Regional revenue, growth rates, market penetration, expansion opportunities, and geographic trends.</div>
+                        <a href="11-geographic-performance.html" class="accordion-link">Open Dashboard →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TIPS & BEST PRACTICES -->
+        <section id="tips">
+            <h2>Tips & Best Practices</h2>
+
+            <ul class="tips-list">
+                <li>
+                    <div class="tips-content">
+                        <strong>Start with the Executive Overview.</strong> Always begin with <a href="01-executive-overview.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">dashboard 01</a> to understand top-line performance, then drill into specialized dashboards for detail.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Use filters to tell a story.</strong> Don't just look at all data — filter by region, brand, or time period to focus your analysis and answer specific questions.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Triangulate insights across dashboards.</strong> If margin is declining, check <a href="04-product-margin.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Product Margin (04)</a>, <a href="03-product-performance.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Product Performance (03)</a>, and <a href="09-trade-spend-promo-roi.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Trade Spend (09)</a> together.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Look for inflection points.</strong> Charts often show when something changed. Investigate peaks, valleys, and trend reversals in line charts.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Compare apples to apples.</strong> When analyzing year-over-year, ensure you're comparing the same period (don't mix Q2 2024 with Q1 2025).
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Always note the time lag.</strong> Data refresh on a daily/weekly/monthly schedule. Check the dashboard timestamp to confirm data recency.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Watch for seasonality.</strong> Snack and confectionery sales may spike in holiday seasons. Annual trend charts help you distinguish seasonal bumps from real growth.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Test hypotheses with data.</strong> If you suspect eCommerce is cannibalizing retail, use <a href="06-channel-pos-analytics.html" style="color:#006AFF;text-decoration:none;border-bottom:1px dashed #006AFF;">Channel Analytics (06)</a> with filters to check your theory.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Share findings with context.</strong> When presenting a KPI, explain what changed, why it matters, and what action to take next.
+                    </div>
+                </li>
+                <li>
+                    <div class="tips-content">
+                        <strong>Keep a log of insights.</strong> Save screenshots and notes of discoveries. Over time, patterns emerge that drive strategy.
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- GLOSSARY -->
+        <section id="glossary">
+            <h2>Glossary</h2>
+            <p>Quick reference for key analytics terms used across xFalcon dashboards.</p>
+
+            <div class="glossary-grid">
+                <div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">AUR (Average Unit Revenue)</div>
+                        <div class="glossary-definition">Revenue per unit sold. Higher AUR = selling more valuable products or achieving better pricing.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Basket Size</div>
+                        <div class="glossary-definition">Average transaction value — how much a customer spends per shopping trip.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">COGS (Cost of Goods Sold)</div>
+                        <div class="glossary-definition">Direct costs to manufacture or acquire products (raw materials, labor, packaging). Higher COGS = lower profit.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Comp / Like-for-Like</div>
+                        <div class="glossary-definition">Comparable sales — growth from the same stores/channels over the same period (year-over-year, same geography).</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">DTC (Direct-to-Consumer)</div>
+                        <div class="glossary-definition">Sales directly to end consumers (e.g., own website), bypassing retail intermediaries.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Fill Rate</div>
+                        <div class="glossary-definition">Percentage of customer orders successfully fulfilled. High fill rate = good inventory, low = stockouts.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Gross Profit</div>
+                        <div class="glossary-definition">Revenue minus COGS. The profit left after paying for products (before operating expenses).</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Gross Margin %</div>
+                        <div class="glossary-definition">Gross Profit divided by Revenue (as a percentage). Shows profitability before overheads.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Incremental Lift</div>
+                        <div class="glossary-definition">Additional sales generated by a promotion or campaign above baseline sales. Measures true promotional impact.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Inventory Turns</div>
+                        <div class="glossary-definition">How many times inventory is sold and replenished in a period. Higher = more efficient, lower = slow-moving stock.</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Net Revenue</div>
+                        <div class="glossary-definition">Gross Revenue minus trade discounts, returns, and allowances. True revenue after all deductions.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">OOS (Out of Stock)</div>
+                        <div class="glossary-definition">When a product is unavailable to sell. High OOS rates indicate supply chain issues or demand forecasting problems.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">POS (Point of Sale)</div>
+                        <div class="glossary-definition">Retail checkout data. POS analytics show what actually sold at retail, by store and time.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Promo ROI</div>
+                        <div class="glossary-definition">Return on Promotional Investment — incremental profit generated per dollar spent on promotions.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">QoQ (Quarter over Quarter)</div>
+                        <div class="glossary-definition">Growth comparing the same quarter in consecutive years (e.g., Q1 2025 vs Q1 2024).</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">SKU (Stock Keeping Unit)</div>
+                        <div class="glossary-definition">Unique product identifier. One product variation (e.g., "Chicken 5kg Bag") = one SKU.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">Trade Discount</div>
+                        <div class="glossary-definition">Discount given to retailers or distributors. Higher trade discounts = higher wholesale costs, lower net revenue.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">WOS (Weeks of Supply)</div>
+                        <div class="glossary-definition">How many weeks of inventory on hand at current sales rate. Low WOS = risk of stockouts, high = excess inventory.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">YoY (Year over Year)</div>
+                        <div class="glossary-definition">Comparison of the same metric across the same period in consecutive years.</div>
+                    </div>
+                    <div class="glossary-item">
+                        <div class="glossary-term">YTD (Year to Date)</div>
+                        <div class="glossary-definition">Cumulative performance from the start of the fiscal year through the current period.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align: center; margin-top: 60px; padding: 40px 0; border-top: 1px solid #E5E7EB; color: #64748B; font-size: 13px;">
+            <p>xFalcon AnalyticsPro Training Guide — Last Updated April 2026</p>
+            <p style="margin-top: 8px;"><a href="index.html">← Back to Portal</a></p>
+        </div>
+    </div>
+
+    <script>
+        function initTableOfContents() {
+            var links = document.querySelectorAll('.toc-nav a');
+
+            function updateActive() {
+                var scrollPos = window.scrollY + 130;
+
+                links.forEach(function(link) {
+                    link.classList.remove('active');
+                    var section = document.querySelector(link.getAttribute('href'));
+                    if (section) {
+                        var sectionTop = section.offsetTop;
+                        var sectionBottom = sectionTop + section.offsetHeight;
+
+                        if (scrollPos >= sectionTop && scrollPos < sectionBottom) {
+                            link.classList.add('active');
+                        }
+                    }
+                });
+            }
+
+            links.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 130,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            window.addEventListener('scroll', updateActive);
+            updateActive();
+        }
+
+        function initQuestionCards() {
+            var cards = document.querySelectorAll('.question-card');
+            var panels = document.querySelectorAll('.answer-panel');
+
+            function showAnswer(index) {
+                cards.forEach(function(card) {
+                    card.classList.remove('active');
+                });
+                panels.forEach(function(panel) {
+                    panel.classList.remove('active');
+                });
+
+                cards[index].classList.add('active');
+                panels[index].classList.add('active');
+            }
+
+            cards[0].classList.add('active');
+            panels[0].classList.add('active');
+
+            cards.forEach(function(card, index) {
+                card.addEventListener('click', function() {
+                    showAnswer(index);
+                });
+            });
+        }
+
+        function initAccordion() {
+            var headers = document.querySelectorAll('.accordion-header');
+
+            headers.forEach(function(header) {
+                header.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    var content = this.nextElementSibling;
+                    content.classList.toggle('active');
+                });
+            });
+        }
+
+        function initCharts() {
+            var chartColors = {
+                primary: '#006AFF',
+                secondary: '#1A7F64',
+                gray: '#94A3B8',
+                lightGray: '#E5E7EB',
+                white: '#FFFFFF',
+                dark: '#0F172A'
+            };
+
+            // Grouped Bar Chart
+            var ctxGrouped = document.getElementById('chartGrouped');
+            if (ctxGrouped) {
+                var chartGrouped = new Chart(ctxGrouped, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Crestview', 'Sunrise', 'Crestfield'],
+                        datasets: [
+                            {
+                                label: '2024',
+                                data: [7.0, 5.3, 3.6],
+                                backgroundColor: chartColors.gray,
+                                borderRadius: 4
+                            },
+                            {
+                                label: '2025',
+                                data: [10.3, 7.5, 6.1],
+                                backgroundColor: chartColors.primary,
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    font: { size: 12 },
+                                    padding: 16,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 11 } },
+                                grid: { color: '#F3F4F6' }
+                            },
+                            x: {
+                                ticks: { font: { size: 11 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Horizontal Bar Chart
+            var ctxHorizontal = document.getElementById('chartHorizontal');
+            if (ctxHorizontal) {
+                var chartHorizontal = new Chart(ctxHorizontal, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Grocery', 'Mass', 'eCommerce', 'Club'],
+                        datasets: [{
+                            label: 'Revenue ($M)',
+                            data: [16.7, 2.9, 3.3, 3.2],
+                            backgroundColor: chartColors.primary,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    font: { size: 12 },
+                                    padding: 16,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 11 } },
+                                grid: { color: '#F3F4F6' }
+                            },
+                            y: {
+                                ticks: { font: { size: 11 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Line Chart
+            var ctxLine = document.getElementById('chartLine');
+            if (ctxLine) {
+                var chartLine = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [
+                            {
+                                label: '2024',
+                                data: [1.5, 1.6, 1.7, 1.8, 1.9, 2.0],
+                                borderColor: chartColors.gray,
+                                backgroundColor: 'rgba(148, 163, 184, 0.05)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: chartColors.gray,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: '2025',
+                                data: [2.2, 2.4, 2.6, 2.8, 3.0, 3.2],
+                                borderColor: chartColors.primary,
+                                backgroundColor: 'rgba(0, 106, 255, 0.05)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: chartColors.primary,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    font: { size: 12 },
+                                    padding: 16,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 11 } },
+                                grid: { color: '#F3F4F6' }
+                            },
+                            x: {
+                                ticks: { font: { size: 11 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Waterfall Chart
+            var ctxWaterfall = document.getElementById('chartWaterfall');
+            if (ctxWaterfall) {
+                var chartWaterfall = new Chart(ctxWaterfall, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Gross Revenue', 'Trade Disc', 'Net Revenue', 'COGS', 'Gross Profit'],
+                        datasets: [{
+                            label: 'Value ($M)',
+                            data: [36.5, -5.0, 0, -17.3, 0],
+                            backgroundColor: [
+                                chartColors.primary,
+                                '#DC2626',
+                                chartColors.primary,
+                                '#DC2626',
+                                chartColors.secondary
+                            ],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 11 } },
+                                grid: { color: '#F3F4F6' }
+                            },
+                            x: {
+                                ticks: { font: { size: 11 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Annual Trend Bar Chart
+            var ctxAnnual = document.getElementById('chartAnnual');
+            if (ctxAnnual) {
+                var chartAnnual = new Chart(ctxAnnual, {
+                    type: 'bar',
+                    data: {
+                        labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                        datasets: [{
+                            label: 'Net Revenue ($M)',
+                            data: [20.3, 21.0, 21.2, 21.0, 21.6, 31.5],
+                            backgroundColor: function(context) {
+                                return context.dataIndex === 5 ? chartColors.secondary : chartColors.primary;
+                            },
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 11 } },
+                                grid: { color: '#F3F4F6' }
+                            },
+                            x: {
+                                ticks: { font: { size: 11 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Generator panel functions
+        function openQBR() {
+            window.open('01-executive-overview.html', '_blank');
+            window.open('02-sales-revenue.html', '_blank');
+            window.open('04-product-margin.html', '_blank');
+            window.open('07-shipments-fill-rate.html', '_blank');
+        }
+
+        function openRegion() {
+            window.open('11-geographic-performance.html', '_blank');
+            window.open('06-channel-pos-analytics.html', '_blank');
+            window.open('05-customer-intelligence.html', '_blank');
+            window.open('08-inventory-operations.html', '_blank');
+        }
+
+        // Initialize all features
+        document.addEventListener('DOMContentLoaded', function() {
+            initTableOfContents();
+            initQuestionCards();
+            initAccordion();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

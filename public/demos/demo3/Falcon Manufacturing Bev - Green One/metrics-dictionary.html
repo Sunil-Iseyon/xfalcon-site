@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics Dictionary & Definitions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0D0D0D;
+            color: #FFFFFF;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1A1A1A 0%, #222 100%);
+            border-bottom: 2px solid #7CB701;
+            padding: 40px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(124, 183, 1, 0.15);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #FFFFFF;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #9B999B;
+            margin-bottom: 20px;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .back-link {
+            color: #7CB701;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 2px solid #7CB701;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: #7CB701;
+            color: #0D0D0D;
+        }
+
+        /* Search Box */
+        .search-container {
+            padding: 30px 20px;
+            background-color: #0D0D0D;
+            text-align: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border: 2px solid #7CB701;
+            border-radius: 6px;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #95D600;
+            background-color: #222;
+            box-shadow: 0 0 10px rgba(124, 183, 1, 0.3);
+        }
+
+        .search-placeholder {
+            color: #9B999B;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Metrics Dictionary */
+        .metrics-section {
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #1A1A1A;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .metrics-section.hidden {
+            display: none;
+        }
+
+        .section-header {
+            background: linear-gradient(90deg, #1A1A1A 0%, #222 100%);
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #7CB701;
+            transition: all 0.3s ease;
+        }
+
+        .section-header:hover {
+            background: linear-gradient(90deg, #222 0%, #2A2A2A 100%);
+            padding-left: 24px;
+        }
+
+        .section-header h2 {
+            font-size: 1.4em;
+            color: #95D600;
+            margin: 0;
+            flex: 1;
+        }
+
+        .section-header .toggle-icon {
+            font-size: 1.5em;
+            color: #7CB701;
+            transition: transform 0.3s ease;
+            user-select: none;
+        }
+
+        .section-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 20px;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            padding: 0 20px;
+        }
+
+        /* Tables */
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .metrics-table thead {
+            background-color: #222;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        .metrics-table th {
+            padding: 15px;
+            text-align: left;
+            color: #95D600;
+            font-weight: 600;
+            font-size: 0.95em;
+            border-bottom: 2px solid #7CB701;
+        }
+
+        .metrics-table td {
+            padding: 15px;
+            border-bottom: 1px solid #2A2A2A;
+            color: #FFFFFF;
+        }
+
+        .metrics-table tbody tr {
+            background-color: #1A1A1A;
+            transition: background-color 0.2s ease;
+        }
+
+        .metrics-table tbody tr:nth-child(even) {
+            background-color: #222;
+        }
+
+        .metrics-table tbody tr:hover {
+            background-color: #2A2A2A;
+        }
+
+        /* Metric Name (first column) */
+        .metric-name {
+            font-weight: 600;
+            color: #95D600;
+        }
+
+        /* Target/Benchmark */
+        .benchmark {
+            font-weight: 500;
+        }
+
+        .benchmark.good {
+            color: #7CB701;
+        }
+
+        .benchmark.warning {
+            color: #FFB800;
+        }
+
+        /* Definition Column */
+        .definition {
+            font-size: 0.95em;
+            color: #CCCCCC;
+        }
+
+        /* Formula Column */
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            background-color: #0D0D0D;
+            padding: 8px;
+            border-radius: 4px;
+            color: #95D600;
+            word-break: break-word;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1A1A1A;
+            border-top: 2px solid #7CB701;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-nav {
+            margin-bottom: 20px;
+        }
+
+        .footer-nav a {
+            color: #7CB701;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 2px solid #7CB701;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-nav a:hover {
+            background-color: #7CB701;
+            color: #0D0D0D;
+        }
+
+        .footer-text {
+            color: #9B999B;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .metrics-table {
+                font-size: 0.9em;
+            }
+
+            .metrics-table th,
+            .metrics-table td {
+                padding: 10px 8px;
+            }
+
+            .section-header h2 {
+                font-size: 1.1em;
+            }
+
+            .formula {
+                font-size: 0.8em;
+            }
+        }
+
+        /* Search highlighting */
+        .search-highlight {
+            background-color: #7CB701;
+            color: #0D0D0D;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9B999B;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Metrics Dictionary & Definitions</h1>
+        <p>Beverage Manufacturing Analytics Suite — Reference Guide</p>
+        <div class="header-nav">
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+        <input
+            type="text"
+            class="search-box"
+            id="searchInput"
+            placeholder="Search metrics by name..."
+        >
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- No Results Message -->
+        <div id="noResults" class="no-results" style="display: none;">
+            No metrics found matching your search. Try different keywords.
+        </div>
+
+        <!-- 1. Executive Overview Metrics -->
+        <div class="metrics-section" data-section="1">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Executive Overview Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Net Revenue">
+                            <td class="metric-name">Net Revenue</td>
+                            <td class="definition">Total revenue after returns and discounts</td>
+                            <td class="formula">Gross Revenue - Returns - Discounts</td>
+                            <td class="benchmark good">Growth >5% YoY</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="EBITDA">
+                            <td class="metric-name">EBITDA</td>
+                            <td class="definition">Earnings before interest, taxes, depreciation, amortization</td>
+                            <td class="formula">Revenue - COGS - Opex + D&A</td>
+                            <td class="benchmark good">Margin >15%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Net Profit">
+                            <td class="metric-name">Net Profit</td>
+                            <td class="definition">Bottom-line earnings after all expenses</td>
+                            <td class="formula">EBITDA - Interest - Taxes - D&A</td>
+                            <td class="benchmark good">Margin >8%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Return Rate">
+                            <td class="metric-name">Return Rate</td>
+                            <td class="definition">Percentage of shipped units returned</td>
+                            <td class="formula">(Units Returned / Units Shipped) × 100</td>
+                            <td class="benchmark good">&lt;2%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Marketing Spend">
+                            <td class="metric-name">Marketing Spend</td>
+                            <td class="definition">Total investment in marketing activities</td>
+                            <td class="formula">Sum of all campaign expenditures</td>
+                            <td class="benchmark good">&lt;15% of Revenue</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. Sales Performance Metrics -->
+        <div class="metrics-section" data-section="2">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Sales Performance Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Net Revenue">
+                            <td class="metric-name">Net Revenue</td>
+                            <td class="definition">Revenue after all deductions</td>
+                            <td class="formula">Gross Sales - Returns - Discounts</td>
+                            <td class="benchmark good">Growth >5% YoY</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Gross Profit">
+                            <td class="metric-name">Gross Profit</td>
+                            <td class="definition">Revenue minus cost of goods sold</td>
+                            <td class="formula">Net Revenue - COGS</td>
+                            <td class="benchmark good">Margin >45%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Gross Margin %">
+                            <td class="metric-name">Gross Margin %</td>
+                            <td class="definition">Profitability ratio</td>
+                            <td class="formula">(Gross Profit / Net Revenue) × 100</td>
+                            <td class="benchmark good">&gt;45%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Units Shipped">
+                            <td class="metric-name">Units Shipped</td>
+                            <td class="definition">Total product units dispatched</td>
+                            <td class="formula">Sum of all shipment quantities</td>
+                            <td class="benchmark good">Growth trend</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Orders">
+                            <td class="metric-name">Orders</td>
+                            <td class="definition">Total number of purchase orders</td>
+                            <td class="formula">Count of distinct orders</td>
+                            <td class="benchmark good">Growth trend</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Discount %">
+                            <td class="metric-name">Discount %</td>
+                            <td class="definition">Discounts as share of revenue</td>
+                            <td class="formula">(Total Discounts / Gross Revenue) × 100</td>
+                            <td class="benchmark good">&lt;10%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. Inventory Health Metrics -->
+        <div class="metrics-section" data-section="3">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Inventory Health Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Days of Stock">
+                            <td class="metric-name">Days of Stock</td>
+                            <td class="definition">Average days inventory will last</td>
+                            <td class="formula">(Avg Inventory / Daily Consumption)</td>
+                            <td class="benchmark good">30-60 days</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Stockout Rate">
+                            <td class="metric-name">Stockout Rate</td>
+                            <td class="definition">Frequency of zero-stock events</td>
+                            <td class="formula">(Stockout Days / Total Days) × 100</td>
+                            <td class="benchmark good">&lt;2%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Inventory Value">
+                            <td class="metric-name">Inventory Value</td>
+                            <td class="definition">Total value of held inventory</td>
+                            <td class="formula">Sum(Units × Unit Cost)</td>
+                            <td class="benchmark good">Optimal turnover</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Near Expiry">
+                            <td class="metric-name">Near Expiry</td>
+                            <td class="definition">Units approaching expiry date</td>
+                            <td class="formula">Count of units within 30 days of expiry</td>
+                            <td class="benchmark warning">Minimize</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Expired Units">
+                            <td class="metric-name">Expired Units</td>
+                            <td class="definition">Units past expiry date</td>
+                            <td class="formula">Count of expired units</td>
+                            <td class="benchmark warning">Zero target</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Slow Moving">
+                            <td class="metric-name">Slow Moving</td>
+                            <td class="definition">Items with low turnover</td>
+                            <td class="formula">Items below threshold velocity</td>
+                            <td class="benchmark good">&lt;10% of SKUs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4. Supply Chain Metrics -->
+        <div class="metrics-section" data-section="4">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Supply Chain Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Reliability Rating">
+                            <td class="metric-name">Reliability Rating</td>
+                            <td class="definition">Supplier delivery consistency score</td>
+                            <td class="formula">Weighted score of on-time, quality, completeness</td>
+                            <td class="benchmark good">&gt;90%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Late Delivery Rate">
+                            <td class="metric-name">Late Delivery Rate</td>
+                            <td class="definition">Percentage of deliveries arriving after due date</td>
+                            <td class="formula">(Late Deliveries / Total Deliveries) × 100</td>
+                            <td class="benchmark good">&lt;5%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Quality Rejections">
+                            <td class="metric-name">Quality Rejections</td>
+                            <td class="definition">Supplier materials failing quality checks</td>
+                            <td class="formula">Count of rejected shipments</td>
+                            <td class="benchmark good">&lt;2%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Procurement Cost">
+                            <td class="metric-name">Procurement Cost</td>
+                            <td class="definition">Total spend on raw materials/supplies</td>
+                            <td class="formula">Sum of all purchase order values</td>
+                            <td class="benchmark good">Budget variance &lt;5%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Lead Time">
+                            <td class="metric-name">Lead Time</td>
+                            <td class="definition">Days from order to delivery</td>
+                            <td class="formula">Avg(Delivery Date - Order Date)</td>
+                            <td class="benchmark good">&lt;14 days</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5. Production Efficiency Metrics -->
+        <div class="metrics-section" data-section="5">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Production Efficiency Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Capacity Utilization">
+                            <td class="metric-name">Capacity Utilization</td>
+                            <td class="definition">Percentage of max production capacity used</td>
+                            <td class="formula">(Actual Output / Max Capacity) × 100</td>
+                            <td class="benchmark good">80-90%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Yield Rate">
+                            <td class="metric-name">Yield Rate</td>
+                            <td class="definition">Percentage of good units from total produced</td>
+                            <td class="formula">(Good Units / Total Units) × 100</td>
+                            <td class="benchmark good">&gt;95%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Defect Rate">
+                            <td class="metric-name">Defect Rate</td>
+                            <td class="definition">Percentage of units failing quality check</td>
+                            <td class="formula">(Defective Units / Total Units) × 100</td>
+                            <td class="benchmark good">&lt;1%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Downtime Hours">
+                            <td class="metric-name">Downtime Hours</td>
+                            <td class="definition">Production hours lost to stoppages</td>
+                            <td class="formula">Sum of all downtime events</td>
+                            <td class="benchmark good">&lt;5% of total</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Cost Per Unit">
+                            <td class="metric-name">Cost Per Unit</td>
+                            <td class="definition">Average production cost per unit</td>
+                            <td class="formula">Total Production Cost / Units Produced</td>
+                            <td class="benchmark good">Declining trend</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 6. Quality & Compliance Metrics -->
+        <div class="metrics-section" data-section="6">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Quality & Compliance Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Pass Rate">
+                            <td class="metric-name">Pass Rate</td>
+                            <td class="definition">Percentage of units passing quality inspection</td>
+                            <td class="formula">(Passed Units / Total Inspected) × 100</td>
+                            <td class="benchmark good">&gt;98%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="FDA Violations">
+                            <td class="metric-name">FDA Violations</td>
+                            <td class="definition">Count of regulatory non-compliance events</td>
+                            <td class="formula">Sum of violation notices</td>
+                            <td class="benchmark warning">Zero target</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Recalls">
+                            <td class="metric-name">Recalls</td>
+                            <td class="definition">Product recall events initiated</td>
+                            <td class="formula">Count of recall orders</td>
+                            <td class="benchmark warning">Zero target</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Recall Units">
+                            <td class="metric-name">Recall Units</td>
+                            <td class="definition">Volume of units recalled</td>
+                            <td class="formula">Sum of units in recall orders</td>
+                            <td class="benchmark warning">Minimize</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Labeling Issues">
+                            <td class="metric-name">Labeling Issues</td>
+                            <td class="definition">Non-compliance in product labeling</td>
+                            <td class="formula">Count of labeling defects</td>
+                            <td class="benchmark warning">Zero target</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 7. Marketing ROI Metrics -->
+        <div class="metrics-section" data-section="7">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Marketing ROI Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Marketing ROI">
+                            <td class="metric-name">Marketing ROI</td>
+                            <td class="definition">Return on marketing investment</td>
+                            <td class="formula">(Revenue Attributed - Spend) / Spend × 100</td>
+                            <td class="benchmark good">&gt;300%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Cost Per Acquisition">
+                            <td class="metric-name">Cost Per Acquisition</td>
+                            <td class="definition">Cost to acquire one customer/conversion</td>
+                            <td class="formula">Total Spend / Total Conversions</td>
+                            <td class="benchmark good">Declining trend</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Click-Through Rate">
+                            <td class="metric-name">Click-Through Rate</td>
+                            <td class="definition">Percentage of impressions resulting in clicks</td>
+                            <td class="formula">(Clicks / Impressions) × 100</td>
+                            <td class="benchmark good">&gt;2%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Conversion Rate">
+                            <td class="metric-name">Conversion Rate</td>
+                            <td class="definition">Percentage of clicks resulting in conversions</td>
+                            <td class="formula">(Conversions / Clicks) × 100</td>
+                            <td class="benchmark good">&gt;5%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Revenue Attributed">
+                            <td class="metric-name">Revenue Attributed</td>
+                            <td class="definition">Revenue linked to marketing campaigns</td>
+                            <td class="formula">Tracked revenue from campaign sources</td>
+                            <td class="benchmark good">Growing trend</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 8. ESG & Sustainability Metrics -->
+        <div class="metrics-section" data-section="8">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>ESG & Sustainability Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Carbon Emissions">
+                            <td class="metric-name">Carbon Emissions</td>
+                            <td class="definition">Total CO2 equivalent produced</td>
+                            <td class="formula">Sum of Scope 1+2+3 emissions in tonnes</td>
+                            <td class="benchmark good">Declining YoY</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Water Consumption">
+                            <td class="metric-name">Water Consumption</td>
+                            <td class="definition">Total water used in production</td>
+                            <td class="formula">Sum of water usage in cubic meters</td>
+                            <td class="benchmark good">Declining per unit</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Renewable Energy %">
+                            <td class="metric-name">Renewable Energy %</td>
+                            <td class="definition">Share of energy from renewable sources</td>
+                            <td class="formula">(Renewable Energy / Total Energy) × 100</td>
+                            <td class="benchmark good">&gt;50%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Eco-Packaging %">
+                            <td class="metric-name">Eco-Packaging %</td>
+                            <td class="definition">Share of packaging that is eco-friendly</td>
+                            <td class="formula">(Eco Units / Total Units) × 100</td>
+                            <td class="benchmark good">&gt;70%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Waste Generated">
+                            <td class="metric-name">Waste Generated</td>
+                            <td class="definition">Total production waste</td>
+                            <td class="formula">Sum of waste in kilograms</td>
+                            <td class="benchmark good">Declining trend</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 9. Marketing → Sales Impact Metrics -->
+        <div class="metrics-section" data-section="9">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Marketing → Sales Impact Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="Revenue per Marketing $">
+                            <td class="metric-name">Revenue per Marketing $</td>
+                            <td class="definition">Revenue generated per dollar of marketing spend</td>
+                            <td class="formula">Total Revenue / Total Marketing Spend</td>
+                            <td class="benchmark good">&gt;10x</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="EBITDA Margin">
+                            <td class="metric-name">EBITDA Margin</td>
+                            <td class="definition">Operating profitability ratio</td>
+                            <td class="formula">(EBITDA / Revenue) × 100</td>
+                            <td class="benchmark good">&gt;15%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Marketing as % of Revenue">
+                            <td class="metric-name">Marketing as % of Revenue</td>
+                            <td class="definition">Marketing investment intensity</td>
+                            <td class="formula">(Marketing Spend / Revenue) × 100</td>
+                            <td class="benchmark good">8-12%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 10. Forecast Accuracy Metrics -->
+        <div class="metrics-section" data-section="10">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Forecast Accuracy Metrics</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Formula</th>
+                            <th>Target/Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row" data-metric="MAPE">
+                            <td class="metric-name">MAPE</td>
+                            <td class="definition">Mean Absolute Percentage Error</td>
+                            <td class="formula">Avg(|Forecast - Actual| / Actual) × 100</td>
+                            <td class="benchmark good">&lt;5%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Forecast Accuracy">
+                            <td class="metric-name">Forecast Accuracy</td>
+                            <td class="definition">Inverse of MAPE</td>
+                            <td class="formula">100 - MAPE</td>
+                            <td class="benchmark good">&gt;95%</td>
+                        </tr>
+                        <tr class="metric-row" data-metric="Forecast Bias">
+                            <td class="metric-name">Forecast Bias</td>
+                            <td class="definition">Systematic over/under forecasting tendency</td>
+                            <td class="formula">Count of Over vs Under forecasts</td>
+                            <td class="benchmark good">Balanced</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-nav">
+                <a href="index.html">← Back to Home</a>
+            </div>
+            <div class="footer-text">
+                Generated by IDA Analytics | Data as of March 2026
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle section visibility
+        function toggleSection(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const icon = headerElement.querySelector('.toggle-icon');
+
+            content.classList.toggle('collapsed');
+            headerElement.classList.toggle('collapsed');
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const metricsSections = document.querySelectorAll('.metrics-section');
+        const noResultsDiv = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            let visibleSections = 0;
+            let totalMatches = 0;
+
+            metricsSections.forEach(section => {
+                const metricRows = section.querySelectorAll('.metric-row');
+                let sectionHasMatch = false;
+                let matchCount = 0;
+
+                metricRows.forEach(row => {
+                    const metricName = row.getAttribute('data-metric').toLowerCase();
+                    const cells = row.querySelectorAll('td');
+                    let rowHasMatch = false;
+
+                    // Search in metric name and all cells
+                    cells.forEach(cell => {
+                        const cellText = cell.textContent.toLowerCase();
+                        if (cellText.includes(searchTerm) && searchTerm !== '') {
+                            rowHasMatch = true;
+                        }
+                    });
+
+                    if (rowHasMatch) {
+                        row.style.display = '';
+                        sectionHasMatch = true;
+                        matchCount++;
+                        totalMatches++;
+                    } else if (searchTerm !== '') {
+                        row.style.display = 'none';
+                    } else {
+                        row.style.display = '';
+                    }
+                });
+
+                // Show/hide sections based on matches
+                if (sectionHasMatch || searchTerm === '') {
+                    section.classList.remove('hidden');
+                    visibleSections++;
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+
+            // Show/hide no results message
+            if (searchTerm !== '' && totalMatches === 0) {
+                noResultsDiv.style.display = 'block';
+            } else {
+                noResultsDiv.style.display = 'none';
+            }
+        });
+
+        // Expand all sections by default
+        window.addEventListener('DOMContentLoaded', function() {
+            // All sections are expanded by default (no action needed)
+        });
+    </script>
+</body>
+</html>

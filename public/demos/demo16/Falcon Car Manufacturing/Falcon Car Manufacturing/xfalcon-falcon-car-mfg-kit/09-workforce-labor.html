@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workforce & Labor Analytics - Falcon Car Manufacturing</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #F3F4F6;
+      color: #1E293B;
+      line-height: 1.6;
+    }
+
+    .topbar {
+      background-color: #1B3A5C;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .topbar-title {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #E87722 0%, #E87722 50%, white 50%, white 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+    }
+
+    .topbar-nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .topbar-nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .topbar-nav a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .filters-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1B3A5C;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select {
+      padding: 8px 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1E293B;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #E87722;
+      box-shadow: 0 0 0 3px rgba(232, 119, 34, 0.1);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #E87722;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1E293B;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      min-height: 36px;
+    }
+
+    .kpi-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748B;
+    }
+
+    .kpi-change {
+      font-size: 13px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-positive {
+      color: #059669;
+    }
+
+    .kpi-negative {
+      color: #D32F2F;
+    }
+
+    .charts-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1B3A5C;
+      margin-bottom: 16px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+    }
+
+    .table-section {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .table-header {
+      background-color: #1B3A5C;
+      color: white;
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #1B3A5C;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #E2E8F0;
+      font-size: 13px;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: #F8FAFC;
+    }
+
+    .accent-text {
+      color: #E87722;
+      font-weight: 600;
+    }
+
+    .footer {
+      text-align: right;
+      padding: 24px;
+    }
+
+    .back-link {
+      color: #E87722;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 1200px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .charts-section { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">
+      <div class="logo">xF</div>
+      Workforce & Labor Analytics
+    </div>
+    <div class="topbar-nav">
+      <a href="index.html">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filters-section">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">Year</label>
+          <select id="yearFilter">
+            <option value="">All Years</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Plant</label>
+          <select id="plantFilter">
+            <option value="">All Plants</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Department</label>
+          <select id="departmentFilter">
+            <option value="">All Departments</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Employees</div>
+        <div class="kpi-value"><span id="kpi-total-employees">24</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Labor Cost</div>
+        <div class="kpi-value"><span id="kpi-labor-cost">$4.24M</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Hourly Rate</div>
+        <div class="kpi-value"><span id="kpi-hourly-rate">$36.50</span>/hr</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Labor Cost per Unit</div>
+        <div class="kpi-value"><span id="kpi-cost-per-unit">$2.25</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Employees</div>
+        <div class="kpi-value"><span id="kpi-active-employees">24</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Tenure</div>
+        <div class="kpi-value"><span id="kpi-tenure">13.2</span> yrs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Labor Hours</div>
+        <div class="kpi-value"><span id="kpi-labor-hours">116K</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Units per Employee</div>
+        <div class="kpi-value"><span id="kpi-units-per-emp">13,940</span></div>
+      </div>
+    </div>
+
+    <div class="charts-section">
+      <div class="chart-card">
+        <div class="chart-title">Labor Cost by Plant</div>
+        <div class="chart-container">
+          <canvas id="costByPlant"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Labor Cost Trend by Year</div>
+        <div class="chart-container">
+          <canvas id="costTrend"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Employees by Department</div>
+        <div class="chart-container">
+          <canvas id="empByDept"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Hourly Rate Distribution</div>
+        <div class="chart-container">
+          <canvas id="rateDistribution"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Production by Plant</div>
+        <div class="chart-container">
+          <canvas id="productionByPlant"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Productivity (Units per Labor Hour)</div>
+        <div class="chart-container">
+          <canvas id="productivity"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-header">Employee Details</div>
+      <div class="table-container">
+        <table id="employeeTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Plant</th>
+              <th>Hourly Rate</th>
+              <th>Hire Date</th>
+              <th>Tenure (Years)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    var allEmployees = [
+      { fullName: 'Aiko Watanabe', role: 'SUPERVISOR', department: 'Production', plant: 'Nagoya Main Assembly', hourlyRate: 58.00, hireDate: '2011-10-11', isActive: true },
+      { fullName: 'Ana Flores', role: 'QC_INSPECTOR', department: 'Quality', plant: 'Monterrey Manufacturing Centre', hourlyRate: 22.00, hireDate: '2017-08-14', isActive: true },
+      { fullName: 'Carlos Mendoza', role: 'LINE_WORKER', department: 'Production', plant: 'Monterrey Manufacturing Centre', hourlyRate: 18.00, hireDate: '2019-03-01', isActive: true },
+      { fullName: 'Derek Washington', role: 'LINE_WORKER', department: 'Production', plant: 'Detroit Production Hub', hourlyRate: 27.00, hireDate: '2020-01-13', isActive: true },
+      { fullName: 'Hans Müller', role: 'SERVICE_TECH', department: 'Service', plant: 'Munich Service Centre', hourlyRate: 45.00, hireDate: '2014-06-01', isActive: true },
+      { fullName: 'Heike Braun', role: 'QC_INSPECTOR', department: 'Quality', plant: 'Stuttgart Assembly Plant', hourlyRate: 38.00, hireDate: '2013-07-22', isActive: true },
+      { fullName: 'Hiroshi Suzuki', role: 'ENGINEER', department: 'Production', plant: 'Nagoya Main Assembly', hourlyRate: 60.00, hireDate: '2008-03-25', isActive: true },
+      { fullName: 'James Carter', role: 'LINE_WORKER', department: 'Production', plant: 'Detroit Production Hub', hourlyRate: 28.50, hireDate: '2016-04-20', isActive: true },
+      { fullName: 'Kenji Tanaka', role: 'LINE_WORKER', department: 'Production', plant: 'Nagoya Main Assembly', hourlyRate: 35.00, hireDate: '2012-08-05', isActive: true },
+      { fullName: 'Klaus Hoffmann', role: 'LINE_WORKER', department: 'Production', plant: 'Stuttgart Assembly Plant', hourlyRate: 32.50, hireDate: '2015-03-10', isActive: true },
+      { fullName: 'Lisa Thompson', role: 'ENGINEER', department: 'Quality', plant: 'Detroit Production Hub', hourlyRate: 52.00, hireDate: '2017-02-14', isActive: true },
+      { fullName: 'Luis Hernandez', role: 'SUPERVISOR', department: 'Production', plant: 'Monterrey Manufacturing Centre', hourlyRate: 30.00, hireDate: '2014-05-20', isActive: true },
+      { fullName: 'Maria Rodriguez', role: 'QC_INSPECTOR', department: 'Quality', plant: 'Detroit Production Hub', hourlyRate: 35.00, hireDate: '2014-11-03', isActive: true },
+      { fullName: 'Markus Weber', role: 'LINE_WORKER', department: 'Production', plant: 'Stuttgart Assembly Plant', hourlyRate: 31.00, hireDate: '2018-09-01', isActive: true },
+      { fullName: 'Olivia Chen', role: 'SERVICE_TECH', department: 'Service', plant: 'Sydney Service Centre', hourlyRate: 40.00, hireDate: '2017-04-22', isActive: true },
+      { fullName: 'Pieter van Dam', role: 'LOGISTICS', department: 'Logistics', plant: 'Rotterdam Parts Warehouse', hourlyRate: 28.00, hireDate: '2016-01-15', isActive: true },
+      { fullName: 'Priya Sharma', role: 'QC_INSPECTOR', department: 'Quality', plant: 'Chennai Vehicle Plant', hourlyRate: 15.00, hireDate: '2016-02-28', isActive: true },
+      { fullName: 'Rajan Patel', role: 'LINE_WORKER', department: 'Production', plant: 'Chennai Vehicle Plant', hourlyRate: 12.00, hireDate: '2018-07-09', isActive: true },
+      { fullName: 'Robert Johnson', role: 'SUPERVISOR', department: 'Production', plant: 'Detroit Production Hub', hourlyRate: 58.00, hireDate: '2009-06-30', isActive: true },
+      { fullName: 'Sabine Kühn', role: 'SUPERVISOR', department: 'Production', plant: 'Stuttgart Assembly Plant', hourlyRate: 62.00, hireDate: '2010-01-08', isActive: true },
+      { fullName: 'Tobias Richter', role: 'ENGINEER', department: 'Production', plant: 'Stuttgart Assembly Plant', hourlyRate: 55.00, hireDate: '2011-05-15', isActive: true },
+      { fullName: 'Tom Bradley', role: 'SERVICE_TECH', department: 'Service', plant: 'Chicago Service Hub', hourlyRate: 42.00, hireDate: '2015-09-10', isActive: true },
+      { fullName: 'Vikram Singh', role: 'ENGINEER', department: 'Production', plant: 'Chennai Vehicle Plant', hourlyRate: 25.00, hireDate: '2013-11-15', isActive: true },
+      { fullName: 'Yuki Yamamoto', role: 'QC_INSPECTOR', department: 'Quality', plant: 'Nagoya Main Assembly', hourlyRate: 40.00, hireDate: '2015-06-17', isActive: true }
+    ];
+
+    var laborByYear = [
+      { year: 2020, plant: 'Chennai Vehicle Plant', cost: 131070, produced: 65171 },
+      { year: 2020, plant: 'Detroit Production Hub', cost: 373549.50, produced: 97754 },
+      { year: 2020, plant: 'Nagoya Main Assembly', cost: 382287.50, produced: 81470 },
+      { year: 2020, plant: 'Stuttgart Assembly Plant', cost: 961180, produced: 130360 },
+      { year: 2021, plant: 'Chennai Vehicle Plant', cost: 131070, produced: 65144 },
+      { year: 2021, plant: 'Detroit Production Hub', cost: 373549.50, produced: 97691 },
+      { year: 2021, plant: 'Nagoya Main Assembly', cost: 382287.50, produced: 81535 },
+      { year: 2021, plant: 'Stuttgart Assembly Plant', cost: 961180, produced: 130373 },
+      { year: 2022, plant: 'Chennai Vehicle Plant', cost: 130560, produced: 64947 },
+      { year: 2022, plant: 'Detroit Production Hub', cost: 372096, produced: 97449 },
+      { year: 2022, plant: 'Nagoya Main Assembly', cost: 380800, produced: 81125 },
+      { year: 2022, plant: 'Stuttgart Assembly Plant', cost: 957440, produced: 129764 },
+      { year: 2023, plant: 'Chennai Vehicle Plant', cost: 130560, produced: 64947 },
+      { year: 2023, plant: 'Detroit Production Hub', cost: 372096, produced: 97332 },
+      { year: 2023, plant: 'Nagoya Main Assembly', cost: 380800, produced: 81084 },
+      { year: 2023, plant: 'Stuttgart Assembly Plant', cost: 957440, produced: 129734 },
+      { year: 2024, plant: 'Chennai Vehicle Plant', cost: 128520, produced: 63868 },
+      { year: 2024, plant: 'Detroit Production Hub', cost: 366282, produced: 95802 },
+      { year: 2024, plant: 'Nagoya Main Assembly', cost: 374850, produced: 79886 },
+      { year: 2024, plant: 'Stuttgart Assembly Plant', cost: 942480, produced: 127827 }
+    ];
+
+    var charts = {};
+
+    function populateFilterOptions() {
+      var years = new Set();
+      var plants = new Set();
+      var departments = new Set();
+
+      allEmployees.forEach(function(emp) {
+        years.add(new Date(emp.hireDate).getFullYear().toString());
+        plants.add(emp.plant);
+        departments.add(emp.department);
+      });
+
+      laborByYear.forEach(function(row) {
+        years.add(row.year.toString());
+      });
+
+      var sortedYears = Array.from(years).sort().reverse();
+      var sortedPlants = Array.from(plants).sort();
+      var sortedDepts = Array.from(departments).sort();
+
+      var yearSelect = document.getElementById('yearFilter');
+      sortedYears.forEach(function(year) {
+        var option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
+      });
+
+      var plantSelect = document.getElementById('plantFilter');
+      sortedPlants.forEach(function(plant) {
+        var option = document.createElement('option');
+        option.value = plant;
+        option.textContent = plant;
+        plantSelect.appendChild(option);
+      });
+
+      var deptSelect = document.getElementById('departmentFilter');
+      sortedDepts.forEach(function(dept) {
+        var option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        deptSelect.appendChild(option);
+      });
+    }
+
+    function getFilters() {
+      return {
+        year: document.getElementById('yearFilter').value,
+        plant: document.getElementById('plantFilter').value,
+        department: document.getElementById('departmentFilter').value
+      };
+    }
+
+    function getFilteredEmployees(filters) {
+      return allEmployees.filter(function(emp) {
+        var matchYear = !filters.year || new Date(emp.hireDate).getFullYear() <= parseInt(filters.year);
+        var matchPlant = !filters.plant || emp.plant === filters.plant;
+        var matchDept = !filters.department || emp.department === filters.department;
+        return matchYear && matchPlant && matchDept && emp.isActive;
+      });
+    }
+
+    function getFilteredLaborData(filters) {
+      return laborByYear.filter(function(row) {
+        var matchYear = !filters.year || row.year.toString() === filters.year;
+        var matchPlant = !filters.plant || row.plant === filters.plant;
+        return matchYear && matchPlant;
+      });
+    }
+
+    function calculateTenure(hireDate) {
+      var today = new Date();
+      var hire = new Date(hireDate);
+      var years = (today - hire) / (365.25 * 24 * 60 * 60 * 1000);
+      return Math.max(0, years);
+    }
+
+    function updateKPIs(filtered, filters) {
+      var totalEmp = filtered.length;
+      var filteredLaborData = getFilteredLaborData(filters);
+      var totalCost = filteredLaborData.reduce(function(sum, row) { return sum + row.cost; }, 0);
+      var avgRate = filtered.reduce(function(sum, emp) { return sum + emp.hourlyRate; }, 0) / Math.max(1, totalEmp);
+      var totalProd = filteredLaborData.reduce(function(sum, row) { return sum + row.produced; }, 0);
+      var costPerUnit = totalProd > 0 ? totalCost / totalProd : 0;
+      var totalHours = 2000 * totalEmp;
+      var avgTenure = filtered.reduce(function(sum, emp) { return sum + calculateTenure(emp.hireDate); }, 0) / Math.max(1, totalEmp);
+      var unitsPerEmp = totalProd / Math.max(1, totalEmp);
+
+      document.getElementById('kpi-total-employees').textContent = totalEmp;
+      document.getElementById('kpi-labor-cost').textContent = '$' + (totalCost / 1000000).toFixed(2) + 'M';
+      document.getElementById('kpi-hourly-rate').textContent = '$' + avgRate.toFixed(2);
+      document.getElementById('kpi-cost-per-unit').textContent = '$' + costPerUnit.toFixed(2);
+      document.getElementById('kpi-active-employees').textContent = totalEmp;
+      document.getElementById('kpi-tenure').textContent = avgTenure.toFixed(1);
+      document.getElementById('kpi-labor-hours').textContent = (totalHours / 1000).toFixed(0) + 'K';
+      document.getElementById('kpi-units-per-emp').textContent = unitsPerEmp.toFixed(0);
+    }
+
+    function updateCharts(filters) {
+      updateCostByPlant(filters);
+      updateCostTrend(filters);
+      updateEmpByDept(filters);
+      updateRateDistribution(filters);
+      updateProductionByPlant(filters);
+      updateProductivity(filters);
+    }
+
+    function updateCostByPlant(filters) {
+      var data = {};
+      laborByYear.forEach(function(row) {
+        if (!filters.year || row.year.toString() === filters.year) {
+          data[row.plant] = (data[row.plant] || 0) + row.cost;
+        }
+      });
+
+      var plants = Object.keys(data).sort();
+      var costs = plants.map(function(p) { return data[p]; });
+
+      if (charts.costByPlant) {
+        charts.costByPlant.data.labels = plants;
+        charts.costByPlant.data.datasets[0].data = costs;
+        charts.costByPlant.update();
+      } else {
+        var ctx = document.getElementById('costByPlant').getContext('2d');
+        charts.costByPlant = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: plants,
+            datasets: [{
+              label: 'Labor Cost ($)',
+              data: costs,
+              backgroundColor: '#1B3A5C',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  callback: function(value) {
+                    return '$' + (value / 1000).toFixed(0) + 'K';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateCostTrend(filters) {
+      var data = {};
+      laborByYear.forEach(function(row) {
+        if (!filters.plant || row.plant === filters.plant) {
+          data[row.year] = (data[row.year] || 0) + row.cost;
+        }
+      });
+
+      var years = [2020, 2021, 2022, 2023, 2024].filter(function(y) { return data[y]; });
+      var costs = years.map(function(y) { return data[y]; });
+
+      if (charts.costTrend) {
+        charts.costTrend.data.labels = years.map(function(y) { return y.toString(); });
+        charts.costTrend.data.datasets[0].data = costs;
+        charts.costTrend.update();
+      } else {
+        var ctx = document.getElementById('costTrend').getContext('2d');
+        charts.costTrend = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: years.map(function(y) { return y.toString(); }),
+            datasets: [{
+              label: 'Labor Cost ($)',
+              data: costs,
+              borderColor: '#E87722',
+              backgroundColor: 'rgba(232, 119, 34, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 5,
+              pointBackgroundColor: '#E87722'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: function(value) {
+                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateEmpByDept(filters) {
+      var filtered = getFilteredEmployees(filters);
+      var data = {};
+      filtered.forEach(function(emp) {
+        data[emp.department] = (data[emp.department] || 0) + 1;
+      });
+
+      var depts = Object.keys(data).sort();
+      var counts = depts.map(function(d) { return data[d]; });
+
+      if (charts.empByDept) {
+        charts.empByDept.data.labels = depts;
+        charts.empByDept.data.datasets[0].data = counts;
+        charts.empByDept.update();
+      } else {
+        var ctx = document.getElementById('empByDept').getContext('2d');
+        charts.empByDept = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: depts,
+            datasets: [{
+              label: 'Employees',
+              data: counts,
+              backgroundColor: '#0EA5E9',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateRateDistribution(filters) {
+      var filtered = getFilteredEmployees(filters);
+      var rates = filtered.map(function(e) { return e.hourlyRate; }).sort(function(a, b) { return a - b; });
+
+      var bins = ['$10-20', '$20-30', '$30-40', '$40-50', '$50-60+'];
+      var counts = [0, 0, 0, 0, 0];
+      rates.forEach(function(r) {
+        if (r < 20) counts[0]++;
+        else if (r < 30) counts[1]++;
+        else if (r < 40) counts[2]++;
+        else if (r < 50) counts[3]++;
+        else counts[4]++;
+      });
+
+      if (charts.rateDistribution) {
+        charts.rateDistribution.data.labels = bins;
+        charts.rateDistribution.data.datasets[0].data = counts;
+        charts.rateDistribution.update();
+      } else {
+        var ctx = document.getElementById('rateDistribution').getContext('2d');
+        charts.rateDistribution = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: bins,
+            datasets: [{
+              label: 'Count',
+              data: counts,
+              backgroundColor: '#F59E0B',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateProductionByPlant(filters) {
+      var data = {};
+      laborByYear.forEach(function(row) {
+        if (!filters.year || row.year.toString() === filters.year) {
+          data[row.plant] = (data[row.plant] || 0) + row.produced;
+        }
+      });
+
+      var plants = Object.keys(data).sort();
+      var production = plants.map(function(p) { return data[p]; });
+
+      if (charts.productionByPlant) {
+        charts.productionByPlant.data.labels = plants;
+        charts.productionByPlant.data.datasets[0].data = production;
+        charts.productionByPlant.update();
+      } else {
+        var ctx = document.getElementById('productionByPlant').getContext('2d');
+        charts.productionByPlant = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: plants,
+            datasets: [{
+              label: 'Units Produced',
+              data: production,
+              backgroundColor: '#94A3B8',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateProductivity(filters) {
+      var data = {};
+      laborByYear.forEach(function(row) {
+        if (!filters.plant || row.plant === filters.plant) {
+          data[row.year] = (data[row.year] || 0) + row.produced;
+        }
+      });
+
+      var years = [2020, 2021, 2022, 2023, 2024].filter(function(y) { return data[y]; });
+      var unitsPerHour = years.map(function(y) { return (data[y] / 2000).toFixed(0); });
+
+      if (charts.productivity) {
+        charts.productivity.data.labels = years.map(function(y) { return y.toString(); });
+        charts.productivity.data.datasets[0].data = unitsPerHour;
+        charts.productivity.update();
+      } else {
+        var ctx = document.getElementById('productivity').getContext('2d');
+        charts.productivity = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: years.map(function(y) { return y.toString(); }),
+            datasets: [{
+              label: 'Units per Labor Hour',
+              data: unitsPerHour,
+              borderColor: '#059669',
+              backgroundColor: 'rgba(5, 150, 105, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 5,
+              pointBackgroundColor: '#059669'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    function updateTable(filters) {
+      var filtered = getFilteredEmployees(filters);
+      var tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      filtered.forEach(function(emp) {
+        var tenure = calculateTenure(emp.hireDate);
+        var row = document.createElement('tr');
+        row.innerHTML =
+          '<td>' + emp.fullName + '</td>' +
+          '<td>' + emp.role + '</td>' +
+          '<td>' + emp.department + '</td>' +
+          '<td>' + emp.plant + '</td>' +
+          '<td>$' + emp.hourlyRate.toFixed(2) + '</td>' +
+          '<td>' + emp.hireDate + '</td>' +
+          '<td>' + tenure.toFixed(1) + '</td>';
+        tbody.appendChild(row);
+      });
+    }
+
+    function applyFilters() {
+      var filters = getFilters();
+      updateKPIs(getFilteredEmployees(filters), filters);
+      updateCharts(filters);
+      updateTable(filters);
+    }
+
+    populateFilterOptions();
+
+    document.getElementById('yearFilter').addEventListener('change', applyFilters);
+    document.getElementById('plantFilter').addEventListener('change', applyFilters);
+    document.getElementById('departmentFilter').addEventListener('change', applyFilters);
+
+    applyFilters();
+  </script>
+</body>
+</html>

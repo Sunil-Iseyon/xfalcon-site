@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview - Falcon Car Manufacturing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+        .topbar {
+            background-color: #1B3A5C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .logo-x {
+            color: #E87722;
+        }
+        .logo-f {
+            color: white;
+        }
+        .title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            color: #E87722;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .filter-section {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+            text-transform: uppercase;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            background-color: white;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #E87722;
+        }
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #64748B;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1B3A5C;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .kpi-subtext {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .kpi-positive {
+            color: #059669;
+        }
+        .kpi-negative {
+            color: #D32F2F;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .charts-grid .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1B3A5C;
+            margin-bottom: 16px;
+        }
+        .chart-wrap {
+            position: relative;
+            height: 320px;
+        }
+        .table-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        .table-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #1B3A5C;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 13px;
+            color: #1E293B;
+        }
+        tr:hover {
+            background-color: #F8FAFC;
+        }
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .charts-grid .chart-card.full-width { grid-column: auto; }
+        }
+        @media (max-width: 600px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+            <div class="title">Falcon Car Manufacturing / 1. Executive Overview</div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-group">
+                <label>Year:</label>
+                <select id="yearFilter" onchange="applyFilters()">
+                    <option value="">All Years</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiGrid">
+            <!-- KPI cards will be populated here -->
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Production by Year</div>
+                <div class="chart-wrap"><canvas id="productionByYear"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Production by Brand</div>
+                <div class="chart-wrap"><canvas id="productionByBrand"></canvas></div>
+            </div>
+            <div class="chart-card full-width">
+                <div class="chart-title">Monthly Trend (2023 vs 2024)</div>
+                <div class="chart-wrap" style="height:360px;"><canvas id="monthlyTrend"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Defects by Year</div>
+                <div class="chart-wrap"><canvas id="defectsByYear"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Service Cost by Year</div>
+                <div class="chart-wrap"><canvas id="serviceCostByYear"></canvas></div>
+            </div>
+            <div class="chart-card full-width">
+                <div class="chart-title">Warranty Claims by Year</div>
+                <div class="chart-wrap"><canvas id="warrantyByYear"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-title">Plant Summary</div>
+            <table id="plantSummaryTable">
+                <thead>
+                    <tr>
+                        <th>Plant</th>
+                        <th>Year</th>
+                        <th>Produced</th>
+                        <th>Planned</th>
+                        <th>Plan Attainment %</th>
+                        <th>OEE %</th>
+                        <th>Scrap Rate %</th>
+                        <th>Rework Rate %</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var chartInstances = {};
+
+        function mk(id, cfg) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+            var ctx = document.getElementById(id).getContext('2d');
+            chartInstances[id] = new Chart(ctx, cfg);
+            return chartInstances[id];
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(elem) {
+                var text = elem.textContent;
+                if (text.length > 15) {
+                    elem.style.fontSize = '20px';
+                } else {
+                    elem.style.fontSize = '28px';
+                }
+            });
+        }
+
+        var DATA = {
+            yearlyProduction: [
+                {year: 2020, produced: 374755, planned: 384215, reworked: 9249, scrapped: 1229, oee: 87.99, laborCost: 1848087},
+                {year: 2021, produced: 374743, planned: 384215, reworked: 9271, scrapped: 1182, oee: 87.98, laborCost: 1848087},
+                {year: 2022, produced: 373285, planned: 382720, reworked: 9177, scrapped: 1220, oee: 88.02, laborCost: 1840896},
+                {year: 2023, produced: 373097, planned: 382720, reworked: 9245, scrapped: 1287, oee: 88.00, laborCost: 1840896},
+                {year: 2024, produced: 367383, planned: 376740, reworked: 9177, scrapped: 1262, oee: 87.99, laborCost: 1812132}
+            ],
+            brandProduction: [
+                {year: 2020, brand: 'BMW', produced: 58838},
+                {year: 2020, brand: 'Ford', produced: 59525},
+                {year: 2020, brand: 'Honda', produced: 76371},
+                {year: 2020, brand: 'Mercedes', produced: 46300},
+                {year: 2020, brand: 'Toyota', produced: 57416},
+                {year: 2020, brand: 'Volkswagen', produced: 76305},
+                {year: 2021, brand: 'BMW', produced: 53874},
+                {year: 2021, brand: 'Ford', produced: 69839},
+                {year: 2021, brand: 'Honda', produced: 62647},
+                {year: 2021, brand: 'Mercedes', produced: 28158},
+                {year: 2021, brand: 'Toyota', produced: 74785},
+                {year: 2021, brand: 'Volkswagen', produced: 85440},
+                {year: 2022, brand: 'BMW', produced: 74726},
+                {year: 2022, brand: 'Ford', produced: 55968},
+                {year: 2022, brand: 'Honda', produced: 53494},
+                {year: 2022, brand: 'Mercedes', produced: 50123},
+                {year: 2022, brand: 'Toyota', produced: 78832},
+                {year: 2022, brand: 'Volkswagen', produced: 60142},
+                {year: 2023, brand: 'BMW', produced: 55559},
+                {year: 2023, brand: 'Ford', produced: 61790},
+                {year: 2023, brand: 'Honda', produced: 75707},
+                {year: 2023, brand: 'Mercedes', produced: 46535},
+                {year: 2023, brand: 'Toyota', produced: 57675},
+                {year: 2023, brand: 'Volkswagen', produced: 75831},
+                {year: 2024, brand: 'BMW', produced: 52273},
+                {year: 2024, brand: 'Ford', produced: 65482},
+                {year: 2024, brand: 'Honda', produced: 60608},
+                {year: 2024, brand: 'Mercedes', produced: 27133},
+                {year: 2024, brand: 'Toyota', produced: 79740},
+                {year: 2024, brand: 'Volkswagen', produced: 82147}
+            ],
+            monthlyProduction: [
+                {year: 2023, month: 'January', produced: 32065, planned: 32890, reworked: 789, scrapped: 109},
+                {year: 2023, month: 'February', produced: 29156, planned: 29900, reworked: 723, scrapped: 117},
+                {year: 2023, month: 'March', produced: 32054, planned: 32890, reworked: 800, scrapped: 105},
+                {year: 2023, month: 'April', produced: 29119, planned: 29900, reworked: 725, scrapped: 104},
+                {year: 2023, month: 'May', produced: 33540, planned: 34385, reworked: 824, scrapped: 110},
+                {year: 2023, month: 'June', produced: 30587, planned: 31395, reworked: 745, scrapped: 94},
+                {year: 2023, month: 'July', produced: 30613, planned: 31395, reworked: 766, scrapped: 125},
+                {year: 2023, month: 'August', produced: 33528, planned: 34385, reworked: 826, scrapped: 114},
+                {year: 2023, month: 'September', produced: 29167, planned: 29900, reworked: 743, scrapped: 105},
+                {year: 2023, month: 'October', produced: 32040, planned: 32890, reworked: 790, scrapped: 119},
+                {year: 2023, month: 'November', produced: 32062, planned: 32890, reworked: 797, scrapped: 90},
+                {year: 2023, month: 'December', produced: 29166, planned: 29900, reworked: 717, scrapped: 95},
+                {year: 2024, month: 'January', produced: 33509, planned: 34385, reworked: 849, scrapped: 125},
+                {year: 2024, month: 'February', produced: 30622, planned: 31395, reworked: 762, scrapped: 108},
+                {year: 2024, month: 'March', produced: 29161, planned: 29900, reworked: 728, scrapped: 94},
+                {year: 2024, month: 'April', produced: 32114, planned: 32890, reworked: 791, scrapped: 108},
+                {year: 2024, month: 'May', produced: 33529, planned: 34385, reworked: 846, scrapped: 115},
+                {year: 2024, month: 'June', produced: 27689, planned: 28405, reworked: 701, scrapped: 103},
+                {year: 2024, month: 'July', produced: 33541, planned: 34385, reworked: 853, scrapped: 111},
+                {year: 2024, month: 'August', produced: 32092, planned: 32890, reworked: 811, scrapped: 103},
+                {year: 2024, month: 'September', produced: 29130, planned: 29900, reworked: 717, scrapped: 98},
+                {year: 2024, month: 'October', produced: 33527, planned: 34385, reworked: 829, scrapped: 127},
+                {year: 2024, month: 'November', produced: 30602, planned: 31395, reworked: 756, scrapped: 98},
+                {year: 2024, month: 'December', produced: 21867, planned: 22425, reworked: 534, scrapped: 72}
+            ],
+            plantProduction: [
+                {year: 2020, plant: 'Chennai Vehicle Plant', produced: 65171, planned: 66820, reworked: 1621, scrapped: 209, oee: 87.93},
+                {year: 2020, plant: 'Detroit Production Hub', produced: 97754, planned: 100230, reworked: 2403, scrapped: 324, oee: 88.11},
+                {year: 2020, plant: 'Nagoya Main Assembly', produced: 81470, planned: 83525, reworked: 2007, scrapped: 267, oee: 87.98},
+                {year: 2020, plant: 'Stuttgart Assembly Plant', produced: 130360, planned: 133640, reworked: 3218, scrapped: 429, oee: 87.94},
+                {year: 2021, plant: 'Chennai Vehicle Plant', produced: 65144, planned: 66820, reworked: 1600, scrapped: 224, oee: 88.02},
+                {year: 2021, plant: 'Detroit Production Hub', produced: 97691, planned: 100230, reworked: 2456, scrapped: 300, oee: 87.99},
+                {year: 2021, plant: 'Nagoya Main Assembly', produced: 81535, planned: 83525, reworked: 2027, scrapped: 278, oee: 87.94},
+                {year: 2021, plant: 'Stuttgart Assembly Plant', produced: 130373, planned: 133640, reworked: 3188, scrapped: 380, oee: 87.96},
+                {year: 2022, plant: 'Chennai Vehicle Plant', produced: 64947, planned: 66560, reworked: 1580, scrapped: 211, oee: 88.04},
+                {year: 2022, plant: 'Detroit Production Hub', produced: 97449, planned: 99840, reworked: 2388, scrapped: 304, oee: 87.95},
+                {year: 2022, plant: 'Nagoya Main Assembly', produced: 81125, planned: 83200, reworked: 1991, scrapped: 282, oee: 88.05},
+                {year: 2022, plant: 'Stuttgart Assembly Plant', produced: 129764, planned: 133120, reworked: 3218, scrapped: 423, oee: 88.04},
+                {year: 2023, plant: 'Chennai Vehicle Plant', produced: 64947, planned: 66560, reworked: 1596, scrapped: 218, oee: 88.00},
+                {year: 2023, plant: 'Detroit Production Hub', produced: 97332, planned: 99840, reworked: 2425, scrapped: 353, oee: 88.11},
+                {year: 2023, plant: 'Nagoya Main Assembly', produced: 81084, planned: 83200, reworked: 2022, scrapped: 278, oee: 87.88},
+                {year: 2023, plant: 'Stuttgart Assembly Plant', produced: 129734, planned: 133120, reworked: 3202, scrapped: 438, oee: 88.00},
+                {year: 2024, plant: 'Chennai Vehicle Plant', produced: 63868, planned: 65520, reworked: 1622, scrapped: 222, oee: 88.00},
+                {year: 2024, plant: 'Detroit Production Hub', produced: 95802, planned: 98280, reworked: 2355, scrapped: 319, oee: 87.91},
+                {year: 2024, plant: 'Nagoya Main Assembly', produced: 79886, planned: 81900, reworked: 1995, scrapped: 275, oee: 88.06},
+                {year: 2024, plant: 'Stuttgart Assembly Plant', produced: 127827, planned: 131040, reworked: 3205, scrapped: 446, oee: 87.99}
+            ],
+            defects: [
+                {year: 2020, count: 37},
+                {year: 2021, count: 46},
+                {year: 2022, count: 35},
+                {year: 2023, count: 48},
+                {year: 2024, count: 40}
+            ],
+            serviceCost: [
+                {year: 2020, cost: 83149.71, jobs: 168},
+                {year: 2021, cost: 91339.54, jobs: 182},
+                {year: 2022, cost: 94061.47, jobs: 183},
+                {year: 2023, cost: 218916.57, jobs: 183},
+                {year: 2024, cost: 192310.66, jobs: 172}
+            ],
+            warrantyClaims: [
+                {year: 2020, claims: 36},
+                {year: 2021, claims: 38},
+                {year: 2022, claims: 51},
+                {year: 2023, claims: 37},
+                {year: 2024, claims: 33}
+            ]
+        };
+
+        function getFilters() {
+            return {
+                year: document.getElementById('yearFilter').value
+            };
+        }
+
+        function updateKPIs(filtered) {
+            var grid = document.getElementById('kpiGrid');
+            grid.innerHTML = '';
+
+            var yearly = filtered.yearlyProduction[0] || DATA.yearlyProduction[DATA.yearlyProduction.length - 1];
+            var allYearly = filtered.yearlyProduction;
+
+            var totalProduced = allYearly.reduce(function(sum, d) { return sum + d.produced; }, 0);
+            var avgOEE = allYearly.length > 0 ? (allYearly.reduce(function(sum, d) { return sum + d.oee; }, 0) / allYearly.length).toFixed(2) : 0;
+            var planAttainment = yearly.planned > 0 ? ((yearly.produced / yearly.planned) * 100).toFixed(1) : 0;
+            var scrapRate = yearly.produced > 0 ? ((yearly.scrapped / yearly.produced) * 100).toFixed(2) : 0;
+            var reworkRate = yearly.produced > 0 ? ((yearly.reworked / yearly.produced) * 100).toFixed(2) : 0;
+
+            var defectCount = filtered.defects.reduce(function(sum, d) { return sum + d.count; }, 0);
+            var warrantyCount = filtered.warrantyClaims.reduce(function(sum, d) { return sum + d.claims; }, 0);
+            var serviceCost = filtered.serviceCost.reduce(function(sum, d) { return sum + d.cost; }, 0).toFixed(0);
+            var avgServiceCsat = 92.5; // Example value
+
+            var kpis = [
+                {label: 'Total Production', value: totalProduced.toLocaleString(), subtext: 'units'},
+                {label: 'OEE %', value: avgOEE, subtext: 'average'},
+                {label: 'Plan Attainment', value: planAttainment + '%', subtext: yearly.planned > 0 ? ((yearly.produced / yearly.planned) * 100 >= 100 ? 'on track' : 'below target') : 'n/a', class: yearly.produced / yearly.planned >= 1 ? 'kpi-positive' : 'kpi-negative'},
+                {label: 'Scrap Rate', value: scrapRate + '%', subtext: scrapRate < 0.4 ? 'excellent' : 'acceptable', class: scrapRate < 0.4 ? 'kpi-positive' : 'kpi-negative'},
+                {label: 'Rework Rate', value: reworkRate + '%', subtext: reworkRate < 2.5 ? 'good' : 'monitor', class: reworkRate < 2.5 ? 'kpi-positive' : 'kpi-negative'},
+                {label: 'Defects', value: defectCount, subtext: 'total'},
+                {label: 'Service CSAT', value: avgServiceCsat + '%', subtext: 'satisfaction'},
+                {label: 'Warranty Claims', value: warrantyCount, subtext: 'total'}
+            ];
+
+            kpis.forEach(function(kpi) {
+                var card = document.createElement('div');
+                card.className = 'kpi-card';
+                var subtextClass = kpi.class ? kpi.class : '';
+                card.innerHTML = '<div class="kpi-label">' + kpi.label + '</div>' +
+                                '<div class="kpi-value">' + kpi.value + '</div>' +
+                                '<div class="kpi-subtext ' + subtextClass + '">' + kpi.subtext + '</div>';
+                grid.appendChild(card);
+            });
+
+            fitKpiText();
+        }
+
+        function updateCharts(filtered) {
+            // Production by Year
+            mk('productionByYear', {
+                type: 'bar',
+                data: {
+                    labels: filtered.yearlyProduction.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Units Produced',
+                        data: filtered.yearlyProduction.map(function(d) { return d.produced; }),
+                        backgroundColor: '#1B3A5C'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Production by Brand
+            var brands = {};
+            filtered.brandProduction.forEach(function(d) {
+                brands[d.brand] = (brands[d.brand] || 0) + d.produced;
+            });
+            var brandLabels = Object.keys(brands).sort();
+
+            mk('productionByBrand', {
+                type: 'bar',
+                data: {
+                    labels: brandLabels,
+                    datasets: [{
+                        label: 'Units Produced',
+                        data: brandLabels.map(function(b) { return brands[b]; }),
+                        backgroundColor: '#E87722'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+
+            // Monthly Trend 2023 vs 2024
+            var months2023 = filtered.monthlyProduction.filter(function(d) { return d.year === 2023; });
+            var months2024 = filtered.monthlyProduction.filter(function(d) { return d.year === 2024; });
+            var monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            mk('monthlyTrend', {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [
+                        {
+                            label: '2023',
+                            data: months2023.map(function(d) { return d.produced; }),
+                            borderColor: '#1B3A5C',
+                            backgroundColor: 'rgba(27, 58, 92, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '2024',
+                            data: months2024.map(function(d) { return d.produced; }),
+                            borderColor: '#E87722',
+                            backgroundColor: 'rgba(232, 119, 34, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Defects by Year
+            mk('defectsByYear', {
+                type: 'bar',
+                data: {
+                    labels: filtered.defects.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Defect Count',
+                        data: filtered.defects.map(function(d) { return d.count; }),
+                        backgroundColor: '#94A3B8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Service Cost by Year
+            mk('serviceCostByYear', {
+                type: 'bar',
+                data: {
+                    labels: filtered.serviceCost.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Service Cost (USD)',
+                        data: filtered.serviceCost.map(function(d) { return d.cost; }),
+                        backgroundColor: '#0EA5E9'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Warranty Claims by Year
+            mk('warrantyByYear', {
+                type: 'bar',
+                data: {
+                    labels: filtered.warrantyClaims.map(function(d) { return d.year; }),
+                    datasets: [{
+                        label: 'Warranty Claims',
+                        data: filtered.warrantyClaims.map(function(d) { return d.claims; }),
+                        backgroundColor: '#F59E0B'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function updateTable(filtered) {
+            var tbody = document.querySelector('#plantSummaryTable tbody');
+            tbody.innerHTML = '';
+
+            filtered.plantProduction.forEach(function(row) {
+                var planAtt = row.planned > 0 ? ((row.produced / row.planned) * 100).toFixed(1) : 0;
+                var scrapPct = row.produced > 0 ? ((row.scrapped / row.produced) * 100).toFixed(2) : 0;
+                var reworkPct = row.produced > 0 ? ((row.reworked / row.produced) * 100).toFixed(2) : 0;
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + row.plant + '</td>' +
+                              '<td>' + row.year + '</td>' +
+                              '<td>' + row.produced.toLocaleString() + '</td>' +
+                              '<td>' + row.planned.toLocaleString() + '</td>' +
+                              '<td>' + planAtt + '%</td>' +
+                              '<td>' + row.oee + '%</td>' +
+                              '<td>' + scrapPct + '%</td>' +
+                              '<td>' + reworkPct + '%</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var filtered = {
+                yearlyProduction: DATA.yearlyProduction.filter(function(d) { return !filters.year || d.year == filters.year; }),
+                brandProduction: DATA.brandProduction.filter(function(d) { return !filters.year || d.year == filters.year; }),
+                monthlyProduction: DATA.monthlyProduction,
+                plantProduction: DATA.plantProduction.filter(function(d) { return !filters.year || d.year == filters.year; }),
+                defects: DATA.defects.filter(function(d) { return !filters.year || d.year == filters.year; }),
+                serviceCost: DATA.serviceCost.filter(function(d) { return !filters.year || d.year == filters.year; }),
+                warrantyClaims: DATA.warrantyClaims.filter(function(d) { return !filters.year || d.year == filters.year; })
+            };
+
+            if (filtered.yearlyProduction.length === 0) {
+                filtered.yearlyProduction = DATA.yearlyProduction;
+                filtered.brandProduction = DATA.brandProduction;
+                filtered.plantProduction = DATA.plantProduction;
+                filtered.defects = DATA.defects;
+                filtered.serviceCost = DATA.serviceCost;
+                filtered.warrantyClaims = DATA.warrantyClaims;
+            }
+
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+        }
+
+        window.addEventListener('load', function() {
+            applyFilters();
+        });
+    </script>
+</body>
+</html>

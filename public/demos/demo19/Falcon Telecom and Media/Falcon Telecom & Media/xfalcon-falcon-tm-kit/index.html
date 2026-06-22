@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcon Telecom & Media — Portal</title>
+<script>document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'spectrum')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root {
+  --color-topbar: #003057;
+  --color-bg: #F4F6F9;
+  --color-card: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-primary: #0099D8;
+  --color-secondary: #003057;
+  --color-tertiary: #77787B;
+  --color-text: #0F172A;
+  --color-text-muted: #64748B;
+  --color-text-on-dark: #FFFFFF;
+  --color-positive: #059669;
+  --color-negative: #D32F2F;
+  --color-neutral: #94A3B8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.topbar {
+  background: var(--color-topbar);
+  color: #FFFFFF;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--color-primary);
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo { font-weight: 800; font-size: 22px; line-height: 1; letter-spacing: -0.5px; }
+.logo .logo-x { color: var(--color-primary); }
+.logo .logo-f { color: var(--color-secondary); background: #FFFFFF; padding: 2px 6px; border-radius: 3px; }
+.topbar-title { font-size: 16px; font-weight: 600; color: #FFFFFF; }
+.topbar-subtitle { font-size: 12px; font-weight: 400; color: #A8C5DC; margin-top: 2px; }
+.back-link { color: var(--color-primary); text-decoration: none; font-size: 14px; font-weight: 500; }
+.back-link:hover { text-decoration: underline; }
+
+.filter-bar {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--color-border);
+  padding: 14px 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
+.filter-group label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+}
+.filter-group select {
+  border: 1px solid var(--color-border);
+  background: #FFFFFF;
+  color: var(--color-text);
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  min-width: 130px;
+}
+
+.container { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin: 32px 0 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title:first-of-type { margin-top: 8px; }
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.kpi-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+.kpi-delta { font-size: 13px; font-weight: 500; margin-top: 4px; }
+.kpi-delta.positive { color: var(--color-positive); }
+.kpi-delta.negative { color: var(--color-negative); }
+.kpi-delta.neutral { color: var(--color-neutral); }
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+@media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
+.chart-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 18px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.chart-title { font-size: 16px; font-weight: 700; color: var(--color-primary); margin: 0 0 14px 0; }
+.chart-wrap { position: relative; height: 280px; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.dashboard-card {
+  display: block;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 18px;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 153, 216, 0.15);
+}
+.dashboard-card.teal { border-left-color: var(--color-secondary); }
+.dashboard-card.gray { border-left-color: var(--color-tertiary); }
+.dashboard-card-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.dashboard-card.teal .dashboard-card-number { color: var(--color-secondary); }
+.dashboard-card.gray .dashboard-card-number { color: var(--color-tertiary); }
+.dashboard-card-title { font-size: 16px; font-weight: 700; color: var(--color-text); margin-bottom: 6px; }
+.dashboard-card-desc { font-size: 12px; color: var(--color-text-muted); line-height: 1.45; }
+
+.detail-table {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.detail-table th {
+  background: var(--color-secondary);
+  color: var(--color-text-on-dark);
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.detail-table td {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-top: 1px solid var(--color-border);
+}
+.detail-table tr:hover td { background: #F8FAFC; }
+.detail-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.disclaimer {
+  margin-top: 32px;
+  padding: 14px 18px;
+  background: #FFFFFF;
+  border: 1px dashed var(--color-border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+.disclaimer strong { color: var(--color-secondary); }
+
+/* US tile map */
+.map-card { padding: 22px 18px 14px 18px; }
+.map-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.map-meta-stats { display: flex; gap: 22px; flex-wrap: wrap; }
+.map-meta-stat { font-size: 12px; color: var(--color-text-muted); }
+.map-meta-stat strong { color: var(--color-text); font-weight: 700; font-size: 14px; }
+.us-map-svg { width: 100%; height: auto; max-height: 360px; display: block; margin: 0 auto; }
+.us-tile { stroke: var(--color-card); stroke-width: 2; cursor: default; transition: opacity 0.15s ease; }
+.us-tile:hover { opacity: 0.78; }
+.us-tile-label { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; pointer-events: none; }
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.legend-swatch {
+  width: 28px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+}
+#mapTooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--color-secondary);
+  color: var(--color-text-on-dark);
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translate(-50%, -110%);
+  transition: opacity 0.12s ease;
+  z-index: 1000;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+#mapTooltip.visible { opacity: 1; }
+#mapTooltip strong { display: block; font-size: 13px; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div>
+      <div class="topbar-title">Falcon Telecom &amp; Media — Portal</div>
+      <div class="topbar-subtitle">Reporting Period: FY 2025 · Cross-Domain Analytics Suite</div>
+    </div>
+  </div>
+  <div></div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <label for="yearSel">Year</label>
+    <select id="yearSel">
+      <option value="2025" selected>2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+      <option value="2021">2021</option>
+      <option value="2020">2020</option>
+      <option value="2019">2019</option>
+      <option value="2018">2018</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="carrierSel">Carriers</label>
+    <select id="carrierSel">
+      <option value="prospect" selected>Prospects only (5)</option>
+      <option value="all">All carriers (8)</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="regionSel">Region</label>
+    <select id="regionSel">
+      <option value="All" selected>All regions</option>
+      <option value="Northeast">Northeast</option>
+      <option value="South">South</option>
+      <option value="Midwest">Midwest</option>
+      <option value="West">West</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="themeSel">Theme</label>
+    <select id="themeSel">
+      <option value="spectrum">Spectrum (light)</option>
+      <option value="tech">Tech (dark)</option>
+    </select>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-title">Cross-Domain Headline KPIs (FY 2025)</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Telecom Billed Rev</div>
+      <div class="kpi-value">$13.57M</div>
+      <div class="kpi-delta positive">↑ 5.6% vs FY 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Subscribers</div>
+      <div class="kpi-value">88.0K</div>
+      <div class="kpi-delta neutral">88% of 100K base</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Net Adds 2025</div>
+      <div class="kpi-value">51.4K</div>
+      <div class="kpi-delta positive">↑ 7.6% vs FY 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ad Revenue 2025</div>
+      <div class="kpi-value">$1.72B</div>
+      <div class="kpi-delta positive">↑ 4.6% vs FY 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Streaming Sessions</div>
+      <div class="kpi-value">186K</div>
+      <div class="kpi-delta positive">↑ 5.6% vs FY 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ticket Revenue</div>
+      <div class="kpi-value">$80.0M</div>
+      <div class="kpi-delta positive">↑ 7.6% vs FY 2024</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">License Fees 2025</div>
+      <div class="kpi-value">$49.1B</div>
+      <div class="kpi-delta neutral">8,894 deals</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ARPU 2025</div>
+      <div class="kpi-value">$92.14</div>
+      <div class="kpi-delta neutral">Stable across years</div>
+    </div>
+  </div>
+
+  <div class="section-title">Multi-Year Cross-Domain Trend</div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Revenue by Domain — 2018–2025 ($M)</div>
+      <div class="chart-wrap"><canvas id="domainTrend"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top 5 Prospect Carriers — Lifetime Billing ($M)</div>
+      <div class="chart-wrap"><canvas id="topCarriers"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Dashboard Directory</div>
+  <div class="dashboard-grid">
+
+    <a class="dashboard-card" href="01-executive-overview.html">
+      <div class="dashboard-card-number">1 · Executive</div>
+      <div class="dashboard-card-title">Executive Overview</div>
+      <div class="dashboard-card-desc">Cross-domain headline KPIs, multi-year trends, top movers across all six fact tables.</div>
+    </a>
+
+    <a class="dashboard-card" href="02-subscriber-performance.html">
+      <div class="dashboard-card-number">2 · Telecom</div>
+      <div class="dashboard-card-title">Subscriber Performance</div>
+      <div class="dashboard-card-desc">Acquisitions, churn, upgrades, demographics. 8 lifecycle event types, 5 segments × 5 age bands.</div>
+    </a>
+
+    <a class="dashboard-card" href="03-billing-revenue.html">
+      <div class="dashboard-card-number">3 · Telecom</div>
+      <div class="dashboard-card-title">Billing &amp; Revenue</div>
+      <div class="dashboard-card-desc">Bill components, ARPU, autopay, payment health. Carrier and plan breakdowns.</div>
+    </a>
+
+    <a class="dashboard-card" href="04-plan-carrier-mix.html">
+      <div class="dashboard-card-number">4 · Telecom</div>
+      <div class="dashboard-card-title">Plan &amp; Carrier Mix</div>
+      <div class="dashboard-card-desc">28 plans across 8 carriers. 5G adoption, unlimited share, technology mix.</div>
+    </a>
+
+    <a class="dashboard-card teal" href="05-advertising-revenue.html">
+      <div class="dashboard-card-number">5 · Media</div>
+      <div class="dashboard-card-title">Advertising Revenue</div>
+      <div class="dashboard-card-desc">Top 35 advertisers, 12 formats, 6 channels. CPM, completion, viewability.</div>
+    </a>
+
+    <a class="dashboard-card teal" href="06-streaming-viewership.html">
+      <div class="dashboard-card-number">6 · Media</div>
+      <div class="dashboard-card-title">Streaming Viewership</div>
+      <div class="dashboard-card-desc">12 platforms, sessions, completion, binge rate, device split, quality tiers.</div>
+    </a>
+
+    <a class="dashboard-card teal" href="07-content-rights.html">
+      <div class="dashboard-card-number">7 · Media</div>
+      <div class="dashboard-card-title">Content Rights &amp; Licensing</div>
+      <div class="dashboard-card-desc">License fees, exclusivity premium, top licensors, 10 rights types × 4 windows.</div>
+    </a>
+
+    <a class="dashboard-card teal" href="08-live-events-tickets.html">
+      <div class="dashboard-card-number">8 · Media</div>
+      <div class="dashboard-card-title">Live Events &amp; Tickets</div>
+      <div class="dashboard-card-desc">12 event types, 8 tiers, dynamic markup, VIP mix, channel split, resale premium.</div>
+    </a>
+
+    <a class="dashboard-card gray" href="09-geographic-performance.html">
+      <div class="dashboard-card-number">9 · Cross-Domain</div>
+      <div class="dashboard-card-title">Geographic Performance</div>
+      <div class="dashboard-card-desc">30 DMAs, 4 regions, 50 states. Cross-domain revenue map.</div>
+    </a>
+
+    <a class="dashboard-card gray" href="10-subscriber-360.html">
+      <div class="dashboard-card-number">10 · Cross-Domain</div>
+      <div class="dashboard-card-title">Subscriber 360</div>
+      <div class="dashboard-card-desc">Single-subscriber view across billing, viewership, and tickets. Segment engagement index.</div>
+    </a>
+
+    <a class="dashboard-card" href="11-churn-analysis.html">
+      <div class="dashboard-card-number">11 · Telecom</div>
+      <div class="dashboard-card-title">Churn Analysis Deep Dive</div>
+      <div class="dashboard-card-desc">8 churn reasons, carrier × tenure × segment, win-back via Reactivation, LTV lost.</div>
+    </a>
+
+  </div>
+
+  <div class="section-title">Insight Reports</div>
+  <div style="font-size:12px;color:var(--color-text-muted);margin:-8px 0 14px 0;">
+    AutoExplore output — 16 hypotheses tested across all 6 fact tables. Directed cross-domain Subscriber 360 exploration · 7 findings · 14 disproven hypotheses · 1 meta-finding · Generated 2026-04-25.
+  </div>
+  <div class="dashboard-grid">
+    <a class="dashboard-card" href="autoexplore-dashboard.html" style="border-left-color: var(--color-primary);">
+      <div class="dashboard-card-number">🔍 Insight</div>
+      <div class="dashboard-card-title">Evidence Dashboard</div>
+      <div class="dashboard-card-desc">7 finding cards with charts. The COVID Q2 2020 substitution, the Carrier↔Platform null, the heavy-tailed spending pattern, and 4 more.</div>
+    </a>
+    <a class="dashboard-card teal" href="autoexplore-memo.html">
+      <div class="dashboard-card-number">📄 Insight</div>
+      <div class="dashboard-card-title">Long-form Memo</div>
+      <div class="dashboard-card-desc">Executive summary, methodology, full evidence per finding, what-we-didn't-find, and prioritized recommended actions.</div>
+    </a>
+    <a class="dashboard-card gray" href="autoexplore-journal.md">
+      <div class="dashboard-card-number">📓 Insight</div>
+      <div class="dashboard-card-title">Hypothesis Journal</div>
+      <div class="dashboard-card-desc">Iteration-by-iteration log: every hypothesis, query, result, and verdict. Markdown — opens in your editor.</div>
+    </a>
+  </div>
+
+  <div class="section-title">Reference</div>
+  <div class="dashboard-grid">
+    <a class="dashboard-card teal" href="metrics-definitions.html">
+      <div class="dashboard-card-number">Reference</div>
+      <div class="dashboard-card-title">Metrics &amp; KPI Definitions</div>
+      <div class="dashboard-card-desc">Searchable, categorized definitions of every metric used across the suite. Includes formula, unit, direction, and which dashboards reference each metric.</div>
+    </a>
+  </div>
+
+  <div class="section-title">US State-Level Performance — Lifetime Billed Revenue</div>
+  <div class="chart-card map-card">
+    <div class="map-meta">
+      <div>
+        <div class="chart-title" style="margin: 0;">Billed Revenue by State (Tile Grid)</div>
+        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">22 states with subscriber footprint · darker = higher revenue · hover any state for detail</div>
+      </div>
+      <div class="map-meta-stats">
+        <div class="map-meta-stat"><strong>22</strong><br>States with data</div>
+        <div class="map-meta-stat"><strong>$92.05M</strong><br>Total US billed</div>
+        <div class="map-meta-stat"><strong>NY · $21.98M</strong><br>Top state</div>
+      </div>
+    </div>
+    <svg id="usMap" class="us-map-svg" viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="map-legend">
+      <span>Lower</span>
+      <span class="legend-swatch" id="lg1"></span>
+      <span class="legend-swatch" id="lg2"></span>
+      <span class="legend-swatch" id="lg3"></span>
+      <span class="legend-swatch" id="lg4"></span>
+      <span class="legend-swatch" id="lg5"></span>
+      <span>Higher</span>
+      <span style="margin-left: 18px;">No data</span>
+      <span class="legend-swatch" id="lg0"></span>
+    </div>
+  </div>
+  <div id="mapTooltip"></div>
+
+  <div class="section-title">Top 15 DMAs by Lifetime Billed Revenue</div>
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>DMA</th>
+        <th>State</th>
+        <th>Region</th>
+        <th>Tier</th>
+        <th class="num">Billed Rev (Lifetime)</th>
+        <th class="num">Subscribers</th>
+      </tr>
+    </thead>
+    <tbody id="dmaTable"></tbody>
+  </table>
+
+  <div class="disclaimer">
+    <strong>Data:</strong> Falcon Telecom &amp; Media synthetic warehouse · 4.7M fact rows · 2018-01-01 → 2026-04-17 ·
+    <strong>Filters:</strong> Active subscribers only on current-base KPIs · Prospect carriers shown by default (toggle for all 8) ·
+    <strong>Notes:</strong> Disputed bills included in revenue · 2026 shown as YTD · Calendar fiscal year ·
+    <strong>Generated:</strong> 2026-04-24
+  </div>
+
+</div>
+
+<script>
+// ============================================================================
+// Embedded data (pre-aggregated from IDA)
+// ============================================================================
+var DOMAIN_TREND = [
+  // [year, billing_M, ad_M, ticket_M, license_B] — ad in $M, license in $B
+  [2018,  9.04, 1167.72,  40.22, 50.33],
+  [2019,  9.53, 1231.65,  44.84, 50.60],
+  [2020,  9.01, 1109.57,  19.53, 49.15],
+  [2021, 10.57, 1364.00,  49.85, 49.48],
+  [2022, 11.36, 1456.63,  58.81, 50.67],
+  [2023, 12.04, 1549.77,  65.25, 48.91],
+  [2024, 12.86, 1647.32,  74.27, 49.27],
+  [2025, 13.57, 1722.59,  80.04, 49.08]
+];
+
+var TOP_CARRIERS = [
+  { name: 'Charter Communications', rev: 17.58, prospect: true },
+  { name: 'Verizon',                rev: 15.49, prospect: true },
+  { name: 'Comcast',                rev: 15.22, prospect: true },
+  { name: 'T-Mobile US',            rev: 15.14, prospect: true },
+  { name: 'AT&T',                   rev: 14.89, prospect: true }
+];
+
+// State-level billing (lifetime, $) — 22 states with subscriber footprint
+var STATE_BILLING = {
+  'NY': { name: 'New York',       rev: 21984925.07, subs: 90696, dmas: 2 },
+  'CA': { name: 'California',     rev: 16321613.06, subs: 82978, dmas: 3 },
+  'TX': { name: 'Texas',          rev: 10707865.38, subs: 68675, dmas: 3 },
+  'IL': { name: 'Illinois',       rev:  7066813.03, subs: 53540, dmas: 1 },
+  'AZ': { name: 'Arizona',        rev:  4208831.51, subs: 36515, dmas: 1 },
+  'PA': { name: 'Pennsylvania',   rev:  4201837.09, subs: 36666, dmas: 1 },
+  'OH': { name: 'Ohio',           rev:  3374023.53, subs: 30813, dmas: 2 },
+  'FL': { name: 'Florida',        rev:  3074999.16, subs: 28384, dmas: 3 },
+  'NC': { name: 'North Carolina', rev:  2257752.97, subs: 21698, dmas: 1 },
+  'WA': { name: 'Washington',     rev:  1973222.25, subs: 19309, dmas: 1 },
+  'CO': { name: 'Colorado',       rev:  1892258.48, subs: 18633, dmas: 1 },
+  'MA': { name: 'Massachusetts',  rev:  1843381.03, subs: 18025, dmas: 1 },
+  'TN': { name: 'Tennessee',      rev:  1793435.82, subs: 17785, dmas: 1 },
+  'MI': { name: 'Michigan',       rev:  1766114.21, subs: 17418, dmas: 1 },
+  'OR': { name: 'Oregon',         rev:  1722715.38, subs: 17088, dmas: 1 },
+  'NV': { name: 'Nevada',         rev:  1700458.38, subs: 16929, dmas: 1 },
+  'WI': { name: 'Wisconsin',      rev:  1555208.89, subs: 15603, dmas: 1 },
+  'GA': { name: 'Georgia',        rev:  1309544.79, subs: 13371, dmas: 1 },
+  'MO': { name: 'Missouri',       rev:  1270734.77, subs: 12906, dmas: 1 },
+  'MN': { name: 'Minnesota',      rev:  1128800.24, subs: 11577, dmas: 1 },
+  'VA': { name: 'Virginia',       rev:   586919.95, subs:  6198, dmas: 1 },
+  'CT': { name: 'Connecticut',    rev:   309627.27, subs:  3305, dmas: 1 }
+};
+
+// Tile grid: [code, col, row, fullName] — geographic-approximate layout
+var STATE_TILES = [
+  ['ME',13,0,'Maine'],
+  ['VT',12,1,'Vermont'], ['NH',13,1,'New Hampshire'],
+  ['WA', 1,2,'Washington'], ['ID', 2,2,'Idaho'], ['MT', 3,2,'Montana'], ['ND', 4,2,'North Dakota'], ['MN', 5,2,'Minnesota'], ['WI', 6,2,'Wisconsin'], ['MI', 8,2,'Michigan'], ['NY',11,2,'New York'], ['MA',12,2,'Massachusetts'],
+  ['OR', 1,3,'Oregon'], ['NV', 2,3,'Nevada'], ['UT', 3,3,'Utah'], ['WY', 4,3,'Wyoming'], ['SD', 5,3,'South Dakota'], ['IA', 6,3,'Iowa'], ['IL', 7,3,'Illinois'], ['IN', 8,3,'Indiana'], ['OH', 9,3,'Ohio'], ['PA',10,3,'Pennsylvania'], ['NJ',11,3,'New Jersey'], ['CT',12,3,'Connecticut'], ['RI',13,3,'Rhode Island'],
+  ['CA', 1,4,'California'], ['AZ', 2,4,'Arizona'], ['NM', 3,4,'New Mexico'], ['CO', 4,4,'Colorado'], ['NE', 5,4,'Nebraska'], ['MO', 6,4,'Missouri'], ['KY', 7,4,'Kentucky'], ['WV', 8,4,'West Virginia'], ['VA', 9,4,'Virginia'], ['MD',10,4,'Maryland'], ['DE',11,4,'Delaware'],
+  ['HI', 0,5,'Hawaii'], ['KS', 5,5,'Kansas'], ['AR', 6,5,'Arkansas'], ['TN', 7,5,'Tennessee'], ['NC', 8,5,'North Carolina'], ['SC', 9,5,'South Carolina'], ['DC',10,5,'District of Columbia'],
+  ['AK', 0,6,'Alaska'], ['OK', 5,6,'Oklahoma'], ['LA', 6,6,'Louisiana'], ['MS', 7,6,'Mississippi'], ['AL', 8,6,'Alabama'], ['GA', 9,6,'Georgia'],
+  ['TX', 5,7,'Texas'], ['FL', 9,7,'Florida']
+];
+
+var TOP_DMAS = [
+  ['New York',              'NY', 'Northeast', 'Tier1', 21709849.14, 90441],
+  ['Los Angeles',           'CA', 'West',      'Tier1', 10254413.76, 67155],
+  ['Chicago',               'IL', 'Midwest',   'Tier1',  7066813.03, 53540],
+  ['Houston',               'TX', 'South',     'Tier1',  6043838.91, 48057],
+  ['Phoenix',               'AZ', 'West',      'Tier1',  4208831.51, 36515],
+  ['Philadelphia',          'PA', 'Northeast', 'Tier1',  4201837.09, 36666],
+  ['San Diego',             'CA', 'West',      'Tier2',  3735555.10, 33376],
+  ['Dallas-Fort Worth',     'TX', 'South',     'Tier1',  3431883.97, 31023],
+  ['Columbus',              'OH', 'Midwest',   'Tier2',  2413784.98, 23124],
+  ['San Francisco-Oakland', 'CA', 'West',      'Tier1',  2331644.20, 22280],
+  ['Charlotte',             'NC', 'South',     'Tier2',  2257752.97, 21698],
+  ['Seattle-Tacoma',        'WA', 'West',      'Tier1',  1973222.25, 19309],
+  ['Denver',                'CO', 'West',      'Tier2',  1892258.48, 18633],
+  ['Boston',                'MA', 'Northeast', 'Tier1',  1843381.03, 18025],
+  ['Nashville',             'TN', 'South',     'Tier2',  1793435.82, 17785]
+];
+
+// ============================================================================
+// Chart.js helper (instance manager only)
+// ============================================================================
+var chartInstances = {};
+function mk(id, cfg) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  var ctx = document.getElementById(id).getContext('2d');
+  chartInstances[id] = new Chart(ctx, cfg);
+  return chartInstances[id];
+}
+
+// Theme-aware chart palette. Year semantics stay stable (2025 = primary, 2024 = tertiary)
+// but actual hex values shift to remain visible against the active background.
+function getPalette() {
+  var t = document.documentElement.getAttribute('data-theme') || 'spectrum';
+  if (t === 'tech') {
+    return {
+      primary:   '#00D4FF', // neon cyan — current year, KPI accent
+      secondary: '#7C3AED', // electric purple — secondary series
+      tertiary:  '#94A3B8', // slate-400 — prior year / baseline
+      ext1:      '#7CFF01', // neon green — extended series 1
+      ext2:      '#FF00C8', // hot magenta — extended series 2
+      grid:      'rgba(255,255,255,0.06)',
+      text:      '#F1F5F9',
+      textMuted: '#94A3B8',
+      legendBg:  null
+    };
+  }
+  return {
+    primary:   '#0099D8', // Spectrum blue — current year, KPI accent
+    secondary: '#003057', // Spectrum navy — secondary series
+    tertiary:  '#77787B', // Spectrum brand gray — prior year
+    ext1:      '#0EA5E9',
+    ext2:      '#F59E0B',
+    grid:      'rgba(15,23,42,0.05)',
+    text:      '#0F172A',
+    textMuted: '#64748B',
+    legendBg:  null
+  };
+}
+
+function fmt(n, opts) {
+  opts = opts || {};
+  var d = (opts.dec === undefined) ? 1 : opts.dec;
+  return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+// ============================================================================
+// Render charts
+// ============================================================================
+function renderDomainTrend() {
+  var p = getPalette();
+  var labels = DOMAIN_TREND.map(function(r) { return String(r[0]); });
+  mk('domainTrend', {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Telecom Billing ($M)', data: DOMAIN_TREND.map(function(r){return r[1];}),
+          borderColor: p.primary, backgroundColor: p.primary, borderWidth: 2.5, tension: 0.3, fill: false, yAxisID: 'y',
+          pointBackgroundColor: p.primary, pointBorderColor: p.primary },
+        { label: 'Ticket Revenue ($M)', data: DOMAIN_TREND.map(function(r){return r[3];}),
+          borderColor: p.secondary, backgroundColor: p.secondary, borderWidth: 2, tension: 0.3, fill: false, yAxisID: 'y',
+          pointBackgroundColor: p.secondary, pointBorderColor: p.secondary },
+        { label: 'Ad Revenue ($M)', data: DOMAIN_TREND.map(function(r){return r[2];}),
+          borderColor: p.tertiary, backgroundColor: p.tertiary, borderWidth: 2, tension: 0.3, fill: false, yAxisID: 'y1', borderDash: [6,4],
+          pointBackgroundColor: p.tertiary, pointBorderColor: p.tertiary }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: p.text, font: { size: 11, family: 'Inter' }, boxWidth: 14 } },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x:  { grid: { color: p.grid }, ticks: { color: p.textMuted, font: { family: 'Inter' } } },
+        y:  { position: 'left',  title: { display: true, text: 'Telecom + Tickets ($M)', color: p.textMuted, font: { family: 'Inter', size: 11 } },
+              grid: { color: p.grid }, ticks: { color: p.textMuted, font: { family: 'Inter' } } },
+        y1: { position: 'right', title: { display: true, text: 'Ad Revenue ($M)',         color: p.textMuted, font: { family: 'Inter', size: 11 } },
+              grid: { drawOnChartArea: false }, ticks: { color: p.textMuted, font: { family: 'Inter' } } }
+      }
+    }
+  });
+}
+
+function renderTopCarriers() {
+  var p = getPalette();
+  mk('topCarriers', {
+    type: 'bar',
+    data: {
+      labels: TOP_CARRIERS.map(function(c){return c.name;}),
+      datasets: [{
+        label: 'Lifetime Billing ($M)',
+        data: TOP_CARRIERS.map(function(c){return c.rev;}),
+        backgroundColor: p.primary,
+        borderColor: p.primary,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx){ return '$' + fmt(ctx.parsed.x) + 'M'; } } }
+      },
+      scales: {
+        x: { grid: { color: p.grid }, ticks: { color: p.textMuted, font: { family: 'Inter' }, callback: function(v){return '$'+v+'M';} } },
+        y: { grid: { display: false }, ticks: { color: p.text, font: { family: 'Inter', size: 11 } } }
+      }
+    }
+  });
+}
+
+// ============================================================================
+// US Tile-Grid Choropleth
+// ============================================================================
+// Lighten/darken a hex color by mixing toward white (positive amt) or black (negative)
+function shadeHex(hex, amt) {
+  var h = hex.replace('#', '');
+  var r = parseInt(h.substr(0, 2), 16);
+  var g = parseInt(h.substr(2, 2), 16);
+  var b = parseInt(h.substr(4, 2), 16);
+  if (amt > 0) {
+    r = Math.round(r + (255 - r) * amt);
+    g = Math.round(g + (255 - g) * amt);
+    b = Math.round(b + (255 - b) * amt);
+  } else {
+    var f = 1 + amt;
+    r = Math.round(r * f); g = Math.round(g * f); b = Math.round(b * f);
+  }
+  return '#' + ('00' + r.toString(16)).slice(-2) + ('00' + g.toString(16)).slice(-2) + ('00' + b.toString(16)).slice(-2);
+}
+
+function getMapColors() {
+  var p = getPalette();
+  var theme = document.documentElement.getAttribute('data-theme') || 'spectrum';
+  // 5-step sequential ramp: lightest → darkest
+  // For Spectrum (light theme): mix primary toward white for low, keep primary for high
+  // For Tech (dark theme): use primary cyan, going from dim to glowing
+  if (theme === 'tech') {
+    return {
+      noData: '#1F2937',
+      ramp: [
+        shadeHex(p.primary, -0.65),
+        shadeHex(p.primary, -0.45),
+        shadeHex(p.primary, -0.20),
+        shadeHex(p.primary,  0.00),
+        shadeHex(p.primary,  0.10)
+      ],
+      labelLight: '#F1F5F9',
+      labelDark:  '#0A0E1A',
+      // Threshold: indices 0..1 use labelLight (faint colors → dark text won't show); 2..4 use dark text
+      labelThreshold: 2
+    };
+  }
+  return {
+    noData: '#E2E8F0',
+    ramp: [
+      shadeHex(p.primary, 0.85),
+      shadeHex(p.primary, 0.65),
+      shadeHex(p.primary, 0.40),
+      shadeHex(p.primary, 0.15),
+      shadeHex(p.primary, -0.05)
+    ],
+    labelLight: '#FFFFFF',
+    labelDark:  '#0F172A',
+    labelThreshold: 3 // 0..2 = light bg, dark text; 3..4 = dark bg, light text
+  };
+}
+
+function getStateBucket(rev, breaks) {
+  if (rev === undefined || rev === null) return -1;
+  for (var i = 0; i < breaks.length; i++) if (rev <= breaks[i]) return i;
+  return breaks.length - 1;
+}
+
+function renderUsMap() {
+  var svg = document.getElementById('usMap');
+  if (!svg) return;
+  svg.innerHTML = '';
+  var colors = getMapColors();
+
+  // Compute breaks (quintiles on log-scale of populated states)
+  var revs = [];
+  for (var k in STATE_BILLING) revs.push(STATE_BILLING[k].rev);
+  revs.sort(function(a,b){return a - b;});
+  // 5 quantile bins
+  var n = revs.length;
+  var breaks = [
+    revs[Math.floor(n * 0.20)],
+    revs[Math.floor(n * 0.40)],
+    revs[Math.floor(n * 0.60)],
+    revs[Math.floor(n * 0.80)],
+    revs[n - 1]
+  ];
+
+  // Tile geometry
+  var TILE_W = 46, TILE_H = 36, GAP = 3;
+  var OFFSET_X = 8, OFFSET_Y = 8;
+
+  for (var i = 0; i < STATE_TILES.length; i++) {
+    var t = STATE_TILES[i];
+    var code = t[0], col = t[1], row = t[2], full = t[3];
+    var data = STATE_BILLING[code];
+    var bucket = data ? getStateBucket(data.rev, breaks) : -1;
+    var fill = bucket === -1 ? colors.noData : colors.ramp[bucket];
+    var labelColor = (bucket === -1)
+      ? (colors.labelLight === '#F1F5F9' ? colors.labelLight : colors.labelDark)
+      : (bucket >= colors.labelThreshold ? colors.labelLight : colors.labelDark);
+
+    var x = OFFSET_X + col * (TILE_W + GAP);
+    var y = OFFSET_Y + row * (TILE_H + GAP);
+
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-state', code);
+    g.style.cursor = 'default';
+
+    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', TILE_W);
+    rect.setAttribute('height', TILE_H);
+    rect.setAttribute('rx', 4);
+    rect.setAttribute('fill', fill);
+    rect.setAttribute('class', 'us-tile');
+
+    var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x + TILE_W / 2);
+    text.setAttribute('y', y + TILE_H / 2 + 4);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'us-tile-label');
+    text.setAttribute('fill', labelColor);
+    text.textContent = code;
+
+    g.appendChild(rect);
+    g.appendChild(text);
+
+    // Hover tooltip
+    g.addEventListener('mouseenter', function(ev) {
+      var c = this.getAttribute('data-state');
+      var d = STATE_BILLING[c];
+      var fullName = '';
+      for (var j = 0; j < STATE_TILES.length; j++) if (STATE_TILES[j][0] === c) { fullName = STATE_TILES[j][3]; break; }
+      var tip = document.getElementById('mapTooltip');
+      if (d) {
+        tip.innerHTML = '<strong>' + fullName + ' (' + c + ')</strong>'
+          + '$' + (d.rev / 1e6).toFixed(2) + 'M billed · '
+          + d.subs.toLocaleString() + ' subs · '
+          + d.dmas + ' DMA' + (d.dmas > 1 ? 's' : '');
+      } else {
+        tip.innerHTML = '<strong>' + fullName + ' (' + c + ')</strong>No subscriber footprint';
+      }
+      tip.classList.add('visible');
+    });
+    g.addEventListener('mousemove', function(ev) {
+      var tip = document.getElementById('mapTooltip');
+      tip.style.left = ev.pageX + 'px';
+      tip.style.top  = ev.pageY + 'px';
+    });
+    g.addEventListener('mouseleave', function() {
+      document.getElementById('mapTooltip').classList.remove('visible');
+    });
+
+    svg.appendChild(g);
+  }
+
+  // Update legend swatches
+  document.getElementById('lg0').style.background = colors.noData;
+  for (var b = 0; b < 5; b++) {
+    var sw = document.getElementById('lg' + (b + 1));
+    if (sw) sw.style.background = colors.ramp[b];
+  }
+}
+
+function renderDmaTable() {
+  var tbody = document.getElementById('dmaTable');
+  tbody.innerHTML = '';
+  for (var i = 0; i < TOP_DMAS.length; i++) {
+    var d = TOP_DMAS[i];
+    var tr = document.createElement('tr');
+    var cells = [
+      String(i + 1),
+      d[0], d[1], d[2], d[3],
+      '$' + (d[4] / 1e6).toFixed(2) + 'M',
+      d[5].toLocaleString()
+    ];
+    var classes = ['', '', '', '', '', 'num', 'num'];
+    for (var j = 0; j < cells.length; j++) {
+      var td = document.createElement('td');
+      td.textContent = cells[j];
+      if (classes[j]) td.className = classes[j];
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+// ============================================================================
+// Init
+// ============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+  renderDomainTrend();
+  renderTopCarriers();
+  renderUsMap();
+  renderDmaTable();
+});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

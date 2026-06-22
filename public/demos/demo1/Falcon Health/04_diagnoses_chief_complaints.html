@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 4: Common Diagnoses & Chief Complaints</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; color: #2d3436; padding: 24px; }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .header .subtitle { font-size: 14px; color: #636e72; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .kpi-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; margin-bottom: 8px; }
+        .kpi-card .value { font-size: 24px; font-weight: 700; }
+        .kpi-card .sub { font-size: 12px; color: #636e72; margin-top: 4px; }
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .chart-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #2d3436; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #dfe6e9; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #636e72; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f2f6; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+        .badge.chronic { background: #ffeaa7; color: #d35400; }
+        .badge.acute { background: #dfe6e9; color: #636e72; }
+        .badge.high { background: #fab1a0; color: #c0392b; }
+        .badge.medium { background: #ffeaa7; color: #d35400; }
+        .badge.low { background: #dfe6e9; color: #636e72; }
+        .tab-container { display: flex; gap: 0; margin-bottom: 0; }
+        .tab { padding: 10px 20px; cursor: pointer; border: 1px solid #dfe6e9; border-bottom: none; border-radius: 8px 8px 0 0; background: #f5f6fa; font-size: 13px; font-weight: 600; color: #636e72; }
+        .tab.active { background: white; color: #2d3436; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .generated-note { text-align: center; font-size: 11px; color: #b2bec3; margin-top: 32px; padding-top: 16px; border-top: 1px solid #dfe6e9; }
+            .chart-wrap { position: relative; width: 100%; }
+        .chart-wrap.h400 { height: 400px; }
+        .chart-wrap.h350 { height: 350px; }
+        .chart-wrap.h300 { height: 300px; }
+        .chart-wrap.h250 { height: 250px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Area 4: Common Diagnoses & Chief Complaints</h1>
+    <div class="subtitle">25 Unique Diagnoses | 15 Chief Complaints | 10 Body Systems | Jan 2023 – Dec 2025 | Generated March 11, 2026</div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="label">Top Diagnosis</div>
+        <div class="value" style="font-size:18px">GERD</div>
+        <div class="sub">78 encounters (5.2%)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Top Complaint</div>
+        <div class="value" style="font-size:18px">Urinary Symptoms</div>
+        <div class="sub">61 encounters</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Top Body System</div>
+        <div class="value" style="font-size:18px">Circulatory</div>
+        <div class="sub">254 encounters (17%)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Chronic Encounters</div>
+        <div class="value">40.3%</div>
+        <div class="sub">604 of 1,497</div>
+    </div>
+    <div class="kpi-card">
+        <div class="label">Chronic Avg Billed</div>
+        <div class="value">$9,388</div>
+        <div class="sub">vs $7,009 acute (+34%)</div>
+    </div>
+</div>
+
+<!-- Body System Distribution + Chronic vs Acute -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Encounters by Body System</h3>
+        <div class="chart-wrap h300">
+            <canvas id="bodySystemChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Chronic vs Acute Condition Split</h3>
+        <div class="chart-wrap h300">
+            <canvas id="chronicChart"></canvas>
+        </div>
+        <div style="margin-top:16px; font-size:12px; color:#636e72;">
+            <table style="width:100%; font-size:12px;">
+                <tr><td><strong>Metric</strong></td><td style="text-align:right"><strong>Chronic</strong></td><td style="text-align:right"><strong>Acute</strong></td></tr>
+                <tr><td>Encounters</td><td style="text-align:right">604</td><td style="text-align:right">893</td></tr>
+                <tr><td>Avg Billed</td><td style="text-align:right">$9,388</td><td style="text-align:right">$7,009</td></tr>
+                <tr><td>Avg LOS</td><td style="text-align:right">0.46 days</td><td style="text-align:right">0.35 days</td></tr>
+                <tr><td>Total Billed</td><td style="text-align:right">$5.67M</td><td style="text-align:right">$6.26M</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Top Diagnoses Ranking + Chief Complaints -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Top 15 Primary Diagnoses by Encounter Volume</h3>
+        <div class="chart-wrap h350">
+            <canvas id="diagRankChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Chief Complaints by Volume</h3>
+        <div class="chart-wrap h350">
+            <canvas id="complaintChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- YoY Body System Trend + Complaint Severity -->
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Body System Volume by Year</h3>
+        <div class="chart-wrap h300">
+            <canvas id="yoyBodyChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3>Chief Complaint Severity Distribution</h3>
+        <div class="chart-wrap h300">
+            <canvas id="severityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Tables -->
+<div class="chart-row">
+    <div class="chart-card full-width">
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('diagTab')">Diagnoses Detail</div>
+            <div class="tab" onclick="switchTab('ccTab')">Chief Complaints Detail</div>
+        </div>
+        <div id="diagTab" class="tab-content active" style="border:1px solid #dfe6e9; border-radius: 0 8px 8px 8px; padding:16px;">
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Diagnosis</th>
+                            <th>ICD Code</th>
+                            <th>Body System</th>
+                            <th>Type</th>
+                            <th class="num">Encounters</th>
+                            <th class="num">Patients</th>
+                            <th class="num">Total Billed</th>
+                            <th class="num">Avg Billed</th>
+                            <th class="num">Avg LOS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="diagTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="ccTab" class="tab-content" style="border:1px solid #dfe6e9; border-radius: 0 8px 8px 8px; padding:16px;">
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Complaint</th>
+                            <th>Category</th>
+                            <th>Severity</th>
+                            <th>Body System</th>
+                            <th>Emergent?</th>
+                            <th class="num">Encounters</th>
+                            <th class="num">Avg Billed</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ccTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="generated-note">Generated by IDA | Diagnosis & Chief Complaint Analysis | Data: Jan 2023 – Dec 2025</div>
+
+<script>
+const COLORS = {primary:'#2C5F8A',secondary:'#E8913A',success:'#5BA67D',danger:'#C75B5B',warning:'#D4A843',info:'#6A9BC3',purple:'#8E6BBF',teal:'#4ECDC4',muted:'#B2BEC3'};
+const CHART_COLORS = ['#2C5F8A','#E8913A','#5BA67D','#C75B5B','#D4A843','#6A9BC3','#8E6BBF','#4ECDC4','#B2BEC3','#e17055'];
+function formatDollars(v){if(Math.abs(v)>=1e6)return '$'+(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return '$'+(v/1e3).toFixed(0)+'K';return '$'+v.toFixed(0);}
+
+const diagData = [
+    {name:"GERD",code:"K21.0",body:"Digestive",chronic:false,enc:78,billed:399193,avg:5118,los:0.31,patients:74},
+    {name:"Acute URI",code:"J06.9",body:"Respiratory",chronic:false,enc:71,billed:254913,avg:3590,los:0.08,patients:63},
+    {name:"Hypertension",code:"I10",body:"Circulatory",chronic:true,enc:68,billed:825164,avg:12135,los:0.32,patients:65},
+    {name:"Asthma",code:"J45.909",body:"Respiratory",chronic:false,enc:68,billed:553267,avg:8136,los:0.22,patients:64},
+    {name:"Coronary Artery Disease",code:"I25.10",body:"Circulatory",chronic:true,enc:66,billed:563879,avg:8544,los:0.59,patients:64},
+    {name:"Type 2 Diabetes",code:"E11.9",body:"Endocrine",chronic:true,enc:65,billed:727283,avg:11189,los:0.49,patients:60},
+    {name:"Atrial Fibrillation",code:"I48.91",body:"Circulatory",chronic:true,enc:64,billed:548303,avg:8567,los:0.23,patients:59},
+    {name:"Chronic Kidney Disease",code:"N18.3",body:"Genitourinary",chronic:true,enc:64,billed:525056,avg:8204,los:0.64,patients:58},
+    {name:"UTI",code:"N39.0",body:"Genitourinary",chronic:false,enc:63,billed:456275,avg:7242,los:0.41,patients:61},
+    {name:"Abdominal Pain",code:"R10.9",body:"Digestive",chronic:false,enc:62,billed:315626,avg:5091,los:0.27,patients:55},
+    {name:"Hypothyroidism",code:"E03.9",body:"Endocrine",chronic:true,enc:62,billed:482830,avg:7788,los:0.56,patients:57},
+    {name:"General Adult Exam",code:"Z00.00",body:"Preventive",chronic:false,enc:62,billed:369161,avg:5954,los:0.98,patients:56},
+    {name:"Migraine",code:"G43.909",body:"Nervous",chronic:false,enc:60,billed:610576,avg:10176,los:0.30,patients:54},
+    {name:"Gallstones",code:"K80.20",body:"Digestive",chronic:false,enc:59,billed:355424,avg:6024,los:0.19,patients:56},
+    {name:"Obstructive Sleep Apnea",code:"G47.33",body:"Nervous",chronic:true,enc:59,billed:833090,avg:14120,los:0.46,patients:54},
+    {name:"Pneumonia",code:"J18.9",body:"Respiratory",chronic:false,enc:58,billed:310056,avg:5346,los:0.14,patients:57},
+    {name:"Low Back Pain",code:"M54.5",body:"Musculoskeletal",chronic:false,enc:57,billed:327125,avg:5739,los:0.33,patients:54},
+    {name:"Heart Failure",code:"I50.9",body:"Circulatory",chronic:true,enc:56,billed:306665,avg:5476,los:0.20,patients:55},
+    {name:"Major Depression",code:"F32.9",body:"Mental Health",chronic:false,enc:55,billed:513624,avg:9339,los:0.40,patients:53},
+    {name:"COPD Exacerbation",code:"J44.1",body:"Respiratory",chronic:true,enc:55,billed:341655,avg:6212,los:0.11,patients:53},
+    {name:"Osteoarthritis (R Knee)",code:"M17.11",body:"Musculoskeletal",chronic:false,enc:54,billed:634614,avg:11752,los:0.72,patients:53},
+    {name:"Immunization",code:"Z23",body:"Preventive",chronic:false,enc:51,billed:395591,avg:7757,los:0.25,patients:50},
+    {name:"Psoriasis Vulgaris",code:"L40.0",body:"Dermatologic",chronic:false,enc:50,billed:402876,avg:8058,los:0.42,patients:48},
+    {name:"Femur Fracture",code:"S72.001A",body:"Musculoskeletal",chronic:false,enc:45,billed:360772,avg:8017,los:0.38,patients:45},
+    {name:"Dyslipidemia",code:"E78.5",body:"Endocrine",chronic:true,enc:45,billed:516712,avg:11482,los:1.07,patients:44}
+];
+
+const ccData = [
+    {name:"Urinary symptoms",cat:"Genitourinary",sev:"Medium",body:"Genitourinary",emerg:false,enc:61,avg:35013},
+    {name:"Anxiety",cat:"Mental Health",sev:"Medium",body:"Mental Health",emerg:false,enc:47,avg:46312},
+    {name:"Chest pain",cat:"Cardiovascular",sev:"High",body:"Circulatory",emerg:true,enc:46,avg:39816},
+    {name:"Headache",cat:"Neurological",sev:"Medium",body:"Nervous",emerg:false,enc:44,avg:38870},
+    {name:"Back pain",cat:"Musculoskeletal",sev:"Low",body:"Musculoskeletal",emerg:false,enc:31,avg:37747},
+    {name:"Palpitations",cat:"Cardiovascular",sev:"High",body:"Circulatory",emerg:true,enc:29,avg:45803},
+    {name:"Cough",cat:"Respiratory",sev:"Low",body:"Respiratory",emerg:false,enc:28,avg:36011},
+    {name:"Rash",cat:"Dermatological",sev:"Low",body:"Dermatologic",emerg:false,enc:26,avg:35115},
+    {name:"Follow-up visit",cat:"Preventive",sev:"Low",body:"General",emerg:false,enc:25,avg:29067},
+    {name:"Sore throat",cat:"ENT",sev:"Low",body:"Respiratory",emerg:false,enc:22,avg:41542},
+    {name:"Fatigue",cat:"General",sev:"Low",body:"Systemic",emerg:false,enc:17,avg:26945},
+    {name:"Vision changes",cat:"Ophthalmological",sev:"Medium",body:"Nervous",emerg:false,enc:16,avg:53523},
+    {name:"Joint pain",cat:"Musculoskeletal",sev:"Low",body:"Musculoskeletal",emerg:false,enc:16,avg:33524},
+    {name:"Fever",cat:"General",sev:"Medium",body:"Systemic",emerg:false,enc:14,avg:29824},
+    {name:"Swelling in legs",cat:"Cardiovascular",sev:"Medium",body:"Circulatory",emerg:false,enc:8,avg:28422}
+];
+
+const bodySystemData = [
+    {name:"Circulatory",enc:254,billed:2244012,avg:8835,diagCount:4},
+    {name:"Respiratory",enc:252,billed:1459890,avg:5793,diagCount:4},
+    {name:"Digestive",enc:199,billed:1070243,avg:5378,diagCount:3},
+    {name:"Endocrine",enc:172,billed:1726825,avg:10040,diagCount:3},
+    {name:"Musculoskeletal",enc:156,billed:1322511,avg:8478,diagCount:3},
+    {name:"Genitourinary",enc:127,billed:981330,avg:7727,diagCount:2},
+    {name:"Nervous",enc:119,billed:1443666,avg:12132,diagCount:2},
+    {name:"Preventive",enc:113,billed:764752,avg:6768,diagCount:2},
+    {name:"Mental Health",enc:55,billed:513624,avg:9339,diagCount:1},
+    {name:"Dermatologic",enc:50,billed:402876,avg:8058,diagCount:1}
+];
+
+const yoyBody = {
+    systems:["Circulatory","Respiratory","Digestive","Endocrine","Musculoskeletal","Genitourinary","Nervous","Preventive","Mental Health","Dermatologic"],
+    y2023:[68,94,69,59,46,43,44,41,17,18],
+    y2024:[91,95,61,57,55,41,36,41,19,15],
+    y2025:[95,63,69,56,55,43,39,31,19,17]
+};
+
+// === Chart 1: Body System Horizontal Bar ===
+new Chart(document.getElementById('bodySystemChart'), {
+    type: 'bar',
+    data: {
+        labels: bodySystemData.map(d => d.name),
+        datasets: [{
+            label: 'Encounters',
+            data: bodySystemData.map(d => d.enc),
+            backgroundColor: CHART_COLORS,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: ctx => { const d=bodySystemData[ctx.dataIndex]; return `Avg Billed: ${formatDollars(d.avg)}\n${d.diagCount} diagnoses`; }}}},
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 2: Chronic vs Acute ===
+new Chart(document.getElementById('chronicChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Chronic (604)','Acute (893)'],
+        datasets: [{ data: [604,893], backgroundColor: [COLORS.danger, COLORS.primary], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+});
+
+// === Chart 3: Top 15 Diagnoses ===
+new Chart(document.getElementById('diagRankChart'), {
+    type: 'bar',
+    data: {
+        labels: diagData.slice(0,15).map(d => d.name),
+        datasets: [{
+            data: diagData.slice(0,15).map(d => d.enc),
+            backgroundColor: diagData.slice(0,15).map(d => d.chronic ? COLORS.danger : COLORS.primary),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: ctx => { const d=diagData[ctx.dataIndex]; return `${d.chronic?'Chronic':'Acute'} | ${d.body}\nAvg Billed: ${formatDollars(d.avg)}`; }}}},
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 4: Chief Complaints ===
+new Chart(document.getElementById('complaintChart'), {
+    type: 'bar',
+    data: {
+        labels: ccData.map(d => d.name),
+        datasets: [{
+            data: ccData.map(d => d.enc),
+            backgroundColor: ccData.map(d => d.sev==='High'?COLORS.danger:d.sev==='Medium'?COLORS.warning:COLORS.info),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: ctx => { const d=ccData[ctx.dataIndex]; return `Severity: ${d.sev} | ${d.cat}\nAvg Billed: ${formatDollars(d.avg)}\nEmergent: ${d.emerg?'Yes':'No'}`; }}}},
+        scales: { x: { beginAtZero: true, title: { display: true, text: 'Encounters' } } }
+    }
+});
+
+// === Chart 5: YoY Body System ===
+new Chart(document.getElementById('yoyBodyChart'), {
+    type: 'bar',
+    data: {
+        labels: yoyBody.systems,
+        datasets: [
+            { label: '2023', data: yoyBody.y2023, backgroundColor: COLORS.muted, borderRadius: 4 },
+            { label: '2024', data: yoyBody.y2024, backgroundColor: COLORS.info, borderRadius: 4 },
+            { label: '2025', data: yoyBody.y2025, backgroundColor: COLORS.primary, borderRadius: 4 }
+        ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+});
+
+// === Chart 6: Severity Distribution ===
+const sevData = [{sev:'High',count:75},{sev:'Medium',count:190},{sev:'Low',count:165}];
+new Chart(document.getElementById('severityChart'), {
+    type: 'doughnut',
+    data: {
+        labels: sevData.map(d => d.sev+' ('+d.count+')'),
+        datasets: [{ data: sevData.map(d => d.count), backgroundColor: [COLORS.danger,COLORS.warning,COLORS.info], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+
+// === Tab Switching ===
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// === Diagnosis Table ===
+document.getElementById('diagTableBody').innerHTML = diagData.map(d => `<tr>
+    <td><strong>${d.name}</strong></td>
+    <td>${d.code}</td>
+    <td>${d.body}</td>
+    <td><span class="badge ${d.chronic?'chronic':'acute'}">${d.chronic?'Chronic':'Acute'}</span></td>
+    <td class="num">${d.enc}</td>
+    <td class="num">${d.patients}</td>
+    <td class="num">${formatDollars(d.billed)}</td>
+    <td class="num">${formatDollars(d.avg)}</td>
+    <td class="num">${d.los.toFixed(2)}</td>
+</tr>`).join('');
+
+// === Chief Complaint Table ===
+document.getElementById('ccTableBody').innerHTML = ccData.map(d => `<tr>
+    <td><strong>${d.name}</strong></td>
+    <td>${d.cat}</td>
+    <td><span class="badge ${d.sev.toLowerCase()}">${d.sev}</span></td>
+    <td>${d.body}</td>
+    <td>${d.emerg?'Yes':'No'}</td>
+    <td class="num">${d.enc}</td>
+    <td class="num">${formatDollars(d.avg)}</td>
+</tr>`).join('');
+</script>
+
+</body>
+</html>

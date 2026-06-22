@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Telecom - Subscriber Lifecycle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Inter, sans-serif;
+            background-color: #F3F4F6;
+            color: #1E293B;
+        }
+
+        .topbar {
+            background-color: #1D1D2C;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .topbar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topbar-subtitle {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .back-link {
+            color: #E20074;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            font-family: Inter, sans-serif;
+            font-size: 13px;
+            background-color: #FFFFFF;
+            cursor: pointer;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E20074;
+            box-shadow: 0 0 0 3px rgba(226, 0, 116, 0.1);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #E20074;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #E20074;
+            margin-bottom: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .kpi-delta {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .kpi-delta.positive {
+            color: #059669;
+        }
+
+        .kpi-delta.negative {
+            color: #D32F2F;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #1D1D2C;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #1E293B;
+        }
+
+        tr:hover {
+            background-color: #F9FAFB;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="logo"><span style="color:#E20074">x</span><span style="color:#fff">F</span></span>
+            <div>
+                <div class="topbar-title">Falcon Telecom / 3. Subscriber Lifecycle</div>
+                <div class="topbar-subtitle" id="reporting-period">Reporting Period: All Years</div>
+            </div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="year-filter">Year</label>
+                <select id="year-filter" onchange="applyFilters()">
+                    <option value="">All Years</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display:none;">
+                <label for="region-filter">Region</label>
+                <select id="region-filter" onchange="applyFilters()">
+                    <option value="">All Regions</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                    <option value="Central">Central</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display:none;">
+                <label for="segment-filter">Customer Segment</label>
+                <select id="segment-filter" onchange="applyFilters()">
+                    <option value="">All Segments</option>
+                    <option value="Mass Market">Mass Market</option>
+                    <option value="Mid Market">Mid Market</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Corporate">Corporate</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display:none;">
+                <label for="plan-filter">Plan Category</label>
+                <select id="plan-filter" onchange="applyFilters()">
+                    <option value="">All Plans</option>
+                    <option value="Prepaid">Prepaid</option>
+                    <option value="Postpaid">Postpaid</option>
+                    <option value="Corporate">Corporate</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpi-container"></div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Activations vs Churns by Year</div>
+                <div class="chart-container">
+                    <canvas id="activationChurnChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Net Additions Trend</div>
+                <div class="chart-container">
+                    <canvas id="netAdditionsChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Event Mix 2025</div>
+                <div class="chart-container">
+                    <canvas id="eventMixChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Channel Distribution</div>
+                <div class="chart-container">
+                    <canvas id="channelDistChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Upgrades vs Downgrades Trend</div>
+                <div class="chart-container">
+                    <canvas id="upgradeDowngradeChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Port-In vs Port-Out Trend</div>
+                <div class="chart-container">
+                    <canvas id="portInOutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title" style="margin-bottom: 12px;">Yearly Lifecycle Summary</div>
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Activations</th>
+                        <th>Churns</th>
+                        <th>Net Additions</th>
+                        <th>Upgrades</th>
+                        <th>Downgrades</th>
+                        <th>Port-In</th>
+                        <th>Port-Out</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var EVENTS_YEARLY = [
+            {year:2019, type:'Activation', count:312}, {year:2019, type:'Churn', count:313}, {year:2019, type:'Upgrade', count:307}, {year:2019, type:'Downgrade', count:310}, {year:2019, type:'Port-In', count:366}, {year:2019, type:'Port-Out', count:325},
+            {year:2020, type:'Activation', count:921}, {year:2020, type:'Churn', count:925}, {year:2020, type:'Upgrade', count:873}, {year:2020, type:'Downgrade', count:835}, {year:2020, type:'Port-In', count:885}, {year:2020, type:'Port-Out', count:908},
+            {year:2021, type:'Activation', count:1526}, {year:2021, type:'Churn', count:1511}, {year:2021, type:'Upgrade', count:1561}, {year:2021, type:'Downgrade', count:1468}, {year:2021, type:'Port-In', count:1505}, {year:2021, type:'Port-Out', count:1465},
+            {year:2022, type:'Activation', count:2250}, {year:2022, type:'Churn', count:2122}, {year:2022, type:'Upgrade', count:2114}, {year:2022, type:'Downgrade', count:2104}, {year:2022, type:'Port-In', count:2141}, {year:2022, type:'Port-Out', count:2121},
+            {year:2023, type:'Activation', count:3138}, {year:2023, type:'Churn', count:3033}, {year:2023, type:'Upgrade', count:3018}, {year:2023, type:'Downgrade', count:3023}, {year:2023, type:'Port-In', count:2996}, {year:2023, type:'Port-Out', count:3046},
+            {year:2024, type:'Activation', count:4165}, {year:2024, type:'Churn', count:4317}, {year:2024, type:'Upgrade', count:4324}, {year:2024, type:'Downgrade', count:4321}, {year:2024, type:'Port-In', count:4302}, {year:2024, type:'Port-Out', count:4262},
+            {year:2025, type:'Activation', count:4095}, {year:2025, type:'Churn', count:4177}, {year:2025, type:'Upgrade', count:4026}, {year:2025, type:'Downgrade', count:4118}, {year:2025, type:'Port-In', count:4064}, {year:2025, type:'Port-Out', count:4131}
+        ];
+
+        var CHANNEL_DATA = [
+            {year:2024, channel:'Online', events:15311, avgNps:5.5, avgResolution:7.5},
+            {year:2024, channel:'Store', events:12876, avgNps:5.4, avgResolution:7.5},
+            {year:2024, channel:'App', events:10271, avgNps:5.5, avgResolution:7.5},
+            {year:2024, channel:'Agent', events:6268, avgNps:5.5, avgResolution:7.5},
+            {year:2024, channel:'IVR', events:5301, avgNps:5.4, avgResolution:7.6},
+            {year:2024, channel:'Port', events:1565, avgNps:5.6, avgResolution:7.7},
+            {year:2025, channel:'Online', events:14748, avgNps:5.5, avgResolution:7.5},
+            {year:2025, channel:'Store', events:12376, avgNps:5.4, avgResolution:7.4},
+            {year:2025, channel:'App', events:9964, avgNps:5.5, avgResolution:7.6},
+            {year:2025, channel:'Agent', events:6032, avgNps:5.5, avgResolution:7.5},
+            {year:2025, channel:'IVR', events:5155, avgNps:5.4, avgResolution:7.6},
+            {year:2025, channel:'Port', events:1457, avgNps:5.6, avgResolution:7.7}
+        ];
+
+        var charts = {};
+
+        function getFilters() {
+            return {
+                year: document.getElementById('year-filter').value,
+                region: document.getElementById('region-filter').value,
+                segment: document.getElementById('segment-filter').value,
+                plan: document.getElementById('plan-filter').value
+            };
+        }
+
+        function applyFilters() {
+            var filters = getFilters();
+            var yearFilter = filters.year ? parseInt(filters.year) : null;
+            var filtered = EVENTS_YEARLY.filter(function(d) {
+                if (yearFilter && d.year !== yearFilter) return false;
+                return true;
+            });
+
+            updateSubtitle();
+            updateKPIs(filtered);
+            updateCharts(filtered);
+            updateTable(filtered);
+            fitKpiText();
+        }
+
+        function updateSubtitle() {
+            var filters = getFilters();
+            var parts = [];
+
+            if (filters.year) parts.push('Year ' + filters.year);
+            else parts.push('All Years');
+
+            if (filters.region) parts.push('Region: ' + filters.region);
+            if (filters.segment) parts.push('Segment: ' + filters.segment);
+            if (filters.plan) parts.push('Plan: ' + filters.plan);
+
+            document.getElementById('reporting-period').textContent = 'Reporting Period: ' + parts.join(' | ');
+        }
+
+        function updateKPIs(filtered) {
+            var container = document.getElementById('kpi-container');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p>No data available for selected filters.</p>';
+                return;
+            }
+
+            var byYear = {};
+            filtered.forEach(function(d) {
+                if (!byYear[d.year]) {
+                    byYear[d.year] = {};
+                }
+                byYear[d.year][d.type] = d.count;
+            });
+
+            var years = Object.keys(byYear).map(function(y) { return parseInt(y); }).sort();
+            var current = byYear[years[years.length - 1]];
+            var previous = years.length > 1 ? byYear[years[years.length - 2]] : null;
+
+            var totalActivations = current['Activation'] || 0;
+            var totalChurns = current['Churn'] || 0;
+            var netAdds = totalActivations - totalChurns;
+            var upgrades = current['Upgrade'] || 0;
+            var downgrades = current['Downgrade'] || 0;
+            var portIn = current['Port-In'] || 0;
+            var portOut = current['Port-Out'] || 0;
+
+            var upgradeRate = totalActivations > 0 ? (upgrades / (upgrades + downgrades) * 100).toFixed(1) : 0;
+            var downgradeRate = totalActivations > 0 ? (downgrades / (upgrades + downgrades) * 100).toFixed(1) : 0;
+            var portRatio = portOut > 0 ? (portIn / portOut).toFixed(2) : 0;
+
+            var chanData = CHANNEL_DATA.filter(function(d) { return d.year === years[years.length - 1]; });
+            var avgNps = chanData.length > 0 ? (chanData.reduce(function(a, b) { return a + b.avgNps; }, 0) / chanData.length).toFixed(2) : 0;
+            var avgResolution = chanData.length > 0 ? (chanData.reduce(function(a, b) { return a + b.avgResolution; }, 0) / chanData.length).toFixed(1) : 0;
+
+            var currentYear = years[years.length - 1];
+            var kpis = [
+                {
+                    label: 'Total Activations ' + currentYear,
+                    value: totalActivations.toLocaleString(),
+                    delta: previous ? ((totalActivations - (previous['Activation'] || 0)) / (previous['Activation'] || 1) * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Total Churns ' + currentYear,
+                    value: totalChurns.toLocaleString(),
+                    delta: previous ? ((totalChurns - (previous['Churn'] || 0)) / (previous['Churn'] || 1) * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Net Additions',
+                    value: netAdds.toLocaleString(),
+                    delta: previous ? ((netAdds - ((previous['Activation'] || 0) - (previous['Churn'] || 0))) / ((previous['Activation'] || 1) - (previous['Churn'] || 0)) * 100).toFixed(1) : null
+                },
+                {
+                    label: 'Upgrade Rate',
+                    value: upgradeRate + '%',
+                    delta: null
+                },
+                {
+                    label: 'Downgrade Rate',
+                    value: downgradeRate + '%',
+                    delta: null
+                },
+                {
+                    label: 'Port-In / Port-Out',
+                    value: portRatio,
+                    delta: null
+                },
+                {
+                    label: 'Avg NPS Post-Event',
+                    value: avgNps,
+                    delta: null
+                },
+                {
+                    label: 'Avg Resolution Days',
+                    value: avgResolution,
+                    delta: null
+                }
+            ];
+
+            kpis.forEach(function(kpi) {
+                var card = document.createElement('div');
+                card.className = 'kpi-card';
+                var deltaHtml = '';
+                if (kpi.delta !== null) {
+                    var deltaClass = parseFloat(kpi.delta) >= 0 ? 'positive' : 'negative';
+                    var deltaSign = parseFloat(kpi.delta) >= 0 ? '↑' : '↓';
+                    deltaHtml = '<div class="kpi-delta ' + deltaClass + '">' + deltaSign + ' ' + Math.abs(kpi.delta) + '% YoY</div>';
+                }
+                card.innerHTML = '<div class="kpi-label">' + kpi.label + '</div>' +
+                                '<div class="kpi-value">' + kpi.value + '</div>' +
+                                deltaHtml;
+                container.appendChild(card);
+            });
+        }
+
+        function updateCharts(filtered) {
+            var byYear = {};
+            filtered.forEach(function(d) {
+                if (!byYear[d.year]) {
+                    byYear[d.year] = {};
+                }
+                byYear[d.year][d.type] = d.count;
+            });
+
+            var years = Object.keys(byYear).map(function(y) { return parseInt(y); }).sort();
+            var labels = years.map(function(y) { return y.toString(); });
+
+            // Activations vs Churns
+            var ctx = document.getElementById('activationChurnChart').getContext('2d');
+            if (charts.activationChurn) charts.activationChurn.destroy();
+            charts.activationChurn = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Activations',
+                            data: years.map(function(y) { return byYear[y]['Activation'] || 0; }),
+                            backgroundColor: '#006AFF'
+                        },
+                        {
+                            label: 'Churns',
+                            data: years.map(function(y) { return byYear[y]['Churn'] || 0; }),
+                            backgroundColor: '#D32F2F'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Net Additions
+            ctx = document.getElementById('netAdditionsChart').getContext('2d');
+            if (charts.netAdditions) charts.netAdditions.destroy();
+            charts.netAdditions = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Net Additions',
+                        data: years.map(function(y) { return (byYear[y]['Activation'] || 0) - (byYear[y]['Churn'] || 0); }),
+                        backgroundColor: '#E20074'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Event Mix 2025
+            var latestYear = years[years.length - 1];
+            var eventMixData = filtered.filter(function(d) { return d.year === latestYear; }).sort(function(a, b) { return b.count - a.count; });
+            ctx = document.getElementById('eventMixChart').getContext('2d');
+            if (charts.eventMix) charts.eventMix.destroy();
+            charts.eventMix = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: eventMixData.map(function(d) { return d.type; }),
+                    datasets: [{
+                        label: 'Events',
+                        data: eventMixData.map(function(d) { return d.count; }),
+                        backgroundColor: ['#006AFF', '#1A7F64', '#F59E0B', '#0EA5E9', '#94A3B8', '#D32F2F']
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Channel Distribution
+            var chanData = CHANNEL_DATA.filter(function(d) { return d.year === latestYear; }).sort(function(a, b) { return b.events - a.events; });
+            ctx = document.getElementById('channelDistChart').getContext('2d');
+            if (charts.channelDist) charts.channelDist.destroy();
+            charts.channelDist = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chanData.map(function(d) { return d.channel; }),
+                    datasets: [{
+                        label: 'Events',
+                        data: chanData.map(function(d) { return d.events; }),
+                        backgroundColor: ['#006AFF', '#1A7F64', '#F59E0B', '#0EA5E9', '#94A3B8', '#D32F2F']
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Upgrades vs Downgrades
+            ctx = document.getElementById('upgradeDowngradeChart').getContext('2d');
+            if (charts.upgradeDowngrade) charts.upgradeDowngrade.destroy();
+            charts.upgradeDowngrade = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Upgrades',
+                            data: years.map(function(y) { return byYear[y]['Upgrade'] || 0; }),
+                            borderColor: '#1A7F64',
+                            backgroundColor: 'rgba(26, 127, 100, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#1A7F64',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Downgrades',
+                            data: years.map(function(y) { return byYear[y]['Downgrade'] || 0; }),
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#F59E0B',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Port-In vs Port-Out
+            ctx = document.getElementById('portInOutChart').getContext('2d');
+            if (charts.portInOut) charts.portInOut.destroy();
+            charts.portInOut = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Port-In',
+                            data: years.map(function(y) { return byYear[y]['Port-In'] || 0; }),
+                            borderColor: '#006AFF',
+                            backgroundColor: 'rgba(0, 106, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#006AFF',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Port-Out',
+                            data: years.map(function(y) { return byYear[y]['Port-Out'] || 0; }),
+                            borderColor: '#D32F2F',
+                            backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#D32F2F',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function updateTable(filtered) {
+            var byYear = {};
+            filtered.forEach(function(d) {
+                if (!byYear[d.year]) {
+                    byYear[d.year] = {};
+                }
+                byYear[d.year][d.type] = d.count;
+            });
+
+            var years = Object.keys(byYear).map(function(y) { return parseInt(y); }).sort();
+            var tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            years.forEach(function(year) {
+                var data = byYear[year];
+                var activations = data['Activation'] || 0;
+                var churns = data['Churn'] || 0;
+                var netAdds = activations - churns;
+                var upgrades = data['Upgrade'] || 0;
+                var downgrades = data['Downgrade'] || 0;
+                var portIn = data['Port-In'] || 0;
+                var portOut = data['Port-Out'] || 0;
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + year + '</td>' +
+                              '<td>' + activations.toLocaleString() + '</td>' +
+                              '<td>' + churns.toLocaleString() + '</td>' +
+                              '<td>' + netAdds.toLocaleString() + '</td>' +
+                              '<td>' + upgrades.toLocaleString() + '</td>' +
+                              '<td>' + downgrades.toLocaleString() + '</td>' +
+                              '<td>' + portIn.toLocaleString() + '</td>' +
+                              '<td>' + portOut.toLocaleString() + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function fitKpiText() {
+            var kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(function(el) {
+                var maxWidth = 190;
+                while (el.scrollWidth > maxWidth && parseFloat(window.getComputedStyle(el).fontSize) > 16) {
+                    var size = parseFloat(window.getComputedStyle(el).fontSize);
+                    el.style.fontSize = (size - 1) + 'px';
+                }
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

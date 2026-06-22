@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falcon Marketing / 01. Executive Overview</title>
+<script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'midnight')</script>
+<link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+:root{--color-topbar:#2B1E3E;--color-bg:#F5F3FA;--color-card:#FFFFFF;--color-border:#E5E0EE;--color-primary:#4A4E8F;--color-secondary:#A490C2;--color-tertiary:#94A3B8;--color-text:#1A1530;--color-text-muted:#5A5470;--color-text-on-dark:#F5F3FA;--color-positive:#059669;--color-negative:#D32F2F;--shadow-sm:0 1px 2px rgba(43,30,62,.06);--shadow-md:0 4px 12px rgba(43,30,62,.08);--radius:10px}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',sans-serif;background:var(--color-bg);color:var(--color-text);font-size:14px;line-height:1.5}
+.topbar{background:var(--color-topbar);color:var(--color-text-on-dark);display:flex;align-items:center;justify-content:space-between;padding:14px 32px;box-shadow:var(--shadow-md)}
+.topbar-left{display:flex;align-items:center;gap:14px}.logo{font-size:22px;font-weight:800;letter-spacing:-.5px}.logo-x{color:var(--color-primary)}.logo-f{color:var(--color-secondary)}
+.topbar-title{font-size:16px;font-weight:600}.topbar-sub{font-size:12px;font-weight:400;color:#C7BFD9;margin-top:2px}
+.back-link{color:var(--color-secondary);text-decoration:none;font-size:14px;font-weight:500}.back-link:hover{text-decoration:underline}
+.container{max-width:1400px;margin:0 auto;padding:24px 32px 60px}
+.filter-bar{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px;display:flex;gap:18px;align-items:end;margin-bottom:24px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.filter-bar select{background:var(--color-card);border:1px solid var(--color-border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--color-text);cursor:pointer;min-width:140px}
+.toggle-group{display:flex;align-items:center;gap:8px;cursor:pointer;padding-top:6px}
+.toggle-switch{width:36px;height:20px;background:#D6D2E0;border-radius:10px;position:relative;transition:background .2s}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.toggle-switch.active{background:var(--color-primary)}.toggle-switch.active::after{left:18px}
+.toggle-label{font-size:13px;color:var(--color-text)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--color-primary);margin-top:8px;line-height:1.1}
+.kpi-delta{font-size:13px;font-weight:500;margin-top:4px}.kpi-delta.positive{color:var(--color-positive)}.kpi-delta.negative{color:var(--color-negative)}.kpi-delta.neutral{color:var(--color-tertiary)}
+.kpi-stack{font-size:12px;line-height:1.5;color:var(--color-text);margin-top:6px}
+.kpi-stack .y{display:flex;justify-content:space-between;border-top:1px dashed var(--color-border);padding:3px 0}
+.kpi-stack .y:first-child{border-top:none}
+.section-title{font-size:18px;font-weight:700;color:var(--color-primary);margin:32px 0 16px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:6px}
+.chart-sub{font-size:12px;color:var(--color-text-muted);margin-bottom:12px}
+.chart-container{position:relative;height:280px}
+.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.table-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);padding:0;overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-card .chart-title{padding:18px 20px 0}.table-card .chart-sub{padding:0 20px 12px}
+.detail-table{width:100%;border-collapse:collapse;font-size:13px}
+.detail-table th{background:var(--color-topbar);color:var(--color-text-on-dark);padding:12px 16px;text-align:left;font-size:13px;font-weight:600;position:sticky;top:0}
+.detail-table th.num,.detail-table td.num{text-align:right}
+.detail-table tbody tr{border-top:1px solid var(--color-border)}.detail-table td{padding:10px 16px}
+.detail-table tbody tr:hover{background:#FAFAFE}
+.disclaimer{font-size:12px;color:var(--color-text-muted);margin-top:24px;padding:14px 18px;background:#FAFAFE;border-radius:var(--radius);border-left:3px solid var(--color-secondary)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row,.chart-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+    <div><div class="topbar-title">Falcon Marketing / 01. Executive Overview</div>
+    <div class="topbar-sub" id="reporting-period">Reporting Period: Jan–Dec 2024</div></div>
+  </div>
+  <a class="back-link" href="index.html">← Back to Portal</a>
+</div>
+
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-group"><label for="filterYear">Year</label>
+      <select id="filterYear" onchange="render()">
+        <option value="2024" selected>2024</option><option value="2023">2023</option><option value="2022">2022</option>
+        <option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option>
+      </select></div>
+    <div class="filter-group"><label>&nbsp;</label>
+      <div class="toggle-group" onclick="toggleCompare()"><div class="toggle-switch" id="cmpSwitch"></div><div class="toggle-label">Compare Years (2022/23/24)</div></div>
+    </div>
+    <div class="filter-group" style="flex:1"></div>
+    <div class="filter-group"><label>&nbsp;</label><button onclick="resetFilters()" style="padding:7px 14px;border:1px solid var(--color-border);background:white;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px">Reset</button></div>
+  </div>
+
+  <div class="kpi-row" id="kpiTopRow"></div>
+  <div class="kpi-row" id="kpiBottomRow"></div>
+
+  <h2 class="section-title">Revenue & Performance</h2>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Total Agency Revenue · 2018–2024</div><div class="chart-sub">Project (SOW) + Production billings, USD billions</div><div class="chart-container"><canvas id="cRevTrend"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Monthly Trend · CY vs PY</div><div class="chart-sub">Campaign attributed revenue by month</div><div class="chart-container"><canvas id="cMonth"></canvas></div></div>
+  </div>
+
+  <div class="chart-row-3">
+    <div class="chart-card"><div class="chart-title">Channel Mix</div><div class="chart-sub">Top channels by media spend</div><div class="chart-container"><canvas id="cChannel"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">ROAS by Year</div><div class="chart-sub">Revenue ÷ Spend, all channels</div><div class="chart-container"><canvas id="cROAS"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Campaign Type Mix</div><div class="chart-sub">Spend by campaign type</div><div class="chart-container"><canvas id="cCampType"></canvas></div></div>
+  </div>
+
+  <h2 class="section-title">Top Clients</h2>
+  <div class="table-card">
+    <div class="chart-title">Top 10 Clients · Combined Billings</div>
+    <div class="chart-sub">Project + Production billings for selected year, USD billions</div>
+    <table class="detail-table"><thead><tr><th>#</th><th>Client</th><th>Industry</th><th>Tier</th><th class="num">Project</th><th class="num">Production</th><th class="num">Combined</th><th class="num">YoY</th></tr></thead><tbody id="topClientTbody"></tbody></table>
+  </div>
+
+  <div class="disclaimer">All figures reconcile to VALIDATION_BENCHMARKS.md. No global exclusions applied. Data through 2024-12-27. ROAS = SUM(REVENUE_ATTRIBUTED) / SUM(SPEND) per FACT_CAMPAIGN_PERFORMANCE. Combined revenue = SUM(BILLED_AMOUNT) on FACT_PROJECTS + SUM(BILLED_AMOUNT) on FACT_PRODUCTION_JOBS.</div>
+</div>
+
+<script>
+var YR_DATA={
+2018:{proj:8.79,prod:9.68,combined:18.47,media:80.2,attrRev:570.8,roas:4.15,jobs:154541,onspec:.920,rush:.152,clients:20,margin:.430,fees:11.2,units:3864.9},
+2019:{proj:9.01,prod:10.34,combined:19.35,media:93.5,attrRev:743.0,roas:3.83,jobs:163712,onspec:.920,rush:.154,clients:20,margin:.430,fees:13.0,units:4105.0},
+2020:{proj:10.24,prod:11.50,combined:21.74,media:103.8,attrRev:922.7,roas:3.93,jobs:182364,onspec:.920,rush:.153,clients:20,margin:.430,fees:14.5,units:4570.7},
+2021:{proj:11.51,prod:11.90,combined:23.41,media:107.9,attrRev:999.5,roas:3.92,jobs:188921,onspec:.921,rush:.152,clients:20,margin:.430,fees:15.1,units:4720.8},
+2022:{proj:11.23,prod:11.89,combined:23.12,media:100.0,attrRev:976.0,roas:4.00,jobs:189142,onspec:.920,rush:.152,clients:19,margin:.430,fees:14.0,units:4725.3},
+2023:{proj:12.56,prod:12.56,combined:25.12,media:109.9,attrRev:1167.5,roas:3.84,jobs:199088,onspec:.920,rush:.153,clients:19,margin:.430,fees:15.4,units:4995.6},
+2024:{proj:12.71,prod:12.85,combined:25.55,media:108.5,attrRev:1197.7,roas:3.80,jobs:204504,onspec:.920,rush:.153,clients:19,margin:.429,fees:15.2,units:5127.6}
+};
+var YEARS=[2018,2019,2020,2021,2022,2023,2024];
+var MONTHS12=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Monthly campaign attributed revenue (in $M) - 2023 vs 2024
+var MONTHLY={
+2023:[22.5,47.8,104.5,139.6,158.3,128.6,101.5,111.5,135.6,100.8,90.6,26.2],
+2024:[28.9,50.2,124.5,149.0,161.4,107.4,105.8,113.5,130.8,103.9,81.3,41.1]
+};
+var CHANNELS_2024=[
+{name:'Direct Mail',spend:75.3},{name:'Connected TV',spend:53.7},{name:'Print Advertising',spend:38.5},
+{name:'Out-of-Home',spend:31.7},{name:'Event/Experiential',spend:27.4},{name:'Paid Search',spend:17.3},
+{name:'Paid Social',spend:16.0},{name:'In-Store Signage',spend:13.4},{name:'Streaming Audio',spend:13.3},
+{name:'Email',spend:10.1},{name:'Display',spend:7.4},{name:'Loyalty/CRM',spend:4.8},{name:'SMS/Push',spend:4.0},{name:'Organic Social',spend:1.1},{name:'AR',spend:1.0}
+];
+var CAMP_TYPE_2024=[
+{type:'Brand Awareness',spend:60.1},{type:'Direct Response',spend:52.6},{type:'Customer Retention',spend:45.2},
+{type:'Account-Based Marketing',spend:43.7},{type:'Loyalty',spend:38.5},{type:'Lead Generation',spend:37.6},{type:'Product Launch',spend:37.3}
+];
+var TOP_CLIENTS={
+2024:[
+{n:'Vertex Financial Group',i:'Financial Services',t:'Platinum',proj:2.83,prod:1.54},
+{n:'Meridian Health Systems',i:'Healthcare',t:'Platinum',proj:2.62,prod:1.48},
+{n:'HorizonTech Corp',i:'Technology',t:'Platinum',proj:2.40,prod:1.25},
+{n:'NorthStar Credit Union',i:'Financial Services',t:'Gold',proj:0.78,prod:0.81},
+{n:'ClearPath Insurance',i:'Insurance',t:'Gold',proj:0.75,prod:0.88},
+{n:'Summit Pizza Group',i:'QSR',t:'Gold',proj:0.70,prod:0.97},
+{n:'Vantage Energy Solutions',i:'Energy',t:'Gold',proj:0.64,prod:1.04},
+{n:'Pinnacle Tire Co',i:'Automotive',t:'Gold',proj:0.63,prod:0.91},
+{n:'CoreFirst Bank',i:'Financial Services',t:'Silver',proj:0.20,prod:0.46},
+{n:'Elevate Apparel',i:'Retail',t:'Silver',proj:0.19,prod:0.48}
+],
+2023:[
+{n:'Vertex Financial Group',i:'Financial Services',t:'Platinum',proj:2.78,prod:1.48},
+{n:'Meridian Health Systems',i:'Healthcare',t:'Platinum',proj:2.55,prod:1.42},
+{n:'HorizonTech Corp',i:'Technology',t:'Platinum',proj:2.36,prod:1.20},
+{n:'NorthStar Credit Union',i:'Financial Services',t:'Gold',proj:0.77,prod:0.78},
+{n:'ClearPath Insurance',i:'Insurance',t:'Gold',proj:0.74,prod:0.85},
+{n:'Summit Pizza Group',i:'QSR',t:'Gold',proj:0.69,prod:0.93},
+{n:'Vantage Energy Solutions',i:'Energy',t:'Gold',proj:0.62,prod:1.00},
+{n:'Pinnacle Tire Co',i:'Automotive',t:'Gold',proj:0.61,prod:0.87},
+{n:'CoreFirst Bank',i:'Financial Services',t:'Silver',proj:0.19,prod:0.44},
+{n:'Elevate Apparel',i:'Retail',t:'Silver',proj:0.18,prod:0.46}
+]
+};
+
+var state={year:2024,compare:false};
+var chartInstances={};
+function mk(id,cfg){if(chartInstances[id])chartInstances[id].destroy();chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return chartInstances[id]}
+function fitKpiText(){var els=document.querySelectorAll('.kpi-value');for(var i=0;i<els.length;i++){var L=els[i].textContent.length;if(L>14)els[i].style.fontSize='18px';else if(L>10)els[i].style.fontSize='22px';else els[i].style.fontSize='28px'}}
+function fmtB(v){return '$'+v.toFixed(2)+'B'}
+function fmtM(v){return '$'+v.toFixed(1)+'M'}
+function fmtPct(v){return (v*100).toFixed(1)+'%'}
+function fmtN(n){return n.toLocaleString('en-US')}
+function fmtRoas(v){return v.toFixed(2)+'x'}
+function fmtDelta(cur,prev,pct){if(prev==null||prev===0)return '<span class="kpi-delta neutral">—</span>';var d=pct?(cur-prev)/prev*100:cur-prev;var pos=d>=0;return '<span class="kpi-delta '+(pos?'positive':'negative')+'">'+(pos?'↑ ':'↓ ')+Math.abs(d).toFixed(pct?1:2)+(pct?'%':'')+' vs '+(state.year-1)+'</span>'}
+
+function toggleCompare(){state.compare=!state.compare;var sw=document.getElementById('cmpSwitch');if(state.compare)sw.classList.add('active');else sw.classList.remove('active');var ys=document.getElementById('filterYear');ys.disabled=state.compare;render()}
+function resetFilters(){state={year:2024,compare:false};document.getElementById('filterYear').value='2024';document.getElementById('cmpSwitch').classList.remove('active');document.getElementById('filterYear').disabled=false;render()}
+
+function renderKPIs(){
+  var d=YR_DATA[state.year];
+  var pyD=YR_DATA[state.year-1];
+  var top=document.getElementById('kpiTopRow');
+  var bot=document.getElementById('kpiBottomRow');
+  if(state.compare){
+    function stack(label,fn){var rows='';[2022,2023,2024].forEach(function(y){rows+='<div class="y"><span>'+y+'</span><span><strong>'+fn(YR_DATA[y])+'</strong></span></div>'});return '<div class="kpi-card"><div class="kpi-label">'+label+'</div><div class="kpi-stack">'+rows+'</div></div>'}
+    top.innerHTML=stack('Total Agency Revenue',function(d){return fmtB(d.combined)})+stack('ROAS',function(d){return fmtRoas(d.roas)})+stack('Active Clients',function(d){return String(d.clients)})+stack('Project Margin',function(d){return fmtPct(d.margin)});
+    bot.innerHTML=stack('Media Spend',function(d){return fmtM(d.media)})+stack('Production Jobs',function(d){return (d.jobs/1000).toFixed(0)+'K'})+stack('On-Spec %',function(d){return fmtPct(d.onspec)})+stack('Agency Fees',function(d){return fmtM(d.fees)});
+  }else{
+    function card(label,val,deltaHtml){return '<div class="kpi-card"><div class="kpi-label">'+label+' '+state.year+'</div><div class="kpi-value">'+val+'</div>'+deltaHtml+'</div>'}
+    top.innerHTML=card('Total Agency Revenue',fmtB(d.combined),fmtDelta(d.combined,pyD?pyD.combined:null,true))
+      +card('ROAS',fmtRoas(d.roas),fmtDelta(d.roas,pyD?pyD.roas:null,false))
+      +card('Active Clients',String(d.clients),pyD?(d.clients-pyD.clients>=0?'<span class="kpi-delta neutral">'+(d.clients-pyD.clients)+' vs '+(state.year-1)+'</span>':'<span class="kpi-delta negative">↓ '+Math.abs(d.clients-pyD.clients)+' vs '+(state.year-1)+'</span>'):'<span class="kpi-delta neutral">—</span>')
+      +card('Project Margin',fmtPct(d.margin),fmtDelta(d.margin,pyD?pyD.margin:null,false));
+    bot.innerHTML=card('Media Spend',fmtM(d.media),fmtDelta(d.media,pyD?pyD.media:null,true))
+      +card('Production Jobs',(d.jobs/1000).toFixed(0)+'K',fmtDelta(d.jobs,pyD?pyD.jobs:null,true))
+      +card('On-Spec %',fmtPct(d.onspec),fmtDelta(d.onspec,pyD?pyD.onspec:null,false))
+      +card('Agency Fees',fmtM(d.fees),fmtDelta(d.fees,pyD?pyD.fees:null,true));
+  }
+  fitKpiText();
+}
+
+function renderRevTrend(){
+  if(state.compare){
+    mk('cRevTrend',{type:'bar',data:{labels:['2022','2023','2024'],datasets:[
+      {label:'Project',data:[YR_DATA[2022].proj,YR_DATA[2023].proj,YR_DATA[2024].proj],backgroundColor:'#4A4E8F'},
+      {label:'Production',data:[YR_DATA[2022].prod,YR_DATA[2023].prod,YR_DATA[2024].prod],backgroundColor:'#A490C2'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': $'+ctx.parsed.y.toFixed(2)+'B'}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#5A5470'}},y:{stacked:true,grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'B'}}}}}});
+  }else{
+    mk('cRevTrend',{type:'bar',data:{labels:YEARS.map(String),datasets:[
+      {label:'Project',data:YEARS.map(function(y){return YR_DATA[y].proj}),backgroundColor:'#4A4E8F'},
+      {label:'Production',data:YEARS.map(function(y){return YR_DATA[y].prod}),backgroundColor:'#A490C2'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': $'+ctx.parsed.y.toFixed(2)+'B'}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#5A5470'}},y:{stacked:true,grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'B'}}}}}});
+  }
+}
+
+function renderMonth(){
+  var ds;
+  var labels=MONTHS12;
+  if(state.compare){
+    ds=[
+      {label:'2022',data:MONTHLY[2023].map(function(v){return v*0.85}),borderColor:'#94A3B8',backgroundColor:'rgba(148,163,184,.1)',tension:.3,pointRadius:3,pointBackgroundColor:'#94A3B8'},
+      {label:'2023',data:MONTHLY[2023],borderColor:'#A490C2',backgroundColor:'rgba(164,144,194,.1)',tension:.3,pointRadius:3,pointBackgroundColor:'#A490C2'},
+      {label:'2024',data:MONTHLY[2024],borderColor:'#4A4E8F',backgroundColor:'rgba(74,78,143,.1)',tension:.3,pointRadius:4,pointBackgroundColor:'#4A4E8F'}
+    ];
+  }else{
+    var py=state.year-1;
+    var cur=MONTHLY[state.year]||MONTHLY[2024];
+    var prev=MONTHLY[py]||MONTHLY[2023];
+    ds=[
+      {label:String(py),data:prev,borderColor:'#A490C2',backgroundColor:'rgba(164,144,194,.1)',borderDash:[5,5],tension:.3,pointRadius:3,pointBackgroundColor:'#A490C2'},
+      {label:String(state.year),data:cur,borderColor:'#4A4E8F',backgroundColor:'rgba(74,78,143,.1)',tension:.3,pointRadius:4,pointBackgroundColor:'#4A4E8F'}
+    ];
+  }
+  mk('cMonth',{type:'line',data:{labels:labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:12},color:'#5A5470'}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': $'+ctx.parsed.y.toFixed(1)+'M'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}}}}});
+}
+
+function renderChannel(){
+  var top7=CHANNELS_2024.slice(0,7);
+  mk('cChannel',{type:'bar',data:{labels:top7.map(function(c){return c.name}),datasets:[{label:'Spend ($M)',data:top7.map(function(c){return c.spend}),backgroundColor:'#4A4E8F'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+
+function renderROAS(){
+  mk('cROAS',{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'ROAS',data:YEARS.map(function(y){return YR_DATA[y].roas}),borderColor:'#4A4E8F',backgroundColor:'rgba(74,78,143,.1)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#4A4E8F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'ROAS: '+ctx.parsed.y.toFixed(2)+'x'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5A5470'}},y:{min:3.5,max:4.3,grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return v.toFixed(2)+'x'}}}}}});
+}
+
+function renderCampType(){
+  mk('cCampType',{type:'bar',data:{labels:CAMP_TYPE_2024.map(function(c){return c.type}),datasets:[{label:'Spend ($M)',data:CAMP_TYPE_2024.map(function(c){return c.spend}),backgroundColor:'#4A4E8F'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.x.toFixed(1)+'M'}}}},scales:{x:{grid:{color:'#E5E0EE'},ticks:{color:'#5A5470',callback:function(v){return '$'+v+'M'}}},y:{grid:{display:false},ticks:{color:'#5A5470'}}}}});
+}
+
+function renderTable(){
+  var clients=TOP_CLIENTS[state.year]||TOP_CLIENTS[2024];
+  var prevClients=TOP_CLIENTS[state.year-1]||TOP_CLIENTS[2023];
+  var tbody=document.getElementById('topClientTbody');
+  tbody.innerHTML='';
+  for(var i=0;i<clients.length;i++){
+    var c=clients[i];var combined=c.proj+c.prod;
+    var prev=prevClients[i]?(prevClients[i].proj+prevClients[i].prod):null;
+    var yoy=prev?(combined-prev)/prev*100:null;
+    var yoyHtml=yoy!=null?'<span style="color:'+(yoy>=0?'#059669':'#D32F2F')+'">'+(yoy>=0?'↑ ':'↓ ')+Math.abs(yoy).toFixed(1)+'%</span>':'—';
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+String(i+1)+'</td><td><strong>'+c.n+'</strong></td><td>'+c.i+'</td><td>'+c.t+'</td><td class="num">$'+c.proj.toFixed(2)+'B</td><td class="num">$'+c.prod.toFixed(2)+'B</td><td class="num"><strong>$'+combined.toFixed(2)+'B</strong></td><td class="num">'+yoyHtml+'</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function updateSubtitle(){
+  document.getElementById('reporting-period').textContent=state.compare?'Reporting Period: 2022 / 2023 / 2024 (Compare Years)':'Reporting Period: Jan–Dec '+state.year;
+}
+
+function render(){
+  state.year=parseInt(document.getElementById('filterYear').value,10);
+  renderKPIs();renderRevTrend();renderMonth();renderChannel();renderROAS();renderCampType();renderTable();updateSubtitle();fitKpiText();
+}
+render();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

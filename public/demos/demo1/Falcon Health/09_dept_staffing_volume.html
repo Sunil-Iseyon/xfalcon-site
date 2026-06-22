@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 9: Department Staffing vs Volume</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #2d3436;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2C5F8A;
+            margin-bottom: 5px;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background-color: #f5f6fa;
+            color: #2d3436;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f9f9fb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-high {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .badge-med {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+
+        .badge-low {
+            background-color: #ffcdd2;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 9: Department Staffing vs Volume</h1>
+            <p>Provider Distribution Across Departments | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Most Providers</div>
+                <div class="kpi-value">Laboratory</div>
+                <div class="kpi-detail">92 unique providers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Highest Enc/Provider</div>
+                <div class="kpi-value">3.2</div>
+                <div class="kpi-detail">Laboratory department</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Lowest Enc/Provider</div>
+                <div class="kpi-value">1.0</div>
+                <div class="kpi-detail">General Surgery, Oncology</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Departments</div>
+                <div class="kpi-value">17</div>
+                <div class="kpi-detail">across organization</div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <div class="chart-title">Providers vs Encounters by Department</div>
+                <div class="chart-container tall">
+                    <canvas id="staffVolumeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">Encounters per Provider Ratio</div>
+                <div class="chart-container">
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Patients per Provider Scatter</div>
+                <div class="chart-container">
+                    <canvas id="patientsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full-width">
+                <div class="chart-title">Provider Concentration by Department</div>
+                <div class="chart-container">
+                    <canvas id="concentrationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="chart-title">All 17 Departments</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Providers</th>
+                        <th>Encounters</th>
+                        <th>Patients</th>
+                        <th>Enc/Provider</th>
+                        <th>Patients/Provider</th>
+                        <th>Efficiency</th>
+                    </tr>
+                </thead>
+                <tbody id="deptTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Generated March 11, 2026 | Clinical Analytics Dashboard | Data Period: Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const departments = [
+            {dept:"Laboratory",provs:92,enc:293,patients:226,ratio:3.2},
+            {dept:"Family Medicine",provs:92,enc:229,patients:189,ratio:2.5},
+            {dept:"Pediatrics",provs:77,enc:142,patients:120,ratio:1.8},
+            {dept:"Emergency Medicine",provs:73,enc:121,patients:113,ratio:1.7},
+            {dept:"Internal Medicine",provs:69,enc:99,patients:85,ratio:1.4},
+            {dept:"Neurology",provs:63,enc:85,patients:78,ratio:1.3},
+            {dept:"Cardiology",provs:56,enc:83,patients:79,ratio:1.5},
+            {dept:"Gastroenterology",provs:56,enc:83,patients:79,ratio:1.5},
+            {dept:"Orthopedics",provs:58,enc:80,patients:72,ratio:1.4},
+            {dept:"Psychiatry",provs:58,enc:74,patients:73,ratio:1.3},
+            {dept:"Physical Therapy",provs:43,enc:68,patients:65,ratio:1.6},
+            {dept:"OB/GYN",provs:51,enc:67,patients:62,ratio:1.3},
+            {dept:"Nephrology",provs:16,enc:17,patients:17,ratio:1.1},
+            {dept:"Oncology",provs:17,enc:17,patients:17,ratio:1.0},
+            {dept:"ICU",provs:13,enc:15,patients:15,ratio:1.2},
+            {dept:"Pulmonology",provs:13,enc:14,patients:14,ratio:1.1},
+            {dept:"General Surgery",provs:10,enc:10,patients:10,ratio:1.0}
+        ];
+
+        const colors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Populate table
+        const tbody = document.getElementById('deptTableBody');
+        const sorted = [...departments].sort((a, b) => b.provs - a.provs);
+        sorted.forEach(d => {
+            const row = document.createElement('tr');
+            let effBadge = 'badge-low';
+            if (d.ratio >= 2.0) effBadge = 'badge-high';
+            else if (d.ratio >= 1.5) effBadge = 'badge-med';
+
+            row.innerHTML = `
+                <td><strong>${d.dept}</strong></td>
+                <td>${d.provs}</td>
+                <td>${d.enc}</td>
+                <td>${d.patients}</td>
+                <td>${d.ratio.toFixed(1)}</td>
+                <td>${(d.patients / d.provs).toFixed(1)}</td>
+                <td><span class="badge ${effBadge}">${d.ratio.toFixed(1)}</span></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Providers vs Encounters
+        const sortedByProvs = [...departments].sort((a, b) => a.provs - b.provs);
+        const ctx1 = document.getElementById('staffVolumeChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: sortedByProvs.map(d => d.dept),
+                datasets: [
+                    {
+                        label: 'Providers',
+                        data: sortedByProvs.map(d => d.provs),
+                        backgroundColor: colors.primary,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Encounters',
+                        data: sortedByProvs.map(d => d.enc),
+                        backgroundColor: colors.secondary,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Efficiency (Enc per Provider)
+        const sortedByRatio = [...departments].sort((a, b) => a.ratio - b.ratio);
+        const ctx2 = document.getElementById('efficiencyChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: sortedByRatio.map(d => d.dept),
+                datasets: [{
+                    label: 'Enc/Provider',
+                    data: sortedByRatio.map(d => d.ratio),
+                    backgroundColor: colors.teal,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+
+        // Patients per Provider Scatter
+        const ctx3 = document.getElementById('patientsChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Departments',
+                    data: departments.map(d => ({
+                        x: d.provs,
+                        y: d.patients / d.provs,
+                        r: Math.sqrt(d.enc) * 1.5
+                    })),
+                    backgroundColor: colors.info,
+                    borderColor: colors.primary,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Number of Providers' } },
+                    y: { title: { display: true, text: 'Patients per Provider' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Provider Concentration
+        const ctx4 = document.getElementById('concentrationChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: sorted.map(d => d.dept),
+                datasets: [{
+                    label: 'Number of Providers',
+                    data: sorted.map(d => d.provs),
+                    backgroundColor: colors.secondary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+    </script>
+</body>
+</html>

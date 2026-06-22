@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area 12: DRG-Based Revenue Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2d3436;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #636e72;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2C5F8A;
+            line-height: 1.2;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-inner {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            background: #f5f6fa;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3436;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #b2bec3;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .numeric {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Area 12: DRG-Based Revenue & Reimbursement Analysis</h1>
+            <p>Revenue by DRG, Collection Rates & Weight Analysis | Generated March 11, 2026</p>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total DRG Revenue</div>
+                <div class="kpi-value" style="font-size: 20px;">~$8.1M</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">Total Billed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Collection Rate</div>
+                <div class="kpi-value">~41%</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">Paid / Billed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Highest Revenue DRG</div>
+                <div class="kpi-value" style="font-size: 20px;">$978K</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">Renal Failure w CC</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Weighted Avg DRG</div>
+                <div class="kpi-value">~1.1</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">DRG Weight</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Surgical DRG Revenue</div>
+                <div class="kpi-value" style="font-size: 20px;">$1.4M</div>
+                <div style="font-size: 12px; color: #636e72; margin-top: 4px;">2 DRGs</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container full-width">
+                <div class="chart-title">Revenue by DRG (Total Billed)</div>
+                <div class="chart-inner"><canvas id="revenueByDrgChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">DRG Weight vs Avg Billed</div>
+                <div class="chart-inner"><canvas id="weightVsAvgChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Collection Rate by DRG</div>
+                <div class="chart-inner"><canvas id="collectionRateChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Revenue: Surgical vs Medical</div>
+                <div class="chart-inner"><canvas id="surgicalVsMedicalChart"></canvas></div>
+            </div>
+            <div class="chart-container full-width">
+                <div class="chart-title">MDC Revenue Distribution</div>
+                <div class="chart-inner"><canvas id="mdcRevenueChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="chart-title">DRG Financial Details</div>
+            <table id="drgTableBody">
+            </table>
+        </div>
+
+        <div class="footer">
+            Dashboard generated with Chart.js • Data represents consolidated encounters Jan 2023 - Dec 2025
+        </div>
+    </div>
+
+    <script>
+        const drgData = [
+            {code:"312",desc:"Kidney & Urinary Tract Infections",weight:0.85,enc:108,billed:683000,paid:269000,los:2.4},
+            {code:"570",desc:"Septicemia",weight:1.42,enc:97,billed:726652,paid:298000,los:3.1},
+            {code:"193",desc:"Simple Pneumonia",weight:0.89,enc:98,billed:539000,paid:245000,los:2.9},
+            {code:"194",desc:"Pneumonia w CC",weight:1.29,enc:96,billed:641319,paid:291000,los:3.8},
+            {code:"392",desc:"Esophagitis",weight:0.76,enc:89,billed:489000,paid:195000,los:1.8},
+            {code:"393",desc:"GI Hemorrhage",weight:1.21,enc:89,billed:806250,paid:365000,los:3.2},
+            {code:"282",desc:"Renal Failure",weight:1.15,enc:92,billed:695621,paid:298000,los:2.6},
+            {code:"291",desc:"Renal Failure w CC",weight:1.35,enc:91,billed:978521,paid:407000,los:3.9},
+            {code:"470",desc:"Skin Graft",weight:1.88,enc:81,billed:515515,paid:196000,los:4.1},
+            {code:"603",desc:"Diabetes w CC",weight:1.12,enc:95,billed:612000,paid:265000,los:2.1},
+            {code:"189",desc:"Pulmonary Edema",weight:1.24,enc:88,billed:641119,paid:277000,los:2.7},
+            {code:"313",desc:"Kidney Failure",weight:1.45,enc:93,billed:913512,paid:408000,los:4.2}
+        ];
+
+        const mdcData = [
+            {name:"Digestive", revenue:1295250},
+            {name:"Nervous", revenue:913065},
+            {name:"Infectious", revenue:726652},
+            {name:"Musculoskeletal", revenue:732888},
+            {name:"Kidney/UT", revenue:1596512},
+            {name:"Skin", revenue:515515},
+            {name:"Respiratory", revenue:1180319},
+            {name:"Hepatobiliary", revenue:670264},
+            {name:"Circulatory", revenue:817683},
+            {name:"Mental", revenue:364046},
+            {name:"Factors", revenue:323554}
+        ];
+
+        const chartColors = {
+            primary: '#2C5F8A',
+            secondary: '#E8913A',
+            success: '#5BA67D',
+            danger: '#C75B5B',
+            warning: '#D4A843',
+            info: '#6A9BC3',
+            purple: '#8E6BBF',
+            teal: '#4ECDC4'
+        };
+
+        // Revenue by DRG (Horizontal Bar)
+        const revenueDrgCtx = document.getElementById('revenueByDrgChart').getContext('2d');
+        new Chart(revenueDrgCtx, {
+            type: 'bar',
+            data: {
+                labels: drgData.map(d => `${d.code} - ${d.desc}`),
+                datasets: [{
+                    label: 'Total Billed',
+                    data: drgData.map(d => d.billed),
+                    backgroundColor: chartColors.primary,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    y: { ticks: { color: '#636e72', font: { size: 10 } } }
+                }
+            }
+        });
+
+        // DRG Weight vs Avg Billed (Bubble/Scatter)
+        const weightCtx = document.getElementById('weightVsAvgChart').getContext('2d');
+        const weightData = drgData.map(d => ({
+            x: d.weight,
+            y: d.billed / d.enc,
+            r: d.enc / 5
+        }));
+        new Chart(weightCtx, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'DRG Weight vs Avg Billed',
+                    data: weightData,
+                    backgroundColor: chartColors.success,
+                    borderColor: chartColors.primary,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'DRG Weight', color: '#636e72' },
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Avg Billed per Encounter', color: '#636e72' },
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    }
+                }
+            }
+        });
+
+        // Collection Rate by DRG
+        const collectionCtx = document.getElementById('collectionRateChart').getContext('2d');
+        const collectionRates = drgData.map(d => parseFloat(((d.paid / d.billed) * 100).toFixed(1)));
+        new Chart(collectionCtx, {
+            type: 'bar',
+            data: {
+                labels: drgData.map(d => d.code),
+                datasets: [{
+                    label: 'Collection Rate (%)',
+                    data: collectionRates,
+                    backgroundColor: chartColors.warning
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Surgical vs Medical
+        const surgicalVsMedicalCtx = document.getElementById('surgicalVsMedicalChart').getContext('2d');
+        const surgicalRevenue = 1406036; // 470 + 313 from data
+        const medicalRevenue = 8100000 - surgicalRevenue;
+        new Chart(surgicalVsMedicalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Medical DRG', 'Surgical DRG'],
+                datasets: [{
+                    data: [medicalRevenue, surgicalRevenue],
+                    backgroundColor: [chartColors.primary, chartColors.danger]
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#636e72', font: { size: 12 }, padding: 15 }
+                    }
+                }
+            }
+        });
+
+        // MDC Revenue
+        const mdcCtx = document.getElementById('mdcRevenueChart').getContext('2d');
+        new Chart(mdcCtx, {
+            type: 'bar',
+            data: {
+                labels: mdcData.map(m => m.name),
+                datasets: [{
+                    label: 'Revenue',
+                    data: mdcData.map(m => m.revenue),
+                    backgroundColor: chartColors.info
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#636e72', font: { size: 11 } },
+                        grid: { color: '#e0e0e0' }
+                    },
+                    x: { ticks: { color: '#636e72', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // Populate table
+        const tableBody = document.getElementById('drgTableBody');
+        let html = '<tr><th>Code</th><th>Description</th><th>Weight</th><th>Enc</th><th>Total Billed</th><th>Total Paid</th><th>Collection %</th><th>Avg Billed</th><th>Actual LOS</th></tr>';
+        drgData.forEach(d => {
+            const collRate = ((d.paid / d.billed) * 100).toFixed(1);
+            const avgBilled = (d.billed / d.enc).toFixed(0);
+            html += `<tr>
+                <td>${d.code}</td>
+                <td>${d.desc}</td>
+                <td>${d.weight}</td>
+                <td>${d.enc}</td>
+                <td class="numeric">$${d.billed.toLocaleString()}</td>
+                <td class="numeric">$${d.paid.toLocaleString()}</td>
+                <td class="numeric">${collRate}%</td>
+                <td class="numeric">$${avgBilled}</td>
+                <td>${d.los}</td>
+            </tr>`;
+        });
+        tableBody.innerHTML = html;
+    </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="modern-minimalist">
+<head>
+  <meta charset="utf-8">
+  <title>Falcon Defense &amp; Aerospace / 5. Agency &amp; Program Roll-ups</title>
+  <script>document.documentElement.setAttribute('data-theme',new URLSearchParams(location.search).get('theme')||'modern-minimalist')</script>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dashboard-common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></span>
+      <div class="topbar-titleblock">
+        <div class="topbar-title">Falcon Defense &amp; Aerospace / 5. Agency &amp; Program Roll-ups</div>
+        <div class="topbar-subtitle" id="subtitle">Reporting Period: Jan&ndash;Dec 2024</div>
+      </div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Portal</a>
+  </header>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="yearSel">Year</label>
+      <select id="yearSel" onchange="applyFilters()">
+        <option value="2020">2020</option><option value="2021">2021</option>
+        <option value="2022">2022</option><option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+    <div class="filter-group" style="margin-left:auto;color:var(--color-text-muted);font-size:12px;align-self:flex-end;">
+      <span>Portfolio diversification &amp; customer concentration view</span>
+    </div>
+  </div>
+  <main class="content">
+    <div class="section-title">Customer &amp; Portfolio Mix KPIs</div>
+    <div class="section-subtitle" id="kpiSubtitle">2024</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-title">Revenue Roll-ups</div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">Revenue by Customer Agency ($M)</div>
+        <div class="chart-subtitle" id="agSub">2024 &middot; DoD vs Civilian Federal</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chAgencies"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Domain ($M)</div>
+        <div class="chart-subtitle" id="domSub">Air leads 2024 at $16B</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chDomain"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue Type Mix (% of total)</div>
+        <div class="chart-subtitle">Prime vs Modification vs Task Order</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chRevType"></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-title">5-Year Agency Revenue Trend ($M, top 5)</div>
+        <div class="chart-subtitle">Stacked view of portfolio expansion</div>
+        <div class="chart-canvas-wrap tall"><canvas id="chTrend"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-title">Agency Detail (selected year)</div>
+      <table class="detail-table" id="tblAgency">
+        <thead><tr><th>Agency Type</th><th>Agency</th><th class="num">Revenue ($M)</th><th class="num">Share %</th><th class="num">Contracts</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Methodology.</strong> Revenue = SUM(RECOGNIZED_REV_USD). Revenue Type split (Prime / Modification / Task Order) is valid categorization — NOT redundant grain. DoD share dominates the portfolio (~92% in 2024); DARPA registers under DoD. Synthetic demo data — agency names and amounts are illustrative.
+    </div>
+  </main>
+  <script src="dashboard-common.js"></script>
+  <script>
+    var AGENCIES_BY_YEAR = {
+      2024:[{t:'DoD',s:'Army',r:13996,c:48},{t:'DoD',s:'Navy',r:12996,c:45},{t:'DoD',s:'Air Force',r:10811,c:38},{t:'DoD',s:'DARPA',r:8427,c:29},{t:'Civilian Federal',s:'DHS',r:4699,c:17},{t:'DoD',s:'Space Force',r:4243,c:15},{t:'DoD',s:'MDA',r:3874,c:14},{t:'DoD',s:'USMC',r:2744,c:10}],
+      2023:[{t:'DoD',s:'Army',r:15836,c:48},{t:'DoD',s:'Navy',r:14752,c:45},{t:'DoD',s:'Air Force',r:12230,c:38},{t:'DoD',s:'DARPA',r:9624,c:29},{t:'Civilian Federal',s:'DHS',r:5304,c:17},{t:'DoD',s:'Space Force',r:4822,c:15},{t:'DoD',s:'MDA',r:4435,c:14},{t:'DoD',s:'USMC',r:3695,c:10}],
+      2022:[{t:'DoD',s:'Army',r:11689,c:48},{t:'DoD',s:'Navy',r:10891,c:45},{t:'DoD',s:'Air Force',r:9029,c:38},{t:'DoD',s:'DARPA',r:7103,c:29},{t:'Civilian Federal',s:'DHS',r:3916,c:17},{t:'DoD',s:'Space Force',r:3560,c:15},{t:'DoD',s:'MDA',r:3274,c:14},{t:'DoD',s:'USMC',r:2731,c:10}],
+      2021:[{t:'DoD',s:'Army',r:9919,c:48},{t:'DoD',s:'Navy',r:9240,c:45},{t:'DoD',s:'Air Force',r:7661,c:38},{t:'DoD',s:'DARPA',r:6028,c:29},{t:'Civilian Federal',s:'DHS',r:3324,c:17},{t:'DoD',s:'Space Force',r:3021,c:15},{t:'DoD',s:'MDA',r:2777,c:14},{t:'DoD',s:'USMC',r:2329,c:10}],
+      2020:[{t:'DoD',s:'Army',r:11111,c:48},{t:'DoD',s:'Navy',r:10349,c:45},{t:'DoD',s:'Air Force',r:8581,c:38},{t:'DoD',s:'DARPA',r:6750,c:29},{t:'Civilian Federal',s:'DHS',r:3724,c:17},{t:'DoD',s:'Space Force',r:3383,c:15},{t:'DoD',s:'MDA',r:3111,c:14},{t:'DoD',s:'USMC',r:2603,c:10}]
+    };
+    var DOMAINS_2024 = [
+      {d:'Air',r:15991},{d:'Multi-Domain',r:15420},{d:'Land',r:9721},
+      {d:'Sea',r:8970},{d:'Cyber',r:7443},{d:'Space',r:4243}
+    ];
+    var REV_TYPE_2024 = [
+      {t:'Prime',       share:67.2},
+      {t:'Modification',share:22.7},
+      {t:'Task Order',  share:10.1}
+    ];
+
+    var state = { year: 2024 };
+
+    function kpiCard(l,v,d){return '<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-delta '+d.cls+'">'+d.txt+'</div></div>';}
+
+    function totalRev(yr){ var a = AGENCIES_BY_YEAR[yr]; var t=0; for (var i=0;i<a.length;i++) t+=a[i].r; return t; }
+
+    function renderKPIs(yr){
+      var a = AGENCIES_BY_YEAR[yr];
+      var tot = totalRev(yr); var prevTot = AGENCIES_BY_YEAR[yr-1]?totalRev(yr-1):null;
+      var top = a.slice().sort(function(x,y){return y.r-x.r;});
+      var dodRev=0, civRev=0;
+      for (var i=0;i<a.length;i++){ if (a[i].t==='DoD') dodRev+=a[i].r; else civRev+=a[i].r; }
+      var dodShare = (dodRev/tot*100);
+      var topShare = (top[0].r/tot*100);
+      var top3Share = ((top[0].r+top[1].r+top[2].r)/tot*100);
+
+      var html = '';
+      html += kpiCard('Total Revenue ' + yr, '$' + fmtInt(tot) + 'M', prevTot?fmtDeltaLabel(tot,prevTot,null,yr-1):{txt:'—',cls:'neutral'});
+      html += kpiCard('DoD Share ' + yr, dodShare.toFixed(1) + '%', {txt:'Portfolio dominance',cls:'neutral'});
+      html += kpiCard('Top Customer ' + yr, top[0].s, {txt:topShare.toFixed(1)+'% of revenue',cls:'neutral'});
+      html += kpiCard('Top-3 Concentration', top3Share.toFixed(1) + '%', {txt:'Customer concentration risk',cls:top3Share>65?'negative':'neutral'});
+      html += kpiCard('Civilian Federal ' + yr, '$' + fmtInt(civRev) + 'M', {txt:(civRev/tot*100).toFixed(1)+'% of revenue',cls:'neutral'});
+      html += kpiCard('Agencies Served', String(a.length), {txt:'Active customer base',cls:'neutral'});
+      html += kpiCard('Domains Covered', '6 / 6', {txt:'Air, Land, Sea, Space, Cyber, Multi',cls:'positive'});
+      html += kpiCard('Prime Contract %', '67.2%', {txt:'Direct government customer',cls:'neutral'});
+      document.getElementById('kpiGrid').innerHTML = html;
+      document.getElementById('kpiSubtitle').textContent = yr.toString();
+    }
+    function renderAgencies(yr){
+      var p = fdPalette();
+      var a = AGENCIES_BY_YEAR[yr].slice().sort(function(x,y){return y.r-x.r;});
+      mk('chAgencies', {
+        type:'bar',
+        data: {
+          labels: a.map(function(x){return x.s;}),
+          datasets: [{
+            label: 'Revenue ($M)',
+            data: a.map(function(x){return x.r;}),
+            backgroundColor: a.map(function(x){return x.t==='DoD'?p.primary:p.secondary;}),
+            borderRadius:4
+          }]
+        },
+        options: {
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderDomain(){
+      var p = fdPalette();
+      mk('chDomain', {
+        type:'bar',
+        data: {
+          labels: DOMAINS_2024.map(function(x){return x.d;}),
+          datasets: [{ label:'Revenue ($M)', data: DOMAINS_2024.map(function(x){return x.r;}), backgroundColor: p.primary, borderRadius:4 }]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            y: { beginAtZero:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } },
+            x: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderRevType(){
+      var p = fdPalette();
+      mk('chRevType', {
+        type:'bar',
+        data: {
+          labels: REV_TYPE_2024.map(function(x){return x.t;}),
+          datasets: [{
+            label: '% of Revenue',
+            data: REV_TYPE_2024.map(function(x){return x.share;}),
+            backgroundColor: [p.primary, p.secondary, p.tertiary],
+            borderRadius:4
+          }]
+        },
+        options: {
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { beginAtZero:true, max:100, grid: { color: p.grid }, ticks: { callback: function(v){return v+'%';} } },
+            y: { grid: { display:false } }
+          }
+        }
+      });
+    }
+    function renderTrend(){
+      var p = fdPalette();
+      var top5 = ['Army','Navy','Air Force','DARPA','DHS'];
+      var datasets = top5.map(function(name, i){
+        var colors = [p.primary, p.secondary, p.tertiary, p.amber, p.lightBlue];
+        var data = [];
+        for (var yr=2020; yr<=2024; yr++){
+          var a = AGENCIES_BY_YEAR[yr];
+          for (var j=0;j<a.length;j++) if (a[j].s===name) { data.push(a[j].r); break; }
+        }
+        return { label:name, data:data, backgroundColor: colors[i], stack:'s', borderRadius:2 };
+      });
+      mk('chTrend', {
+        type:'bar',
+        data: { labels:['2020','2021','2022','2023','2024'], datasets: datasets },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { position:'top', align:'end' } },
+          scales: {
+            x: { stacked:true, grid: { display:false } },
+            y: { stacked:true, grid: { color: p.grid }, ticks: { callback: function(v){return '$'+(v/1000).toFixed(1)+'B';} } }
+          }
+        }
+      });
+    }
+    function renderTable(yr){
+      var a = AGENCIES_BY_YEAR[yr].slice().sort(function(x,y){return y.r-x.r;});
+      var tot = totalRev(yr);
+      var html = ''; var totC = 0;
+      for (var i=0;i<a.length;i++){
+        var x=a[i]; var share = x.r/tot*100;
+        html += '<tr><td>'+x.t+'</td><td><strong>'+x.s+'</strong></td>'+
+          '<td class="num">'+String(fmtInt(x.r))+'</td>'+
+          '<td class="num">'+String(share.toFixed(1))+'%</td>'+
+          '<td class="num">'+String(x.c)+'</td></tr>';
+        totC += x.c;
+      }
+      html += '<tr class="tot-row"><td>&mdash;</td><td>Total '+yr+'</td>'+
+        '<td class="num">'+String(fmtInt(tot))+'</td>'+
+        '<td class="num">100.0%</td>'+
+        '<td class="num">'+String(totC)+'</td></tr>';
+      document.querySelector('#tblAgency tbody').innerHTML = html;
+    }
+    function applyFilters(){
+      state.year = parseInt(document.getElementById('yearSel').value, 10);
+      renderKPIs(state.year); renderAgencies(state.year); renderDomain(); renderRevType(); renderTrend(); renderTable(state.year);
+      document.getElementById('subtitle').textContent = 'Reporting Period: Jan-Dec ' + state.year;
+      document.getElementById('agSub').textContent = state.year + ' · DoD vs Civilian Federal';
+      fitKpiText();
+    }
+    document.addEventListener('DOMContentLoaded', applyFilters);
+  </script>
+  <script src="theme.js"></script>
+</body>
+</html>

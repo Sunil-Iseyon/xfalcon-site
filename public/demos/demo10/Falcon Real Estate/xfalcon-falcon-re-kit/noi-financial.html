@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOI & Financial Performance Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #1E293B;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #006AFF;
+        }
+
+        .topbar h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+
+        .back-link {
+            color: #0891B2;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #006AFF;
+            margin-bottom: 8px;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .kpi-change.positive {
+            color: #16A34A;
+        }
+
+        .kpi-change.negative {
+            color: #D32F2F;
+        }
+
+        .kpi-change.neutral {
+            color: #94A3B8;
+        }
+
+        .full-width-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1E293B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E2E8F0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        .half-width-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .half-width-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #F1F5F9;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #E2E8F0;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #334155;
+        }
+
+        tr:hover {
+            background-color: #F8FAFC;
+        }
+
+        .positive {
+            color: #16A34A;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #D32F2F;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #94A3B8;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        .tooltip {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 12px;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <div class="logo">xF</div>
+                <h1>NOI & Financial Performance</h1>
+            </div>
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">CY Revenue</div>
+                <div class="kpi-value">$528.2M</div>
+                <div class="kpi-change positive">+2.7% vs PY</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">CY NOI</div>
+                <div class="kpi-value">$334.0M</div>
+                <div class="kpi-change positive">+3.4% vs PY</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">NOI Margin (CY)</div>
+                <div class="kpi-value">63.2%</div>
+                <div class="kpi-change positive">+60 bps vs PY</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Budget NOI (CY)</div>
+                <div class="kpi-value">$426.4M</div>
+                <div class="kpi-change neutral">Plan Target</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Budget Variance $</div>
+                <div class="kpi-value">-$92.4M</div>
+                <div class="kpi-change negative">-21.6% Below Budget</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Budget Variance %</div>
+                <div class="kpi-value">-21.6%</div>
+                <div class="kpi-change negative">Underperformance</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">OpEx Ratio (CY)</div>
+                <div class="kpi-value">36.7%</div>
+                <div class="kpi-change positive">Stable Control</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">YoY Growth</div>
+                <div class="kpi-value">+3.4%</div>
+                <div class="kpi-change positive">Portfolio Momentum</div>
+            </div>
+        </div>
+
+        <!-- Revenue vs NOI vs Budget Trend (24 months) -->
+        <div class="full-width-section">
+            <div class="section-title">Revenue vs NOI vs Budget Trend (24 Months)</div>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Expense Breakdown -->
+        <div class="full-width-section">
+            <div class="section-title">Monthly Operating Expense Breakdown (2025)</div>
+            <div class="chart-container">
+                <canvas id="expenseChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Half-Width: Asset Class NOI & OpEx Ratio -->
+        <div class="half-width-grid">
+            <div class="half-width-section">
+                <div class="section-title">NOI by Asset Class (CY vs PY vs Budget)</div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="assetClassChart"></canvas>
+                </div>
+            </div>
+            <div class="half-width-section">
+                <div class="section-title">OpEx Ratio & NOI Margin Trend (2025)</div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="ratioChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Variance Table -->
+        <div class="full-width-section">
+            <div class="section-title">Property-Level NOI Budget Variance Analysis (2025)</div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Asset Class</th>
+                            <th>Actual NOI</th>
+                            <th>Budget NOI</th>
+                            <th>Variance $</th>
+                            <th>Variance %</th>
+                            <th>YoY Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chicago Tower Cluster CHI-01</td>
+                            <td>Telecom Tower</td>
+                            <td>$770.7K</td>
+                            <td>$680.3K</td>
+                            <td class="positive">+$90.4K</td>
+                            <td class="positive">+13.4%</td>
+                            <td class="positive">+4.6%</td>
+                        </tr>
+                        <tr>
+                            <td>Manhattan Tower Cluster NYC-01</td>
+                            <td>Telecom Tower</td>
+                            <td>$949.8K</td>
+                            <td>$838.6K</td>
+                            <td class="positive">+$111.2K</td>
+                            <td class="positive">+13.4%</td>
+                            <td class="positive">+4.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Dallas Tower Cluster DAL-01</td>
+                            <td>Telecom Tower</td>
+                            <td>$706.6K</td>
+                            <td>$625.1K</td>
+                            <td class="positive">+$81.5K</td>
+                            <td class="positive">+13.2%</td>
+                            <td class="positive">+4.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Seattle Tower Cluster SEA-01</td>
+                            <td>Telecom Tower</td>
+                            <td>$793.2K</td>
+                            <td>$709.7K</td>
+                            <td class="positive">+$83.5K</td>
+                            <td class="positive">+11.8%</td>
+                            <td class="positive">+3.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Atlanta Tower Cluster ATL-01</td>
+                            <td>Telecom Tower</td>
+                            <td>$651.2K</td>
+                            <td>$586.6K</td>
+                            <td class="positive">+$64.6K</td>
+                            <td class="positive">+11.2%</td>
+                            <td class="positive">+2.7%</td>
+                        </tr>
+                        <tr>
+                            <td>LA Tower Cluster LA-01</td>
+                            <td>Telecom Tower</td>
+                            <td>$855.4K</td>
+                            <td>$778.2K</td>
+                            <td class="positive">+$77.2K</td>
+                            <td class="positive">+10.0%</td>
+                            <td class="positive">+2.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Newark Logistics Hub</td>
+                            <td>Industrial</td>
+                            <td>$18.2M</td>
+                            <td>$19.6M</td>
+                            <td class="negative">-$1.4M</td>
+                            <td class="negative">-6.9%</td>
+                            <td class="positive">+7.4%</td>
+                        </tr>
+                        <tr>
+                            <td>DFW Inland Port Warehouse</td>
+                            <td>Industrial</td>
+                            <td>$21.7M</td>
+                            <td>$23.7M</td>
+                            <td class="negative">-$2.0M</td>
+                            <td class="negative">-8.3%</td>
+                            <td class="positive">+6.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Hartsfield Cargo Hub</td>
+                            <td>Industrial</td>
+                            <td>$15.9M</td>
+                            <td>$17.4M</td>
+                            <td class="negative">-$1.5M</td>
+                            <td class="negative">-8.4%</td>
+                            <td class="positive">+5.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Las Vegas Industrial Park</td>
+                            <td>Industrial</td>
+                            <td>$9.9M</td>
+                            <td>$11.0M</td>
+                            <td class="negative">-$1.1M</td>
+                            <td class="negative">-9.7%</td>
+                            <td class="positive">+3.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Puget Sound Logistics Park</td>
+                            <td>Industrial</td>
+                            <td>$10.7M</td>
+                            <td>$12.1M</td>
+                            <td class="negative">-$1.4M</td>
+                            <td class="negative">-11.5%</td>
+                            <td class="positive">+1.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Elk Grove Distribution Center</td>
+                            <td>Industrial</td>
+                            <td>$11.8M</td>
+                            <td>$13.3M</td>
+                            <td class="negative">-$1.5M</td>
+                            <td class="negative">-11.5%</td>
+                            <td class="positive">+1.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Ashburn Data Campus - Alpha</td>
+                            <td>Data Center</td>
+                            <td>$21.1M</td>
+                            <td>$24.5M</td>
+                            <td class="negative">-$3.4M</td>
+                            <td class="negative">-13.8%</td>
+                            <td class="positive">+9.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Chicago Colocation Hub</td>
+                            <td>Data Center</td>
+                            <td>$9.3M</td>
+                            <td>$10.9M</td>
+                            <td class="negative">-$1.6M</td>
+                            <td class="negative">-14.7%</td>
+                            <td class="positive">+5.0%</td>
+                        </tr>
+                        <tr>
+                            <td>DFW Data Center Park</td>
+                            <td>Data Center</td>
+                            <td>$11.6M</td>
+                            <td>$13.7M</td>
+                            <td class="negative">-$2.1M</td>
+                            <td class="negative">-15.1%</td>
+                            <td class="positive">+6.3%</td>
+                        </tr>
+                        <tr>
+                            <td>Ashburn Data Campus - Beta</td>
+                            <td>Data Center</td>
+                            <td>$15.0M</td>
+                            <td>$18.2M</td>
+                            <td class="negative">-$3.2M</td>
+                            <td class="negative">-17.4%</td>
+                            <td class="positive">+4.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Perimeter Mall Annex</td>
+                            <td>Retail</td>
+                            <td>$6.5M</td>
+                            <td>$8.1M</td>
+                            <td class="negative">-$1.6M</td>
+                            <td class="negative">-20.0%</td>
+                            <td class="positive">+4.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Fifth Avenue Retail Center</td>
+                            <td>Retail</td>
+                            <td>$10.6M</td>
+                            <td>$13.4M</td>
+                            <td class="negative">-$2.8M</td>
+                            <td class="negative">-20.8%</td>
+                            <td class="positive">+3.7%</td>
+                        </tr>
+                        <tr>
+                            <td>East Side Cleveland Mixed Use</td>
+                            <td>Retail</td>
+                            <td>$1.4M</td>
+                            <td>$1.8M</td>
+                            <td class="negative">-$376K</td>
+                            <td class="negative">-21.2%</td>
+                            <td class="positive">+0.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Coral Gables Shoppes</td>
+                            <td>Retail</td>
+                            <td>$3.6M</td>
+                            <td>$4.6M</td>
+                            <td class="negative">-$981K</td>
+                            <td class="negative">-21.4%</td>
+                            <td class="positive">+3.3%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Generated by xFalcon RetailEdge | Data as of 2025-12-31
+        </div>
+    </div>
+
+    <script>
+        function mk(id, type, config) {
+            var ctx = document.getElementById(id);
+            if (window[id]) {
+                window[id].destroy();
+            }
+            var defaultOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 12, weight: '500' },
+                            color: '#475569',
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'white',
+                        borderColor: '#E2E8F0',
+                        borderWidth: 1,
+                        titleColor: '#1E293B',
+                        bodyColor: '#334155',
+                        bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                        padding: 10,
+                        displayColors: true
+                    }
+                }
+            };
+            var mergedConfig = Object.assign({}, config, { options: Object.assign({}, defaultOptions, config.options) });
+            window[id] = new Chart(ctx, { type: type, data: mergedConfig.data, options: mergedConfig.options });
+            return window[id];
+        }
+
+        // Q4: Monthly Revenue vs NOI vs Budget Trend
+        mk('trendChart', 'line', {
+            data: {
+                labels: ['Jan-24', 'Feb-24', 'Mar-24', 'Apr-24', 'May-24', 'Jun-24', 'Jul-24', 'Aug-24', 'Sep-24', 'Oct-24', 'Nov-24', 'Dec-24', 'Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25', 'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'],
+                datasets: [
+                    {
+                        label: 'Revenue (CY)',
+                        data: [42.4, 42.5, 42.5, 42.6, 42.9, 42.7, 43.0, 43.1, 43.0, 43.2, 43.0, 43.5, 43.5, 43.6, 44.0, 43.8, 44.0, 43.8, 44.0, 44.0, 44.2, 44.0, 44.5, 44.6],
+                        borderColor: '#006AFF',
+                        backgroundColor: 'rgba(0, 106, 255, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#006AFF',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'NOI (Actual)',
+                        data: [26.7, 25.7, 26.9, 26.9, 27.2, 26.3, 27.3, 27.5, 27.1, 26.7, 27.2, 27.4, 27.7, 27.8, 28.2, 27.7, 27.8, 27.1, 28.0, 27.8, 27.8, 27.5, 28.1, 28.4],
+                        borderColor: '#0891B2',
+                        backgroundColor: 'rgba(8, 145, 178, 0.05)',
+                        borderWidth: 3,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#0891B2',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'Budget NOI',
+                        data: [34.4, 34.4, 34.4, 34.2, 34.5, 34.8, 34.4, 34.8, 34.7, 34.7, 35.1, 35.0, 35.2, 34.7, 35.4, 35.4, 35.7, 35.1, 35.8, 35.9, 35.7, 35.6, 35.8, 36.1],
+                        borderColor: '#1A7F64',
+                        backgroundColor: 'rgba(26, 127, 100, 0.05)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Revenue ($M)', font: { size: 12, weight: '600' }, color: '#475569' },
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { color: 'rgba(226, 232, 240, 0.5)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'NOI & Budget ($M)', font: { size: 12, weight: '600' }, color: '#475569' },
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Q2: Monthly Expense Stacked Area
+        mk('expenseChart', 'line', {
+            data: {
+                labels: ['Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25', 'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'],
+                datasets: [
+                    {
+                        label: 'Property Tax',
+                        data: [1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2],
+                        backgroundColor: 'rgba(0, 106, 255, 1)',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        fill: true,
+                        pointRadius: 0,
+                        tension: 0
+                    },
+                    {
+                        label: 'Insurance',
+                        data: [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
+                        backgroundColor: 'rgba(0, 106, 255, 0.8)',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        fill: true,
+                        pointRadius: 0,
+                        tension: 0
+                    },
+                    {
+                        label: 'Utilities',
+                        data: [4.0, 3.9, 4.0, 4.1, 4.3, 4.2, 4.1, 4.1, 4.0, 4.5, 3.8, 4.3],
+                        backgroundColor: 'rgba(0, 106, 255, 0.6)',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        fill: true,
+                        pointRadius: 0,
+                        tension: 0
+                    },
+                    {
+                        label: 'Maintenance',
+                        data: [4.7, 4.8, 4.7, 4.7, 4.8, 5.2, 4.8, 5.0, 5.2, 5.0, 5.3, 5.0],
+                        backgroundColor: 'rgba(0, 106, 255, 0.4)',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        fill: true,
+                        pointRadius: 0,
+                        tension: 0
+                    },
+                    {
+                        label: 'Management Fee',
+                        data: [2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.8, 2.7, 2.8, 2.8],
+                        backgroundColor: 'rgba(0, 106, 255, 0.3)',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        fill: true,
+                        pointRadius: 0,
+                        tension: 0
+                    },
+                    {
+                        label: 'Admin & Other',
+                        data: [2.9, 2.9, 2.9, 3.0, 3.0, 3.1, 2.9, 2.9, 3.0, 2.8, 3.0, 2.7],
+                        backgroundColor: 'rgba(0, 106, 255, 0.2)',
+                        borderColor: '#006AFF',
+                        borderWidth: 0,
+                        fill: true,
+                        pointRadius: 0,
+                        tension: 0
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        stacked: true,
+                        title: { display: true, text: 'Operating Expenses ($M)', font: { size: 12, weight: '600' }, color: '#475569' },
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { color: 'rgba(226, 232, 240, 0.5)' }
+                    }
+                }
+            }
+        });
+
+        // Q5: NOI by Asset Class
+        mk('assetClassChart', 'bar', {
+            data: {
+                labels: ['Data Center', 'Healthcare', 'Industrial', 'Office', 'Residential', 'Retail', 'Telecom Tower'],
+                datasets: [
+                    {
+                        label: '2025 Actual',
+                        data: [57.0, 8.0, 88.3, 108.1, 28.7, 39.3, 4.7],
+                        backgroundColor: '#006AFF',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    },
+                    {
+                        label: '2024 Actual',
+                        data: [53.5, 7.5, 84.5, 107.2, 27.1, 38.5, 4.6],
+                        backgroundColor: '#94A3B8',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    },
+                    {
+                        label: 'Budget 2025',
+                        data: [67.3, 13.8, 97.1, 143.2, 50.7, 50.1, 4.2],
+                        backgroundColor: '#1A7F64',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        title: { display: true, text: 'NOI ($M)', font: { size: 12, weight: '600' }, color: '#475569' },
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { color: 'rgba(226, 232, 240, 0.5)' }
+                    },
+                    x: {
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Q6: OpEx Ratio & NOI Margin
+        mk('ratioChart', 'line', {
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'OpEx Ratio %',
+                        data: [36.4, 36.1, 35.9, 36.7, 37.0, 38.1, 36.4, 36.9, 37.1, 37.5, 36.8, 36.5],
+                        borderColor: '#0EA5E9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#0EA5E9',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'NOI Margin %',
+                        data: [63.6, 63.9, 64.1, 63.3, 63.0, 61.9, 63.6, 63.1, 62.9, 62.5, 63.2, 63.5],
+                        borderColor: '#1A7F64',
+                        backgroundColor: 'rgba(26, 127, 100, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#1A7F64',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'OpEx Ratio %', font: { size: 12, weight: '600' }, color: '#475569' },
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { color: 'rgba(226, 232, 240, 0.5)' },
+                        min: 30,
+                        max: 45
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'NOI Margin %', font: { size: 12, weight: '600' }, color: '#475569' },
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { drawOnChartArea: false },
+                        min: 55,
+                        max: 70
+                    },
+                    x: {
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

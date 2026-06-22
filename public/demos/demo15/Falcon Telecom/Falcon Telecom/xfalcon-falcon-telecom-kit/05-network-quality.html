@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon Telecom / 5. Network Quality</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F3F4F6; color: #1E293B; }
+    .topbar { background: #1D1D2C; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .logo-x { color: #E20074; }
+    .logo-f { color: white; }
+    .topbar-title { display: flex; flex-direction: column; }
+    .topbar-title-main { font-size: 16px; font-weight: 600; }
+    .topbar-title-sub { font-size: 12px; color: #94A3B8; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .back-link { color: white; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .filters { background: white; padding: 16px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; border-bottom: 1px solid #E2E8F0; }
+    .filter-group { display: flex; flex-direction: column; }
+    .filter-group label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+    .filter-group select { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 4px; font-size: 14px; }
+    .container { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #E20074; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #E20074; margin-bottom: 8px; }
+    .kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748B; }
+    .kpi-delta { font-size: 12px; margin-top: 8px; }
+    .kpi-delta.positive { color: #059669; }
+    .kpi-delta.negative { color: #D32F2F; }
+    .chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+    .chart-container { background: white; padding: 24px; border-radius: 8px; }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+    .chart-wrapper { position: relative; height: 300px; }
+    .table-container { background: white; padding: 24px; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
+    .table-title { font-size: 16px; font-weight: 600; color: #1E293B; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table th { background: #1D1D2C; color: white; padding: 12px; text-align: left; font-weight: 600; }
+    table td { padding: 12px; border-bottom: 1px solid #E2E8F0; }
+    table tr:hover { background: #F9FAFB; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div class="topbar-title">
+        <div class="topbar-title-main">Falcon Telecom / 5. Network Quality</div>
+        <div class="topbar-title-sub" id="reporting-period">2024-2025</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a class="back-link" href="index.html">← Back</a>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="yearSelect">Year</label>
+      <select id="yearSelect" onchange="applyFilters()">
+        <option value="">All Years</option>
+        <option value="2024">2024</option>
+        <option value="2025" selected>2025</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="regionSelect">Region</label>
+      <select id="regionSelect" onchange="applyFilters()">
+        <option value="">All Regions</option>
+        <option value="North">North</option>
+        <option value="South">South</option>
+        <option value="East">East</option>
+        <option value="West">West</option>
+        <option value="Central">Central</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="techSelect">Technology</label>
+      <select id="techSelect" onchange="applyFilters()">
+        <option value="">All Technologies</option>
+        <option value="2G">2G</option>
+        <option value="3G">3G</option>
+        <option value="4G">4G</option>
+        <option value="4G+">4G+</option>
+        <option value="5G">5G</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi1">1.51%</div>
+        <div class="kpi-label">Avg Call Drop Rate</div>
+        <div class="kpi-delta positive">-0.02pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi2">31.2</div>
+        <div class="kpi-label">Avg Throughput (Mbps)</div>
+        <div class="kpi-delta positive">+0.3</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi3">-88.0</div>
+        <div class="kpi-label">Avg Signal (dBm)</div>
+        <div class="kpi-delta positive">+0.1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi4">3.8TB</div>
+        <div class="kpi-label">Total Data 2025</div>
+        <div class="kpi-delta positive">+8.5%</div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi5">280</div>
+        <div class="kpi-label">Total Towers</div>
+        <div class="kpi-delta positive">+15</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi6">36</div>
+        <div class="kpi-label">5G Towers</div>
+        <div class="kpi-delta positive">+12</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi7">92.1%</div>
+        <div class="kpi-label">4G Coverage %</div>
+        <div class="kpi-delta positive">+2.3pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi8">99.8%</div>
+        <div class="kpi-label">Network Uptime Proxy</div>
+        <div class="kpi-delta positive">+0.1pp</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">Call Drop Rate by Technology</div>
+        <div class="chart-wrapper"><canvas id="chart1"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Throughput by Technology</div>
+        <div class="chart-wrapper"><canvas id="chart2"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">Data Consumption by Region & Tech</div>
+        <div class="chart-wrapper"><canvas id="chart3"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Tower Distribution by Technology</div>
+        <div class="chart-wrapper"><canvas id="chart4"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">Signal Strength by Region</div>
+        <div class="chart-wrapper"><canvas id="chart5"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Data Growth 2024 vs 2025 by Tech</div>
+        <div class="chart-wrapper"><canvas id="chart6"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-title">Network Quality Details</div>
+      <table id="networkTable">
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Region</th>
+            <th>Drop Rate (%)</th>
+            <th>Throughput (Mbps)</th>
+            <th>Signal (dBm)</th>
+            <th>Data (GB)</th>
+            <th>Towers</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var chartInstances = {};
+    var DATA = [
+      {year:2024, tech:'2G', region:'East', dropRate:1.51, throughput:31.7, signal:-87.8, dataGB:63755},
+      {year:2024, tech:'2G', region:'North', dropRate:1.45, throughput:31.9, signal:-87.8, dataGB:93368},
+      {year:2024, tech:'2G', region:'South', dropRate:1.53, throughput:30.6, signal:-88.3, dataGB:88702},
+      {year:2024, tech:'3G', region:'Central', dropRate:1.51, throughput:31.2, signal:-88.1, dataGB:68465},
+      {year:2024, tech:'3G', region:'East', dropRate:1.49, throughput:31.9, signal:-87.8, dataGB:90997},
+      {year:2024, tech:'3G', region:'North', dropRate:1.52, throughput:31.2, signal:-88.0, dataGB:210499},
+      {year:2024, tech:'3G', region:'South', dropRate:1.50, throughput:30.3, signal:-87.8, dataGB:198597},
+      {year:2024, tech:'3G', region:'West', dropRate:1.51, throughput:31.0, signal:-88.1, dataGB:113417},
+      {year:2024, tech:'4G', region:'Central', dropRate:1.52, throughput:32.1, signal:-88.1, dataGB:191368},
+      {year:2024, tech:'4G', region:'East', dropRate:1.52, throughput:31.9, signal:-88.1, dataGB:524771},
+      {year:2024, tech:'4G', region:'North', dropRate:1.51, throughput:30.9, signal:-87.8, dataGB:891518},
+      {year:2024, tech:'4G', region:'South', dropRate:1.51, throughput:30.7, signal:-88.0, dataGB:671308},
+      {year:2024, tech:'4G', region:'West', dropRate:1.51, throughput:31.8, signal:-87.9, dataGB:655759},
+      {year:2024, tech:'4G+', region:'Central', dropRate:1.48, throughput:32.7, signal:-88.6, dataGB:55515},
+      {year:2024, tech:'4G+', region:'East', dropRate:1.52, throughput:30.8, signal:-88.0, dataGB:397878},
+      {year:2024, tech:'4G+', region:'North', dropRate:1.50, throughput:31.4, signal:-87.8, dataGB:394139},
+      {year:2024, tech:'4G+', region:'South', dropRate:1.51, throughput:31.0, signal:-87.9, dataGB:604053},
+      {year:2024, tech:'4G+', region:'West', dropRate:1.52, throughput:31.6, signal:-88.1, dataGB:404926},
+      {year:2024, tech:'5G', region:'Central', dropRate:1.49, throughput:32.4, signal:-87.8, dataGB:23206},
+      {year:2024, tech:'5G', region:'East', dropRate:1.51, throughput:30.8, signal:-87.7, dataGB:186815},
+      {year:2024, tech:'5G', region:'North', dropRate:1.50, throughput:30.8, signal:-87.9, dataGB:283158},
+      {year:2024, tech:'5G', region:'South', dropRate:1.50, throughput:30.4, signal:-88.0, dataGB:216245},
+      {year:2024, tech:'5G', region:'West', dropRate:1.49, throughput:31.2, signal:-87.5, dataGB:178667},
+      {year:2025, tech:'2G', region:'East', dropRate:1.50, throughput:32.1, signal:-87.8, dataGB:72452},
+      {year:2025, tech:'2G', region:'North', dropRate:1.50, throughput:32.9, signal:-87.7, dataGB:99164},
+      {year:2025, tech:'2G', region:'South', dropRate:1.48, throughput:31.0, signal:-88.1, dataGB:99866},
+      {year:2025, tech:'3G', region:'Central', dropRate:1.50, throughput:32.6, signal:-87.8, dataGB:72111},
+      {year:2025, tech:'3G', region:'East', dropRate:1.48, throughput:31.9, signal:-87.8, dataGB:73824},
+      {year:2025, tech:'3G', region:'North', dropRate:1.51, throughput:31.5, signal:-88.0, dataGB:216896},
+      {year:2025, tech:'3G', region:'South', dropRate:1.52, throughput:30.4, signal:-88.3, dataGB:229053},
+      {year:2025, tech:'3G', region:'West', dropRate:1.51, throughput:31.9, signal:-88.0, dataGB:126746},
+      {year:2025, tech:'4G', region:'Central', dropRate:1.53, throughput:31.9, signal:-88.0, dataGB:199095},
+      {year:2025, tech:'4G', region:'East', dropRate:1.51, throughput:31.6, signal:-87.9, dataGB:516253},
+      {year:2025, tech:'4G', region:'North', dropRate:1.50, throughput:31.0, signal:-87.9, dataGB:1004056},
+      {year:2025, tech:'4G', region:'South', dropRate:1.52, throughput:30.6, signal:-87.9, dataGB:721143},
+      {year:2025, tech:'4G', region:'West', dropRate:1.51, throughput:31.1, signal:-88.0, dataGB:648312},
+      {year:2025, tech:'4G+', region:'Central', dropRate:1.48, throughput:32.3, signal:-88.2, dataGB:68357},
+      {year:2025, tech:'4G+', region:'East', dropRate:1.53, throughput:31.0, signal:-88.1, dataGB:435355},
+      {year:2025, tech:'4G+', region:'North', dropRate:1.50, throughput:31.2, signal:-87.9, dataGB:398370},
+      {year:2025, tech:'4G+', region:'South', dropRate:1.51, throughput:31.0, signal:-88.2, dataGB:688477},
+      {year:2025, tech:'4G+', region:'West', dropRate:1.50, throughput:31.7, signal:-88.0, dataGB:420524},
+      {year:2025, tech:'5G', region:'Central', dropRate:1.48, throughput:29.4, signal:-87.8, dataGB:19778},
+      {year:2025, tech:'5G', region:'East', dropRate:1.51, throughput:31.4, signal:-87.8, dataGB:200873},
+      {year:2025, tech:'5G', region:'North', dropRate:1.51, throughput:30.5, signal:-88.1, dataGB:269745},
+      {year:2025, tech:'5G', region:'South', dropRate:1.52, throughput:30.7, signal:-87.7, dataGB:219036},
+      {year:2025, tech:'5G', region:'West', dropRate:1.49, throughput:31.9, signal:-88.0, dataGB:183134}
+    ];
+
+    var TOWERS = [
+      {tech:'2G', urban:'Rural', count:1, capacity:471},
+      {tech:'2G', urban:'Semi-Urban', count:5, capacity:838},
+      {tech:'2G', urban:'Urban', count:7, capacity:971},
+      {tech:'3G', urban:'Rural', count:5, capacity:1068},
+      {tech:'3G', urban:'Semi-Urban', count:9, capacity:880},
+      {tech:'3G', urban:'Urban', count:18, capacity:891},
+      {tech:'4G', urban:'Rural', count:19, capacity:931},
+      {tech:'4G', urban:'Semi-Urban', count:32, capacity:875},
+      {tech:'4G', urban:'Urban', count:74, capacity:850},
+      {tech:'4G+', urban:'Rural', count:9, capacity:937},
+      {tech:'4G+', urban:'Semi-Urban', count:20, capacity:900},
+      {tech:'4G+', urban:'Urban', count:45, capacity:853},
+      {tech:'5G', urban:'Rural', count:6, capacity:803},
+      {tech:'5G', urban:'Semi-Urban', count:14, capacity:774},
+      {tech:'5G', urban:'Urban', count:16, capacity:815}
+    ];
+
+    function getFilters() {
+      return {
+        year: document.getElementById('yearSelect').value,
+        region: document.getElementById('regionSelect').value,
+        tech: document.getElementById('techSelect').value
+      };
+    }
+
+    function mk(id, cfg) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      var ctx = document.getElementById(id).getContext('2d');
+      chartInstances[id] = new Chart(ctx, cfg);
+      return chartInstances[id];
+    }
+
+    function fitKpiText(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var parentWidth = el.parentElement.offsetWidth;
+      var textWidth = el.offsetWidth;
+      if (textWidth > parentWidth - 40) {
+        el.style.fontSize = '20px';
+      }
+    }
+
+    function updateSubtitle() {
+      var filters = getFilters();
+      var period = 'Network Quality';
+      if (filters.year) period += ' - ' + filters.year;
+      if (filters.tech) period += ' / ' + filters.tech;
+      document.getElementById('reporting-period').textContent = period;
+    }
+
+    function updateKPIs(filtered) {
+      var totalDrop = 0, totalThroughput = 0, totalSignal = 0, totalData = 0, count = 0;
+      filtered.forEach(function(row) {
+        totalDrop += row.dropRate;
+        totalThroughput += row.throughput;
+        totalSignal += row.signal;
+        totalData += row.dataGB;
+        count += 1;
+      });
+      var avgDrop = count > 0 ? (totalDrop / count) : 0;
+      var avgThroughput = count > 0 ? (totalThroughput / count) : 0;
+      var avgSignal = count > 0 ? (totalSignal / count) : 0;
+      var totalDataTB = (totalData / 1000000);
+
+      var filters = getFilters();
+      var towerData = TOWERS;
+      if (filters.tech) {
+        towerData = TOWERS.filter(function(t) { return t.tech === filters.tech; });
+      }
+      var totalTowers = towerData.reduce(function(sum, t) { return sum + t.count; }, 0);
+      var fgTowers = TOWERS.filter(function(t) { return t.tech === '5G'; }).reduce(function(sum, t) { return sum + t.count; }, 0);
+      var fgCoverage = totalTowers > 0 ? ((fgTowers / totalTowers) * 100) : 0;
+
+      var uptime4G = 92.1;
+      var uptimeProxy = 99.8;
+      if (filters.tech === '4G' || filters.tech === '4G+') {
+        uptime4G = 92.5;
+        uptimeProxy = 99.9;
+      } else if (filters.tech === '5G') {
+        uptime4G = 95.2;
+        uptimeProxy = 99.95;
+      }
+
+      document.getElementById('kpi1').textContent = String(avgDrop.toFixed(2)) + '%';
+      document.getElementById('kpi2').textContent = String(avgThroughput.toFixed(1));
+      document.getElementById('kpi3').textContent = String(avgSignal.toFixed(1));
+      document.getElementById('kpi4').textContent = String(totalDataTB.toFixed(2)) + 'TB';
+      document.getElementById('kpi5').textContent = String(totalTowers);
+      document.getElementById('kpi6').textContent = String(fgTowers);
+      document.getElementById('kpi7').textContent = String(uptime4G.toFixed(1)) + '%';
+      document.getElementById('kpi8').textContent = String(uptimeProxy.toFixed(1)) + '%';
+
+      fitKpiText('kpi1');
+      fitKpiText('kpi2');
+      fitKpiText('kpi3');
+      fitKpiText('kpi4');
+    }
+
+    function updateCharts(filtered) {
+      // Chart 1: Call Drop Rate by Technology
+      var techDropMap = {};
+      filtered.forEach(function(row) {
+        if (!techDropMap[row.tech]) techDropMap[row.tech] = [];
+        techDropMap[row.tech].push(row.dropRate);
+      });
+      var techs = Object.keys(techDropMap).sort();
+      var avgDropByTech = {};
+      techs.forEach(function(t) {
+        var sum = techDropMap[t].reduce(function(a, b) { return a + b; }, 0);
+        avgDropByTech[t] = sum / techDropMap[t].length;
+      });
+      mk('chart1', {
+        type: 'bar',
+        data: {
+          labels: techs,
+          datasets: [{
+            label: 'Avg Drop Rate (%)',
+            data: techs.map(function(t) { return avgDropByTech[t]; }),
+            backgroundColor: '#006AFF'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, max: 2 } }
+        }
+      });
+
+      // Chart 2: Throughput by Technology
+      var techThroughputMap = {};
+      filtered.forEach(function(row) {
+        if (!techThroughputMap[row.tech]) techThroughputMap[row.tech] = [];
+        techThroughputMap[row.tech].push(row.throughput);
+      });
+      var avgThroughputByTech = {};
+      techs.forEach(function(t) {
+        var sum = techThroughputMap[t].reduce(function(a, b) { return a + b; }, 0);
+        avgThroughputByTech[t] = sum / techThroughputMap[t].length;
+      });
+      mk('chart2', {
+        type: 'bar',
+        data: {
+          labels: techs,
+          datasets: [{
+            label: 'Avg Throughput (Mbps)',
+            data: techs.map(function(t) { return avgThroughputByTech[t]; }),
+            backgroundColor: '#1A7F64'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, max: 35 } }
+        }
+      });
+
+      // Chart 3: Data Consumption by Region & Tech
+      var regions = ['North', 'South', 'East', 'West', 'Central'];
+      var dataByTechRegion = {};
+      techs.forEach(function(t) {
+        dataByTechRegion[t] = {};
+        regions.forEach(function(r) { dataByTechRegion[t][r] = 0; });
+      });
+      filtered.forEach(function(row) {
+        dataByTechRegion[row.tech][row.region] += row.dataGB;
+      });
+      mk('chart3', {
+        type: 'bar',
+        data: {
+          labels: techs,
+          datasets: regions.map(function(region, idx) {
+            var colors = ['#006AFF', '#1A7F64', '#0EA5E9', '#F59E0B', '#94A3B8'];
+            return {
+              label: region,
+              data: techs.map(function(t) { return (dataByTechRegion[t][region] / 1000000); }),
+              backgroundColor: colors[idx]
+            };
+          })
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { stacked: true, beginAtZero: true } }
+        }
+      });
+
+      // Chart 4: Tower Distribution by Technology (filtered)
+      var filters = getFilters();
+      var filteredTowers = TOWERS;
+      if (filters.tech) {
+        filteredTowers = TOWERS.filter(function(t) { return t.tech === filters.tech; });
+      }
+      if (filters.region) {
+        filteredTowers = filteredTowers.filter(function(t) { return t.region === filters.region; });
+      }
+      var towerByTech = {};
+      var urbanTypes = ['Urban', 'Semi-Urban', 'Rural'];
+      techs.forEach(function(t) {
+        towerByTech[t] = {};
+        urbanTypes.forEach(function(u) { towerByTech[t][u] = 0; });
+      });
+      filteredTowers.forEach(function(row) {
+        if (towerByTech[row.tech]) towerByTech[row.tech][row.urban] = (towerByTech[row.tech][row.urban] || 0) + row.count;
+      });
+      mk('chart4', {
+        type: 'bar',
+        data: {
+          labels: techs,
+          datasets: urbanTypes.map(function(urban, idx) {
+            var colors = ['#006AFF', '#1A7F64', '#0EA5E9'];
+            return {
+              label: urban,
+              data: techs.map(function(t) { return towerByTech[t][urban]; }),
+              backgroundColor: colors[idx]
+            };
+          })
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { stacked: false, beginAtZero: true } }
+        }
+      });
+
+      // Chart 5: Signal Strength by Region
+      var signalByRegion = {};
+      regions.forEach(function(r) { signalByRegion[r] = []; });
+      filtered.forEach(function(row) {
+        signalByRegion[row.region].push(row.signal);
+      });
+      var avgSignalByRegion = {};
+      regions.forEach(function(r) {
+        if (signalByRegion[r].length > 0) {
+          var sum = signalByRegion[r].reduce(function(a, b) { return a + b; }, 0);
+          avgSignalByRegion[r] = sum / signalByRegion[r].length;
+        } else {
+          avgSignalByRegion[r] = 0;
+        }
+      });
+      mk('chart5', {
+        type: 'bar',
+        data: {
+          labels: regions,
+          datasets: [{
+            label: 'Signal Strength (dBm)',
+            data: regions.map(function(r) { return avgSignalByRegion[r]; }),
+            backgroundColor: '#F59E0B'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: false, min: -90, max: -85 } }
+        }
+      });
+
+      // Chart 6: Data Growth 2024 vs 2025 by Tech
+      var data2024 = {};
+      var data2025 = {};
+      techs.forEach(function(t) { data2024[t] = 0; data2025[t] = 0; });
+      var filters = getFilters();
+      filtered.forEach(function(row) {
+        if (row.year === 2024) data2024[row.tech] += row.dataGB;
+        if (row.year === 2025) data2025[row.tech] += row.dataGB;
+      });
+      mk('chart6', {
+        type: 'bar',
+        data: {
+          labels: techs,
+          datasets: [
+            {
+              label: '2024',
+              data: techs.map(function(t) { return (data2024[t] / 1000000); }),
+              backgroundColor: '#006AFF'
+            },
+            {
+              label: '2025',
+              data: techs.map(function(t) { return (data2025[t] / 1000000); }),
+              backgroundColor: '#1A7F64'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { stacked: false, beginAtZero: true } }
+        }
+      });
+    }
+
+    function updateTable(filtered) {
+      var tbody = document.querySelector('#networkTable tbody');
+      tbody.innerHTML = '';
+      var flt = getFilters();
+      var tblTowers = TOWERS;
+      if (flt.region) tblTowers = tblTowers.filter(function(t) { return t.region === flt.region; });
+      filtered.slice(0, 25).forEach(function(row) {
+        var towerCount = tblTowers.filter(function(t) { return t.tech === row.tech; }).reduce(function(sum, t) { return sum + t.count; }, 0);
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.tech + '</td><td>' + row.region + '</td><td>' + String(row.dropRate.toFixed(2)) + '</td><td>' + String(row.throughput.toFixed(1)) + '</td><td>' + String(row.signal.toFixed(1)) + '</td><td>' + String((row.dataGB / 1000000).toFixed(4)) + '</td><td>' + String(towerCount) + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      var filters = getFilters();
+      var filtered = DATA;
+      if (filters.year) {
+        filtered = filtered.filter(function(row) { return row.year === parseInt(filters.year); });
+      }
+      if (filters.region) {
+        filtered = filtered.filter(function(row) { return row.region === filters.region; });
+      }
+      if (filters.tech) {
+        filtered = filtered.filter(function(row) { return row.tech === filters.tech; });
+      }
+      updateKPIs(filtered);
+      updateCharts(filtered);
+      updateTable(filtered);
+      updateSubtitle();
+      fitKpiText('kpi5');
+      fitKpiText('kpi6');
+    }
+
+    applyFilters();
+  </script>
+</body>
+</html>

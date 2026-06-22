@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Analysis - Falcon Auto B2B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F4F6F9;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: #E02B20;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            background-color: rgba(224, 43, 32, 0.1);
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .back-link:hover {
+            background-color: rgba(224, 43, 32, 0.2);
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .filters-section {
+            background-color: #FFFFFF;
+            padding: 25px 30px;
+            margin: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filters-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            background-color: #FFFFFF;
+            color: #1A1A1A;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .filter-group select:hover {
+            border-color: #E02B20;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #E02B20;
+            box-shadow: 0 0 0 2px rgba(224, 43, 32, 0.1);
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 30px;
+        }
+
+        .kpi-card {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #E02B20;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .charts-container {
+            margin: 30px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .chart-wrapper {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+
+        .chart-analysis {
+            border-left: 3px solid #E02B20;
+            padding: 15px;
+            background-color: #fafafa;
+            font-size: 13px;
+            color: #555;
+            margin-top: 15px;
+            border-radius: 2px;
+        }
+
+        .footer {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px 30px;
+            margin-top: 40px;
+            font-size: 12px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-section {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-title {
+                font-size: 20px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+        <div class="dashboard-title">06 | Customer Analysis</div>
+    </div>
+
+    <div class="filters-section">
+        <div class="filters-title">Filters</div>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label for="yearFilter">Year</label>
+                <select id="yearFilter">
+                    <option value="all">All Time</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="bizTypeFilter">Business Type</label>
+                <select id="bizTypeFilter">
+                    <option value="">All Types</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="tierFilter">Membership Tier</label>
+                <select id="tierFilter">
+                    <option value="">All Tiers</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="regionFilter">Region</label>
+                <select id="regionFilter">
+                    <option value="">All Regions</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="kpi-section">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Organizations</div>
+            <div class="kpi-value" id="totalOrgs">0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value" id="totalRevenue">$0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Revenue per Org</div>
+            <div class="kpi-value" id="avgRevenue">$0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Elite Tier Count</div>
+            <div class="kpi-value" id="eliteCount">0</div>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <!-- Chart 1: Revenue by Membership Tier -->
+        <div class="chart-wrapper">
+            <div class="chart-title">Revenue by Membership Tier</div>
+            <div class="chart-container">
+                <canvas id="tierChart"></canvas>
+            </div>
+            <div class="chart-analysis" id="tierAnalysis"></div>
+        </div>
+
+        <!-- Chart 2: Organizations by Business Type -->
+        <div class="chart-wrapper">
+            <div class="chart-title">Organizations by Business Type</div>
+            <div class="chart-container">
+                <canvas id="bizTypeChart"></canvas>
+            </div>
+            <div class="chart-analysis" id="bizTypeAnalysis"></div>
+        </div>
+
+        <!-- Chart 3: Revenue by Region -->
+        <div class="chart-wrapper">
+            <div class="chart-title">Revenue by Region</div>
+            <div class="chart-container">
+                <canvas id="regionChart"></canvas>
+            </div>
+            <div class="chart-analysis" id="regionAnalysis"></div>
+        </div>
+
+        <!-- Chart 4: Top 10 Customers by Revenue -->
+        <div class="chart-wrapper">
+            <div class="chart-title">Top 10 Customers by Revenue</div>
+            <div class="chart-container">
+                <canvas id="topCustomersChart"></canvas>
+            </div>
+            <div class="chart-analysis" id="topCustomersAnalysis"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <p>Dashboard Generated: <span id="currentDate"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Embedded Data
+        const typeTierByYear = [{"year":2023,"bizType":"service_center","tier":"elite","orgCount":8,"revenue":57071.94},{"year":2023,"bizType":"collision_shop","tier":"elite","orgCount":11,"revenue":51543.87},{"year":2023,"bizType":"service_center","tier":"preferred","orgCount":9,"revenue":39889.06},{"year":2023,"bizType":"dealership","tier":"elite","orgCount":11,"revenue":36562.04},{"year":2023,"bizType":"collision_shop","tier":"preferred","orgCount":12,"revenue":34388.97},{"year":2023,"bizType":"body_shop","tier":"elite","orgCount":5,"revenue":33982.95},{"year":2023,"bizType":"dealership","tier":"preferred","orgCount":17,"revenue":33007.90},{"year":2023,"bizType":"service_center","tier":"standard","orgCount":2,"revenue":14494.58},{"year":2023,"bizType":"auto_trade_school","tier":"elite","orgCount":1,"revenue":11532.21},{"year":2023,"bizType":"dealership","tier":"standard","orgCount":5,"revenue":11120.79},{"year":2023,"bizType":"collision_shop","tier":"standard","orgCount":4,"revenue":7960.80},{"year":2023,"bizType":"auto_trade_school","tier":"preferred","orgCount":3,"revenue":3054.24},{"year":2023,"bizType":"body_shop","tier":"preferred","orgCount":1,"revenue":1419.11},{"year":2023,"bizType":"body_shop","tier":"standard","orgCount":2,"revenue":321.91},{"year":2024,"bizType":"collision_shop","tier":"elite","orgCount":11,"revenue":150548.09},{"year":2024,"bizType":"collision_shop","tier":"preferred","orgCount":29,"revenue":121906.00},{"year":2024,"bizType":"dealership","tier":"elite","orgCount":12,"revenue":115451.28},{"year":2024,"bizType":"dealership","tier":"preferred","orgCount":28,"revenue":106764.91},{"year":2024,"bizType":"service_center","tier":"preferred","orgCount":12,"revenue":78844.79},{"year":2024,"bizType":"service_center","tier":"elite","orgCount":8,"revenue":65416.38},{"year":2024,"bizType":"dealership","tier":"standard","orgCount":26,"revenue":64626.36},{"year":2024,"bizType":"body_shop","tier":"elite","orgCount":5,"revenue":55958.34},{"year":2024,"bizType":"body_shop","tier":"preferred","orgCount":5,"revenue":22290.18},{"year":2024,"bizType":"auto_trade_school","tier":"preferred","orgCount":5,"revenue":17070.40},{"year":2024,"bizType":"collision_shop","tier":"standard","orgCount":16,"revenue":16638.31},{"year":2024,"bizType":"body_shop","tier":"standard","orgCount":12,"revenue":9575.80},{"year":2024,"bizType":"service_center","tier":"standard","orgCount":12,"revenue":5810.64},{"year":2024,"bizType":"auto_trade_school","tier":"elite","orgCount":1,"revenue":5713.13},{"year":2024,"bizType":"auto_trade_school","tier":"standard","orgCount":1,"revenue":699.01},{"year":2025,"bizType":"dealership","tier":"elite","orgCount":10,"revenue":169104.18},{"year":2025,"bizType":"collision_shop","tier":"preferred","orgCount":18,"revenue":107920.02},{"year":2025,"bizType":"collision_shop","tier":"elite","orgCount":11,"revenue":102505.31},{"year":2025,"bizType":"dealership","tier":"preferred","orgCount":20,"revenue":92308.23},{"year":2025,"bizType":"service_center","tier":"elite","orgCount":8,"revenue":84180.17},{"year":2025,"bizType":"service_center","tier":"preferred","orgCount":11,"revenue":75326.39},{"year":2025,"bizType":"dealership","tier":"standard","orgCount":29,"revenue":69300.96},{"year":2025,"bizType":"collision_shop","tier":"standard","orgCount":21,"revenue":56957.05},{"year":2025,"bizType":"service_center","tier":"standard","orgCount":16,"revenue":55624.52},{"year":2025,"bizType":"body_shop","tier":"elite","orgCount":5,"revenue":45032.62},{"year":2025,"bizType":"body_shop","tier":"standard","orgCount":11,"revenue":42221.31},{"year":2025,"bizType":"auto_trade_school","tier":"elite","orgCount":1,"revenue":23948.65},{"year":2025,"bizType":"body_shop","tier":"preferred","orgCount":3,"revenue":11046.81},{"year":2025,"bizType":"auto_trade_school","tier":"standard","orgCount":1,"revenue":2395.01},{"year":2025,"bizType":"auto_trade_school","tier":"preferred","orgCount":2,"revenue":1353.21}];
+
+        const regionByYear = [{"year":2023,"region":"Southeast","orgCount":35,"revenue":111280.53},{"year":2023,"region":"Midwest","orgCount":25,"revenue":78356.03},{"year":2023,"region":"West","orgCount":11,"revenue":59040.47},{"year":2023,"region":"Northeast","orgCount":10,"revenue":57209.66},{"year":2023,"region":"Southwest","orgCount":10,"revenue":30463.68},{"year":2024,"region":"Midwest","orgCount":56,"revenue":231905.40},{"year":2024,"region":"Southeast","orgCount":52,"revenue":221601.77},{"year":2024,"region":"Southwest","orgCount":27,"revenue":140881.45},{"year":2024,"region":"Northeast","orgCount":28,"revenue":127532.84},{"year":2024,"region":"West","orgCount":20,"revenue":115392.16},{"year":2025,"region":"Southeast","orgCount":46,"revenue":262871.43},{"year":2025,"region":"Midwest","orgCount":48,"revenue":213352.40},{"year":2025,"region":"West","orgCount":28,"revenue":189946.93},{"year":2025,"region":"Northeast","orgCount":24,"revenue":167932.70},{"year":2025,"region":"Southwest","orgCount":21,"revenue":105120.98}];
+
+        const topCustomersByYear = [{"year":2025,"name":"Lake Samuel Automotive Group","bizType":"dealership","tier":"elite","region":"Southeast","revenue":30529.87,"orders":65},{"year":2023,"name":"Lake Gina Body Shop","bizType":"body_shop","tier":"elite","region":"Southeast","revenue":26996.47,"orders":42},{"year":2024,"name":"Acostabury Body & Paint","bizType":"collision_shop","tier":"elite","region":"Southwest","revenue":26951.39,"orders":61},{"year":2024,"name":"Lowehaven Auto Body","bizType":"body_shop","tier":"elite","region":"West","revenue":26929.88,"orders":55},{"year":2024,"name":"Lopez Auto Group","bizType":"dealership","tier":"elite","region":"Southwest","revenue":26873.53,"orders":70},{"year":2024,"name":"Bell Collision","bizType":"collision_shop","tier":"elite","region":"Southeast","revenue":25736.69,"orders":50},{"year":2024,"name":"Kerrport Motors","bizType":"dealership","tier":"elite","region":"Southeast","revenue":24618.24,"orders":41},{"year":2025,"name":"South Joshua Car Dealership","bizType":"dealership","tier":"elite","region":"Northeast","revenue":24487.78,"orders":54},{"year":2025,"name":"CA Collision Trades Academy","bizType":"auto_trade_school","tier":"elite","region":"West","revenue":23948.65,"orders":52},{"year":2024,"name":"North Biancafort Auto Care","bizType":"service_center","tier":"elite","region":"Northeast","revenue":23116.07,"orders":60},{"year":2025,"name":"Douglasville Car Dealership","bizType":"dealership","tier":"elite","region":"Midwest","revenue":22834.84,"orders":57},{"year":2024,"name":"Sparksmouth Body & Paint","bizType":"collision_shop","tier":"elite","region":"Midwest","revenue":22500.67,"orders":30},{"year":2025,"name":"Lowehaven Auto Body","bizType":"body_shop","tier":"elite","region":"West","revenue":21505.81,"orders":44},{"year":2025,"name":"Kerr Auto Group","bizType":"dealership","tier":"elite","region":"West","revenue":21237.37,"orders":56},{"year":2025,"name":"Odom Auto Repair","bizType":"service_center","tier":"preferred","region":"Northeast","revenue":20352.05,"orders":32},{"year":2025,"name":"QuickLube Port Gary","bizType":"service_center","tier":"elite","region":"West","revenue":20139.13,"orders":32},{"year":2025,"name":"Galvan Auto Group","bizType":"dealership","tier":"standard","region":"Southeast","revenue":19694.35,"orders":15},{"year":2025,"name":"Bell Collision","bizType":"collision_shop","tier":"elite","region":"Southeast","revenue":19627.16,"orders":63},{"year":2023,"name":"North Biancafort Auto Care","bizType":"service_center","tier":"elite","region":"Northeast","revenue":18567.53,"orders":14},{"year":2024,"name":"Thompsonburgh Car Dealership","bizType":"dealership","tier":"preferred","region":"Southwest","revenue":18370.10,"orders":26}];
+
+        // Chart colors
+        const chartColors = ['#E02B20','#1A1A1A','#4A7C9B','#2E7D32','#F9A825','#5C9DC0','#8E6BBF','#4ECDC4'];
+
+        // Chart instances
+        let tierChartInstance = null;
+        let bizTypeChartInstance = null;
+        let regionChartInstance = null;
+        let topCustomersChartInstance = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const today = new Date();
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Populate filter dropdowns
+            populateFilters();
+
+            // Initial load
+            updateDashboard();
+
+            // Add event listeners
+            document.getElementById('yearFilter').addEventListener('change', updateDashboard);
+            document.getElementById('bizTypeFilter').addEventListener('change', updateDashboard);
+            document.getElementById('tierFilter').addEventListener('change', updateDashboard);
+            document.getElementById('regionFilter').addEventListener('change', updateDashboard);
+        });
+
+        function populateFilters() {
+            const bizTypes = new Set();
+            const tiers = new Set();
+            const regions = new Set();
+
+            typeTierByYear.forEach(item => {
+                bizTypes.add(item.bizType);
+                tiers.add(item.tier);
+            });
+
+            regionByYear.forEach(item => {
+                regions.add(item.region);
+            });
+
+            topCustomersByYear.forEach(item => {
+                bizTypes.add(item.bizType);
+                tiers.add(item.tier);
+                regions.add(item.region);
+            });
+
+            // Populate Business Type
+            const bizTypeFilter = document.getElementById('bizTypeFilter');
+            Array.from(bizTypes).sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = formatLabel(type);
+                bizTypeFilter.appendChild(option);
+            });
+
+            // Populate Tier
+            const tierFilter = document.getElementById('tierFilter');
+            const tierOrder = ['elite', 'preferred', 'standard'];
+            tierOrder.forEach(tier => {
+                if (tiers.has(tier)) {
+                    const option = document.createElement('option');
+                    option.value = tier;
+                    option.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+                    tierFilter.appendChild(option);
+                }
+            });
+
+            // Populate Region
+            const regionFilter = document.getElementById('regionFilter');
+            Array.from(regions).sort().forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                regionFilter.appendChild(option);
+            });
+        }
+
+        function formatLabel(text) {
+            return text
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        function getFilterValues() {
+            return {
+                year: document.getElementById('yearFilter').value,
+                bizType: document.getElementById('bizTypeFilter').value,
+                tier: document.getElementById('tierFilter').value,
+                region: document.getElementById('regionFilter').value
+            };
+        }
+
+        function filterData(data, filters) {
+            return data.filter(item => {
+                if (filters.year !== 'all' && item.year !== parseInt(filters.year)) return false;
+                if (filters.bizType && item.bizType !== filters.bizType) return false;
+                if (filters.tier && item.tier !== filters.tier) return false;
+                if (filters.region && item.region !== filters.region) return false;
+                return true;
+            });
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function updateDashboard() {
+            const filters = getFilterValues();
+
+            // Update KPIs
+            updateKPIs(filters);
+
+            // Update Charts
+            updateTierChart(filters);
+            updateBizTypeChart(filters);
+            updateRegionChart(filters);
+            updateTopCustomersChart(filters);
+        }
+
+        function updateKPIs(filters) {
+            const filteredTypeTier = filterData(typeTierByYear, filters);
+            const filteredRegion = filterData(regionByYear, filters);
+            const filteredCustomers = filterData(topCustomersByYear, filters);
+
+            let totalOrgs = 0;
+            let totalRev = 0;
+            let eliteOrgs = 0;
+
+            filteredTypeTier.forEach(item => {
+                totalOrgs += item.orgCount;
+                totalRev += item.revenue;
+                if (item.tier === 'elite') eliteOrgs += item.orgCount;
+            });
+
+            const avgRev = totalOrgs > 0 ? totalRev / totalOrgs : 0;
+
+            document.getElementById('totalOrgs').textContent = totalOrgs.toLocaleString();
+            document.getElementById('totalRevenue').textContent = formatCurrency(totalRev);
+            document.getElementById('avgRevenue').textContent = formatCurrency(avgRev);
+            document.getElementById('eliteCount').textContent = eliteOrgs.toLocaleString();
+        }
+
+        function updateTierChart(filters) {
+            const filteredData = filterData(typeTierByYear, filters);
+
+            // Aggregate by tier
+            const tierData = {};
+            filteredData.forEach(item => {
+                if (!tierData[item.tier]) {
+                    tierData[item.tier] = 0;
+                }
+                tierData[item.tier] += item.revenue;
+            });
+
+            const tierOrder = ['elite', 'preferred', 'standard'];
+            const labels = [];
+            const revenues = [];
+
+            tierOrder.forEach(tier => {
+                if (tierData[tier]) {
+                    labels.push(tier.charAt(0).toUpperCase() + tier.slice(1));
+                    revenues.push(tierData[tier]);
+                }
+            });
+
+            // Destroy existing chart
+            if (tierChartInstance) {
+                tierChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('tierChart').getContext('2d');
+            tierChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenues,
+                        backgroundColor: chartColors.slice(0, revenues.length),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const totalRev = revenues.reduce((a, b) => a + b, 0);
+            const topTier = labels[revenues.indexOf(Math.max(...revenues))];
+            const topRevenue = Math.max(...revenues);
+            const analysis = `Revenue distribution across membership tiers shows ${topTier} tier generating $${topRevenue.toLocaleString('en-US', {maximumFractionDigits: 0})} of the total $${totalRev.toLocaleString('en-US', {maximumFractionDigits: 0})} (${(topRevenue/totalRev*100).toFixed(1)}%). This indicates strong performance from higher-tier members.`;
+            document.getElementById('tierAnalysis').textContent = analysis;
+        }
+
+        function updateBizTypeChart(filters) {
+            const filteredData = filterData(typeTierByYear, filters);
+
+            // Aggregate by business type
+            const bizTypeData = {};
+            filteredData.forEach(item => {
+                if (!bizTypeData[item.bizType]) {
+                    bizTypeData[item.bizType] = 0;
+                }
+                bizTypeData[item.bizType] += item.orgCount;
+            });
+
+            const types = Object.keys(bizTypeData).sort();
+            const labels = types.map(formatLabel);
+            const counts = types.map(type => bizTypeData[type]);
+
+            // Destroy existing chart
+            if (bizTypeChartInstance) {
+                bizTypeChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('bizTypeChart').getContext('2d');
+            bizTypeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Organizations',
+                        data: counts,
+                        backgroundColor: chartColors.slice(0, counts.length),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const totalOrgs = counts.reduce((a, b) => a + b, 0);
+            const topType = labels[counts.indexOf(Math.max(...counts))];
+            const topCount = Math.max(...counts);
+            const analysis = `${topType} leads with ${topCount} organizations out of ${totalOrgs} total (${(topCount/totalOrgs*100).toFixed(1)}%). The diverse business type distribution demonstrates strong market penetration across automotive retail and service segments.`;
+            document.getElementById('bizTypeAnalysis').textContent = analysis;
+        }
+
+        function updateRegionChart(filters) {
+            const filteredData = filterData(regionByYear, filters);
+
+            // Sort by revenue
+            const regionData = {};
+            filteredData.forEach(item => {
+                if (!regionData[item.region]) {
+                    regionData[item.region] = 0;
+                }
+                regionData[item.region] += item.revenue;
+            });
+
+            const regions = Object.keys(regionData).sort((a, b) => regionData[b] - regionData[a]);
+            const labels = regions;
+            const revenues = regions.map(region => regionData[region]);
+
+            // Destroy existing chart
+            if (regionChartInstance) {
+                regionChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('regionChart').getContext('2d');
+            regionChartInstance = new Chart(ctx, {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenues,
+                        backgroundColor: chartColors.slice(0, revenues.length),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const totalRev = revenues.reduce((a, b) => a + b, 0);
+            const topRegion = labels[0];
+            const topRevenue = revenues[0];
+            const avgRevenue = totalRev / revenues.length;
+            const analysis = `${topRegion} is the strongest region with $${topRevenue.toLocaleString('en-US', {maximumFractionDigits: 0})} in revenue (${(topRevenue/totalRev*100).toFixed(1)}% of total). Average regional revenue is $${avgRevenue.toLocaleString('en-US', {maximumFractionDigits: 0})}, indicating consistent growth opportunities across all regions.`;
+            document.getElementById('regionAnalysis').textContent = analysis;
+        }
+
+        function updateTopCustomersChart(filters) {
+            const filteredData = filterData(topCustomersByYear, filters);
+
+            // Sort by revenue and take top 10
+            const sorted = filteredData.sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+            const labels = sorted.map(item => item.name);
+            const revenues = sorted.map(item => item.revenue);
+
+            // Destroy existing chart
+            if (topCustomersChartInstance) {
+                topCustomersChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('topCustomersChart').getContext('2d');
+            topCustomersChartInstance = new Chart(ctx, {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenues,
+                        backgroundColor: chartColors.slice(0, revenues.length),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update analysis
+            const totalRev = revenues.reduce((a, b) => a + b, 0);
+            const topCustomer = labels[0];
+            const topRevenue = revenues[0];
+            const avgTopCustomerRev = totalRev / revenues.length;
+            const analysis = `Top customer ${topCustomer} generates $${topRevenue.toLocaleString('en-US', {maximumFractionDigits: 0})} in revenue. The top 10 customers account for $${totalRev.toLocaleString('en-US', {maximumFractionDigits: 0})} total, with an average of $${avgTopCustomerRev.toLocaleString('en-US', {maximumFractionDigits: 0})} per customer. These strategic accounts represent critical revenue drivers.`;
+            document.getElementById('topCustomersAnalysis').textContent = analysis;
+        }
+    </script>
+</body>
+</html>

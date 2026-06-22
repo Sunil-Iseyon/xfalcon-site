@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falcon World Cup 360 - Tournament Overview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F3F4F6;
+      color: #1F2937;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #1B5E20 0%, #0A2E11 100%);
+      border-bottom: 3px solid #FFD600;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .logo-x {
+      color: #66BB6A;
+    }
+
+    .logo-f {
+      color: #FFD600;
+    }
+
+    .topbar-title {
+      color: #F1FAE5;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .topbar-subtitle {
+      color: #FFD600;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 12px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-link {
+      color: #FFD600;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: text-decoration 0.2s;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 24px auto;
+      padding: 0 24px;
+    }
+
+    .filter-section {
+      background-color: #FFFFFF;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2E7D32;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: #1F2937;
+      background-color: #F3F4F6;
+      cursor: pointer;
+      min-width: 200px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #2E7D32;
+      background-color: #FFFFFF;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-top: 3px solid #FFD600;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2E7D32;
+      line-height: 1.2;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-delta {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .kpi-delta.positive {
+      color: #059669;
+    }
+
+    .kpi-delta.negative {
+      color: #D32F2F;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2E7D32;
+      margin-bottom: 16px;
+      margin-top: 32px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2E7D32;
+      margin-bottom: 16px;
+    }
+
+    .chart-canvas-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+
+    .table-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table thead {
+      background-color: #2E7D32;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .data-table thead th {
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 12px 8px;
+      text-align: left;
+      border: none;
+    }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .data-table tbody tr:hover {
+      background-color: #F9FAFB;
+    }
+
+    .data-table td {
+      padding: 12px 8px;
+      color: #374151;
+    }
+
+    .data-table td:first-child {
+      font-weight: 600;
+      color: #2E7D32;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-x">x</span><span class="logo-f">F</span></div>
+      <div>
+        <div class="topbar-title">Falcon World Cup 360 / 1. Tournament Overview</div>
+        <div class="topbar-subtitle">All Tournaments: 1930–2014</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a class="back-link" href="index.html">Back to Menu</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filter-section">
+      <label class="filter-label">Filter by Tournament Year:</label>
+      <select class="filter-select" id="yearFilter" onchange="applyFilters()">
+        <option value="">All Tournaments</option>
+        <option value="1930">1930</option>
+        <option value="1934">1934</option>
+        <option value="1938">1938</option>
+        <option value="1950">1950</option>
+        <option value="1954">1954</option>
+        <option value="1958">1958</option>
+        <option value="1962">1962</option>
+        <option value="1966">1966</option>
+        <option value="1970">1970</option>
+        <option value="1974">1974</option>
+        <option value="1978">1978</option>
+        <option value="1982">1982</option>
+        <option value="1986">1986</option>
+        <option value="1990">1990</option>
+        <option value="1994">1994</option>
+        <option value="1998">1998</option>
+        <option value="2002">2002</option>
+        <option value="2006">2006</option>
+        <option value="2010">2010</option>
+        <option value="2014">2014</option>
+      </select>
+    </div>
+
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card">
+        <div class="kpi-label">Tournaments</div>
+        <div class="kpi-value" id="kpi1">20</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Matches</div>
+        <div class="kpi-value" id="kpi2">836</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Goals</div>
+        <div class="kpi-value" id="kpi3">2,379</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Goals/Match</div>
+        <div class="kpi-value" id="kpi4">2.84</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Attendance</div>
+        <div class="kpi-value" id="kpi5">38.2M</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-value" id="kpi6">$19.3B</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Champion</div>
+        <div class="kpi-value" id="kpi7">Germany</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Most Titles</div>
+        <div class="kpi-value" id="kpi8">Brazil (5)</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Tournament Trends & Insights</h2>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">Goals per Match Trend</div>
+        <div class="chart-canvas-container">
+          <canvas id="chart1"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Attendance Growth</div>
+        <div class="chart-canvas-container">
+          <canvas id="chart2"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue Breakdown by Era</div>
+        <div class="chart-canvas-container">
+          <canvas id="chart3"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Champions by Titles</div>
+        <div class="chart-canvas-container">
+          <canvas id="chart4"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tournament Size Evolution</div>
+        <div class="chart-canvas-container">
+          <canvas id="chart5"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Host Continent Distribution</div>
+        <div class="chart-canvas-container">
+          <canvas id="chart6"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Tournament Details</h2>
+
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Host</th>
+            <th>Winner</th>
+            <th>Goals</th>
+            <th>Teams</th>
+            <th>Matches</th>
+            <th>Attendance</th>
+            <th>Total Revenue ($M)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var DATA = [
+      {year:1930, host:'Uruguay', winner:'Uruguay', goals:70, teams:13, matches:18, attendance:590549, ticketRev:39.9, merchRev:15.0, broadcastRev:0.006, sponsorVal:8.6},
+      {year:1934, host:'Italy', winner:'Italy', goals:70, teams:16, matches:17, attendance:363000, ticketRev:26.8, merchRev:15.1, broadcastRev:0.006, sponsorVal:7.5},
+      {year:1938, host:'France', winner:'Italy', goals:84, teams:15, matches:18, attendance:375700, ticketRev:28.2, merchRev:15.0, broadcastRev:0.008, sponsorVal:8.7},
+      {year:1950, host:'Brazil', winner:'Uruguay', goals:88, teams:13, matches:22, attendance:1045246, ticketRev:52.8, merchRev:24.7, broadcastRev:0.016, sponsorVal:9.0},
+      {year:1954, host:'Switzerland', winner:'Germany FR', goals:140, teams:16, matches:26, attendance:768607, ticketRev:50.2, merchRev:29.6, broadcastRev:0.032, sponsorVal:8.8},
+      {year:1958, host:'Sweden', winner:'Brazil', goals:126, teams:16, matches:35, attendance:819810, ticketRev:50.8, merchRev:33.9, broadcastRev:0.025, sponsorVal:9.2},
+      {year:1962, host:'Chile', winner:'Brazil', goals:89, teams:16, matches:32, attendance:893172, ticketRev:57.3, merchRev:39.1, broadcastRev:0.026, sponsorVal:8.7},
+      {year:1966, host:'England', winner:'England', goals:89, teams:16, matches:32, attendance:1563135, ticketRev:97.0, merchRev:43.8, broadcastRev:0.044, sponsorVal:8.0},
+      {year:1970, host:'Mexico', winner:'Brazil', goals:95, teams:16, matches:32, attendance:1603975, ticketRev:91.8, merchRev:48.3, broadcastRev:0.63, sponsorVal:30.9},
+      {year:1974, host:'Germany', winner:'Germany FR', goals:97, teams:16, matches:38, attendance:1865753, ticketRev:96.3, merchRev:52.9, broadcastRev:0.69, sponsorVal:33.4},
+      {year:1978, host:'Argentina', winner:'Argentina', goals:102, teams:16, matches:38, attendance:1545791, ticketRev:97.7, merchRev:57.6, broadcastRev:0.72, sponsorVal:34.3},
+      {year:1982, host:'Spain', winner:'Italy', goals:146, teams:24, matches:52, attendance:2109723, ticketRev:146.8, merchRev:62.1, broadcastRev:3.33, sponsorVal:163.1},
+      {year:1986, host:'Mexico', winner:'Argentina', goals:132, teams:24, matches:52, attendance:2394031, ticketRev:199.0, merchRev:67.8, broadcastRev:3.48, sponsorVal:174.5},
+      {year:1990, host:'Italy', winner:'Germany FR', goals:115, teams:24, matches:52, attendance:2516215, ticketRev:221.0, merchRev:71.3, broadcastRev:16.2, sponsorVal:287.6},
+      {year:1994, host:'USA', winner:'Brazil', goals:141, teams:24, matches:52, attendance:3587538, ticketRev:327.7, merchRev:77.2, broadcastRev:23.8, sponsorVal:507.9},
+      {year:1998, host:'France', winner:'France', goals:171, teams:32, matches:64, attendance:2785100, ticketRev:269.3, merchRev:81.0, broadcastRev:106.4, sponsorVal:1099.9},
+      {year:2002, host:'Korea/Japan', winner:'Brazil', goals:161, teams:32, matches:64, attendance:2705197, ticketRev:248.7, merchRev:86.4, broadcastRev:96.2, sponsorVal:1562.0},
+      {year:2006, host:'Germany', winner:'Italy', goals:147, teams:32, matches:64, attendance:3359439, ticketRev:355.7, merchRev:90.1, broadcastRev:219.4, sponsorVal:2429.7},
+      {year:2010, host:'South Africa', winner:'Spain', goals:145, teams:32, matches:64, attendance:3178856, ticketRev:358.5, merchRev:95.3, broadcastRev:348.1, sponsorVal:2994.6},
+      {year:2014, host:'Brazil', winner:'Germany', goals:171, teams:32, matches:64, attendance:3386810, ticketRev:547.9, merchRev:100.9, broadcastRev:545.3, sponsorVal:4074.9}
+    ];
+
+    var charts = {};
+
+    function mk(canvasId, type, data, options) {
+      if (charts[canvasId]) {
+        charts[canvasId].destroy();
+      }
+      var ctx = document.getElementById(canvasId).getContext('2d');
+      charts[canvasId] = new Chart(ctx, {
+        type: type,
+        data: data,
+        options: options
+      });
+    }
+
+    function fitKpiText() {
+      var kpiValues = document.querySelectorAll('.kpi-value');
+      for (var i = 0; i < kpiValues.length; i++) {
+        var el = kpiValues[i];
+        var text = el.innerText;
+        var len = text.length;
+        if (len > 12) {
+          el.style.fontSize = '24px';
+        } else if (len > 8) {
+          el.style.fontSize = '26px';
+        } else {
+          el.style.fontSize = '28px';
+        }
+      }
+    }
+
+    function applyFilters() {
+      var yearVal = document.getElementById('yearFilter').value;
+      if (yearVal === '') {
+        renderAllCharts(DATA);
+        updateAllKPIs(DATA);
+      } else {
+        var filtered = DATA.filter(function(d) { return d.year == yearVal; });
+        renderAllCharts(filtered.length > 0 ? filtered : DATA);
+        updateAllKPIs(filtered.length > 0 ? filtered : DATA);
+      }
+      fitKpiText();
+    }
+
+    function updateAllKPIs(data) {
+      var tournaments = data.length;
+      var totalMatches = 0;
+      var totalGoals = 0;
+      var totalAttendance = 0;
+      var totalRevenue = 0;
+
+      for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        totalMatches += d.matches;
+        totalGoals += d.goals;
+        totalAttendance += d.attendance;
+        var rev = d.ticketRev + d.merchRev + d.broadcastRev + d.sponsorVal;
+        totalRevenue += rev;
+      }
+
+      var avgGoalsPerMatch = data.length > 0 ? (totalGoals / totalMatches).toFixed(2) : 0;
+      var latestYear = data.length > 0 ? Math.max.apply(null, data.map(function(d) { return d.year; })) : 0;
+      var latest = data.find(function(d) { return d.year === latestYear; });
+      var latestChampion = latest ? latest.winner.replace(' FR', '') : '';
+
+      document.getElementById('kpi1').innerText = tournaments;
+      document.getElementById('kpi2').innerText = totalMatches.toLocaleString();
+      document.getElementById('kpi3').innerText = totalGoals.toLocaleString();
+      document.getElementById('kpi4').innerText = avgGoalsPerMatch;
+      document.getElementById('kpi5').innerText = (totalAttendance / 1000000).toFixed(1) + 'M';
+      document.getElementById('kpi6').innerText = '$' + (totalRevenue / 1000).toFixed(1) + 'B';
+      document.getElementById('kpi7').innerText = latestChampion;
+      document.getElementById('kpi8').innerText = 'Brazil (5)';
+    }
+
+    function renderAllCharts(data) {
+      renderGoalsPerMatchTrend(data);
+      renderAttendanceGrowth(data);
+      renderRevenueByEra(data);
+      renderChampionsByTitles();
+      renderTournamentSizeEvolution(data);
+      renderHostContinents();
+      renderTable(data);
+    }
+
+    function renderGoalsPerMatchTrend(data) {
+      var years = data.map(function(d) { return d.year; });
+      var avgGoals = data.map(function(d) { return (d.goals / d.matches).toFixed(2); });
+
+      mk('chart1', 'line', {
+        labels: years,
+        datasets: [{
+          label: 'Avg Goals per Match',
+          data: avgGoals,
+          borderColor: '#2E7D32',
+          backgroundColor: 'rgba(46, 125, 50, 0.1)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#FFD600',
+          pointBorderColor: '#2E7D32',
+          pointBorderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      }, {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 6,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          },
+          x: {
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          }
+        }
+      });
+    }
+
+    function renderAttendanceGrowth(data) {
+      var years = data.map(function(d) { return d.year; });
+      var attendance = data.map(function(d) { return Math.round(d.attendance / 1000000); });
+
+      mk('chart2', 'bar', {
+        labels: years,
+        datasets: [{
+          label: 'Attendance (Millions)',
+          data: attendance,
+          backgroundColor: '#C8A415',
+          borderColor: '#9D7D0A',
+          borderWidth: 1
+        }]
+      }, {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          },
+          x: {
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          }
+        }
+      });
+    }
+
+    function renderRevenueByEra(data) {
+      var eras = ['1930-1966', '1970-1990', '1994-2014'];
+      var ticketData = [0, 0, 0];
+      var merchData = [0, 0, 0];
+      var broadcastData = [0, 0, 0];
+      var sponsorData = [0, 0, 0];
+
+      for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        var eraIdx = 0;
+        if (d.year >= 1970 && d.year <= 1990) eraIdx = 1;
+        else if (d.year >= 1994) eraIdx = 2;
+
+        ticketData[eraIdx] += d.ticketRev;
+        merchData[eraIdx] += d.merchRev;
+        broadcastData[eraIdx] += d.broadcastRev;
+        sponsorData[eraIdx] += d.sponsorVal;
+      }
+
+      mk('chart3', 'bar', {
+        labels: eras,
+        datasets: [
+          {
+            label: 'Ticket Revenue',
+            data: ticketData,
+            backgroundColor: '#2E7D32',
+            borderWidth: 0
+          },
+          {
+            label: 'Merchandise',
+            data: merchData,
+            backgroundColor: '#C8A415',
+            borderWidth: 0
+          },
+          {
+            label: 'Broadcast',
+            data: broadcastData,
+            backgroundColor: '#94A3B8',
+            borderWidth: 0
+          },
+          {
+            label: 'Sponsorship',
+            data: sponsorData,
+            backgroundColor: '#4CAF50',
+            borderWidth: 0
+          }
+        ]
+      }, {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#64748B', font: { size: 12 } }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          }
+        }
+      });
+    }
+
+    function renderChampionsByTitles() {
+      var champions = ['Brazil', 'Italy', 'Germany', 'Argentina', 'Uruguay', 'France', 'Spain', 'England'];
+      var titles = [5, 4, 4, 2, 2, 1, 1, 1];
+
+      mk('chart4', 'bar', {
+        labels: champions,
+        datasets: [{
+          label: 'Total Titles',
+          data: titles,
+          backgroundColor: '#2E7D32',
+          borderColor: '#1B5E20',
+          borderWidth: 1
+        }]
+      }, {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 6,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          },
+          y: {
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          }
+        }
+      });
+    }
+
+    function renderTournamentSizeEvolution(data) {
+      var years = data.map(function(d) { return d.year; });
+      var teams = data.map(function(d) { return d.teams; });
+
+      mk('chart5', 'line', {
+        labels: years,
+        datasets: [{
+          label: 'Qualified Teams',
+          data: teams,
+          borderColor: '#FFD600',
+          backgroundColor: 'rgba(255, 214, 0, 0.1)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#2E7D32',
+          pointBorderColor: '#FFD600',
+          pointBorderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      }, {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 35,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          },
+          x: {
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          }
+        }
+      });
+    }
+
+    function renderHostContinents() {
+      var continents = ['Europe', 'South America', 'North America', 'Asia', 'Africa'];
+      var counts = [10, 5, 3, 1, 1];
+      var colors = ['#2E7D32', '#C8A415', '#94A3B8', '#4CAF50', '#F59E0B'];
+
+      mk('chart6', 'bar', {
+        labels: continents,
+        datasets: [{
+          label: 'Number of Tournaments',
+          data: counts,
+          backgroundColor: colors,
+          borderColor: colors,
+          borderWidth: 1
+        }]
+      }, {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 11,
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          },
+          y: {
+            ticks: { color: '#64748B' },
+            grid: { color: '#E2E8F0' }
+          }
+        }
+      });
+    }
+
+    function renderTable(data) {
+      var tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        var totalRev = (d.ticketRev + d.merchRev + d.broadcastRev + d.sponsorVal).toFixed(1);
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>' + d.year + '</td><td>' + d.host + '</td><td>' + d.winner + '</td><td>' + d.goals + '</td><td>' + d.teams + '</td><td>' + d.matches + '</td><td>' + d.attendance.toLocaleString() + '</td><td>$' + totalRev + '</td>';
+        tbody.appendChild(row);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderAllCharts(DATA);
+      fitKpiText();
+    });
+  </script>
+</body>
+</html>

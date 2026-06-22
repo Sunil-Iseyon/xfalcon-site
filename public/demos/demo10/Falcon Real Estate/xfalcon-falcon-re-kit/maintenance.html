@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falcon Real Estate / Maintenance Operations</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #1f2937;
+            line-height: 1.5;
+        }
+        body { padding: 32px 24px; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .xf-logo {
+            font-weight: 700;
+            font-size: 18px;
+            color: #006AFF;
+            letter-spacing: -0.5px;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .topbar-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #f3f4f6;
+            color: #374151;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: #e5e7eb;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 6px;
+        }
+
+        .kpi-unit {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .kpi-change.positive {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .kpi-change.negative {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .chart-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .chart-desc {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 12px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+        }
+
+        .data-table td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .data-table th:nth-child(1),
+        .data-table td:nth-child(1) { text-align: left; }
+
+        .data-table th:nth-child(n+2),
+        .data-table td:nth-child(n+2) { text-align: right; }
+
+        .vendor-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-excellent {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .status-good {
+            background: #eff6ff;
+            color: #0369a1;
+        }
+
+        .status-fair {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 1024px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+        }
+
+        canvas { max-height: 300px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="xf-logo">xF</div>
+        <div>
+            <div class="topbar-title">Falcon Real Estate / Maintenance Operations</div>
+            <div class="topbar-subtitle">Deep analysis of work order trends, costs, and vendor performance</div>
+        </div>
+    </div>
+    <a href="index.html" class="back-link">← Back to Portal</a>
+</div>
+
+<h2 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">2025 Performance Summary</h2>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Total Work Orders</div>
+        <div class="kpi-value">1,440</div>
+        <div class="kpi-unit">2025</div>
+        <div class="kpi-change positive">+2.6% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Total Cost</div>
+        <div class="kpi-value">$8.26M</div>
+        <div class="kpi-unit">2025</div>
+        <div class="kpi-change negative">+10.9% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Reactive %</div>
+        <div class="kpi-value">65.7%</div>
+        <div class="kpi-unit">of WOs</div>
+        <div class="kpi-change negative">+0.7% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">SLA Breach Rate</div>
+        <div class="kpi-value">5.4%</div>
+        <div class="kpi-unit">2025</div>
+        <div class="kpi-change positive">-1.2% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Avg Days to Complete</div>
+        <div class="kpi-value">1.35</div>
+        <div class="kpi-unit">days</div>
+        <div class="kpi-change positive">-8.9% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Avg Cost per WO</div>
+        <div class="kpi-value">$5,750</div>
+        <div class="kpi-unit">2025</div>
+        <div class="kpi-change negative">+8.4% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Satisfaction Score</div>
+        <div class="kpi-value">3.58</div>
+        <div class="kpi-unit">of 5.0</div>
+        <div class="kpi-change positive">+2.9% vs LY</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Recurring Rate</div>
+        <div class="kpi-value">50.6%</div>
+        <div class="kpi-unit">of WOs</div>
+        <div class="kpi-change positive">-0.9% vs LY</div>
+    </div>
+</div>
+
+<div class="chart-row full">
+    <div class="chart-card">
+        <div class="chart-title">Reactive vs Planned Mix Trend by Year (2020–2025)</div>
+        <div class="chart-desc">Stacked bars show WO volume mix over time; line overlay tracks reactive creep. Reactive percentage has grown from 56.4% to 65.7% in 6 years.</div>
+        <canvas id="chart-trend"></canvas>
+    </div>
+</div>
+
+<div class="chart-row">
+    <div class="chart-card">
+        <div class="chart-title">Total Maintenance Cost by Category (2025)</div>
+        <div class="chart-desc">Top 10 cost drivers. Parking lot resurfacing dominates at $2.16M, followed by UPS battery replacement at $2.00M.</div>
+        <canvas id="chart-cost"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">Cost Variance: Estimated vs Actual (2025)</div>
+        <div class="chart-desc">Grouped bars show forecast accuracy. Red highlight: overruns >90% variance. UPS batteries are worst at 135.5% variance.</div>
+        <canvas id="chart-variance"></canvas>
+    </div>
+</div>
+
+<div class="chart-row">
+    <div class="chart-card">
+        <div class="chart-title">SLA Breach Rate by Category (2025)</div>
+        <div class="chart-desc">Percentage of work orders missing SLA targets. Red bars indicate high breach risk. UPS replacement has worst rate at 40%.</div>
+        <canvas id="chart-sla"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">Tenant Satisfaction Score by Category (2025)</div>
+        <div class="chart-desc">Average satisfaction rating (1–5 scale). Scores 4+ indicate strong vendor/service quality. Plumbing emergency leads at 4.0.</div>
+        <canvas id="chart-satisfaction"></canvas>
+    </div>
+</div>
+
+<div class="table-card">
+    <h2 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Vendor Performance Scorecard (2025)</h2>
+    <p style="font-size: 12px; color: #6b7280; margin-bottom: 16px;">Top 15 vendors by satisfaction score. Includes cost efficiency and reliability metrics. Green = excellent performance; orange = fair performance.</p>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Vendor Name</th>
+                <th>Type</th>
+                <th>WO Count</th>
+                <th>Avg Cost</th>
+                <th>Avg Days</th>
+                <th>SLA Breach %</th>
+                <th>Satisfaction</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>TechSecure Systems</td>
+                <td>Spot</td>
+                <td style="text-align: right;">25</td>
+                <td style="text-align: right;">$2,951</td>
+                <td style="text-align: right;">1.45</td>
+                <td style="text-align: right;">0.0%</td>
+                <td style="text-align: right;"><span class="vendor-status status-excellent">4.40/5</span></td>
+            </tr>
+            <tr>
+                <td>National Fire Safety Corp</td>
+                <td>Spot</td>
+                <td style="text-align: right;">32</td>
+                <td style="text-align: right;">$3,264</td>
+                <td style="text-align: right;">1.48</td>
+                <td style="text-align: right;">3.1%</td>
+                <td style="text-align: right;"><span class="vendor-status status-excellent">4.20/5</span></td>
+            </tr>
+            <tr>
+                <td>Premier Structural Group</td>
+                <td>Spot</td>
+                <td style="text-align: right;">35</td>
+                <td style="text-align: right;">$4,604</td>
+                <td style="text-align: right;">1.12</td>
+                <td style="text-align: right;">2.9%</td>
+                <td style="text-align: right;"><span class="vendor-status status-excellent">4.13/5</span></td>
+            </tr>
+            <tr>
+                <td>City Roofing Specialists</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">62</td>
+                <td style="text-align: right;">$5,803</td>
+                <td style="text-align: right;">1.38</td>
+                <td style="text-align: right;">1.6%</td>
+                <td style="text-align: right;"><span class="vendor-status status-good">4.00/5</span></td>
+            </tr>
+            <tr>
+                <td>ProBuild Construction Inc</td>
+                <td>Spot</td>
+                <td style="text-align: right;">28</td>
+                <td style="text-align: right;">$9,694</td>
+                <td style="text-align: right;">1.33</td>
+                <td style="text-align: right;">3.6%</td>
+                <td style="text-align: right;"><span class="vendor-status status-good">4.00/5</span></td>
+            </tr>
+            <tr>
+                <td>Elite Elevator Services</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">81</td>
+                <td style="text-align: right;">$6,932</td>
+                <td style="text-align: right;">1.63</td>
+                <td style="text-align: right;">6.2%</td>
+                <td style="text-align: right;"><span class="vendor-status status-good">3.94/5</span></td>
+            </tr>
+            <tr>
+                <td>National Fire Safety Corp</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">74</td>
+                <td style="text-align: right;">$5,974</td>
+                <td style="text-align: right;">1.27</td>
+                <td style="text-align: right;">1.4%</td>
+                <td style="text-align: right;"><span class="vendor-status status-good">3.86/5</span></td>
+            </tr>
+            <tr>
+                <td>Summit Plumbing Co</td>
+                <td>Spot</td>
+                <td style="text-align: right;">30</td>
+                <td style="text-align: right;">$5,099</td>
+                <td style="text-align: right;">1.25</td>
+                <td style="text-align: right;">3.3%</td>
+                <td style="text-align: right;"><span class="vendor-status status-good">3.83/5</span></td>
+            </tr>
+            <tr>
+                <td>Apex Electrical Contractors</td>
+                <td>Spot</td>
+                <td style="text-align: right;">36</td>
+                <td style="text-align: right;">$8,062</td>
+                <td style="text-align: right;">1.49</td>
+                <td style="text-align: right;">8.3%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.75/5</span></td>
+            </tr>
+            <tr>
+                <td>ProBuild Construction Inc</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">93</td>
+                <td style="text-align: right;">$5,083</td>
+                <td style="text-align: right;">1.33</td>
+                <td style="text-align: right;">7.5%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.70/5</span></td>
+            </tr>
+            <tr>
+                <td>Urban Landscaping LLC</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">87</td>
+                <td style="text-align: right;">$6,805</td>
+                <td style="text-align: right;">1.54</td>
+                <td style="text-align: right;">9.2%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.63/5</span></td>
+            </tr>
+            <tr>
+                <td>City Roofing Specialists</td>
+                <td>Spot</td>
+                <td style="text-align: right;">31</td>
+                <td style="text-align: right;">$5,470</td>
+                <td style="text-align: right;">1.43</td>
+                <td style="text-align: right;">3.2%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.60/5</span></td>
+            </tr>
+            <tr>
+                <td>Premier Structural Group</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">62</td>
+                <td style="text-align: right;">$2,451</td>
+                <td style="text-align: right;">1.02</td>
+                <td style="text-align: right;">3.2%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.59/5</span></td>
+            </tr>
+            <tr>
+                <td>FastFix General Maintenance</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">82</td>
+                <td style="text-align: right;">$4,884</td>
+                <td style="text-align: right;">1.20</td>
+                <td style="text-align: right;">4.9%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.53/5</span></td>
+            </tr>
+            <tr>
+                <td>Metro HVAC Services LLC</td>
+                <td>Preferred</td>
+                <td style="text-align: right;">72</td>
+                <td style="text-align: right;">$4,194</td>
+                <td style="text-align: right;">1.23</td>
+                <td style="text-align: right;">6.9%</td>
+                <td style="text-align: right;"><span class="vendor-status status-fair">3.47/5</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="footer">Generated by xFalcon RetailEdge | Data as of 2025-12-31</div>
+
+<script>
+const mk = (fn) => fn();
+
+// Chart 1: Reactive vs Planned Trend (Mixed: Stacked Bar + Line)
+mk(() => {
+    const ctx = document.getElementById('chart-trend').getContext('2d');
+    const years = ['2020', '2021', '2022', '2023', '2024', '2025'];
+    const reactive = [724, 760, 785, 907, 912, 946];
+    const planned = [217, 237, 205, 178, 161, 164];
+    const emergency = [138, 122, 153, 170, 136, 156];
+    const preventive = [229, 213, 213, 209, 195, 174];
+    const reactivePercent = [56.4, 57.4, 58.1, 61.8, 64.9, 65.7];
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: years,
+            datasets: [
+                {
+                    label: 'Reactive',
+                    data: reactive,
+                    backgroundColor: '#0EA5E9',
+                    stack: 'Stack 0'
+                },
+                {
+                    label: 'Planned',
+                    data: planned,
+                    backgroundColor: '#006AFF',
+                    stack: 'Stack 0'
+                },
+                {
+                    label: 'Emergency',
+                    data: emergency,
+                    backgroundColor: '#E8A87C',
+                    stack: 'Stack 0'
+                },
+                {
+                    label: 'Preventive',
+                    data: preventive,
+                    backgroundColor: '#1A7F64',
+                    stack: 'Stack 0'
+                },
+                {
+                    label: 'Reactive %',
+                    data: reactivePercent,
+                    type: 'line',
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#F59E0B'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    stacked: true,
+                    title: { display: true, text: 'Work Order Count' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    min: 50,
+                    max: 70,
+                    title: { display: true, text: 'Reactive %' }
+                }
+            },
+            plugins: {
+                legend: { display: true, position: 'bottom' }
+            }
+        }
+    });
+});
+
+// Chart 2: Cost by Category (Horizontal Bar)
+mk(() => {
+    const ctx = document.getElementById('chart-cost').getContext('2d');
+    const categories = ['Parking Lot Resurfacing', 'UPS Battery Replacement', 'Tower Antenna Mount', 'Roof Emergency', 'HVAC Emergency', 'Plumbing Emergency', 'Elevator Emergency', 'Data Centre Cooling', 'HVAC Reactive', 'Electrical Panel'];
+    const costs = [2156313.89, 2004608.96, 886024.21, 655568.56, 359849.34, 288347.20, 270797.20, 193314.63, 187189.76, 181223.45];
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Total Cost',
+                data: costs,
+                backgroundColor: '#006AFF'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    ticks: {
+                        callback: v => '$' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'K')
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Chart 3: Cost Variance (Grouped Bar)
+mk(() => {
+    const ctx = document.getElementById('chart-variance').getContext('2d');
+    const categories = ['UPS Battery', 'HVAC Emergency', 'Tower Prev Insp', 'Plumbing Routine', 'Electrical Panel', 'Dock Leveler'];
+    const estimated = [35435.95, 3177.99, 1177.51, 419.12, 1108.07, 481.32];
+    const actual = [83525.37, 6920.18, 2478.78, 879.63, 2265.29, 984.71];
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [
+                {
+                    label: 'Estimated',
+                    data: estimated,
+                    backgroundColor: '#1A7F64'
+                },
+                {
+                    label: 'Actual',
+                    data: actual,
+                    backgroundColor: '#006AFF'
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: true, position: 'bottom' } },
+            scales: {
+                x: {
+                    ticks: {
+                        callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v.toFixed(0))
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Chart 4: SLA Breach Rate (Horizontal Bar)
+mk(() => {
+    const ctx = document.getElementById('chart-sla').getContext('2d');
+    const categories = ['Parking Lot', 'UPS Battery', 'Tower Antenna', 'Roof Emergency', 'HVAC Emergency', 'Plumbing Leak', 'Elevator Emergency', 'Data Centre', 'HVAC Reactive', 'Electrical Panel'];
+    const rates = [12.0, 40.0, 7.1, 29.7, 38.5, 0.0, 0.0, 0.0, 10.5, 9.9];
+
+    const colors = rates.map(r => r > 20 ? '#F59E0B' : r > 10 ? '#0EA5E9' : '#1A7F64');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'SLA Breach %',
+                data: rates,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    min: 0,
+                    max: 45,
+                    ticks: {
+                        callback: v => v + '%'
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Chart 5: Satisfaction Score (Horizontal Bar)
+mk(() => {
+    const ctx = document.getElementById('chart-satisfaction').getContext('2d');
+    const categories = ['Plumbing Emergency', 'Data Centre Cooling', 'Tower Prev Insp', 'HVAC Preventive', 'Elevator Preventive', 'Security System', 'Landscaping', 'Roof Emergency', 'Senior Deep Clean', 'Medical Gas'];
+    const scores = [4.0, 4.33, 4.0, 4.0, 3.92, 3.85, 3.73, 3.69, 3.67, 3.67];
+
+    const colors = scores.map(s => s >= 4.0 ? '#1A7F64' : s >= 3.7 ? '#1A7F64' : '#0EA5E9');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Satisfaction Score',
+                data: scores,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    min: 3.5,
+                    max: 4.5,
+                    ticks: {
+                        callback: v => v.toFixed(1) + '/5'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>

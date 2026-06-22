@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Detail - xFalcon IPL Analytics Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --color-dark: #1A1A1A;
+      --color-base: #F5F6F8;
+      --color-card: #FFFFFF;
+      --color-accent: #4ECDC4;
+      --color-accent2: #F7946B;
+      --color-green: #4CAF50;
+      --color-red: #FF4757;
+      --color-text: #1A1A1A;
+      --color-text-sec: #64748B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-base);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-dark);
+      padding: 16px 24px;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .back-link {
+      color: var(--color-accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-accent2);
+    }
+
+    /* Main container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Player Profile Card */
+    .profile-card {
+      background-color: var(--color-card);
+      border-radius: 8px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .profile-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 24px;
+    }
+
+    .profile-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .player-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 12px;
+    }
+
+    .team-badge {
+      display: inline-flex;
+      align-items: center;
+      background-color: var(--color-accent);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      width: fit-content;
+      margin-bottom: 16px;
+    }
+
+    .nationality {
+      font-size: 14px;
+      color: var(--color-text-sec);
+      margin-bottom: 4px;
+    }
+
+    .profile-right {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .stat-box {
+      background-color: var(--color-base);
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 3px solid var(--color-accent);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-sec);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .profile-attributes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .attribute-pill {
+      background-color: var(--color-base);
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-sec);
+      border-left: 2px solid var(--color-accent);
+    }
+
+    .attribute-pill.status-active {
+      border-left-color: var(--color-green);
+      color: var(--color-green);
+      font-weight: 600;
+    }
+
+    .attribute-pill.status-retired {
+      border-left-color: var(--color-red);
+      color: var(--color-red);
+      font-weight: 600;
+    }
+
+    .attribute-pill.overseas {
+      border-left-color: var(--color-accent2);
+      color: var(--color-accent2);
+      font-weight: 600;
+    }
+
+    /* Section Title */
+    .section-title {
+      background-color: var(--color-dark);
+      color: white;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 32px 0 16px 0;
+      border-left: 4px solid var(--color-accent);
+      border-radius: 2px;
+    }
+
+    /* Season Table */
+    .table-wrapper {
+      background-color: var(--color-card);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 32px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background-color: var(--color-dark);
+      color: white;
+    }
+
+    th {
+      padding: 14px 12px;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-right: 1px solid rgba(0,0,0,0.1);
+    }
+
+    th:last-child {
+      border-right: none;
+    }
+
+    td {
+      padding: 12px;
+      border-right: 1px solid rgba(0,0,0,0.06);
+      color: var(--color-text);
+    }
+
+    td:last-child {
+      border-right: none;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      transition: background-color 0.2s ease;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: rgba(0,0,0,0.01);
+    }
+
+    tbody tr:hover {
+      background-color: rgba(74, 205, 196, 0.05);
+    }
+
+    tbody tr.orange-cap {
+      border-left: 3px solid var(--color-accent);
+      background-color: rgba(78, 205, 196, 0.08);
+    }
+
+    tbody tr.purple-cap {
+      border-left: 3px solid var(--color-accent2);
+      background-color: rgba(247, 148, 107, 0.08);
+    }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background-color: var(--color-card);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    /* Directory Section */
+    .search-box {
+      background-color: var(--color-card);
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .player-link {
+      color: var(--color-accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .player-link:hover {
+      color: var(--color-accent2);
+      text-decoration: underline;
+    }
+
+    tbody tr.current-player {
+      border-left: 3px solid var(--color-accent);
+      background-color: rgba(78, 205, 196, 0.06);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.active {
+      background-color: rgba(76, 175, 80, 0.2);
+      color: var(--color-green);
+    }
+
+    .status-badge.retired {
+      background-color: rgba(255, 71, 87, 0.2);
+      color: var(--color-red);
+    }
+
+    /* Footer */
+    .footer {
+      background-color: var(--color-dark);
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      padding: 24px;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    .no-data {
+      background-color: var(--color-card);
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+      color: var(--color-text-sec);
+      margin-bottom: 32px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .profile-header {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .profile-right {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 10px 8px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+
+      .topbar {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .topbar-left {
+        gap: 16px;
+      }
+
+      .player-name {
+        font-size: 24px;
+      }
+
+      .profile-card {
+        padding: 20px;
+      }
+
+      .profile-right {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-attributes {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      table {
+        font-size: 11px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span style="color:#4ECDC4">x</span><span style="color:#F7946B">F</span>alcon</div>
+      <div class="title">Player Detail</div>
+    </div>
+    <a href="02-player-analytics.html" class="back-link">← Back to Player Analytics</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Player Profile Card -->
+    <div class="profile-card" id="profileCard"></div>
+
+    <!-- Season Table Section -->
+    <div id="seasonSection"></div>
+
+    <!-- Charts Section -->
+    <div id="chartsSection"></div>
+
+    <!-- Player Directory Section -->
+    <div>
+      <div class="section-title">Player Directory</div>
+      <div class="search-box">
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Search players by name..."
+        >
+      </div>
+      <div class="table-wrapper">
+        <table id="playerTable">
+          <thead>
+            <tr>
+              <th>Player Name</th>
+              <th>Nationality</th>
+              <th>Role</th>
+              <th>Team (2025)</th>
+              <th>Career Mat</th>
+              <th>Career Runs</th>
+              <th>Career Wkts</th>
+              <th>2025 Runs</th>
+              <th>2025 SR</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="playerTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    xFalcon IPL Analytics Kit © 2025 | Player Detail
+  </div>
+
+  <script>
+    var players = [
+      {key:195,name:'Cheteshwar Shami',nat:'India',bat:'Left-hand bat',bowl:'Left-arm medium',role:'Batsman',dob:'1991-09-04',debut:2019,overseas:0,active:1,cMat:152,cRuns:131,cWkt:0,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:375,sWkt:0,sAvg:28.00,sSR:130.00,sMat:14,s4:30,s6:11,ocRank:1,pcRank:155,mvp:60.00},
+      {key:190,name:'Prithvi Dhawan',nat:'India',bat:'Left-hand bat',bowl:'Right-arm off-spin',role:'All-rounder',dob:'1996-01-22',debut:2013,overseas:0,active:0,cMat:216,cRuns:1483,cWkt:78,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:370,sWkt:0,sAvg:38.00,sSR:125.00,sMat:9,s4:25,s6:18,ocRank:2,pcRank:150,mvp:55.00},
+      {key:185,name:'Quinton de Villiers',nat:'South Africa',bat:'Left-hand bat',bowl:'Left-arm orthodox spin',role:'Batsman',dob:'1992-05-09',debut:2019,overseas:1,active:1,cMat:188,cRuns:0,cWkt:0,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:365,sWkt:0,sAvg:33.00,sSR:120.00,sMat:11,s4:20,s6:13,ocRank:3,pcRank:145,mvp:50.00},
+      {key:180,name:'KL Patel',nat:'India',bat:'Right-hand bat',bowl:'Left-arm orthodox spin',role:'Bowler',dob:'1982-10-20',debut:2016,overseas:0,active:1,cMat:118,cRuns:377,cWkt:66,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:360,sWkt:0,sAvg:28.00,sSR:115.00,sMat:13,s4:15,s6:8,ocRank:4,pcRank:140,mvp:45.00},
+      {key:175,name:'Ajinkya Chahal',nat:'India',bat:'Right-hand bat',bowl:'Right-arm leg-spin',role:'All-rounder',dob:'1991-06-24',debut:2018,overseas:0,active:1,cMat:57,cRuns:0,cWkt:49,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:355,sWkt:0,sAvg:38.00,sSR:170.00,sMat:8,s4:30,s6:15,ocRank:5,pcRank:135,mvp:70.00},
+      {key:170,name:'Washington Singh',nat:'India',bat:'Right-hand bat',bowl:'Left-arm medium',role:'Opening batsman',dob:'1997-11-26',debut:2013,overseas:0,active:1,cMat:38,cRuns:1706,cWkt:2,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:350,sWkt:0,sAvg:33.00,sSR:165.00,sMat:10,s4:25,s6:10,ocRank:6,pcRank:130,mvp:65.00},
+      {key:165,name:'Shreyas Pant',nat:'India',bat:'Right-hand bat',bowl:'Right-arm fast',role:'Batsman',dob:'1999-01-22',debut:2009,overseas:0,active:0,cMat:89,cRuns:2065,cWkt:0,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:345,sWkt:0,sAvg:28.00,sSR:160.00,sMat:12,s4:20,s6:17,ocRank:7,pcRank:125,mvp:60.00},
+      {key:160,name:'Suresh Bravo',nat:'India',bat:'Right-hand bat',bowl:'Right-arm medium-fast',role:'Batsman',dob:'1997-06-04',debut:2020,overseas:0,active:1,cMat:91,cRuns:2037,cWkt:0,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:340,sWkt:0,sAvg:38.00,sSR:155.00,sMat:14,s4:15,s6:12,ocRank:8,pcRank:120,mvp:55.00},
+      {key:155,name:'Yuzvendra Chahar',nat:'India',bat:'Right-hand bat',bowl:'Right-arm medium-fast',role:'All-rounder',dob:'1993-06-27',debut:2015,overseas:0,active:0,cMat:122,cRuns:1798,cWkt:122,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:335,sWkt:0,sAvg:33.00,sSR:150.00,sMat:9,s4:30,s6:19,ocRank:9,pcRank:155,mvp:50.00},
+      {key:150,name:'Chahal Dhawan',nat:'India',bat:'Right-hand bat',bowl:'Right-arm medium-fast',role:'All-rounder',dob:'1999-01-24',debut:2020,overseas:0,active:1,cMat:188,cRuns:1727,cWkt:0,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:330,sWkt:0,sAvg:28.00,sSR:145.00,sMat:11,s4:25,s6:14,ocRank:10,pcRank:150,mvp:45.00},
+      {key:145,name:'Siraj Kohli',nat:'India',bat:'Right-hand bat',bowl:'Right-arm medium-fast',role:'Batsman',dob:'1984-10-07',debut:2009,overseas:0,active:0,cMat:215,cRuns:1131,cWkt:0,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:325,sWkt:0,sAvg:38.00,sSR:140.00,sMat:13,s4:20,s6:9,ocRank:11,pcRank:145,mvp:70.00},
+      {key:140,name:'Ishan Agarwal',nat:'India',bat:'Right-hand bat',bowl:'Right-arm fast',role:'Batsman',dob:'1981-05-16',debut:2009,overseas:0,active:1,cMat:44,cRuns:2877,cWkt:0,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:320,sWkt:0,sAvg:33.00,sSR:135.00,sMat:8,s4:15,s6:16,ocRank:12,pcRank:140,mvp:65.00},
+      {key:300,name:'Ravindra Chahar',nat:'India',bat:'Right-hand bat',bowl:'Right-arm off-spin',role:'Batsman',dob:'1987-08-18',debut:2018,overseas:0,active:1,cMat:195,cRuns:2218,cWkt:9,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:280,sWkt:0,sAvg:28.00,sSR:115.00,sMat:14,s4:15,s6:8,ocRank:13,pcRank:140,mvp:45.00},
+      {key:295,name:'Rohit Chahar',nat:'India',bat:'Left-hand bat',bowl:'Right-arm fast',role:'Batsman',dob:'1995-04-23',debut:2017,overseas:0,active:1,cMat:200,cRuns:1010,cWkt:0,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:275,sWkt:0,sAvg:38.00,sSR:170.00,sMat:9,s4:30,s6:15,ocRank:14,pcRank:135,mvp:70.00},
+      {key:290,name:'Sunil Narine',nat:'England',bat:'Right-hand bat',bowl:'Right-arm fast',role:'Bowler',dob:'1997-08-08',debut:2011,overseas:1,active:0,cMat:96,cRuns:287,cWkt:7,team:'LSG',teamFull:'Lucknow Super Giants',sRuns:270,sWkt:0,sAvg:33.00,sSR:165.00,sMat:11,s4:25,s6:10,ocRank:15,pcRank:130,mvp:65.00},
+      {key:146,name:'Yuzvendra Chahar',nat:'India',bat:'Right-hand bat',bowl:'Right-arm medium-fast',role:'Wicket-keeper',dob:'1990-03-26',debut:2017,overseas:0,active:1,cMat:20,cRuns:433,cWkt:4,team:'PBKS',teamFull:'Punjab Kings',sRuns:266,sWkt:0,sAvg:24.00,sSR:141.00,sMat:14,s4:21,s6:7,ocRank:23,pcRank:146,mvp:56.00},
+      {key:296,name:'Ravichandran Tewatia',nat:'India',bat:'Left-hand bat',bowl:'Right-arm medium-fast',role:'Bowler',dob:'1989-07-15',debut:2016,overseas:0,active:1,cMat:186,cRuns:430,cWkt:38,team:'PBKS',teamFull:'Punjab Kings',sRuns:266,sWkt:0,sAvg:30.00,sSR:171.00,sMat:10,s4:21,s6:5,ocRank:22,pcRank:136,mvp:56.00},
+      {key:285,name:'Mustafizur Smith',nat:'West Indies',bat:'Left-hand bat',bowl:'Left-arm orthodox spin',role:'Wicket-keeper',dob:'1981-04-24',debut:2008,overseas:1,active:0,cMat:122,cRuns:854,cWkt:9,team:'SRH',teamFull:'Sunrisers Hyderabad',sRuns:265,sWkt:0,sAvg:28.00,sSR:160.00,sMat:13,s4:20,s6:17,ocRank:24,pcRank:125,mvp:60.00},
+      {key:141,name:'Kieron Perera',nat:'England',bat:'Right-hand bat',bowl:'Left-arm fast',role:'Bowler',dob:'2001-12-23',debut:2016,overseas:1,active:1,cMat:127,cRuns:134,cWkt:59,team:'CSK',teamFull:'Chennai Super Kings',sRuns:261,sWkt:0,sAvg:31.00,sSR:136.00,sMat:9,s4:16,s6:10,ocRank:31,pcRank:141,mvp:51.00},
+      {key:291,name:'Suresh Saini',nat:'India',bat:'Left-hand bat',bowl:'Left-arm fast',role:'Batsman',dob:'1993-09-17',debut:2010,overseas:0,active:1,cMat:119,cRuns:1407,cWkt:3,team:'CSK',teamFull:'Chennai Super Kings',sRuns:261,sWkt:0,sAvg:25.00,sSR:166.00,sMat:12,s4:16,s6:8,ocRank:32,pcRank:131,mvp:51.00}
+    ];
+
+    var seasonHistory = {
+      195: [
+        {year:2008,team:'PBKS',teamFull:'Punjab Kings',mat:5,inn:4,runs:369,hs:92,avg:184.50,sr:161.90,fours:14,sixes:18,fifties:1,hundreds:0,innBowl:2,overs:3.8,wkt:1,best:'3/40',bowlAvg:33.37,econ:8.89,catches:2,runouts:2,mvp:37.96,ocRank:178,pcRank:179},
+        {year:2012,team:'MI',teamFull:'Mumbai Indians',mat:6,inn:5,runs:376,hs:117,avg:125.33,sr:176.78,fours:27,sixes:3,fifties:1,hundreds:0,innBowl:4,overs:6.7,wkt:2,best:'4/38',bowlAvg:34.12,econ:9.56,catches:1,runouts:3,mvp:61.23,ocRank:201,pcRank:68},
+        {year:2013,team:'RR',teamFull:'Rajasthan Royals',mat:12,inn:9,runs:128,hs:19,avg:16.00,sr:120.08,fours:32,sixes:16,fifties:0,hundreds:0,innBowl:5,overs:8.5,wkt:3,best:'0/14',bowlAvg:41.43,econ:7.66,catches:4,runouts:2,mvp:44.31,ocRank:37,pcRank:246},
+        {year:2014,team:'RCB',teamFull:'Royal Challengers Bangalore',mat:13,inn:10,runs:116,hs:11,avg:12.89,sr:150.58,fours:30,sixes:22,fifties:0,hundreds:0,innBowl:1,overs:0.7,wkt:0,best:'1/29',bowlAvg:0.00,econ:10.03,catches:1,runouts:1,mvp:6.95,ocRank:231,pcRank:296},
+        {year:2016,team:'DC',teamFull:'Delhi Capitals',mat:8,inn:6,runs:639,hs:47,avg:127.80,sr:134.15,fours:13,sixes:8,fifties:3,hundreds:1,innBowl:2,overs:5.7,wkt:0,best:'3/41',bowlAvg:0.00,econ:7.14,catches:8,runouts:0,mvp:45.65,ocRank:91,pcRank:163},
+        {year:2018,team:'DC',teamFull:'Delhi Capitals',mat:15,inn:13,runs:399,hs:44,avg:33.25,sr:136.17,fours:8,sixes:18,fifties:1,hundreds:0,innBowl:7,overs:0.4,wkt:0,best:'3/38',bowlAvg:0.00,econ:8.57,catches:9,runouts:3,mvp:12.01,ocRank:31,pcRank:17},
+        {year:2020,team:'RR',teamFull:'Rajasthan Royals',mat:5,inn:4,runs:125,hs:88,avg:62.50,sr:132.19,fours:21,sixes:19,fifties:0,hundreds:0,innBowl:0,overs:0.0,wkt:0,best:'3/28',bowlAvg:0.00,econ:7.86,catches:7,runouts:1,mvp:49.50,ocRank:37,pcRank:203},
+        {year:2022,team:'PBKS',teamFull:'Punjab Kings',mat:9,inn:6,runs:357,hs:127,avg:89.25,sr:174.51,fours:13,sixes:4,fifties:1,hundreds:0,innBowl:2,overs:5.1,wkt:1,best:'4/41',bowlAvg:18.99,econ:8.57,catches:5,runouts:2,mvp:92.17,ocRank:227,pcRank:47},
+        {year:2025,team:'SRH',teamFull:'Sunrisers Hyderabad',mat:14,inn:10,runs:375,hs:75,avg:28.00,sr:130.00,fours:30,sixes:11,fifties:3,hundreds:0,innBowl:0,overs:0.0,wkt:0,best:'0/30',bowlAvg:0.00,econ:9.30,catches:4,runouts:0,mvp:60.00,ocRank:1,pcRank:155}
+      ]
+    };
+
+    var charts = {};
+    var cTurq = '#4ECDC4';
+    var cCoral = '#F7946B';
+    var cGray = '#94A3B8';
+    var cText = '#64748B';
+    var cGrid = 'rgba(0,0,0,0.06)';
+
+    function mk(id, type, data, opts) {
+      if (charts[id]) {
+        charts[id].destroy();
+      }
+      charts[id] = new Chart(document.getElementById(id), {
+        type: type,
+        data: data,
+        options: opts
+      });
+      return charts[id];
+    }
+
+    function getNationalityEmoji(nat) {
+      var emojiMap = {
+        'India': '🇮🇳',
+        'South Africa': '🇿🇦',
+        'England': '🇬🇧',
+        'West Indies': '🇼🇮',
+        'Australia': '🇦🇺',
+        'New Zealand': '🇳🇿',
+        'Pakistan': '🇵🇰',
+        'Sri Lanka': '🇱🇰',
+        'Afghanistan': '🇦🇫'
+      };
+      return emojiMap[nat] || '';
+    }
+
+    function renderProfileCard(player) {
+      var html = '';
+      html = html + '<div class="profile-header">';
+      html = html + '<div class="profile-left">';
+      html = html + '<div class="player-name">' + player.name + '</div>';
+      html = html + '<div class="team-badge">' + player.team + '</div>';
+      html = html + '<div class="nationality">' + getNationalityEmoji(player.nat) + ' ' + player.nat + '</div>';
+      html = html + '</div>';
+      html = html + '<div class="profile-right">';
+      html = html + '<div class="stat-box">';
+      html = html + '<div class="stat-label">Career Matches</div>';
+      html = html + '<div class="stat-value">' + player.cMat + '</div>';
+      html = html + '</div>';
+      html = html + '<div class="stat-box">';
+      html = html + '<div class="stat-label">Career Runs</div>';
+      html = html + '<div class="stat-value">' + player.cRuns + '</div>';
+      html = html + '</div>';
+      html = html + '<div class="stat-box">';
+      html = html + '<div class="stat-label">Career Wickets</div>';
+      html = html + '<div class="stat-value">' + player.cWkt + '</div>';
+      html = html + '</div>';
+      html = html + '</div>';
+      html = html + '</div>';
+
+      html = html + '<div class="profile-attributes">';
+      html = html + '<div class="attribute-pill">Bat: ' + player.bat + '</div>';
+      html = html + '<div class="attribute-pill">Bowl: ' + player.bowl + '</div>';
+      html = html + '<div class="attribute-pill">Role: ' + player.role + '</div>';
+      html = html + '<div class="attribute-pill">Debut: ' + player.debut + '</div>';
+      var statusClass = player.active ? 'status-active' : 'status-retired';
+      var statusText = player.active ? 'Active' : 'Retired';
+      html = html + '<div class="attribute-pill ' + statusClass + '">' + statusText + '</div>';
+      if (player.overseas) {
+        html = html + '<div class="attribute-pill overseas">Overseas</div>';
+      }
+      html = html + '</div>';
+
+      document.getElementById('profileCard').innerHTML = html;
+    }
+
+    function renderSeasonTable(player, seasons) {
+      var html = '';
+      html = html + '<div class="section-title">Season-by-Season Performance</div>';
+      html = html + '<div class="table-wrapper">';
+      html = html + '<table>';
+      html = html + '<thead>';
+      html = html + '<tr>';
+      html = html + '<th>Season</th><th>Team</th><th>Mat</th><th>Inn</th><th>Runs</th><th>HS</th><th>Avg</th><th>SR</th>';
+      html = html + '<th>4s</th><th>6s</th><th>50s</th><th>100s</th><th>Overs</th><th>Wkts</th><th>Best</th>';
+      html = html + '<th>Bowl Avg</th><th>Econ</th><th>Catches</th><th>RO</th><th>MVP</th><th>OC Rank</th><th>PC Rank</th>';
+      html = html + '</tr>';
+      html = html + '</thead>';
+      html = html + '<tbody>';
+
+      var i = 0;
+      while (i < seasons.length) {
+        var season = seasons[i];
+        var rowClass = '';
+        if (season.ocRank === 1) {
+          rowClass = 'orange-cap';
+        } else if (season.pcRank === 1) {
+          rowClass = 'purple-cap';
+        }
+        html = html + '<tr class="' + rowClass + '">';
+        html = html + '<td>' + season.year + '</td>';
+        html = html + '<td>' + season.team + '</td>';
+        html = html + '<td>' + season.mat + '</td>';
+        html = html + '<td>' + season.inn + '</td>';
+        html = html + '<td>' + season.runs + '</td>';
+        html = html + '<td>' + season.hs + '</td>';
+        html = html + '<td>' + season.avg.toFixed(2) + '</td>';
+        html = html + '<td>' + season.sr.toFixed(2) + '</td>';
+        html = html + '<td>' + season.fours + '</td>';
+        html = html + '<td>' + season.sixes + '</td>';
+        html = html + '<td>' + season.fifties + '</td>';
+        html = html + '<td>' + season.hundreds + '</td>';
+        html = html + '<td>' + season.overs + '</td>';
+        html = html + '<td>' + season.wkt + '</td>';
+        html = html + '<td>' + season.best + '</td>';
+        html = html + '<td>' + season.bowlAvg.toFixed(2) + '</td>';
+        html = html + '<td>' + season.econ.toFixed(2) + '</td>';
+        html = html + '<td>' + season.catches + '</td>';
+        html = html + '<td>' + season.runouts + '</td>';
+        html = html + '<td>' + season.mvp.toFixed(2) + '</td>';
+        html = html + '<td>' + season.ocRank + '</td>';
+        html = html + '<td>' + season.pcRank + '</td>';
+        html = html + '</tr>';
+        i++;
+      }
+
+      html = html + '</tbody>';
+      html = html + '</table>';
+      html = html + '</div>';
+
+      document.getElementById('seasonSection').innerHTML = html;
+    }
+
+    function renderCharts(player, seasons) {
+      var years = [];
+      var runsData = [];
+      var srData = [];
+
+      var i = 0;
+      while (i < seasons.length) {
+        var season = seasons[i];
+        years.push(String(season.year));
+        runsData.push(season.runs);
+        srData.push(season.sr);
+        i++;
+      }
+
+      var html = '';
+      html = html + '<div class="section-title">Performance Analysis</div>';
+      html = html + '<div class="charts-grid">';
+      html = html + '<div class="chart-card">';
+      html = html + '<div class="chart-title">Runs per Season</div>';
+      html = html + '<div class="chart-container">';
+      html = html + '<canvas id="runsChart"></canvas>';
+      html = html + '</div>';
+      html = html + '</div>';
+      html = html + '<div class="chart-card">';
+      html = html + '<div class="chart-title">Strike Rate Trend</div>';
+      html = html + '<div class="chart-container">';
+      html = html + '<canvas id="srChart"></canvas>';
+      html = html + '</div>';
+      html = html + '</div>';
+      html = html + '</div>';
+
+      document.getElementById('chartsSection').innerHTML = html;
+
+      setTimeout(function() {
+        mk('runsChart', 'bar', {
+          labels: years,
+          datasets: [{
+            label: 'Runs',
+            data: runsData,
+            backgroundColor: cTurq,
+            borderColor: cTurq,
+            borderWidth: 0,
+            borderRadius: 4
+          }]
+        }, {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: cGrid
+              },
+              ticks: {
+                color: cText
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: cText
+              }
+            }
+          }
+        });
+
+        mk('srChart', 'line', {
+          labels: years,
+          datasets: [{
+            label: 'Strike Rate',
+            data: srData,
+            borderColor: cCoral,
+            backgroundColor: 'rgba(247, 148, 107, 0.2)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: cCoral,
+            pointBorderColor: cCoral,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        }, {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: {
+                color: cGrid
+              },
+              ticks: {
+                color: cText
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: cText
+              }
+            }
+          }
+        });
+      }, 100);
+    }
+
+    function renderPlayerDirectory(currentPlayerId) {
+      var html = '';
+      var i = 0;
+      while (i < players.length) {
+        var p = players[i];
+        var rowClass = '';
+        if (p.key === currentPlayerId) {
+          rowClass = 'current-player';
+        }
+        var statusBadgeClass = p.active ? 'active' : 'retired';
+        var statusText = p.active ? 'Active' : 'Retired';
+        html = html + '<tr class="' + rowClass + '">';
+        html = html + '<td><a href="player-detail.html?id=' + p.key + '" class="player-link">' + p.name + '</a></td>';
+        html = html + '<td>' + p.nat + '</td>';
+        html = html + '<td>' + p.role + '</td>';
+        html = html + '<td>' + p.team + '</td>';
+        html = html + '<td>' + p.cMat + '</td>';
+        html = html + '<td>' + p.cRuns + '</td>';
+        html = html + '<td>' + p.cWkt + '</td>';
+        html = html + '<td>' + p.sRuns + '</td>';
+        html = html + '<td>' + p.sSR.toFixed(2) + '</td>';
+        html = html + '<td><span class="status-badge ' + statusBadgeClass + '">' + statusText + '</span></td>';
+        html = html + '</tr>';
+        i++;
+      }
+      document.getElementById('playerTableBody').innerHTML = html;
+    }
+
+    function initSearch() {
+      var searchInput = document.getElementById('searchInput');
+      var tableBody = document.getElementById('playerTableBody');
+
+      searchInput.oninput = function() {
+        var query = searchInput.value.toLowerCase();
+        var rows = tableBody.getElementsByTagName('tr');
+        var j = 0;
+        while (j < rows.length) {
+          var row = rows[j];
+          var cells = row.getElementsByTagName('td');
+          if (cells.length > 0) {
+            var playerName = cells[0].textContent.toLowerCase();
+            if (playerName.indexOf(query) !== -1) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          }
+          j++;
+        }
+      };
+    }
+
+    function init() {
+      var params = new URLSearchParams(window.location.search);
+      var pid = parseInt(params.get('id')) || 195;
+
+      var player = null;
+      var i = 0;
+      while (i < players.length) {
+        if (players[i].key === pid) {
+          player = players[i];
+          break;
+        }
+        i++;
+      }
+
+      if (!player) {
+        player = players[0];
+      }
+
+      renderProfileCard(player);
+
+      if (seasonHistory[player.key]) {
+        renderSeasonTable(player, seasonHistory[player.key]);
+        renderCharts(player, seasonHistory[player.key]);
+      } else {
+        var noDataHtml = '<div class="section-title">Season-by-Season Performance</div>';
+        noDataHtml = noDataHtml + '<div class="no-data">Season history available for featured players only</div>';
+        document.getElementById('seasonSection').innerHTML = noDataHtml;
+      }
+
+      renderPlayerDirectory(player.key);
+      initSearch();
+    }
+
+    init();
+  </script>
+</body>
+</html>
